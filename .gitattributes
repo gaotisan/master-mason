@@ -1,0 +1,22 @@
+# Normalizar a LF los archivos de texto de Godot
+* text=auto eol=lf
+*.gd text eol=lf
+*.gdshader text eol=lf
+*.tscn text eol=lf
+*.tres text eol=lf
+*.godot text eol=lf
+*.cfg text eol=lf
+*.import text eol=lf
+*.uid text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.xcf binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.ttf binary
+*.otf binary
