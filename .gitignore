@@ -1,0 +1,31 @@
+# Godot 4 cache and imports
+.godot/
+.import/
+*.import.tmp
+
+# Exports / builds
+_builds/
+_build/
+export/
+*.exe
+*.pck
+*.apk
+*.aab
+*.zip
+
+# Godot editor files
+*.translation
+.mono/
+data_*/
+mono_crash.*.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Backups
+*.bak
+*.tmp

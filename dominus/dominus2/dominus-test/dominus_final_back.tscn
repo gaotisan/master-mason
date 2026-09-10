@@ -1,0 +1,508 @@
+[gd_scene format=3 uid="uid://dominwalla"]
+
+[ext_resource type="Texture2D" uid="uid://b5e2dpa66ksug" path="res://capucha.png" id="1_mxifj"]
+[ext_resource type="Texture2D" uid="uid://cs6grqfugycn4" path="res://cara.png" id="2_yg8a6"]
+[ext_resource type="Texture2D" uid="uid://lycuangodt3c" path="res://barba_inferior.png" id="3_lf4f3"]
+[ext_resource type="Texture2D" uid="uid://p78arwc083q3" path="res://brazo_derecho.png" id="4_d5hht"]
+[ext_resource type="Texture2D" uid="uid://c1r0hfaolf6rc" path="res://brazo_izquierdo.png" id="5_q0w4r"]
+[ext_resource type="Texture2D" uid="uid://djnowrqw3xp7t" path="res://abrigo_derecho.png" id="6_qplkv"]
+[ext_resource type="Texture2D" uid="uid://cbsw33l42qvmd" path="res://cordon_superior.png" id="7_fet00"]
+[ext_resource type="Texture2D" uid="uid://cgij47rq3juha" path="res://cordon_inferior.png" id="8_vehoh"]
+[ext_resource type="Texture2D" uid="uid://chc6r6bjkkcuc" path="res://torso_tunica_inferior.png" id="9_n5dm6"]
+[ext_resource type="Texture2D" uid="uid://chcjptcexnv84" path="res://pierna_derecha.png" id="10_q1vgy"]
+[ext_resource type="Texture2D" uid="uid://b5keaegexcq3q" path="res://pierna_izquierda.png" id="11_70daw"]
+[ext_resource type="Texture2D" uid="uid://by8tudw2utwe" path="res://abrigo_izquierdo.png" id="12_d5hht"]
+[ext_resource type="Texture2D" uid="uid://boy7d4sj4oknk" path="res://abrigo_izquierdo_fondo.png" id="13_sqbb4"]
+
+[sub_resource type="Animation" id="Animation_walk"]
+resource_name = "walk"
+length = 2.0
+loop_mode = 1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Skeleton2D/cadera_root:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0, 1.5, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(296, 366), Vector2(296, 368.5), Vector2(296, 366), Vector2(296, 368.5), Vector2(296, 366)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Skeleton2D/cadera_root/torso:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0, 1.5, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.08, 0.1, 0.08, 0.1, 0.08]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Skeleton2D/cadera_root/torso/cabeza:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1.0, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [-0.03, 0.0, -0.03]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Skeleton2D/cadera_root/muslo_izquierdo:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.12, -0.06, 0.0, 0.05, 0.08, 0.03, -0.04, -0.08, -0.12]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Skeleton2D/cadera_root/muslo_izquierdo/rodilla_izquierda:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.02, 0.03, 0.02, 0.0, 0.15, 0.25, 0.1, 0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Skeleton2D/cadera_root/muslo_derecho:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.08, 0.03, -0.04, -0.08, -0.12, -0.06, 0.0, 0.05, 0.08]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Skeleton2D/cadera_root/muslo_derecho/rodilla_derecha:rotation")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.15, 0.25, 0.1, 0.0, 0.02, 0.03, 0.02, 0.0]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Skeleton2D/cadera_root/torso/hombro_izquierdo:rotation")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0, 1.5, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.25, -0.05, 0.1, -0.05, -0.25]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Skeleton2D/cadera_root/torso/hombro_izquierdo/codo_izquierdo:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 1.0, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.22, 0.28, 0.22]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Skeleton2D/cadera_root/torso/hombro_derecho:rotation")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0, 1.5, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.1, -0.05, -0.25, -0.05, 0.1]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Skeleton2D/cadera_root/torso/hombro_derecho/codo_derecho:rotation")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 1.0, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.22, 0.28, 0.22]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Skeleton2D/cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0, 1.5, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.0, 0.0, 0.0]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Skeleton2D/cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho:rotation")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0, 1.5, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.0, 0.0, 0.0]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("Skeleton2D/cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda:rotation")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0, 1.0, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.0]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Skeleton2D/cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0, 1.0, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.0, 0.0]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("Skeleton2D/cadera_root/torso/cordon_sup:rotation")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0, 1.5, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.08, 0.05, 0.08, -0.05, -0.08]
+}
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2:rotation")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0, 0.6, 1.1, 1.6, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.1, 0.08, 0.1, -0.08, -0.1]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0, 0.7, 1.2, 1.7, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.12, 0.1, 0.12, -0.1, -0.12]
+}
+tracks/18/type = "value"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4:rotation")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.3, 1.8, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [-0.15, 0.12, 0.15, -0.12, -0.15]
+}
+tracks/19/type = "value"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("Skeleton2D/cadera_root/torso/cordon_inf:rotation")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"times": PackedFloat32Array(0, 0.5, 1.0, 1.5, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.06, -0.04, -0.06, 0.04, 0.06]
+}
+tracks/20/type = "value"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2:rotation")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"times": PackedFloat32Array(0, 0.6, 1.1, 1.6, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.08, -0.06, -0.08, 0.06, 0.08]
+}
+tracks/21/type = "value"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3:rotation")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"times": PackedFloat32Array(0, 0.7, 1.2, 1.7, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.1, -0.08, -0.1, 0.08, 0.1]
+}
+tracks/22/type = "value"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4:rotation")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.3, 1.8, 2.0),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.12, -0.1, -0.12, 0.1, 0.12]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimLib_default"]
+_data = {
+&"walk": SubResource("Animation_walk")
+}
+
+[node name="Dominus" type="Node2D"]
+
+[node name="pierna_izquierda" type="Polygon2D" parent="."]
+texture = ExtResource("11_70daw")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(288.14932, 547.99164, 313.21738, 546.7061, 316.43124, 573.0597, 313.21738, 623.8386, 363.35352, 650.19226, 367.21014, 661.1193, 283.00714, 661.7621, 272.7228, 645.05005, 281.07883, 597.485)
+uv = PackedVector2Array(288.14932, 547.99164, 313.21738, 546.7061, 316.43124, 573.0597, 313.21738, 623.8386, 363.35352, 650.19226, 367.21014, 661.1193, 283.00714, 661.7621, 272.7228, 645.05005, 281.07883, 597.485)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0.3, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0.7, 0.7, 1.0, 0.4, 0.0, 0.0, 0.0, 0.0, 1.0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0.0, 0.0, 0.0, 0.6, 1.0, 1.0, 1.0, 1.0, 0.0)]
+
+[node name="pierna_derecha" type="Polygon2D" parent="."]
+texture = ExtResource("10_q1vgy")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(251.77039, 539.2623, 277.48123, 541.0153, 279.23425, 574.3226, 273.97522, 603.5394, 275.7282, 632.7563, 308.4511, 659.6358, 308.4511, 675.4129, 275.1439, 680.67194, 236.57764, 669.5695, 231.90294, 645.6117, 242.421, 600.61774)
+uv = PackedVector2Array(251.77039, 539.2623, 277.48123, 541.0153, 279.23425, 574.3226, 273.97522, 603.5394, 275.7282, 632.7563, 308.4511, 659.6358, 308.4511, 675.4129, 275.1439, 680.67194, 236.57764, 669.5695, 231.90294, 645.6117, 242.421, 600.61774)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0.3, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0.7, 0.7, 1.0, 1.0, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0.0, 0.0, 0.0, 0.0, 0.6, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="brazo_izquierdo" type="Polygon2D" parent="."]
+texture = ExtResource("5_q0w4r")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(313.9096, 122.16751, 339.0361, 133.26991, 349.55417, 201.05304, 368.25296, 261.8241, 400.97586, 327.85422, 406.0714, 348.01614, 410.31372, 401.7518, 386.98114, 405.28705, 376.37537, 384.0756, 370.01196, 364.9853, 333.24548, 378.41922, 309.91284, 372.0558, 305.6706, 335.28928, 293.3222, 252.98703, 287.52713, 176.68513, 290.752, 133.48427)
+uv = PackedVector2Array(313.9096, 122.16751, 339.0361, 133.26991, 349.55417, 201.05304, 368.25296, 261.8241, 400.97586, 327.85422, 406.0714, 348.01614, 410.31372, 401.7518, 386.98114, 405.28705, 376.37537, 384.0756, 370.01196, 364.9853, 333.24548, 378.41922, 309.91284, 372.0558, 305.6706, 335.28928, 293.3222, 252.98703, 287.52713, 176.68513, 290.752, 133.48427)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0.0, 0.0, 0.5, 1.0, 0.5, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.5, 1.0, 0.0, 0.0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0, 0.5, 1.0, 1.0, 0.5, 0.0, 0.0, 0.0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="abrigo_izquierdo_fondo" type="Polygon2D" parent="."]
+texture = ExtResource("13_sqbb4")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(296.13098, 97.942986, 344.047, 115.24599, 350.70203, 177.803, 365.34302, 290.938, 378.65308, 457.313, 390.63208, 569.117, 371.89038, 599.0503, 291.36487, 573.28217, 291.36487, 291.44287, 294.0204, 166.38762)
+uv = PackedVector2Array(296.13098, 97.942986, 344.047, 115.24599, 350.70203, 177.803, 365.34302, 290.938, 378.65308, 457.313, 390.63208, 569.117, 371.89038, 599.0503, 291.36487, 573.28217, 291.36487, 291.44287, 294.0204, 166.38762)
+bones = ["cadera_root", PackedFloat32Array(0.41, 0.41, 0.41, 0.82, 0.41, 0.41, 0.41, 0.41, 0.82, 0.41), "cadera_root/torso", PackedFloat32Array(1.0, 1.0, 1.0, 0.41, 0.0, 0.0, 0.0, 0.0, 0.41, 1.0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="torso" type="Polygon2D" parent="."]
+texture = ExtResource("9_n5dm6")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(264.89697, 85.07954, 316.3073, 110.86342, 329.5291, 132.6405, 336.52893, 218.19331, 347.09137, 289.7229, 364.97205, 438.3499, 380.9704, 563.5137, 359.32556, 586.0996, 241.69038, 586.0996, 137.23042, 558.8083, 158.87526, 424.2337, 169.56844, 341.77292, 190.2722, 213.78589, 202.64832, 112.97226)
+uv = PackedVector2Array(265.75342, 86.75308, 316.3073, 110.86342, 329.5291, 132.6405, 336.52893, 218.19331, 347.09137, 289.7229, 364.97205, 438.3499, 380.9704, 563.5137, 359.32556, 586.0996, 241.69038, 586.0996, 137.23042, 558.8083, 158.87526, 424.2337, 169.56844, 341.77292, 190.2722, 213.78589, 208.15276, 118.73671)
+bones = ["cadera_root", PackedFloat32Array(0.41, 0.41, 0.41, 0.41, 0.82, 0.82, 0.41, 0.41, 0.41, 0.41, 0.82, 0.82, 0.41, 0.41), "cadera_root/torso", PackedFloat32Array(1, 1, 1, 1, 0.41, 0.41, 0, 0, 0, 0, 0.41, 0.41, 1, 1), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="cordon_inferior" type="Polygon2D" parent="."]
+texture = ExtResource("8_vehoh")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(41.098793, 634.9833, 57.035263, 641.3579, 108.03195, 618.5156, 137.24881, 588.2363, 159.02866, 552.6449, 161.15352, 542.55176, 146.8107, 540.42694, 131.93666, 581.3305, 95.813995, 610.0162, 58.628906, 625.95264)
+uv = PackedVector2Array(41.098793, 634.9833, 57.035263, 641.3579, 108.03195, 618.5156, 137.24881, 588.2363, 159.02866, 552.6449, 161.15352, 542.55176, 146.8107, 540.42694, 131.93666, 581.3305, 95.813995, 610.0162, 58.628906, 625.95264)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="cordon_superior" type="Polygon2D" parent="."]
+texture = ExtResource("7_fet00")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(11.4049, 611.87085, 44.561623, 609.17206, 84.27259, 596.0636, 117.04377, 564.8346, 130.92331, 531.67786, 145.18842, 536.68994, 137.8631, 565.22015, 117.04377, 588.7383, 86.97138, 609.5576, 45.33271, 624.20825, 18.730225, 628.4492, 6.0072937, 621.50946)
+uv = PackedVector2Array(11.4049, 611.87085, 44.561623, 609.17206, 84.27259, 596.0636, 117.04377, 564.8346, 130.92331, 531.67786, 145.18842, 536.68994, 137.8631, 565.22015, 117.04377, 588.7383, 86.97138, 609.5576, 45.33271, 624.20825, 18.730225, 628.4492, 6.0072937, 621.50946)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="abrigo_izquierdo" type="Polygon2D" parent="."]
+texture = ExtResource("12_d5hht")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(289.72577, 93.61248, 340.0204, 110.998276, 350.57605, 182.40422, 368.67532, 352.3971, 382.95035, 488.38507, 395.7227, 582.61725, 348.38986, 603.65405, 325.85037, 489.45422, 318.33725, 349.30786, 304.81357, 183.16827, 294.2952, 137.33807)
+uv = PackedVector2Array(289.72577, 93.61248, 340.0204, 110.998276, 350.57605, 182.40422, 368.67532, 352.3971, 382.95035, 488.38507, 395.7227, 582.61725, 348.38986, 603.65405, 325.85037, 489.45422, 318.33725, 349.30786, 304.81357, 183.16827, 294.2952, 137.33807)
+bones = ["cadera_root", PackedFloat32Array(0.41, 0.41, 0.41, 0.82, 0.41, 0.41, 0.41, 0.41, 0.82, 0.41, 0.41), "cadera_root/torso", PackedFloat32Array(1.0, 1.0, 1.0, 0.41, 0.0, 0.0, 0.0, 0.0, 0.41, 1.0, 1.0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="abrigo_derecho" type="Polygon2D" parent="."]
+texture = ExtResource("6_qplkv")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(231.9793, 86.779434, 288.25385, 136.66821, 290.00412, 213.54587, 259.9836, 356.40198, 234.13953, 479.38388, 213.62022, 602.06744, 151.4693, 585.4773, 78.44397, 551.0314, 107.37854, 455.96063, 147.33582, 329.19965, 174.89252, 207.95001, 195.56006, 150.08087)
+uv = PackedVector2Array(238.24466, 98.63988, 277.58182, 150.39934, 290.00412, 213.54587, 259.9836, 356.40198, 234.13953, 479.38388, 212.09412, 599.2557, 151.4693, 585.4773, 78.44397, 551.0314, 107.37854, 455.96063, 147.33582, 329.19965, 174.89252, 207.95001, 195.56006, 150.08087)
+bones = ["cadera_root", PackedFloat32Array(0.41, 0.41, 0.41, 0.82, 0.41, 0.41, 0.41, 0.41, 0.41, 0.82, 0.41, 0.41), "cadera_root/torso", PackedFloat32Array(1.0, 1.0, 1.0, 0.41, 0.0, 0.0, 0.0, 0.0, 0.0, 0.41, 1.0, 1.0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="brazo_derecho" type="Polygon2D" parent="."]
+texture = ExtResource("4_d5hht")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(240.1679, 112.0004, 257.07022, 122.141785, 267.2116, 151.11719, 264.31406, 178.64381, 251.75804, 214.38016, 247.28682, 233.61969, 246.80388, 285.77542, 255.0136, 349.5213, 244.87221, 366.90652, 245.64552, 389.26794, 245.64552, 402.54834, 236.61485, 409.98535, 236.61485, 421.6721, 220.14717, 421.6721, 202.61707, 401.4859, 204.74193, 377.05, 171.27534, 375.45633, 153.74522, 364.83203, 164.90074, 311.71045, 170.74005, 270.3828, 176.53513, 225.47095, 189.57405, 168.96892, 210.33977, 121.1595)
+uv = PackedVector2Array(240.1679, 112.0004, 257.07022, 122.141785, 267.2116, 151.11719, 264.31406, 178.64381, 251.75804, 214.38016, 247.28682, 233.61969, 246.80388, 285.77542, 255.0136, 349.5213, 244.87221, 366.90652, 245.64552, 389.26794, 245.64552, 402.54834, 236.61485, 409.98535, 236.61485, 421.6721, 220.14717, 421.6721, 202.61707, 401.4859, 204.74193, 377.05, 171.27534, 375.45633, 153.74522, 364.83203, 164.90074, 311.71045, 170.74005, 270.3828, 176.53513, 225.47095, 189.57405, 168.96892, 210.33977, 121.1595)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho", PackedFloat32Array(1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, 0.0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="barba" type="Polygon2D" parent="."]
+texture = ExtResource("3_lf4f3")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(302.25848, 203.72168, 316.74615, 194.0632, 311.43402, 181.99013, 307.57062, 193.09735, 303.2243, 173.2975, 292.11707, 152.5318, 287.77078, 162.67319, 280.52692, 127.419785, 288.2537, 100.85901, 301.77554, 104.7224, 317.712, 105.68824, 330.26804, 106.65408, 335.09726, 129.35147, 342.82404, 160.25858, 337.99478, 162.67319, 332.68265, 164.60489, 328.81924, 191.64859, 322.05832, 205.17044)
+uv = PackedVector2Array(302.25848, 203.72168, 316.74615, 194.0632, 311.43402, 181.99013, 307.57062, 193.09735, 303.2243, 173.2975, 292.11707, 152.5318, 287.77078, 162.67319, 280.52692, 127.419785, 288.2537, 100.85901, 301.77554, 104.7224, 317.712, 105.68824, 330.26804, 106.65408, 335.09726, 129.35147, 342.82404, 160.25858, 337.99478, 162.67319, 332.68265, 164.60489, 328.81924, 191.64859, 322.05832, 205.17044)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="cara" type="Polygon2D" parent="."]
+texture = ExtResource("2_yg8a6")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(301.33124, 82.64388, 346.19446, 59.511288, 350.7509, 65.11919, 338.48358, 101.57055, 332.1747, 104.72499, 332.8757, 120.14673, 319.55692, 126.80611, 305.88766, 127.507095, 297.4758, 120.14673, 282.05408, 115.5903)
+uv = PackedVector2Array(301.33124, 82.64388, 346.19446, 59.511288, 350.7509, 65.11919, 338.48358, 101.57055, 332.1747, 104.72499, 332.8757, 120.14673, 319.55692, 126.80611, 305.88766, 127.507095, 297.4758, 120.14673, 282.05408, 115.5903)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="capucha" type="Polygon2D" parent="."]
+texture = ExtResource("1_mxifj")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(281.58884, 145.08002, 284.22296, 126.20211, 302.66187, 85.81216, 344.3689, 64.30012, 336.02747, 96.34866, 329.88116, 100.73888, 327.24707, 112.15343, 364.12482, 82.29999, 376.41742, 63.8611, 340.8567, 44.544167, 309.2472, 33.129616, 280.2718, 28.739403, 253.05246, 30.495487, 234.61357, 30.495487, 225.39413, 31.812553, 226.7112, 41.031998, 226.7112, 55.958717, 228.46729, 71.324455, 239.44281, 97.22671, 255.6866, 122.250916, 268.4182, 134.98253)
+uv = PackedVector2Array(281.58884, 145.08002, 284.22296, 126.20211, 302.66187, 85.81216, 344.3689, 64.30012, 336.02747, 96.34866, 329.88116, 100.73888, 327.24707, 112.15343, 364.12482, 82.29999, 376.41742, 63.8611, 340.8567, 44.544167, 309.2472, 33.129616, 280.2718, 28.739403, 253.05246, 30.495487, 234.61357, 30.495487, 225.39413, 31.812553, 226.7112, 41.031998, 226.7112, 55.958717, 228.46729, 71.324455, 239.44281, 97.22671, 255.6866, 122.250916, 268.4182, 134.98253)
+bones = ["cadera_root", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cabeza", PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1), "cadera_root/torso/hombro_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/capucha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo", PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)]
+
+[node name="Skeleton2D" type="Skeleton2D" parent="."]
+
+[node name="cadera_root" type="Bone2D" parent="Skeleton2D"]
+position = Vector2(296, 366)
+rest = Transform2D(1, 0, 0, 1, 296, 366)
+auto_calculate_length_and_angle = false
+length = 233.23
+bone_angle = 0.0
+
+[node name="torso" type="Bone2D" parent="Skeleton2D/cadera_root"]
+position = Vector2(1, -220)
+rest = Transform2D(1, 0, 0, 1, 1, -220)
+auto_calculate_length_and_angle = false
+length = 200.0
+bone_angle = 0.0
+
+[node name="cabeza" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(2, -45)
+rest = Transform2D(1, 0, 0, 1, 2, -45)
+auto_calculate_length_and_angle = false
+length = 16.0
+bone_angle = 0.0
+
+[node name="hombro_derecho" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(-68, -12)
+rest = Transform2D(1, 0, 0, 1, -68, -12)
+
+[node name="codo_derecho" type="Bone2D" parent="Skeleton2D/cadera_root/torso/hombro_derecho"]
+position = Vector2(-25, 105)
+rest = Transform2D(1, 0, 0, 1, -25, 105)
+
+[node name="mano_derecho" type="Bone2D" parent="Skeleton2D/cadera_root/torso/hombro_derecho/codo_derecho"]
+position = Vector2(18, 114)
+rest = Transform2D(1, 0, 0, 1, 18, 114)
+
+[node name="hombro_izquierdo" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(29, -17)
+rest = Transform2D(1, 0, 0, 1, 29, -17)
+
+[node name="codo_izquierdo" type="Bone2D" parent="Skeleton2D/cadera_root/torso/hombro_izquierdo"]
+position = Vector2(19, 128)
+rest = Transform2D(1, 0, 0, 1, 19, 128)
+
+[node name="mano_izquierda" type="Bone2D" parent="Skeleton2D/cadera_root/torso/hombro_izquierdo/codo_izquierdo"]
+position = Vector2(39, 90)
+rest = Transform2D(1, 0, 0, 1, 39, 90)
+
+[node name="capucha" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(-53, -105)
+rest = Transform2D(1, 0, 0, 1, -53, -105)
+
+[node name="cordon_sup" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(-173, 419)
+rest = Transform2D(1, 0, 0, 1, -173, 419)
+
+[node name="cordon_sup_2" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_sup"]
+position = Vector2(-21, 27)
+rest = Transform2D(1, 0, 0, 1, -21, 27)
+
+[node name="cordon_sup_3" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2"]
+position = Vector2(-39, 21)
+rest = Transform2D(1, 0, 0, 1, -39, 21)
+
+[node name="cordon_sup_4" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3"]
+position = Vector2(-43, 6)
+rest = Transform2D(1, 0, 0, 1, -43, 6)
+
+[node name="cordon_inf" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(-155, 427)
+rest = Transform2D(1, 0, 0, 1, -155, 427)
+
+[node name="cordon_inf_2" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_inf"]
+position = Vector2(-23, 30)
+rest = Transform2D(1, 0, 0, 1, -23, 30)
+
+[node name="cordon_inf_3" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2"]
+position = Vector2(-36, 22)
+rest = Transform2D(1, 0, 0, 1, -36, 22)
+
+[node name="cordon_inf_4" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3"]
+position = Vector2(-33, 11)
+rest = Transform2D(1, 0, 0, 1, -33, 11)
+
+[node name="muslo_derecho" type="Bone2D" parent="Skeleton2D/cadera_root"]
+position = Vector2(-32, 28)
+rest = Transform2D(1, 0, 0, 1, -32, 28)
+
+[node name="rodilla_derecha" type="Bone2D" parent="Skeleton2D/cadera_root/muslo_derecho"]
+position = Vector2(-3, 101)
+rest = Transform2D(1, 0, 0, 1, -3, 101)
+
+[node name="tobillo_derecho" type="Bone2D" parent="Skeleton2D/cadera_root/muslo_derecho/rodilla_derecha"]
+position = Vector2(-5, 153)
+rest = Transform2D(1, 0, 0, 1, -5, 153)
+
+[node name="muslo_izquierdo" type="Bone2D" parent="Skeleton2D/cadera_root"]
+position = Vector2(19, 29)
+rest = Transform2D(1, 0, 0, 1, 19, 29)
+
+[node name="rodilla_izquierda" type="Bone2D" parent="Skeleton2D/cadera_root/muslo_izquierdo"]
+position = Vector2(-5, 99)
+rest = Transform2D(1, 0, 0, 1, -5, 99)
+
+[node name="tobillo_izquierdo" type="Bone2D" parent="Skeleton2D/cadera_root/muslo_izquierdo/rodilla_izquierda"]
+position = Vector2(-12, 145)
+rest = Transform2D(1, 0, 0, 1, -12, 145)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimLib_default")
+}
+autoplay = "walk"

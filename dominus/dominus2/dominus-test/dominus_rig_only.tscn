@@ -1,0 +1,226 @@
+[gd_scene format=3 uid="uid://kjwst1io5he"]
+
+[ext_resource type="Texture2D" uid="uid://b5e2dpa66ksug" path="res://capucha.png" id="1_mxifj"]
+[ext_resource type="Texture2D" uid="uid://cs6grqfugycn4" path="res://cara.png" id="2_yg8a6"]
+[ext_resource type="Texture2D" uid="uid://lycuangodt3c" path="res://barba_inferior.png" id="3_lf4f3"]
+[ext_resource type="Texture2D" uid="uid://p78arwc083q3" path="res://brazo_derecho.png" id="4_d5hht"]
+[ext_resource type="Texture2D" uid="uid://c1r0hfaolf6rc" path="res://brazo_izquierdo.png" id="5_q0w4r"]
+[ext_resource type="Texture2D" uid="uid://djnowrqw3xp7t" path="res://abrigo_derecho.png" id="6_qplkv"]
+[ext_resource type="Texture2D" uid="uid://cbsw33l42qvmd" path="res://cordon_superior.png" id="7_fet00"]
+[ext_resource type="Texture2D" uid="uid://cgij47rq3juha" path="res://cordon_inferior.png" id="8_vehoh"]
+[ext_resource type="Texture2D" uid="uid://chc6r6bjkkcuc" path="res://torso_tunica_inferior.png" id="9_n5dm6"]
+[ext_resource type="Texture2D" uid="uid://chcjptcexnv84" path="res://pierna_derecha.png" id="10_q1vgy"]
+[ext_resource type="Texture2D" uid="uid://b5keaegexcq3q" path="res://pierna_izquierda.png" id="11_70daw"]
+[ext_resource type="Texture2D" uid="uid://by8tudw2utwe" path="res://abrigo_izquierdo.png" id="12_d5hht"]
+
+[node name="Dominus" type="Node2D"]
+
+[node name="pierna_izquierda" type="Polygon2D" parent="."]
+texture = ExtResource("11_70daw")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(288.14932, 547.99164, 313.21738, 546.7061, 316.43124, 573.0597, 313.21738, 623.8386, 363.35352, 650.19226, 367.21014, 661.1193, 283.00714, 661.7621, 272.7228, 645.05005, 281.07883, 597.485, 288.14932, 626.4097, 299.07642, 628.338, 307.43243, 621.2675, 293.29147, 558.276, 301.6475, 556.34766, 307.43243, 558.276)
+uv = PackedVector2Array(288.14932, 547.99164, 313.21738, 546.7061, 316.43124, 573.0597, 313.21738, 623.8386, 363.35352, 650.19226, 367.21014, 661.1193, 283.00714, 661.7621, 272.7228, 645.05005, 281.07883, 597.485, 288.14932, 626.4097, 299.07642, 628.338, 307.43243, 621.2675, 293.29147, 558.276, 301.6475, 556.34766, 307.43243, 558.276)
+bones = [NodePath("Skeleton2D/cadera_root/muslo_izquierdo/rodilla_izquierda"), PackedFloat32Array(0.7083, 0.7539, 0.4283, 0.0320, 0.1412, 0.1467, 0.0283, 0.0309, 0.1534, 0.0193, 0.0116, 0.0300, 0.5954, 0.6312, 0.6127), NodePath("Skeleton2D/cadera_root/muslo_izquierdo/rodilla_izquierda/tobillo_izquierdo"), PackedFloat32Array(0.2917, 0.2461, 0.5717, 0.9680, 0.8588, 0.8533, 0.9717, 0.9691, 0.8466, 0.9807, 0.9884, 0.9700, 0.4046, 0.3688, 0.3873)]
+internal_vertex_count = 6
+metadata/_edit_group_ = true
+
+[node name="pierna_derecha" type="Polygon2D" parent="."]
+texture = ExtResource("10_q1vgy")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(251.77039, 539.2623, 277.48123, 541.0153, 279.23425, 574.3226, 273.97522, 603.5394, 275.7282, 632.7563, 308.4511, 659.6358, 308.4511, 675.4129, 275.1439, 680.67194, 236.57764, 669.5695, 231.90294, 645.6117, 242.421, 600.61774, 247.0957, 632.7563, 257.02942, 640.35266, 267.54752, 631.58765, 252.35474, 552.11774, 261.70413, 551.5334, 273.39087, 551.5334)
+uv = PackedVector2Array(251.77039, 539.2623, 277.48123, 541.0153, 279.23425, 574.3226, 273.97522, 603.5394, 275.7282, 632.7563, 308.4511, 659.6358, 308.4511, 675.4129, 275.1439, 680.67194, 236.57764, 669.5695, 231.90294, 645.6117, 242.421, 600.61774, 247.0957, 632.7563, 257.02942, 640.35266, 267.54752, 631.58765, 252.35474, 552.11774, 261.70413, 551.5334, 273.39087, 551.5334)
+bones = [NodePath("Skeleton2D/cadera_root/muslo_derecho/rodilla_derecha"), PackedFloat32Array(0.8478, 0.8283, 0.4743, 0.1661, 0.0361, 0.0921, 0.0936, 0.0422, 0.0293, 0.0282, 0.1790, 0.0209, 0.0075, 0.0260, 0.7303, 0.7411, 0.7378), NodePath("Skeleton2D/cadera_root/muslo_derecho/rodilla_derecha/tobillo_derecho"), PackedFloat32Array(0.1522, 0.1717, 0.5257, 0.8339, 0.9639, 0.9079, 0.9064, 0.9578, 0.9707, 0.9718, 0.8210, 0.9791, 0.9925, 0.9740, 0.2697, 0.2589, 0.2622)]
+internal_vertex_count = 6
+metadata/_edit_group_ = true
+
+[node name="brazo_izquierdo" type="Polygon2D" parent="."]
+texture = ExtResource("5_q0w4r")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(313.9096, 122.16751, 339.0361, 133.26991, 349.55417, 201.05304, 368.25296, 261.8241, 400.97586, 327.85422, 406.0714, 348.01614, 410.31372, 401.7518, 386.98114, 405.28705, 376.37537, 384.0756, 370.01196, 364.9853, 333.24548, 378.41922, 309.91284, 372.0558, 305.6706, 335.28928, 293.3222, 252.98703, 287.52713, 176.68513, 290.752, 133.48427, 298.94513, 247.8444, 325.98883, 246.39563, 347.23746, 233.83963, 370.9007, 342.11993, 382.00793, 335.359, 389.7347, 336.8078)
+uv = PackedVector2Array(313.9096, 122.16751, 339.0361, 133.26991, 349.55417, 201.05304, 368.25296, 261.8241, 400.97586, 327.85422, 406.0714, 348.01614, 410.31372, 401.7518, 386.98114, 405.28705, 376.37537, 384.0756, 370.01196, 364.9853, 333.24548, 378.41922, 309.91284, 372.0558, 305.6706, 335.28928, 293.3222, 252.98703, 287.52713, 176.68513, 290.752, 133.48427, 298.94513, 247.8444, 325.98883, 246.39563, 347.23746, 233.83963, 370.9007, 342.11993, 382.00793, 335.359, 389.7347, 336.8078)
+bones = [NodePath("Skeleton2D/cadera_root/torso/hombro_izquierdo"), PackedFloat32Array(0.7651, 0.8756, 0.3573, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.2269, 0.1783, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000), NodePath("Skeleton2D/cadera_root/torso/hombro_izquierdo/codo_izquierdo"), PackedFloat32Array(0.0000, 0.0000, 0.6427, 0.9197, 0.0838, 0.0463, 0.1302, 0.1282, 0.0817, 0.0476, 0.1965, 0.2991, 0.4504, 0.8058, 0.0000, 0.0000, 0.8197, 0.9505, 0.9416, 0.0355, 0.0305, 0.0272), NodePath("Skeleton2D/cadera_root/torso/hombro_izquierdo/codo_izquierdo/mano_izquierda"), PackedFloat32Array(0.0000, 0.0000, 0.0000, 0.0803, 0.9162, 0.9537, 0.8698, 0.8718, 0.9183, 0.9524, 0.8035, 0.7009, 0.5496, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.9645, 0.9695, 0.9728), NodePath("Skeleton2D/cadera_root/torso"), PackedFloat32Array(0.2349, 0.1244, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.1942, 0.7731, 0.8217, 0.1803, 0.0495, 0.0584, 0.0000, 0.0000, 0.0000)]
+internal_vertex_count = 6
+metadata/_edit_group_ = true
+
+[node name="torso" type="Polygon2D" parent="."]
+texture = ExtResource("9_n5dm6")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(264.89697, 85.07954, 316.3073, 110.86342, 329.5291, 132.6405, 336.52893, 218.19331, 347.09137, 289.7229, 364.97205, 438.3499, 380.9704, 563.5137, 359.32556, 586.0996, 241.69038, 586.0996, 137.23042, 558.8083, 158.87526, 424.2337, 169.56844, 341.77292, 190.2722, 213.78589, 202.64832, 112.97226, 185.44394, 328.529, 233.26968, 346.74835, 302.73087, 351.30316, 347.14053, 329.66772)
+uv = PackedVector2Array(264.89697, 85.07954, 316.3073, 110.86342, 329.5291, 132.6405, 336.52893, 218.19331, 347.09137, 289.7229, 364.97205, 438.3499, 380.9704, 563.5137, 359.32556, 586.0996, 241.69038, 586.0996, 137.23042, 558.8083, 158.87526, 424.2337, 169.56844, 341.77292, 190.2722, 213.78589, 202.64832, 112.97226, 185.44394, 328.529, 233.26968, 346.74835, 302.73087, 351.30316, 347.14053, 329.66772)
+bones = [NodePath("Skeleton2D/cadera_root/torso"), PackedFloat32Array(0.2385, 0.2254, 0.6033, 0.6892, 0.2682, 0.1006, 0.2034, 0.2100, 0.2074, 0.2417, 0.1875, 0.2337, 0.6050, 0.4856, 0.2304, 0.0902, 0.0085, 0.0999), NodePath("Skeleton2D/cadera_root"), PackedFloat32Array(0.0000, 0.0000, 0.0000, 0.0000, 0.7318, 0.8994, 0.7966, 0.7900, 0.7926, 0.7583, 0.8125, 0.7663, 0.0000, 0.0000, 0.7696, 0.9098, 0.9915, 0.9001), NodePath("Skeleton2D/cadera_root/torso/cabeza"), PackedFloat32Array(0.7615, 0.7746, 0.3967, 0.3108, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.3950, 0.5144, 0.0000, 0.0000, 0.0000, 0.0000)]
+internal_vertex_count = 4
+metadata/_edit_group_ = true
+
+[node name="cordon_inferior" type="Polygon2D" parent="."]
+texture = ExtResource("8_vehoh")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(41.098793, 634.9833, 57.035263, 641.3579, 108.03195, 618.5156, 137.24881, 588.2363, 159.02866, 552.6449, 161.15352, 542.55176, 146.8107, 540.42694, 131.93666, 581.3305, 95.813995, 610.0162, 58.628906, 625.95264)
+uv = PackedVector2Array(41.098793, 634.9833, 57.035263, 641.3579, 108.03195, 618.5156, 137.24881, 588.2363, 159.02866, 552.6449, 161.15352, 542.55176, 146.8107, 540.42694, 131.93666, 581.3305, 95.813995, 610.0162, 58.628906, 625.95264)
+bones = [NodePath("Skeleton2D/cadera_root/torso/cordon_inf"), PackedFloat32Array(0.0000, 0.0000, 0.0000, 0.6473, 0.8405, 0.7987, 0.8017, 0.7314, 0.0000, 0.0000), NodePath("Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2"), PackedFloat32Array(0.0000, 0.0000, 0.6251, 0.3527, 0.1595, 0.2013, 0.1983, 0.2686, 0.4157, 0.0000), NodePath("Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3"), PackedFloat32Array(0.0844, 0.1461, 0.3749, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.5843, 0.2838), NodePath("Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3/cordon_inf_4"), PackedFloat32Array(0.9156, 0.8539, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.7162)]
+metadata/_edit_group_ = true
+
+[node name="cordon_superior" type="Polygon2D" parent="."]
+texture = ExtResource("7_fet00")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(11.4049, 611.87085, 44.561623, 609.17206, 84.27259, 596.0636, 117.04377, 564.8346, 130.92331, 531.67786, 145.18842, 536.68994, 137.8631, 565.22015, 117.04377, 588.7383, 86.97138, 609.5576, 45.33271, 624.20825, 18.730225, 628.4492, 6.0072937, 621.50946)
+uv = PackedVector2Array(11.4049, 611.87085, 44.561623, 609.17206, 84.27259, 596.0636, 117.04377, 564.8346, 130.92331, 531.67786, 145.18842, 536.68994, 137.8631, 565.22015, 117.04377, 588.7383, 86.97138, 609.5576, 45.33271, 624.20825, 18.730225, 628.4492, 6.0072937, 621.50946)
+bones = [NodePath("Skeleton2D/cadera_root/torso/cordon_sup"), PackedFloat32Array(0.0000, 0.0000, 0.0000, 0.8746, 0.7822, 0.7853, 0.8743, 0.3019, 0.0000, 0.0000, 0.0000, 0.0000), NodePath("Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2"), PackedFloat32Array(0.0000, 0.0000, 0.6307, 0.1254, 0.2178, 0.2147, 0.1257, 0.6981, 0.4902, 0.0000, 0.0000, 0.0000), NodePath("Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3"), PackedFloat32Array(0.0781, 0.6042, 0.3693, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.5098, 0.5561, 0.0753, 0.0856), NodePath("Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3/cordon_sup_4"), PackedFloat32Array(0.9219, 0.3958, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.4439, 0.9247, 0.9144)]
+metadata/_edit_group_ = true
+
+[node name="abrigo_izquierdo" type="Polygon2D" parent="."]
+texture = ExtResource("12_d5hht")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(289.72577, 93.61248, 340.0204, 110.998276, 350.57605, 182.40422, 368.67532, 352.3971, 382.95035, 488.38507, 395.7227, 582.61725, 348.38986, 603.65405, 325.85037, 489.45422, 318.33725, 349.30786, 304.81357, 183.16827, 294.2952, 137.33807, 337.87143, 487.29413, 361.1622, 489.5481, 376.1885, 479.78098, 328.10434, 347.9411, 345.3846, 356.95688, 360.41086, 344.93585)
+uv = PackedVector2Array(289.72577, 93.61248, 340.0204, 110.998276, 350.57605, 182.40422, 368.67532, 352.3971, 382.95035, 488.38507, 395.7227, 582.61725, 348.38986, 603.65405, 325.85037, 489.45422, 318.33725, 349.30786, 304.81357, 183.16827, 294.2952, 137.33807, 337.87143, 487.29413, 361.1622, 489.5481, 376.1885, 479.78098, 328.10434, 347.9411, 345.3846, 356.95688, 360.41086, 344.93585)
+bones = [NodePath("Skeleton2D/cadera_root/torso"), PackedFloat32Array(0.4794, 0.1635, 0.4529, 0.1042, 0.1536, 0.2213, 0.2185, 0.1201, 0.0205, 0.6931, 0.8656, 0.1229, 0.1382, 0.1419, 0.0336, 0.0529, 0.0970), NodePath("Skeleton2D/cadera_root"), PackedFloat32Array(0.0000, 0.0000, 0.0000, 0.8958, 0.8464, 0.7787, 0.7815, 0.8799, 0.9795, 0.0000, 0.0000, 0.8771, 0.8618, 0.8581, 0.9664, 0.9471, 0.9030), NodePath("Skeleton2D/cadera_root/torso/hombro_izquierdo"), PackedFloat32Array(0.5206, 0.8365, 0.5471, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.3069, 0.1344, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)]
+internal_vertex_count = 6
+metadata/_edit_group_ = true
+
+[node name="abrigo_derecho" type="Polygon2D" parent="."]
+texture = ExtResource("6_qplkv")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(231.9793, 86.779434, 288.25385, 136.66821, 290.00412, 213.54587, 259.9836, 356.40198, 234.13953, 479.38388, 213.62022, 602.06744, 151.4693, 585.4773, 78.44397, 551.0314, 107.37854, 455.96063, 147.33582, 329.19965, 174.89252, 207.95001, 195.56006, 150.08087, 123.1228, 431.71753, 161.0133, 477.18613, 226.185, 466.57678)
+uv = PackedVector2Array(231.9793, 86.779434, 288.25385, 136.66821, 290.00412, 213.54587, 259.9836, 356.40198, 234.13953, 479.38388, 213.62022, 602.06744, 151.4693, 585.4773, 78.44397, 551.0314, 107.37854, 455.96063, 147.33582, 329.19965, 174.89252, 207.95001, 195.56006, 150.08087, 123.1228, 431.71753, 161.0133, 477.18613, 226.185, 466.57678)
+bones = [NodePath("Skeleton2D/cadera_root/torso"), PackedFloat32Array(0.2299, 0.9321, 0.6830, 0.0315, 0.1272, 0.2255, 0.0000, 0.0000, 0.0000, 0.0000, 0.3107, 0.1243, 0.0000, 0.0000, 0.1227), NodePath("Skeleton2D/cadera_root"), PackedFloat32Array(0.0000, 0.0000, 0.0000, 0.9685, 0.8728, 0.7745, 0.7522, 0.7066, 0.7303, 0.6558, 0.0000, 0.0000, 0.7445, 0.7997, 0.8773), NodePath("Skeleton2D/cadera_root/torso/hombro_derecho"), PackedFloat32Array(0.7701, 0.0679, 0.3170, 0.0000, 0.0000, 0.0000, 0.2478, 0.2934, 0.2697, 0.3442, 0.6893, 0.8757, 0.2555, 0.2003, 0.0000)]
+internal_vertex_count = 3
+metadata/_edit_group_ = true
+
+[node name="brazo_derecho" type="Polygon2D" parent="."]
+texture = ExtResource("4_d5hht")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(240.1679, 112.0004, 257.07022, 122.141785, 267.2116, 151.11719, 264.31406, 178.64381, 251.75804, 214.38016, 247.28682, 233.61969, 246.80388, 285.77542, 255.0136, 349.5213, 244.87221, 366.90652, 245.64552, 389.26794, 245.64552, 402.54834, 236.61485, 409.98535, 236.61485, 421.6721, 220.14717, 421.6721, 202.61707, 401.4859, 204.74193, 377.05, 171.27534, 375.45633, 153.74522, 364.83203, 164.90074, 311.71045, 170.74005, 270.3828, 176.53513, 225.47095, 189.57405, 168.96892, 210.33977, 121.1595, 179.02289, 232.69952, 210.57712, 229.19348, 242.13132, 226.85614, 208.94075, 354.89972, 222.43895, 352.32864, 234.0088, 352.32864)
+uv = PackedVector2Array(240.1679, 112.0004, 257.07022, 122.141785, 267.2116, 151.11719, 264.31406, 178.64381, 251.75804, 214.38016, 247.28682, 233.61969, 246.80388, 285.77542, 255.0136, 349.5213, 244.87221, 366.90652, 245.64552, 389.26794, 245.64552, 402.54834, 236.61485, 409.98535, 236.61485, 421.6721, 220.14717, 421.6721, 202.61707, 401.4859, 204.74193, 377.05, 171.27534, 375.45633, 153.74522, 364.83203, 164.90074, 311.71045, 170.74005, 270.3828, 176.53513, 225.47095, 189.57405, 168.96892, 210.33977, 121.1595, 179.02289, 232.69952, 210.57712, 229.19348, 242.13132, 226.85614, 208.94075, 354.89972, 222.43895, 352.32864, 234.0088, 352.32864)
+bones = [NodePath("Skeleton2D/cadera_root/torso/hombro_derecho"), PackedFloat32Array(0.8636, 0.6876, 0.3536, 0.4008, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0846, 0.6443, 0.9306, 0.0583, 0.0246, 0.1606, 0.0000, 0.0000, 0.0000), NodePath("Skeleton2D/cadera_root/torso/hombro_derecho/codo_derecho"), PackedFloat32Array(0.0000, 0.0000, 0.0000, 0.0000, 0.6955, 0.8365, 0.5596, 0.0746, 0.0431, 0.0748, 0.0982, 0.1049, 0.1271, 0.1250, 0.0964, 0.0485, 0.1383, 0.2097, 0.4228, 0.8134, 0.9154, 0.3557, 0.0000, 0.9417, 0.9754, 0.8394, 0.0198, 0.0075, 0.0174), NodePath("Skeleton2D/cadera_root/torso/hombro_derecho/codo_derecho/mano_derecho"), PackedFloat32Array(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.4404, 0.9254, 0.9569, 0.9252, 0.9018, 0.8951, 0.8729, 0.8750, 0.9036, 0.9515, 0.8617, 0.7903, 0.5772, 0.1866, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.9802, 0.9925, 0.9826), NodePath("Skeleton2D/cadera_root/torso"), PackedFloat32Array(0.1364, 0.3124, 0.6464, 0.5992, 0.3045, 0.1635, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0694, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)]
+internal_vertex_count = 6
+metadata/_edit_group_ = true
+
+[node name="barba" type="Polygon2D" parent="."]
+texture = ExtResource("3_lf4f3")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(302.25848, 203.72168, 316.74615, 194.0632, 311.43402, 181.99013, 307.57062, 193.09735, 303.2243, 173.2975, 292.11707, 152.5318, 287.77078, 162.67319, 280.52692, 127.419785, 288.2537, 100.85901, 301.77554, 104.7224, 317.712, 105.68824, 330.26804, 106.65408, 335.09726, 129.35147, 342.82404, 160.25858, 337.99478, 162.67319, 332.68265, 164.60489, 328.81924, 191.64859, 322.05832, 205.17044)
+uv = PackedVector2Array(302.25848, 203.72168, 316.74615, 194.0632, 311.43402, 181.99013, 307.57062, 193.09735, 303.2243, 173.2975, 292.11707, 152.5318, 287.77078, 162.67319, 280.52692, 127.419785, 288.2537, 100.85901, 301.77554, 104.7224, 317.712, 105.68824, 330.26804, 106.65408, 335.09726, 129.35147, 342.82404, 160.25858, 337.99478, 162.67319, 332.68265, 164.60489, 328.81924, 191.64859, 322.05832, 205.17044)
+bones = [NodePath("Skeleton2D/cadera_root/torso/cabeza"), PackedFloat32Array(1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000)]
+metadata/_edit_group_ = true
+
+[node name="cara" type="Polygon2D" parent="."]
+texture = ExtResource("2_yg8a6")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(301.33124, 82.64388, 346.19446, 59.511288, 350.7509, 65.11919, 338.48358, 101.57055, 332.1747, 104.72499, 332.8757, 120.14673, 319.55692, 126.80611, 305.88766, 127.507095, 297.4758, 120.14673, 282.05408, 115.5903)
+uv = PackedVector2Array(301.33124, 82.64388, 346.19446, 59.511288, 350.7509, 65.11919, 338.48358, 101.57055, 332.1747, 104.72499, 332.8757, 120.14673, 319.55692, 126.80611, 305.88766, 127.507095, 297.4758, 120.14673, 282.05408, 115.5903)
+bones = [NodePath("Skeleton2D/cadera_root/torso/cabeza"), PackedFloat32Array(1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000)]
+metadata/_edit_group_ = true
+
+[node name="capucha" type="Polygon2D" parent="."]
+texture = ExtResource("1_mxifj")
+skeleton = NodePath("../Skeleton2D")
+polygon = PackedVector2Array(281.58884, 145.08002, 284.22296, 126.20211, 302.66187, 85.81216, 344.3689, 64.30012, 336.02747, 96.34866, 329.88116, 100.73888, 327.24707, 112.15343, 364.12482, 82.29999, 376.41742, 63.8611, 340.8567, 44.544167, 309.2472, 33.129616, 280.2718, 28.739403, 253.05246, 30.495487, 234.61357, 30.495487, 225.39413, 31.812553, 226.7112, 41.031998, 226.7112, 55.958717, 228.46729, 71.324455, 239.44281, 97.22671, 255.6866, 122.250916, 268.4182, 134.98253)
+uv = PackedVector2Array(281.58884, 145.08002, 284.22296, 126.20211, 302.66187, 85.81216, 344.3689, 64.30012, 336.02747, 96.34866, 329.88116, 100.73888, 327.24707, 112.15343, 364.12482, 82.29999, 376.41742, 63.8611, 340.8567, 44.544167, 309.2472, 33.129616, 280.2718, 28.739403, 253.05246, 30.495487, 234.61357, 30.495487, 225.39413, 31.812553, 226.7112, 41.031998, 226.7112, 55.958717, 228.46729, 71.324455, 239.44281, 97.22671, 255.6866, 122.250916, 268.4182, 134.98253)
+bones = [NodePath("Skeleton2D/cadera_root/torso/cabeza"), PackedFloat32Array(0.1260, 0.4073, 0.9161, 0.7201, 0.7325, 0.7540, 0.6788, 0.6487, 0.6377, 0.7097, 0.7297, 0.7136, 0.6816, 0.6529, 0.6393, 0.6428, 0.6413, 0.6353, 0.6127, 0.4941, 0.3216), NodePath("Skeleton2D/cadera_root/torso"), PackedFloat32Array(0.8740, 0.5927, 0.0839, 0.2799, 0.2675, 0.2460, 0.3212, 0.3513, 0.3623, 0.2903, 0.2703, 0.2864, 0.3184, 0.3471, 0.3607, 0.3572, 0.3587, 0.3647, 0.3873, 0.5059, 0.6784)]
+metadata/_edit_group_ = true
+
+[node name="Skeleton2D" type="Skeleton2D" parent="."]
+
+[node name="cadera_root" type="Bone2D" parent="Skeleton2D"]
+position = Vector2(296, 366)
+rest = Transform2D(1, 0, 0, 1, 296, 366)
+auto_calculate_length_and_angle = false
+length = 233.23
+bone_angle = 0.0
+
+[node name="torso" type="Bone2D" parent="Skeleton2D/cadera_root"]
+position = Vector2(1, -220)
+rest = Transform2D(1, 0, 0, 1, 1, -220)
+auto_calculate_length_and_angle = false
+length = 200.0
+bone_angle = 0.0
+
+[node name="cabeza" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(2, -45)
+rest = Transform2D(1, 0, 0, 1, 2, -45)
+auto_calculate_length_and_angle = false
+length = 16.0
+bone_angle = 0.0
+
+[node name="hombro_derecho" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(-68, -12)
+rest = Transform2D(1, 0, 0, 1, -68, -12)
+
+[node name="codo_derecho" type="Bone2D" parent="Skeleton2D/cadera_root/torso/hombro_derecho"]
+position = Vector2(-25, 105)
+rest = Transform2D(1, 0, 0, 1, -25, 105)
+
+[node name="mano_derecho" type="Bone2D" parent="Skeleton2D/cadera_root/torso/hombro_derecho/codo_derecho"]
+position = Vector2(18, 114)
+rest = Transform2D(1, 0, 0, 1, 18, 114)
+
+[node name="hombro_izquierdo" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(29, -17)
+rest = Transform2D(1, 0, 0, 1, 29, -17)
+
+[node name="codo_izquierdo" type="Bone2D" parent="Skeleton2D/cadera_root/torso/hombro_izquierdo"]
+position = Vector2(19, 128)
+rest = Transform2D(1, 0, 0, 1, 19, 128)
+
+[node name="mano_izquierda" type="Bone2D" parent="Skeleton2D/cadera_root/torso/hombro_izquierdo/codo_izquierdo"]
+position = Vector2(39, 90)
+rest = Transform2D(1, 0, 0, 1, 39, 90)
+
+[node name="capucha" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(-53, -105)
+rest = Transform2D(1, 0, 0, 1, -53, -105)
+
+[node name="cordon_sup" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(-173, 419)
+rest = Transform2D(1, 0, 0, 1, -173, 419)
+
+[node name="cordon_sup_2" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_sup"]
+position = Vector2(-21, 27)
+rest = Transform2D(1, 0, 0, 1, -21, 27)
+
+[node name="cordon_sup_3" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2"]
+position = Vector2(-39, 21)
+rest = Transform2D(1, 0, 0, 1, -39, 21)
+
+[node name="cordon_sup_4" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_sup/cordon_sup_2/cordon_sup_3"]
+position = Vector2(-43, 6)
+rest = Transform2D(1, 0, 0, 1, -43, 6)
+
+[node name="cordon_inf" type="Bone2D" parent="Skeleton2D/cadera_root/torso"]
+position = Vector2(-155, 427)
+rest = Transform2D(1, 0, 0, 1, -155, 427)
+
+[node name="cordon_inf_2" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_inf"]
+position = Vector2(-23, 30)
+rest = Transform2D(1, 0, 0, 1, -23, 30)
+
+[node name="cordon_inf_3" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2"]
+position = Vector2(-36, 22)
+rest = Transform2D(1, 0, 0, 1, -36, 22)
+
+[node name="cordon_inf_4" type="Bone2D" parent="Skeleton2D/cadera_root/torso/cordon_inf/cordon_inf_2/cordon_inf_3"]
+position = Vector2(-33, 11)
+rest = Transform2D(1, 0, 0, 1, -33, 11)
+
+[node name="muslo_derecho" type="Bone2D" parent="Skeleton2D/cadera_root"]
+position = Vector2(-32, 28)
+rest = Transform2D(1, 0, 0, 1, -32, 28)
+
+[node name="rodilla_derecha" type="Bone2D" parent="Skeleton2D/cadera_root/muslo_derecho"]
+position = Vector2(-3, 101)
+rest = Transform2D(1, 0, 0, 1, -3, 101)
+
+[node name="tobillo_derecho" type="Bone2D" parent="Skeleton2D/cadera_root/muslo_derecho/rodilla_derecha"]
+position = Vector2(-5, 153)
+rest = Transform2D(1, 0, 0, 1, -5, 153)
+
+[node name="muslo_izquierdo" type="Bone2D" parent="Skeleton2D/cadera_root"]
+position = Vector2(19, 29)
+rest = Transform2D(1, 0, 0, 1, 19, 29)
+
+[node name="rodilla_izquierda" type="Bone2D" parent="Skeleton2D/cadera_root/muslo_izquierdo"]
+position = Vector2(-5, 99)
+rest = Transform2D(1, 0, 0, 1, -5, 99)
+
+[node name="tobillo_izquierdo" type="Bone2D" parent="Skeleton2D/cadera_root/muslo_izquierdo/rodilla_izquierda"]
+position = Vector2(-12, 145)
+rest = Transform2D(1, 0, 0, 1, -12, 145)

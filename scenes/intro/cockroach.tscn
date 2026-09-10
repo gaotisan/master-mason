@@ -1,0 +1,147 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/intro/cockroach_parts_v2.png" id="1"]
+[ext_resource type="Script" path="res://scripts/cockroach_controller.gd" id="2"]
+[ext_resource type="AudioStream" path="res://assets/audio/cockroach_step_cut.wav" id="3"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_steps"]
+random_pitch = 1.15
+random_volume_offset_db = 3.0
+streams_count = 1
+stream_0/stream = ExtResource("3")
+
+[node name="Cockroach" type="Node2D"]
+modulate = Color(0.55, 0.52, 0.58, 1)
+script = ExtResource("2")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="StepSound" type="AudioStreamPlayer2D" parent="."]
+stream = SubResource("AudioStreamRandomizer_steps")
+volume_db = 0.0
+max_distance = 1500.0
+
+[node name="Shadow" type="Sprite2D" parent="."]
+self_modulate = Color(0, 0, 0, 0.35)
+show_behind_parent = true
+position = Vector2(25, 40)
+scale = Vector2(1.03, 1.03)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(714, 390, 620, 1309)
+
+[node name="Body" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(714, 390, 620, 1309)
+
+[node name="AntennaL" type="Sprite2D" parent="."]
+position = Vector2(-142, -578)
+texture = ExtResource("1")
+offset = Vector2(-300, -100)
+region_enabled = true
+region_rect = Rect2(0, 0, 806, 409)
+
+[node name="AntennaR" type="Sprite2D" parent="."]
+position = Vector2(142, -598)
+texture = ExtResource("1")
+offset = Vector2(250, -100)
+region_enabled = true
+region_rect = Rect2(1351, 0, 697, 428)
+
+[node name="LegFrontL" type="Node2D" parent="."]
+position = Vector2(-347, -338)
+
+[node name="Femur" type="Sprite2D" parent="LegFrontL"]
+position = Vector2(5, 0)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(576, 516, 146, 274)
+
+[node name="Tibia" type="Sprite2D" parent="LegFrontL/Femur"]
+position = Vector2(-98, 23)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(440, 528, 108, 308)
+
+[node name="LegMidL" type="Node2D" parent="."]
+position = Vector2(-600, -50)
+
+[node name="Femur" type="Sprite2D" parent="LegMidL"]
+position = Vector2(222, -54)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(482, 870, 198, 152)
+
+[node name="Tibia" type="Sprite2D" parent="LegMidL/Femur"]
+position = Vector2(-180, 158)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(78, 856, 302, 458)
+
+[node name="LegHindL" type="Node2D" parent="."]
+position = Vector2(-900, 300)
+
+[node name="Femur" type="Sprite2D" parent="LegHindL"]
+position = Vector2(555, -105)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(512, 1190, 225, 147)
+
+[node name="Tibia" type="Sprite2D" parent="LegHindL/Femur"]
+position = Vector2(-127, 354)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(285, 1250, 226, 758)
+
+[node name="LegFrontR" type="Node2D" parent="."]
+position = Vector2(400, -400)
+
+[node name="Femur" type="Sprite2D" parent="LegFrontR"]
+position = Vector2(-73, 62)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(1340, 520, 200, 300)
+
+[node name="Tibia" type="Sprite2D" parent="LegFrontR/Femur"]
+position = Vector2(86, -8)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(1580, 524, 187, 291)
+
+[node name="LegMidR" type="Node2D" parent="."]
+position = Vector2(260, -50)
+
+[node name="Femur" type="Sprite2D" parent="LegMidR"]
+position = Vector2(105, -54)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(1326, 860, 230, 215)
+
+[node name="Tibia" type="Sprite2D" parent="LegMidR/Femur"]
+position = Vector2(205, 160)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(1717, 890, 328, 515)
+
+[node name="LegHindR" type="Node2D" parent="."]
+position = Vector2(260, 300)
+
+[node name="Femur" type="Sprite2D" parent="LegHindR"]
+position = Vector2(115, -135)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(1371, 1160, 179, 151)
+
+[node name="Tibia" type="Sprite2D" parent="LegHindR/Femur"]
+position = Vector2(73, 379)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(1607, 1257, 173, 785)
+
+[node name="RimLight" type="Sprite2D" parent="."]
+self_modulate = Color(1, 0.75, 0.4, 0.08)
+position = Vector2(-3, -2)
+texture = ExtResource("1")
+region_enabled = true
+region_rect = Rect2(714, 390, 620, 1309)

@@ -1,0 +1,192 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/intro/sarcophagus_base_16_9.png" id="1"]
+[ext_resource type="Script" path="res://scripts/flicker_light.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/intro/cockroach.tscn" id="4"]
+[ext_resource type="Script" path="res://scripts/ambient_controller.gd" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/intro/pendulum.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/intro/hanging_pig.tscn" id="8"]
+[ext_resource type="AudioStream" path="res://assets/audio/viento_cabana.ogg" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/intro/fly_zone.tscn" id="10_flies"]
+[ext_resource type="PackedScene" path="res://scenes/intro/punch_effect.tscn" id="11_punch"]
+
+[sub_resource type="Gradient" id="Gradient_radial"]
+offsets = PackedFloat32Array(0, 0.7)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_luz"]
+gradient = SubResource("Gradient_radial")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_blood"]
+colors = PackedColorArray(0.12, 0.01, 0.01, 0.7, 0.05, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_drop"]
+gradient = SubResource("Gradient_blood")
+width = 4
+height = 10
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.5, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_drip"]
+particle_flag_disable_z = true
+direction = Vector3(0, 1, 0)
+spread = 0.0
+initial_velocity_min = 2.0
+initial_velocity_max = 12.0
+gravity = Vector3(0, 350, 0)
+scale_min = 0.8
+scale_max = 1.3
+color = Color(0.15, 0.01, 0.01, 0.6)
+
+[node name="SarcophagusIntro" type="Node2D"]
+
+[node name="BlackBG" type="ColorRect" parent="."]
+offset_right = 2912.0
+offset_bottom = 1632.0
+color = Color(0, 0, 0, 1)
+
+[node name="BackgroundImage" type="Sprite2D" parent="."]
+position = Vector2(1456, 816)
+texture = ExtResource("1")
+
+[node name="Pendulum" parent="." instance=ExtResource("6")]
+modulate = Color(0.55, 0.45, 0.35, 0.85)
+position = Vector2(2079, 717)
+scale = Vector2(0.25, 0.25)
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(1456, 816)
+enabled = true
+
+[node name="AmbientPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9")
+volume_db = -5.0
+autoplay = true
+script = ExtResource("5")
+
+[node name="Lights" type="Node2D" parent="."]
+
+[node name="Vela1" type="PointLight2D" parent="Lights"]
+position = Vector2(645, 660)
+color = Color(1, 0.7, 0.3, 1)
+texture = SubResource("GradientTexture2D_luz")
+texture_scale = 2.5
+script = ExtResource("2")
+noise_seed = 101
+
+[node name="Vela2" type="PointLight2D" parent="Lights"]
+position = Vector2(768, 760)
+color = Color(1, 0.8, 0.5, 1)
+texture = SubResource("GradientTexture2D_luz")
+texture_scale = 3.0
+script = ExtResource("2")
+noise_seed = 102
+
+[node name="Vela3" type="PointLight2D" parent="Lights"]
+position = Vector2(880, 635)
+color = Color(1, 0.75, 0.4, 1)
+texture = SubResource("GradientTexture2D_luz")
+texture_scale = 2.2
+script = ExtResource("2")
+noise_seed = 103
+
+[node name="Vela4" type="PointLight2D" parent="Lights"]
+position = Vector2(980, 715)
+color = Color(1, 0.65, 0.3, 1)
+texture = SubResource("GradientTexture2D_luz")
+texture_scale = 2.0
+script = ExtResource("2")
+noise_seed = 104
+
+[node name="Vela5" type="PointLight2D" parent="Lights"]
+position = Vector2(2318, 852)
+color = Color(1, 0.6, 0.2, 1)
+texture = SubResource("GradientTexture2D_luz")
+texture_scale = 2.0
+script = ExtResource("2")
+noise_seed = 105
+
+[node name="Vela6" type="PointLight2D" parent="Lights"]
+position = Vector2(2409, 777)
+color = Color(1, 0.7, 0.3, 1)
+texture = SubResource("GradientTexture2D_luz")
+texture_scale = 1.8
+script = ExtResource("2")
+noise_seed = 106
+
+[node name="Vela7" type="PointLight2D" parent="Lights"]
+position = Vector2(1531, 787)
+energy = 0.6
+color = Color(1, 0.7, 0.4, 1)
+texture = SubResource("GradientTexture2D_luz")
+texture_scale = 2.8
+script = ExtResource("2")
+noise_seed = 107
+
+[node name="BloodEmitters" type="Node2D" parent="."]
+
+[node name="Sangre1" type="GPUParticles2D" parent="BloodEmitters"]
+position = Vector2(1221, 1151)
+amount = 2
+process_material = SubResource("ParticleProcessMaterial_drip")
+texture = SubResource("GradientTexture2D_drop")
+
+[node name="Sangre2" type="GPUParticles2D" parent="BloodEmitters"]
+position = Vector2(1256, 1172)
+amount = 1
+process_material = SubResource("ParticleProcessMaterial_drip")
+texture = SubResource("GradientTexture2D_drop")
+
+[node name="Sangre3" type="GPUParticles2D" parent="BloodEmitters"]
+position = Vector2(1260, 1159)
+amount = 1
+process_material = SubResource("ParticleProcessMaterial_drip")
+texture = SubResource("GradientTexture2D_drop")
+
+[node name="Sangre4" type="GPUParticles2D" parent="BloodEmitters"]
+position = Vector2(1319, 1160)
+amount = 2
+process_material = SubResource("ParticleProcessMaterial_drip")
+texture = SubResource("GradientTexture2D_drop")
+
+[node name="Sangre5" type="GPUParticles2D" parent="BloodEmitters"]
+position = Vector2(1519, 1154)
+amount = 1
+process_material = SubResource("ParticleProcessMaterial_drip")
+texture = SubResource("GradientTexture2D_drop")
+
+[node name="FliesTable" parent="." instance=ExtResource("10_flies")]
+position = Vector2(1300, 1005)
+zone_radius = 180.0
+depth = 1.0
+num_flies = 5
+base_fly_size = 6.0
+fly_color = Color(0.18, 0.2, 0.22, 0.9)
+
+[node name="FliesLeftCandles" parent="." instance=ExtResource("10_flies")]
+position = Vector2(950, 950)
+zone_radius = 120.0
+depth = 0.8
+num_flies = 5
+base_fly_size = 4.8
+fly_color = Color(0.1, 0.09, 0.09, 1.0)
+
+[node name="HangingPig" parent="." instance=ExtResource("8")]
+position = Vector2(2211, 810)
+scale = Vector2(0.3, 0.3)
+
+[node name="Cristal" type="ColorRect" parent="."]
+offset_right = 2912.0
+offset_bottom = 1632.0
+color = Color(1, 1, 1, 0)
+mouse_filter = 2
+
+[node name="Cockroach" parent="." instance=ExtResource("4")]
+position = Vector2(200, 1700)
+rotation = 0.8
+scale = Vector2(0.18, 0.18)
+
+[node name="PunchEffect" parent="." instance=ExtResource("11_punch")]
+position = Vector2(1456, 816)
