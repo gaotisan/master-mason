@@ -8,7 +8,7 @@ config/features=PackedStringArray("4.x", "Forward Plus")
 [display]
 window/size/viewport_width=2912
 window/size/viewport_height=1632
-window/size/mode=4
+window/size/mode=3
 window/size/resizable=false
 window/size/borderless=true
 window/stretch/mode="canvas_items"
