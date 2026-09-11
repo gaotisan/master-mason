@@ -1,10 +1,12 @@
 @echo off
 setlocal
-REM Exporta Master Mason para Windows usando el Godot local.
-REM Requiere las plantillas de exportacion 4.6.2 instaladas en %APPDATA%\Godot\export_templates\4.6.2.stable
+REM Exporta Master Mason para Windows usando el Godot local del workspace (godot\engine\).
+REM Requiere las plantillas de exportacion de Godot 4.6.2 instaladas en
+REM   %APPDATA%\Godot\export_templates\4.6.2.stable
+REM Se puede indicar otro editor con la variable de entorno GODOT.
 
 set PROJECT_DIR=%~dp0
-set GODOT=%PROJECT_DIR%..\Godot_v4.6.2\Godot_v4.6.2-stable_win64_console.exe
+if "%GODOT%"=="" set GODOT=%PROJECT_DIR%..\..\engine\Godot_v4.6.2\Godot_v4.6.2-stable_win64_console.exe
 set BUILD_DIR=%PROJECT_DIR%_builds\pc
 set EXE=%BUILD_DIR%\master_mason.exe
 
