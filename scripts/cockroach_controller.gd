@@ -76,6 +76,7 @@ var was_walking: bool = false
 
 func _ready() -> void:
 	add_to_group("squashable")
+	_disable_2d_lights(self)
 	noise.seed = randi()
 	noise.frequency = 0.4
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
@@ -93,6 +94,14 @@ func _ready() -> void:
 
 	target_position = failsafe_point
 	_enter_state(State.IDLE)
+
+## La cucaracha simula su propia iluminacion con light_polygon; las luces 2D
+## de las velas no le aportan nada y cuestan un pase por sprite.
+func _disable_2d_lights(node: Node) -> void:
+	if node is CanvasItem:
+		node.light_mask = 0
+	for c in node.get_children():
+		_disable_2d_lights(c)
 
 func _process(delta: float) -> void:
 	if is_dead:
