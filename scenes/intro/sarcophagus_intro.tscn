@@ -251,7 +251,7 @@ scale = Vector2(0.18, 0.18)
 
 [node name="InputTutor" type="Node2D" parent="."]
 light_mask = 0
-position = Vector2(2210, 1482)
+position = Vector2(2310, 1486)
 script = ExtResource("14_tutor")
 sequence = ExtResource("15_hint")
 key_prompt_scene = ExtResource("13_key")

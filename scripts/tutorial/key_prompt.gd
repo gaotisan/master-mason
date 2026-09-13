@@ -28,6 +28,13 @@ const CAL_PRESSED := {"width": 768.0, "center_x": 628.0, "bottom": 916.0, "face_
 @onready var symbol: Node2D = $Symbol
 
 var action: StringName = &""
+## Visibilidad 0..1. La tecla usa el valor tal cual y el simbolo su cuadrado, para
+## que la flecha, mas clara, no siga leyendose cuando la tecla ya casi no se ve.
+var fade: float = 0.0:
+	set(v):
+		fade = v
+		if is_node_ready():
+			_apply_fade()
 var _active := false
 var _time := 0.0
 var _pressed := false
@@ -39,7 +46,13 @@ func _ready() -> void:
 	if action != &"":
 		symbol.set_from_action(action)
 	_apply_state(false)
-	modulate = Color(base_tint.r, base_tint.g, base_tint.b, 0.0)
+	modulate = Color(base_tint.r, base_tint.g, base_tint.b, 1.0)
+	_apply_fade()
+
+func _apply_fade() -> void:
+	cap.self_modulate = Color(1, 1, 1, base_tint.a * fade)
+	var k := 0.85 if _pressed else 1.0
+	symbol.modulate = Color(k, k, k, fade * fade)
 
 func setup(p_action: StringName) -> void:
 	action = p_action
@@ -52,7 +65,7 @@ func appear(activate: bool) -> void:
 	_active = activate
 	_time = press_period - 0.5
 	var tw := create_tween()
-	tw.tween_property(self, "modulate", base_tint, 0.8).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(self, "fade", 1.0, 0.8).set_trans(Tween.TRANS_SINE)
 
 func set_active(activate: bool) -> void:
 	_active = activate
@@ -64,12 +77,14 @@ func succeed(fade_out: bool) -> void:
 	_active = false
 	_done = true
 	_apply_state(true)
+	var rest := Color(base_tint.r, base_tint.g, base_tint.b, 1.0)
+	var flash := Color(success_flash.r, success_flash.g, success_flash.b, 1.0)
 	var tw := create_tween()
-	tw.tween_property(self, "modulate", success_flash, 0.08)
-	tw.tween_property(self, "modulate", base_tint, 0.25)
+	tw.tween_property(self, "modulate", flash, 0.08)
+	tw.tween_property(self, "modulate", rest, 0.25)
 	if fade_out:
 		tw.tween_interval(0.15)
-		tw.tween_property(self, "modulate:a", 0.0, 0.5).set_trans(Tween.TRANS_SINE)
+		tw.tween_property(self, "fade", 0.0, 0.5).set_trans(Tween.TRANS_SINE)
 	tw.tween_callback(func(): finished.emit())
 
 ## Fallo: sacudida lateral y vuelve a esperar.
@@ -83,7 +98,7 @@ func fail() -> void:
 func disappear() -> void:
 	_active = false
 	var tw := create_tween()
-	tw.tween_property(self, "modulate:a", 0.0, 0.4).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(self, "fade", 0.0, 0.45).set_trans(Tween.TRANS_SINE)
 	tw.tween_callback(func(): finished.emit())
 
 func _process(delta: float) -> void:
@@ -110,4 +125,4 @@ func _apply_state(pressed: bool) -> void:
 	symbol.position = Vector2(0, (cal["face_y"] - cal["bottom"]) * s)
 	var sym_scale := key_size_px * 0.45 / 100.0
 	symbol.scale = Vector2(sym_scale, sym_scale)
-	symbol.modulate = Color(0.85, 0.85, 0.85) if pressed else Color(1, 1, 1)
+	_apply_fade()

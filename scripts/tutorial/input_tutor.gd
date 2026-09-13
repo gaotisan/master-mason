@@ -12,14 +12,17 @@ signal sequence_completed
 
 @export var sequence: InputSequence
 @export var key_prompt_scene: PackedScene
-## Segundos sin entrada antes de mostrar la ayuda la primera vez.
-@export var idle_delay: float = 8.0
-## Segundos sin entrada antes de volver a mostrarla si el objetivo sigue sin cumplirse.
-@export var retry_delay: float = 10.0
+## Segundos sin entrada antes de mostrar la ayuda la primera vez. Generoso, para
+## dejar que el jugador mire la escena y lo deduzca por su cuenta.
+@export var idle_delay: float = 18.0
+## Segundos sin entrada antes de volver a mostrarla si el jugador sigue sin pulsar.
+@export var retry_delay: float = 12.0
 ## Segundos que permanece visible cada vez antes de retirarse sola. 0 = hasta que se pulse.
 @export var show_duration: float = 5.0
-## Si es falso, la ayuda se muestra una sola vez.
-@export var repeat_until_stopped: bool = true
+## Si es verdadero, la ayuda sigue saliendo hasta stop() aunque el jugador ya haya
+## pulsado bien. Si es falso, en cuanto el jugador pulsa la tecla (con la ayuda a la
+## vista o antes de que salga) se da por aprendida y no vuelve a aparecer.
+@export var repeat_until_stopped: bool = false
 ## Separacion entre teclas de la fila, relativa a su anchura.
 @export var spacing_factor: float = 1.35
 @export var key_size_px: float = 220.0
@@ -76,6 +79,12 @@ func _input(event: InputEvent) -> void:
 		return
 	idle_time = 0.0
 	if not showing:
+		# El jugador la pulsa por su cuenta antes de que salga la ayuda: ya la conoce.
+		if not repeat_until_stopped and sequence.steps.size() == 1:
+			for a in sequence.steps[0].actions:
+				if InputMap.has_action(a) and event.is_action_pressed(a):
+					stopped = true
+					return
 		return
 	var step: InputStep = sequence.steps[step_idx]
 	for a in step.actions:
