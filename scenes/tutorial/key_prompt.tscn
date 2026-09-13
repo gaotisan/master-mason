@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/tutorial/key_prompt.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/tutorial/key_symbol.gd" id="2"]
+[ext_resource type="Texture2D" path="res://assets/intro/key_blank.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/intro/key_blank_pressed.png" id="4"]
+
+[node name="KeyPrompt" type="Node2D"]
+light_mask = 0
+script = ExtResource("1")
+texture_idle = ExtResource("3")
+texture_pressed = ExtResource("4")
+
+[node name="Cap" type="Sprite2D" parent="."]
+light_mask = 0
+centered = false
+texture = ExtResource("3")
+
+[node name="Symbol" type="Node2D" parent="."]
+light_mask = 0
+script = ExtResource("2")

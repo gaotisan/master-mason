@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/intro/sarcophagus_base_16_9.png" id="1"]
 [ext_resource type="Script" path="res://scripts/flicker_light.gd" id="2"]
@@ -10,6 +10,9 @@
 [ext_resource type="PackedScene" path="res://scenes/intro/fly_zone.tscn" id="10_flies"]
 [ext_resource type="PackedScene" path="res://scenes/intro/punch_effect.tscn" id="11_punch"]
 [ext_resource type="Script" path="res://scripts/flicker_glow.gd" id="12_glow"]
+[ext_resource type="PackedScene" path="res://scenes/tutorial/key_prompt.tscn" id="13_key"]
+[ext_resource type="Script" path="res://scripts/tutorial/input_tutor.gd" id="14_tutor"]
+[ext_resource type="Resource" path="res://resources/tutorial/punch_hint.tres" id="15_hint"]
 
 [sub_resource type="Gradient" id="Gradient_radial"]
 offsets = PackedFloat32Array(0, 0.7)
@@ -246,6 +249,15 @@ position = Vector2(200, 1700)
 rotation = 0.8
 scale = Vector2(0.18, 0.18)
 
+[node name="InputTutor" type="Node2D" parent="."]
+light_mask = 0
+position = Vector2(1000, 1340)
+script = ExtResource("14_tutor")
+sequence = ExtResource("15_hint")
+key_prompt_scene = ExtResource("13_key")
+
 [node name="PunchEffect" parent="." instance=ExtResource("11_punch")]
 light_mask = 0
 position = Vector2(1456, 816)
+
+[connection signal="died" from="Cockroach" to="InputTutor" method="stop"]
