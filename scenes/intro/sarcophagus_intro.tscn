@@ -251,11 +251,11 @@ scale = Vector2(0.18, 0.18)
 
 [node name="InputTutor" type="Node2D" parent="."]
 light_mask = 0
-position = Vector2(760, 1465)
+position = Vector2(2210, 1482)
 script = ExtResource("14_tutor")
 sequence = ExtResource("15_hint")
 key_prompt_scene = ExtResource("13_key")
-key_size_px = 190.0
+key_size_px = 165.0
 
 [node name="PunchEffect" parent="." instance=ExtResource("11_punch")]
 light_mask = 0

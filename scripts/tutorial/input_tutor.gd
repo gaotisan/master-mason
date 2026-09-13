@@ -15,7 +15,9 @@ signal sequence_completed
 ## Segundos sin entrada antes de mostrar la ayuda la primera vez.
 @export var idle_delay: float = 8.0
 ## Segundos sin entrada antes de volver a mostrarla si el objetivo sigue sin cumplirse.
-@export var retry_delay: float = 15.0
+@export var retry_delay: float = 10.0
+## Segundos que permanece visible cada vez antes de retirarse sola. 0 = hasta que se pulse.
+@export var show_duration: float = 5.0
 ## Si es falso, la ayuda se muestra una sola vez.
 @export var repeat_until_stopped: bool = true
 ## Separacion entre teclas de la fila, relativa a su anchura.
@@ -30,6 +32,7 @@ var shown_once := false
 var prompts: Array = []
 var step_idx := 0
 var step_time := 0.0
+var show_time := 0.0
 
 func _ready() -> void:
 	stopped = not start_enabled
@@ -54,6 +57,11 @@ func _process(delta: float) -> void:
 			step_time += delta
 			if step_time > step.time_window:
 				_fail_step()
+		# Se retira sola tras un rato y volvera a salir pasado retry_delay.
+		show_time += delta
+		if show_duration > 0.0 and show_time >= show_duration:
+			_hide_prompts()
+			idle_time = 0.0
 		return
 	idle_time += delta
 	var threshold := idle_delay if not shown_once else retry_delay
@@ -86,6 +94,7 @@ func _show() -> void:
 	shown_once = true
 	step_idx = 0
 	step_time = 0.0
+	show_time = 0.0
 	prompts.clear()
 	var n := sequence.steps.size()
 	var spacing := key_size_px * spacing_factor

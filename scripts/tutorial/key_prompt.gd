@@ -13,9 +13,9 @@ signal finished
 ## Periodo de la pulsacion en bucle y tiempo que permanece hundida.
 @export var press_period: float = 1.4
 @export var press_hold: float = 0.22
-@export var symbol_color: Color = Color(0.72, 0.6, 0.42)
+@export var symbol_color: Color = Color(0.68, 0.57, 0.4)
 ## Tinte y opacidad en reposo: apagado, para que no chille sobre la escena.
-@export var base_tint: Color = Color(0.7, 0.66, 0.6, 0.82)
+@export var base_tint: Color = Color(0.62, 0.58, 0.53, 0.7)
 @export var success_flash: Color = Color(1.15, 1.05, 0.85, 0.95)
 
 # Calibracion de las dos texturas (px de textura): anchura de la tecla, eje
