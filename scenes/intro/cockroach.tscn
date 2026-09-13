@@ -53,13 +53,15 @@ region_rect = Rect2(1351, 0, 697, 428)
 position = Vector2(-347, -338)
 
 [node name="Femur" type="Sprite2D" parent="LegFrontL"]
-position = Vector2(5, 0)
+position = Vector2(56.012, 55.946)
+offset = Vector2(-51.012, -55.946)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(576, 516, 146, 274)
 
 [node name="Tibia" type="Sprite2D" parent="LegFrontL/Femur"]
-position = Vector2(-98, 23)
+position = Vector2(-111.125, -164.067)
+offset = Vector2(-37.887, 131.121)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(440, 528, 108, 308)
@@ -68,13 +70,15 @@ region_rect = Rect2(440, 528, 108, 308)
 position = Vector2(-600, -50)
 
 [node name="Femur" type="Sprite2D" parent="LegMidL"]
-position = Vector2(222, -54)
+position = Vector2(310.36, -12.501)
+offset = Vector2(-88.36, -41.499)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(482, 870, 198, 152)
 
 [node name="Tibia" type="Sprite2D" parent="LegMidL/Femur"]
-position = Vector2(-180, 158)
+position = Vector2(-154.261, -82.148)
+offset = Vector2(-114.099, 198.648)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(78, 856, 302, 458)
@@ -83,13 +87,15 @@ region_rect = Rect2(78, 856, 302, 458)
 position = Vector2(-900, 300)
 
 [node name="Femur" type="Sprite2D" parent="LegHindL"]
-position = Vector2(555, -105)
+position = Vector2(627.612, -127.628)
+offset = Vector2(-72.612, 22.628)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(512, 1190, 225, 147)
 
 [node name="Tibia" type="Sprite2D" parent="LegHindL/Femur"]
-position = Vector2(-127, 354)
+position = Vector2(-138.918, 39.122)
+offset = Vector2(-60.694, 337.506)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(285, 1250, 226, 758)
@@ -98,13 +104,15 @@ region_rect = Rect2(285, 1250, 226, 758)
 position = Vector2(400, -400)
 
 [node name="Femur" type="Sprite2D" parent="LegFrontR"]
-position = Vector2(-73, 62)
+position = Vector2(-116.589, 126.285)
+offset = Vector2(43.589, -64.285)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(1340, 520, 200, 300)
 
 [node name="Tibia" type="Sprite2D" parent="LegFrontR/Femur"]
-position = Vector2(86, -8)
+position = Vector2(86.61, -159.129)
+offset = Vector2(42.979, 86.844)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(1580, 524, 187, 291)
@@ -113,13 +121,15 @@ region_rect = Rect2(1580, 524, 187, 291)
 position = Vector2(260, -50)
 
 [node name="Femur" type="Sprite2D" parent="LegMidR"]
-position = Vector2(105, -54)
+position = Vector2(24.565, 0.226)
+offset = Vector2(80.435, -54.226)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(1326, 860, 230, 215)
 
 [node name="Tibia" type="Sprite2D" parent="LegMidR/Femur"]
-position = Vector2(205, 160)
+position = Vector2(160.597, -98.898)
+offset = Vector2(124.838, 204.672)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(1717, 890, 328, 515)
@@ -128,13 +138,15 @@ region_rect = Rect2(1717, 890, 328, 515)
 position = Vector2(260, 300)
 
 [node name="Femur" type="Sprite2D" parent="LegHindR"]
-position = Vector2(115, -135)
+position = Vector2(37.094, -136.758)
+offset = Vector2(77.906, 1.758)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(1371, 1160, 179, 151)
 
 [node name="Tibia" type="Sprite2D" parent="LegHindR/Femur"]
-position = Vector2(73, 379)
+position = Vector2(119.43, 34.464)
+offset = Vector2(31.476, 346.294)
 texture = ExtResource("1")
 region_enabled = true
 region_rect = Rect2(1607, 1257, 173, 785)

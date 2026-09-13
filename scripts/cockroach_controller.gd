@@ -58,16 +58,36 @@ var time_passed: float = 0.0
 @export var bounds_max: Vector2 = Vector2(2760, 1480)
 @export var failsafe_point: Vector2 = Vector2(1456, 816)
 
+@export_group("Locomotion")
+## Velocidad de giro en rad/s. Con el valor antiguo (26) el giro duraba 1-2 frames y parecia un salto.
+@export var turn_speed: float = 9.0
+## Angulo restante (rad) por debajo del cual arranca a andar mientras termina de girar: la salida es un arco.
+@export var start_walk_angle: float = 1.0
+## Segundos para pasar de parada a velocidad plena.
+@export var accel_time: float = 0.12
+## Frena en los ultimos px antes del objetivo sin bajar de esta fraccion de la velocidad.
+@export var brake_distance: float = 120.0
+@export var brake_min_factor: float = 0.35
+## Ruido de rumbo durante la carrera (rad) para que la recta no sea de laser.
+@export var heading_noise: float = 0.12
+
 @export_group("Leg Animation")
-@export var femur_swing_amount: float = 0.28
-@export var tibia_flex_amount: float = 0.18
+## Los sprites de las patas pivotan en cadera y rodilla (offset en cockroach.tscn),
+## asi que las amplitudes pueden ser mayores sin que las piezas se separen.
+@export var femur_swing_amount: float = 0.30
+@export var tibia_flex_amount: float = 0.19
+@export var front_leg_swing_mult: float = 0.85
+@export var hind_leg_swing_mult: float = 1.15
 @export var leg_speed: float = 22.0
-@export var idle_jitter: float = 0.03
+@export var idle_jitter: float = 0.02
 @export var walk_jitter: float = 0.02
 
 var femur_rest: Dictionary = {}
 var tibia_rest: Dictionary = {}
 var leg_offsets: Array = []
+var leg_side: Dictionary = {}
+var leg_amp: Dictionary = {}
+var speed_factor: float = 0.0
 var walk_weight: float = 0.0
 var offset_ant_l: float
 var offset_ant_r: float
@@ -87,6 +107,16 @@ func _ready() -> void:
 		if f:
 			femur_rest[f] = f.rotation
 			leg_offsets.append(randf_range(0.0, 100.0))
+			# Una rotacion positiva adelanta una pata izquierda y atrasa una derecha:
+			# el lado invierte el signo para que el tripode alterno sea real.
+			var leg_name: String = f.get_parent().name
+			leg_side[f] = -1.0 if leg_name.ends_with("R") else 1.0
+			if leg_name.begins_with("LegFront"):
+				leg_amp[f] = front_leg_swing_mult
+			elif leg_name.begins_with("LegHind"):
+				leg_amp[f] = hind_leg_swing_mult
+			else:
+				leg_amp[f] = 1.0
 			var t = f.get_node_or_null("Tibia")
 			if t:
 				tibias[f] = t
@@ -154,24 +184,44 @@ func _update_visibility_logic() -> void:
 	modulate = color_edge_fog.lerp(color_center * color_center_warmth, smooth_factor)
 	modulate.a = lerp(min_alpha_fog, 1.0, smooth_factor)
 
+## Gira en el sitio solo lo justo; el resto del giro lo termina ya en marcha.
 func _process_rotating_logic(delta: float) -> void:
-	var speed_mod = 1.8 if is_scared else 1.3
-	rotation = rotate_toward(rotation, target_rotation, 20.0 * speed_mod * delta)
-	if abs(angle_difference(rotation, target_rotation)) < 0.05:
-		rotation = target_rotation
+	var speed_mod = 1.6 if is_scared else 1.0
+	rotation = rotate_toward(rotation, target_rotation, turn_speed * speed_mod * delta)
+	if abs(angle_difference(rotation, target_rotation)) < start_walk_angle:
 		_enter_state(State.WALKING)
 
-## Avanza hacia el objetivo sin pasarse nunca de el: a pocos FPS un frame puede
-## recorrer 80-90 px y antes saltaba la ventana de llegada y seguia recto.
+## Avanza en la direccion en la que mira mientras sigue corrigiendo el rumbo hacia el
+## objetivo: la salida es un arco, no un giro seco y una recta. Rampa de arranque,
+## frenada al llegar y un poco de ruido de rumbo. Nunca se pasa del objetivo.
 func _process_movement_logic(delta: float) -> void:
-	global_position = global_position.move_toward(target_position, move_speed * delta)
-	if global_position.distance_to(target_position) < 1.0:
-		if is_investigating and global_position.distance_to(last_impact_pos) < 30:
-			arrived_at_impact = true
-			global_position = last_impact_pos
-		if is_scared:
-			corner_cooldown = true
-		_enter_state(State.PAUSED)
+	var to_target = target_position - global_position
+	var dist = to_target.length()
+	if dist < 0.001:
+		_arrive()
+		return
+	var speed_mod = 1.6 if is_scared else 1.0
+	var wander = noise.get_noise_1d(time_passed * 3.0 + 300.0) * heading_noise * clamp(dist / 200.0, 0.0, 1.0)
+	var desired = to_target.angle() + PI / 2 + wander
+	rotation = rotate_toward(rotation, desired, turn_speed * speed_mod * delta)
+	speed_factor = move_toward(speed_factor, 1.0, delta / accel_time)
+	var brake = clamp(dist / brake_distance, brake_min_factor, 1.0)
+	var forward = Vector2.UP.rotated(rotation)
+	var step = min(move_speed * speed_factor * brake * delta, dist)
+	global_position += forward * step
+	var remaining = target_position - global_position
+	if remaining.length() < 8.0 or forward.dot(remaining) <= 0.0:
+		if remaining.length() < 40.0:
+			global_position = target_position
+		_arrive()
+
+func _arrive() -> void:
+	if is_investigating and global_position.distance_to(last_impact_pos) < 30:
+		arrived_at_impact = true
+		global_position = last_impact_pos
+	if is_scared:
+		corner_cooldown = true
+	_enter_state(State.PAUSED)
 
 func _update_all_legs_animation(delta: float) -> void:
 	var anim_speed = leg_speed * (1.8 if is_scared else 1.0)
@@ -181,13 +231,16 @@ func _update_all_legs_animation(delta: float) -> void:
 			continue
 		var current_jitter = lerp(idle_jitter, walk_jitter, walk_weight)
 		var jitter = noise.get_noise_1d((time_passed + leg_offsets[i]) * 25.0) * current_jitter
+		# Tripode alterno: [FrontL, MidR, HindL] en fase 0 y [FrontR, MidL, HindR] en fase PI.
 		var base_phase = 0.0 if i < 3 else PI
 		var cycle = time_passed * anim_speed + base_phase
 		var wave = sin(cycle)
-		f.rotation = femur_rest[f] + wave * femur_swing_amount * walk_weight + jitter
+		var side: float = leg_side.get(f, 1.0)
+		var amp: float = leg_amp.get(f, 1.0)
+		f.rotation = femur_rest[f] + side * wave * femur_swing_amount * amp * walk_weight + jitter
 		if tibias.has(f):
 			var t = tibias[f]
-			t.rotation = tibia_rest[t] + sin(cycle - 0.4) * tibia_flex_amount * walk_weight + jitter * 0.5
+			t.rotation = tibia_rest[t] + side * sin(cycle - 0.4) * tibia_flex_amount * amp * walk_weight + jitter * 0.5
 
 func _process_antennae(delta: float) -> void:
 	var m = 1.0 + walk_weight * (2.8 if is_scared else 1.2)
@@ -207,6 +260,7 @@ func _enter_state(new_state: State) -> void:
 			move_speed = base_speed * (1.9 if is_scared else 1.0)
 			target_rotation = (target_position - global_position).angle() + PI / 2
 		State.WALKING:
+			speed_factor = 0.0
 			state_timer = randf_range(0.4, 0.7) if is_investigating else (randf_range(0.8, 1.4) if is_scared else randf_range(0.5, 1.0))
 		State.PAUSED:
 			if corner_cooldown:
