@@ -13,8 +13,10 @@ signal finished
 ## Periodo de la pulsacion en bucle y tiempo que permanece hundida.
 @export var press_period: float = 1.4
 @export var press_hold: float = 0.22
-@export var symbol_color: Color = Color(0.92, 0.78, 0.5)
-@export var success_flash: Color = Color(1.7, 1.45, 1.0)
+@export var symbol_color: Color = Color(0.72, 0.6, 0.42)
+## Tinte y opacidad en reposo: apagado, para que no chille sobre la escena.
+@export var base_tint: Color = Color(0.7, 0.66, 0.6, 0.82)
+@export var success_flash: Color = Color(1.15, 1.05, 0.85, 0.95)
 
 # Calibracion de las dos texturas (px de textura): anchura de la tecla, eje
 # central, borde inferior y altura del centro de la cara superior. Sirven para
@@ -37,7 +39,7 @@ func _ready() -> void:
 	if action != &"":
 		symbol.set_from_action(action)
 	_apply_state(false)
-	modulate.a = 0.0
+	modulate = Color(base_tint.r, base_tint.g, base_tint.b, 0.0)
 
 func setup(p_action: StringName) -> void:
 	action = p_action
@@ -50,7 +52,7 @@ func appear(activate: bool) -> void:
 	_active = activate
 	_time = press_period - 0.5
 	var tw := create_tween()
-	tw.tween_property(self, "modulate:a", 1.0, 0.6).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(self, "modulate", base_tint, 0.8).set_trans(Tween.TRANS_SINE)
 
 func set_active(activate: bool) -> void:
 	_active = activate
@@ -64,7 +66,7 @@ func succeed(fade_out: bool) -> void:
 	_apply_state(true)
 	var tw := create_tween()
 	tw.tween_property(self, "modulate", success_flash, 0.08)
-	tw.tween_property(self, "modulate", Color(1, 1, 1, 1), 0.25)
+	tw.tween_property(self, "modulate", base_tint, 0.25)
 	if fade_out:
 		tw.tween_interval(0.15)
 		tw.tween_property(self, "modulate:a", 0.0, 0.5).set_trans(Tween.TRANS_SINE)
