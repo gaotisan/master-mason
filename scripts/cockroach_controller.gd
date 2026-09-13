@@ -42,8 +42,18 @@ var corner_cooldown := false
 @export var fade_margin: float = 60.0
 @export var color_center: Color = Color(0.38, 0.38, 0.42)
 @export var color_center_warmth: Color = Color(1.4, 1.25, 0.8)
-@export var color_edge_fog: Color = Color(0.25, 0.28, 0.35)
-@export var min_alpha_fog: float = 0.65
+@export var color_edge_fog: Color = Color(0.2, 0.22, 0.27)
+@export var min_alpha_fog: float = 0.9
+## Dentro del cristal el tinte varia con el brillo del fondo que hay detras de la
+## cucaracha (leido de una copia reducida de la imagen): mas clara junto a las
+## velas, algo mas apagada en las zonas oscuras, nunca negra.
+@export var bg_light_dark: float = 0.12
+@export var bg_light_bright: float = 0.50
+@export var brightness_min: float = 0.85
+@export var brightness_max: float = 1.35
+@export var bg_sample_radius: float = 100.0
+## Cuanto afecta el parpadeo de la vela mas cercana (0 = nada).
+@export var flicker_influence: float = 0.25
 
 var target_position: Vector2
 var target_rotation: float = 0.0
@@ -94,6 +104,11 @@ var offset_ant_r: float
 var is_inside: bool = false
 var was_walking: bool = false
 
+var bg_sprite: Sprite2D
+var bg_lum: Image
+const BG_SCALE := 8
+var candle_lights: Array = []
+
 func _ready() -> void:
 	add_to_group("squashable")
 	_disable_2d_lights(self)
@@ -122,8 +137,52 @@ func _ready() -> void:
 				tibias[f] = t
 				tibia_rest[t] = t.rotation
 
+	_setup_background_light()
 	target_position = failsafe_point
 	_enter_state(State.IDLE)
+
+## Copia reducida del fondo para leer su luminancia, y las luces de las velas
+## para tomar su parpadeo.
+func _setup_background_light() -> void:
+	var holder: Node = get_parent()
+	if holder == null:
+		return
+	bg_sprite = holder.find_child("BackgroundImage", true, false) as Sprite2D
+	if bg_sprite and bg_sprite.texture:
+		var img: Image = bg_sprite.texture.get_image()
+		if img:
+			img = img.duplicate()
+			if img.is_compressed():
+				img.decompress()
+			img.resize(maxi(1, img.get_width() / BG_SCALE), maxi(1, img.get_height() / BG_SCALE), Image.INTERPOLATE_BILINEAR)
+			bg_lum = img
+	candle_lights = holder.find_children("*", "PointLight2D", true, false)
+
+func _bg_luminance(world: Vector2) -> float:
+	if bg_lum == null:
+		return 0.35
+	var local = bg_sprite.to_local(world) + bg_sprite.texture.get_size() * 0.5
+	var x = clampi(int(local.x / BG_SCALE), 0, bg_lum.get_width() - 1)
+	var y = clampi(int(local.y / BG_SCALE), 0, bg_lum.get_height() - 1)
+	return bg_lum.get_pixel(x, y).get_luminance()
+
+## 0 = fondo oscuro tras la cucaracha, 1 = fondo brillante (velas, niebla clara).
+func _background_light() -> float:
+	var p = global_position
+	var r = bg_sample_radius
+	var l_avg = (_bg_luminance(p) * 2.0 + _bg_luminance(p + Vector2(-r, 0)) + _bg_luminance(p + Vector2(r, 0)) + _bg_luminance(p + Vector2(0, -r)) + _bg_luminance(p + Vector2(0, r))) / 6.0
+	var light = smoothstep(bg_light_dark, bg_light_bright, l_avg)
+	if flicker_influence > 0.0 and not candle_lights.is_empty():
+		var nearest: PointLight2D = null
+		var best = INF
+		for l in candle_lights:
+			var d = l.global_position.distance_squared_to(p)
+			if d < best:
+				best = d
+				nearest = l
+		if nearest:
+			light *= lerp(1.0, clamp(nearest.energy / 0.5, 0.6, 1.4), flicker_influence)
+	return clamp(light, 0.0, 1.0)
 
 ## La cucaracha simula su propia iluminacion con light_polygon; las luces 2D
 ## de las velas no le aportan nada y cuestan un pase por sprite.
@@ -181,7 +240,10 @@ func _update_visibility_logic() -> void:
 				min_dist = d
 		factor = 1.0 - clamp(min_dist / fade_margin, 0.0, 1.0)
 	var smooth_factor = smoothstep(0.0, 1.0, factor)
-	modulate = color_edge_fog.lerp(color_center * color_center_warmth, smooth_factor)
+	var brightness = lerp(brightness_min, brightness_max, _background_light())
+	var lit = color_center * color_center_warmth * brightness
+	lit.a = 1.0
+	modulate = color_edge_fog.lerp(lit, smooth_factor)
 	modulate.a = lerp(min_alpha_fog, 1.0, smooth_factor)
 
 ## Gira en el sitio solo lo justo; el resto del giro lo termina ya en marcha.
