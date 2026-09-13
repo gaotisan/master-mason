@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/intro/hand.png" id="1"]
 [ext_resource type="Script" path="res://scripts/punch_effect.gd" id="2"]
@@ -38,9 +38,6 @@ tracks/2/keys = {"times": PackedFloat32Array(0.12),"transitions": PackedFloat32A
 _data = {"hit": SubResource("Animation_hit")
 }
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_fist"]
-radius = 350.0
-
 [node name="PunchEffect" type="Node2D"]
 script = ExtResource("2")
 
@@ -57,13 +54,3 @@ libraries = {"": SubResource("AnimationLibrary_punch")
 [node name="HitSound" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource("3")
 volume_db = 5.0
-
-[node name="ImpactArea" type="Area2D" parent="."]
-position = Vector2(150, 250)
-collision_layer = 0
-collision_mask = 2
-monitorable = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ImpactArea"]
-shape = SubResource("CircleShape2D_fist")
-debug_color = Color(0.7, 0, 0, 0.42)

@@ -218,7 +218,7 @@ position = Vector2(1300, 1005)
 zone_radius = 180.0
 depth = 1.0
 num_flies = 5
-base_fly_size = 6.0
+base_fly_size = 8.0
 fly_color = Color(0.18, 0.2, 0.22, 0.9)
 
 [node name="FliesLeftCandles" parent="." instance=ExtResource("10_flies")]
@@ -227,7 +227,7 @@ position = Vector2(950, 950)
 zone_radius = 120.0
 depth = 0.8
 num_flies = 5
-base_fly_size = 4.8
+base_fly_size = 6.5
 fly_color = Color(0.1, 0.09, 0.09, 1.0)
 
 [node name="HangingPig" parent="." instance=ExtResource("8")]

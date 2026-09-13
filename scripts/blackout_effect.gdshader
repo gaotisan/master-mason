@@ -40,10 +40,11 @@ void fragment() {
 	float vignette = smoothstep(0.25, 0.85, dist);
 	color.rgb = mix(color.rgb, color.rgb * (1.0 - vignette * 0.9), vignette_intensity);
 	
-	// Parpadeo - párpados suaves
-	float eyelid_close = blink;
-	float top_lid = smoothstep(eyelid_close * 0.5, eyelid_close * 0.5 + 0.05, uv.y);
-	float bottom_lid = smoothstep(eyelid_close * 0.5, eyelid_close * 0.5 + 0.05, 1.0 - uv.y);
+	// Parpadeo - párpados con arco: bajan más por el centro que por los extremos.
+	float arc = 1.0 - pow(abs(uv.x - 0.5) * 2.0, 2.0);
+	float lid = blink * (0.5 + 0.08 * arc);
+	float top_lid = smoothstep(lid, lid + 0.08, uv.y);
+	float bottom_lid = smoothstep(lid, lid + 0.08, 1.0 - uv.y);
 	float eye_open = top_lid * bottom_lid;
 	color.rgb *= eye_open;
 	

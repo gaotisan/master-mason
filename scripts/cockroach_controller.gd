@@ -161,9 +161,11 @@ func _process_rotating_logic(delta: float) -> void:
 		rotation = target_rotation
 		_enter_state(State.WALKING)
 
+## Avanza hacia el objetivo sin pasarse nunca de el: a pocos FPS un frame puede
+## recorrer 80-90 px y antes saltaba la ventana de llegada y seguia recto.
 func _process_movement_logic(delta: float) -> void:
-	global_position += Vector2.UP.rotated(rotation) * move_speed * delta
-	if global_position.distance_to(target_position) < 25:
+	global_position = global_position.move_toward(target_position, move_speed * delta)
+	if global_position.distance_to(target_position) < 1.0:
 		if is_investigating and global_position.distance_to(last_impact_pos) < 30:
 			arrived_at_impact = true
 			global_position = last_impact_pos
@@ -198,7 +200,7 @@ func _enter_state(new_state: State) -> void:
 	current_state = new_state
 	match new_state:
 		State.IDLE:
-			state_timer = randf_range(6.0, 10.0) if arrived_at_impact else randf_range(idle_time_min, idle_time_max)
+			state_timer = randf_range(idle_time_min, idle_time_max)
 		State.ROTATING:
 			_pick_new_target()
 			var base_speed = randf_range(950, 1150)
@@ -290,6 +292,8 @@ func die() -> void:
 
 	ant_l.visible = false
 	ant_r.visible = false
+	shadow.visible = false
+	rim_light.visible = false
 	for f in femurs:
 		f.visible = false
 

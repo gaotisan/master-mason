@@ -16,7 +16,8 @@ extends Node2D
 @export_group("Fly Behavior")
 @export var flight_speed: float = 100.0
 @export var land_chance: float = 0.012
-@export var takeoff_chance: float = 0.008
+@export var takeoff_chance: float = 0.3
+@export var walk_speed: float = 25.0
 
 # === ESTADO INTERNO ===
 var flies: Array = []
@@ -95,15 +96,35 @@ func _start_landing(fly: Dictionary) -> void:
 func _update_landing(fly: Dictionary, delta: float) -> void:
 	fly["pos"] = fly["pos"].lerp(fly["land_pos"], delta * 7.0)
 	fly["z_height"] = move_toward(fly["z_height"], 0.0, delta * 45.0)
-	if fly["z_height"] <= 0.1: fly["state"] = FlyState.LANDED
+	if fly["z_height"] <= 0.1:
+		_land(fly)
+
+func _land(fly: Dictionary) -> void:
+	fly["state"] = FlyState.LANDED
+	fly["z_height"] = 0.0
+	fly["state_timer"] = randf_range(0.8, 3.0)
 
 func _update_landed(fly: Dictionary, delta: float) -> void:
-	if fly["state_timer"] <= 0: fly["state"] = FlyState.TAKING_OFF if randf() < 0.3 else FlyState.WALKING
+	if fly["state_timer"] > 0:
+		return
+	if randf() < takeoff_chance:
+		fly["state"] = FlyState.TAKING_OFF
+		fly["circle_center"] = fly["pos"]
+	else:
+		fly["state"] = FlyState.WALKING
+		fly["walk_dir"] = Vector2.from_angle(randf() * TAU)
+		fly["walk_timer"] = randf_range(0.4, 1.5)
+		fly["facing"] = fly["walk_dir"].angle()
 
 func _update_walking(fly: Dictionary, delta: float) -> void:
 	fly["walk_timer"] -= delta
-	fly["pos"] += fly["walk_dir"] * 12.0 * delta
-	if fly["walk_timer"] <= 0: fly["state"] = FlyState.LANDED
+	fly["pos"] += fly["walk_dir"] * walk_speed * delta
+	# Que no se salga de la zona: si toca el borde, da la vuelta.
+	if fly["pos"].length() > zone_radius:
+		fly["pos"] = fly["pos"].normalized() * zone_radius
+		fly["walk_dir"] = -fly["walk_dir"]
+	if fly["walk_timer"] <= 0:
+		_land(fly)
 
 func _update_takeoff(fly: Dictionary, delta: float) -> void:
 	fly["z_height"] = move_toward(fly["z_height"], 10.0, delta * 50.0)

@@ -17,9 +17,11 @@ var blackout := 0.0
 var blink := 0.0
 var tint := 0.0
 
-var blink_schedule := [4.0, 5.2, 6.2, 7.0, 7.6, 8.1, 8.5]
+# Todos dentro de la fase 2 (3.0-7.5 s), cada vez mas seguidos hacia el desmayo.
+var blink_schedule := [3.6, 4.6, 5.4, 6.0, 6.5, 6.9, 7.2]
 var next_blink_idx := 0
 var is_blinking := false
+var blink_tween: Tween
 
 @export var next_scene: String = "res://scenes/intro/title_screen.tscn"
 
@@ -94,6 +96,9 @@ func _process(delta: float) -> void:
 	
 	# Fase 3: Desmayo (7.5-10s)
 	elif t < 10.0:
+		if blink_tween and blink_tween.is_running():
+			blink_tween.kill()
+			is_blinking = false
 		var p = (t - 7.5) / 2.5
 		blur = 2.5 + p * 1.0
 		vignette = 0.6 + p * 0.35
@@ -127,10 +132,10 @@ func _do_blink() -> void:
 	var close_val = randf_range(0.45, 0.75)
 	var dur = randf_range(0.3, 0.5)
 	
-	var tw = create_tween()
-	tw.tween_property(self, "blink", close_val, dur * 0.4).set_trans(Tween.TRANS_SINE)
-	tw.tween_property(self, "blink", 0.0, dur * 0.6).set_trans(Tween.TRANS_SINE)
-	tw.tween_callback(func(): is_blinking = false)
+	blink_tween = create_tween()
+	blink_tween.tween_property(self, "blink", close_val, dur * 0.4).set_trans(Tween.TRANS_SINE)
+	blink_tween.tween_property(self, "blink", 0.0, dur * 0.6).set_trans(Tween.TRANS_SINE)
+	blink_tween.tween_callback(func(): is_blinking = false)
 
 func _update_shader() -> void:
 	if shader_mat:

@@ -11,6 +11,7 @@ var cristal: ColorRect
 var breath_timestamps := [0.9, 3.1, 5.2, 7.4, 9.1, 11.2, 13.5]
 var current_breath_idx := 0
 var playback_timer := 0.0
+var last_playback := 0.0
 var residue_level := 0.0
 
 var is_slowing := false
@@ -40,6 +41,11 @@ func _process(delta):
 		self.play()
 	
 	playback_timer = breathing_node.get_playback_position()
+	# El loop ha vuelto al principio si la posicion retrocede; no depende de pillar
+	# un frame concreto por debajo de un umbral.
+	if playback_timer < last_playback:
+		current_breath_idx = 0
+	last_playback = playback_timer
 	residue_level = max(residue_level - 0.03 * delta, 0.0)
 	
 	if cristal and cristal.material:
@@ -56,9 +62,6 @@ func _process(delta):
 		if playback_timer >= breath_timestamps[current_breath_idx]:
 			_do_vaho_pulse(1.3, vaho_base_intensity)
 			current_breath_idx += 1
-	
-	if playback_timer < 0.1 and current_breath_idx > 0:
-		current_breath_idx = 0
 
 func _do_vaho_pulse(duration: float, power: float):
 	if not cristal or not cristal.material:
