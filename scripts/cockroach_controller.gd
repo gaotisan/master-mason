@@ -97,14 +97,12 @@ var time_passed: float = 0.0
 ## fraccion de su cuerpo por cada ciclo completo de patas. Mas bajo = patas mas
 ## rapidas y menos sensacion de patinar.
 @export var stride_body_lengths: float = 0.7
-## Limites de cadencia en Hz.
+## Limites de cadencia en Hz. El tope no depende de la maquina a proposito: asi
+## la cucaracha se mueve igual en todos los equipos. A 7,5 Hz la animacion se ve
+## bien de 15 fotogramas por segundo en adelante, y por debajo de eso el juego ya
+## no es jugable.
 @export var cadence_min_hz: float = 2.5
 @export var cadence_max_hz: float = 7.5
-## Fotogramas minimos por ciclo de patas. Con menos de 4 la animacion se ve a
-## saltos y con menos de 2 las patas parecen ir hacia atras. En una maquina lenta
-## la cadencia se limita sola en vez de parpadear: patina un poco mas, pero nunca
-## se rompe. En una rapida manda cadence_max_hz.
-@export var min_frames_per_cycle: float = 4.0
 @export var idle_jitter: float = 0.02
 @export var walk_jitter: float = 0.02
 
@@ -317,9 +315,7 @@ func _arrive() -> void:
 ## y parecia patinar. Ahora la zancada es siempre la misma distancia.
 func _update_all_legs_animation(delta: float) -> void:
 	var stride_px = maxf(stride_body_lengths * body_length, 1.0)
-	var fps := float(Engine.get_frames_per_second())
-	var fps_cap := cadence_max_hz if fps <= 0.0 else fps / maxf(min_frames_per_cycle, 2.0)
-	cadence_hz = clampf(ground_speed / stride_px, cadence_min_hz, minf(cadence_max_hz, fps_cap))
+	cadence_hz = clampf(ground_speed / stride_px, cadence_min_hz, cadence_max_hz)
 	leg_phase += cadence_hz * TAU * delta
 	var swing_mult = scared_swing_mult if is_scared else 1.0
 	for i in range(femurs.size()):
