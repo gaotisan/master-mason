@@ -73,11 +73,13 @@ var time_passed: float = 0.0
 @export var turn_speed: float = 9.0
 ## Angulo restante (rad) por debajo del cual arranca a andar mientras termina de girar: la salida es un arco.
 @export var start_walk_angle: float = 1.0
-## Segundos para pasar de parada a velocidad plena.
-@export var accel_time: float = 0.12
-## Frena en los ultimos px antes del objetivo sin bajar de esta fraccion de la velocidad.
-@export var brake_distance: float = 120.0
-@export var brake_min_factor: float = 0.35
+## Segundos para pasar de parada a velocidad plena. Corto: la cucaracha sale
+## disparada, no acelera como un coche.
+@export var accel_time: float = 0.05
+## Frena en los ultimos px antes del objetivo sin bajar de esta fraccion de la
+## velocidad. Poca cosa: solo evita el frenazo seco, el paron sigue siendo brusco.
+@export var brake_distance: float = 40.0
+@export var brake_min_factor: float = 0.75
 ## Ruido de rumbo durante la carrera (rad) para que la recta no sea de laser.
 @export var heading_noise: float = 0.12
 
@@ -88,7 +90,21 @@ var time_passed: float = 0.0
 @export var tibia_flex_amount: float = 0.19
 @export var front_leg_swing_mult: float = 0.85
 @export var hind_leg_swing_mult: float = 1.15
-@export var leg_speed: float = 22.0
+## Amplitud extra durante la huida: al huir no solo mueve las patas mas deprisa,
+## tambien las abre mas. Sube la sensacion de panico sin subir la frecuencia.
+@export var scared_swing_mult: float = 1.3
+## La cadencia va ligada a la velocidad real de suelo: la cucaracha avanza esta
+## fraccion de su cuerpo por cada ciclo completo de patas. Mas bajo = patas mas
+## rapidas y menos sensacion de patinar.
+@export var stride_body_lengths: float = 0.7
+## Limites de cadencia en Hz.
+@export var cadence_min_hz: float = 2.5
+@export var cadence_max_hz: float = 7.5
+## Fotogramas minimos por ciclo de patas. Con menos de 4 la animacion se ve a
+## saltos y con menos de 2 las patas parecen ir hacia atras. En una maquina lenta
+## la cadencia se limita sola en vez de parpadear: patina un poco mas, pero nunca
+## se rompe. En una rapida manda cadence_max_hz.
+@export var min_frames_per_cycle: float = 4.0
 @export var idle_jitter: float = 0.02
 @export var walk_jitter: float = 0.02
 
@@ -98,6 +114,12 @@ var leg_offsets: Array = []
 var leg_side: Dictionary = {}
 var leg_amp: Dictionary = {}
 var speed_factor: float = 0.0
+## Velocidad de suelo del ultimo frame y cadencia resultante (solo lectura).
+var ground_speed: float = 0.0
+var cadence_hz: float = 0.0
+var leg_phase: float = 0.0
+var body_length: float = 236.0
+var _prev_global_pos := Vector2.ZERO
 var walk_weight: float = 0.0
 var offset_ant_l: float
 var offset_ant_r: float
@@ -138,6 +160,8 @@ func _ready() -> void:
 				tibia_rest[t] = t.rotation
 
 	_setup_background_light()
+	body_length = body.region_rect.size.y * global_scale.y
+	_prev_global_pos = global_position
 	target_position = failsafe_point
 	_enter_state(State.IDLE)
 
@@ -207,10 +231,13 @@ func _process(delta: float) -> void:
 			walk_weight = move_toward(walk_weight, 0.0, delta * 8.0)
 			_process_rotating_logic(delta)
 		State.WALKING:
-			walk_weight = move_toward(walk_weight, 1.0, delta * 5.0)
+			walk_weight = move_toward(walk_weight, 1.0, delta * 9.0)
 			_process_movement_logic(delta)
 			if state_timer <= 0:
 				_enter_state(State.PAUSED)
+
+	ground_speed = _prev_global_pos.distance_to(global_position) / maxf(delta, 0.0001)
+	_prev_global_pos = global_position
 
 	_update_step_sound()
 	_update_all_legs_animation(delta)
@@ -285,8 +312,16 @@ func _arrive() -> void:
 		corner_cooldown = true
 	_enter_state(State.PAUSED)
 
+## La fase de las patas avanza con la velocidad de suelo, no con un reloj fijo:
+## a 3,5 Hz constantes la cucaracha recorria casi 1,2 veces su cuerpo por zancada
+## y parecia patinar. Ahora la zancada es siempre la misma distancia.
 func _update_all_legs_animation(delta: float) -> void:
-	var anim_speed = leg_speed * (1.8 if is_scared else 1.0)
+	var stride_px = maxf(stride_body_lengths * body_length, 1.0)
+	var fps := float(Engine.get_frames_per_second())
+	var fps_cap := cadence_max_hz if fps <= 0.0 else fps / maxf(min_frames_per_cycle, 2.0)
+	cadence_hz = clampf(ground_speed / stride_px, cadence_min_hz, minf(cadence_max_hz, fps_cap))
+	leg_phase += cadence_hz * TAU * delta
+	var swing_mult = scared_swing_mult if is_scared else 1.0
 	for i in range(femurs.size()):
 		var f = femurs[i]
 		if not f:
@@ -295,14 +330,14 @@ func _update_all_legs_animation(delta: float) -> void:
 		var jitter = noise.get_noise_1d((time_passed + leg_offsets[i]) * 25.0) * current_jitter
 		# Tripode alterno: [FrontL, MidR, HindL] en fase 0 y [FrontR, MidL, HindR] en fase PI.
 		var base_phase = 0.0 if i < 3 else PI
-		var cycle = time_passed * anim_speed + base_phase
+		var cycle = leg_phase + base_phase
 		var wave = sin(cycle)
 		var side: float = leg_side.get(f, 1.0)
 		var amp: float = leg_amp.get(f, 1.0)
-		f.rotation = femur_rest[f] + side * wave * femur_swing_amount * amp * walk_weight + jitter
+		f.rotation = femur_rest[f] + side * wave * femur_swing_amount * swing_mult * amp * walk_weight + jitter
 		if tibias.has(f):
 			var t = tibias[f]
-			t.rotation = tibia_rest[t] + side * sin(cycle - 0.4) * tibia_flex_amount * amp * walk_weight + jitter * 0.5
+			t.rotation = tibia_rest[t] + side * sin(cycle - 0.4) * tibia_flex_amount * swing_mult * amp * walk_weight + jitter * 0.5
 
 func _process_antennae(delta: float) -> void:
 	var m = 1.0 + walk_weight * (2.8 if is_scared else 1.2)
