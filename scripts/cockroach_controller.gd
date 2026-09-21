@@ -82,6 +82,10 @@ var time_passed: float = 0.0
 @export var brake_min_factor: float = 0.75
 ## Ruido de rumbo durante la carrera (rad) para que la recta no sea de laser.
 @export var heading_noise: float = 0.12
+## Al huir elegia esquina solo por lo lejos que quedaba del impacto, sin mirar
+## donde estaba ella: si el golpe caia en medio, corria hacia el puno. Este peso
+## anade "y ademas que le de la espalda al golpe" al criterio.
+@export var corner_flee_bias: float = 900.0
 
 @export_group("Leg Animation")
 ## Los sprites de las patas pivotan en cadera y rodilla (offset en cockroach.tscn),
@@ -97,14 +101,46 @@ var time_passed: float = 0.0
 ## fraccion de su cuerpo por cada ciclo completo de patas. Mas bajo = patas mas
 ## rapidas y menos sensacion de patinar.
 @export var stride_body_lengths: float = 0.7
+## Al huir la zancada se alarga ademas de acelerar, como en el bicho real. Sin
+## esto la cadencia tocaba techo en la huida (pedia 12 Hz, se le daban 7,5) y la
+## zancada real se estiraba a 1,13 veces el cuerpo: volvia a patinar justo en el
+## momento mas visible de la escena.
+@export var stride_scared_mult: float = 1.35
 ## Limites de cadencia en Hz. El tope no depende de la maquina a proposito: asi
-## la cucaracha se mueve igual en todos los equipos. A 7,5 Hz la animacion se ve
-## bien de 15 fotogramas por segundo en adelante, y por debajo de eso el juego ya
-## no es jugable.
+## la cucaracha se mueve igual en todos los equipos. 9,5 Hz es lo que pide la
+## huida con la zancada larga; el paseo se queda igual que antes, en 6,4.
 @export var cadence_min_hz: float = 2.5
-@export var cadence_max_hz: float = 7.5
+@export var cadence_max_hz: float = 9.5
 @export var idle_jitter: float = 0.02
 @export var walk_jitter: float = 0.02
+
+@export_group("Body Motion")
+## La camara es cenital, asi que el cuerpo no puede cabecear hacia el especta-
+## dor: lo que se ve desde arriba es una guiñada (pivota hacia el tripode que
+## apoya), un vaiven lateral y el rebote como un pulso de escala. Lo llevan Body
+## y RimLight; las patas se quedan ancladas y la sombra no acompaña, que es lo
+## que hace que se lea como un cuerpo sobre el suelo y no como un sprite rigido.
+## Las distancias van en unidades locales del sprite (el cuerpo mide 1309 de
+## alto) y el nodo raiz las escala a 0,18: ~5,5 unidades locales son 1 pixel.
+@export var body_yaw_amount: float = 0.021
+@export var body_sway_amount: float = 7.0
+## Al doble de la cadencia: hay dos apoyos por ciclo.
+@export var body_bob_scale: float = 0.006
+## El cuerpo entra en las curvas por detras del rumbo. Segundos de retardo: el
+## desfase sale de la velocidad de giro, asi que solo se nota al girar de verdad.
+@export var body_turn_lag: float = 0.008
+## Tope del retardo en rad (~5 grados), para que un giro de panico no lo descoyunte.
+@export var body_turn_lag_max: float = 0.09
+
+@export_group("Step Sound")
+## El wav es una carrerilla continua de 1,4 s, no un paso suelto: su tono sigue
+## a la cadencia de las patas para que oido y vista vayan juntos. La referencia
+## es la cadencia del paseo normal, donde suena a su tono original.
+@export var step_pitch_ref_hz: float = 6.4
+@export var step_pitch_min: float = 0.75
+@export var step_pitch_max: float = 1.6
+## El corte seco al parar se oia; ahora se apaga en este tiempo.
+@export var step_fade_out: float = 0.12
 
 var femur_rest: Dictionary = {}
 var tibia_rest: Dictionary = {}
@@ -121,6 +157,32 @@ var _prev_global_pos := Vector2.ZERO
 var walk_weight: float = 0.0
 var offset_ant_l: float
 var offset_ant_r: float
+## Fase del ruido de las antenas. Se integra en vez de escalar time_passed: al
+## multiplicar el tiempo por un factor que cambia (m), arrancar a andar saltaba a
+## una zona del ruido sin relacion con la anterior y las antenas daban un
+## latigazo, tanto mayor cuanto mas llevaba corriendo la escena.
+var ant_phase: float = 0.0
+var step_fade: Tween = null
+var step_base_db: float = 0.0
+## Reposo de las piezas que acompañan al cuerpo, para poder recolocarlas cada
+## frame sin acumular deriva.
+var body_rest_pos := Vector2.ZERO
+var body_rest_scale := Vector2.ONE
+var rim_rest_pos := Vector2.ZERO
+var rim_rest_scale := Vector2.ONE
+var ant_rest_l := Vector2.ZERO
+var ant_rest_r := Vector2.ZERO
+var ant_rest_scale_l := Vector2.ONE
+var ant_rest_scale_r := Vector2.ONE
+## El angulo de ruido de cada antena se guarda aparte de su rotacion final: si
+## se suavizara sobre la rotacion ya girada por el cuerpo, se realimentaria.
+var ant_l_angle: float = 0.0
+var ant_r_angle: float = 0.0
+var body_yaw: float = 0.0
+var body_offset := Vector2.ZERO
+var body_bob: float = 1.0
+var body_lag: float = 0.0
+var _prev_rotation: float = 0.0
 var is_inside: bool = false
 var was_walking: bool = false
 
@@ -137,6 +199,19 @@ func _ready() -> void:
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	offset_ant_l = ant_l.rotation
 	offset_ant_r = ant_r.rotation
+	ant_phase = randf_range(0.0, 100.0)
+	step_base_db = step_sound.volume_db
+	ant_l_angle = offset_ant_l
+	ant_r_angle = offset_ant_r
+	ant_rest_l = ant_l.position
+	ant_rest_r = ant_r.position
+	ant_rest_scale_l = ant_l.scale
+	ant_rest_scale_r = ant_r.scale
+	body_rest_pos = body.position
+	body_rest_scale = body.scale
+	rim_rest_pos = rim_light.position
+	rim_rest_scale = rim_light.scale
+	_prev_rotation = rotation
 
 	for f in femurs:
 		if f:
@@ -232,23 +307,56 @@ func _process(delta: float) -> void:
 			walk_weight = move_toward(walk_weight, 1.0, delta * 9.0)
 			_process_movement_logic(delta)
 			if state_timer <= 0:
+				# Se le acaba el tiempo de huida sin llegar a la esquina: cuenta igual
+				# que llegar. Antes el paron largo de panico salia o no segun la
+				# geometria, porque solo se armaba en _arrive().
+				if is_scared:
+					corner_cooldown = true
 				_enter_state(State.PAUSED)
 
 	ground_speed = _prev_global_pos.distance_to(global_position) / maxf(delta, 0.0001)
 	_prev_global_pos = global_position
 
-	_update_step_sound()
 	_update_all_legs_animation(delta)
+	_update_body_motion(delta)
+	_update_step_sound(delta)
 	_process_antennae(delta)
 	_update_visibility_logic()
 
-func _update_step_sound() -> void:
+func _update_step_sound(delta: float) -> void:
 	var is_walking = current_state == State.WALKING and walk_weight > 0.3
-	if is_walking and not was_walking:
-		step_sound.play()
-	elif not is_walking and was_walking:
-		step_sound.stop()
+	if is_walking:
+		# El sample dura 1,4 s y las carreras de panico duran mas: se relanza al
+		# acabarse. El AudioStreamRandomizer le cambia tono y volumen cada vez,
+		# asi que no se oye el punto de union.
+		if step_fade:
+			_kill_step_fade()
+		if not step_sound.playing:
+			step_sound.volume_db = step_base_db
+			step_sound.play()
+	elif was_walking:
+		_fade_step_out()
+	if step_sound.playing:
+		var target_pitch = clampf(cadence_hz / step_pitch_ref_hz, step_pitch_min, step_pitch_max)
+		step_sound.pitch_scale = lerpf(step_sound.pitch_scale, target_pitch, 1.0 - exp(-8.0 * delta))
 	was_walking = is_walking
+
+func _kill_step_fade() -> void:
+	if is_instance_valid(step_fade):
+		step_fade.kill()
+	step_fade = null
+	step_sound.volume_db = step_base_db
+
+func _fade_step_out() -> void:
+	_kill_step_fade()
+	step_fade = create_tween()
+	step_fade.tween_property(step_sound, "volume_db", step_base_db - 24.0, step_fade_out)
+	step_fade.tween_callback(step_sound.stop)
+	step_fade.tween_callback(_on_step_fade_done)
+
+func _on_step_fade_done() -> void:
+	step_sound.volume_db = step_base_db
+	step_fade = null
 
 func _update_visibility_logic() -> void:
 	var pos = global_position
@@ -314,7 +422,8 @@ func _arrive() -> void:
 ## a 3,5 Hz constantes la cucaracha recorria casi 1,2 veces su cuerpo por zancada
 ## y parecia patinar. Ahora la zancada es siempre la misma distancia.
 func _update_all_legs_animation(delta: float) -> void:
-	var stride_px = maxf(stride_body_lengths * body_length, 1.0)
+	var stride = stride_body_lengths * (stride_scared_mult if is_scared else 1.0)
+	var stride_px = maxf(stride * body_length, 1.0)
 	cadence_hz = clampf(ground_speed / stride_px, cadence_min_hz, cadence_max_hz)
 	leg_phase += cadence_hz * TAU * delta
 	var swing_mult = scared_swing_mult if is_scared else 1.0
@@ -335,12 +444,52 @@ func _update_all_legs_animation(delta: float) -> void:
 			var t = tibias[f]
 			t.rotation = tibia_rest[t] + side * sin(cycle - 0.4) * tibia_flex_amount * swing_mult * amp * walk_weight + jitter * 0.5
 
+## Movimiento del cuerpo sobre las patas. Todo va escalado por walk_weight menos
+## el retardo de giro, que si se nota cuando gira parada en el sitio.
+func _update_body_motion(delta: float) -> void:
+	var ang_vel = angle_difference(_prev_rotation, rotation) / maxf(delta, 0.0001)
+	_prev_rotation = rotation
+	var lag_target = clampf(-ang_vel * body_turn_lag, -body_turn_lag_max, body_turn_lag_max)
+	body_lag = lerpf(body_lag, lag_target, 1.0 - exp(-12.0 * delta))
+
+	# En fase con el tripode: sin(leg_phase) es el mismo termino que mueve los
+	# femures del tripode [FrontL, MidR, HindL].
+	var sway = sin(leg_phase) * walk_weight
+	body_yaw = sway * body_yaw_amount + body_lag
+	body_offset = Vector2(sway * body_sway_amount, 0.0)
+	# El rebote es una escala uniforme alrededor del centro del cuerpo, asi que
+	# las piezas de alrededor tienen que escalar su posicion ademas de su tamaño;
+	# si no, la base de las antenas se despega de la cabeza.
+	body_bob = 1.0 + cos(leg_phase * 2.0) * body_bob_scale * walk_weight
+
+	# Body y RimLight comparten region y se solapan: el mismo transformado a los
+	# dos o el reflejo se despega de la silueta.
+	body.rotation = body_yaw
+	body.position = body_rest_pos.rotated(body_yaw) + body_offset
+	body.scale = body_rest_scale * body_bob
+	rim_light.rotation = body_yaw
+	rim_light.position = rim_rest_pos.rotated(body_yaw) * body_bob + body_offset
+	rim_light.scale = rim_rest_scale * body_bob
+
 func _process_antennae(delta: float) -> void:
 	var m = 1.0 + walk_weight * (2.8 if is_scared else 1.2)
-	var n_l = noise.get_noise_1d(time_passed * 1.6 * m)
-	var n_r = noise.get_noise_1d((time_passed + 45.0) * 1.6 * m)
-	ant_l.rotation = lerp_angle(ant_l.rotation, offset_ant_l + n_l * 0.7, delta * 14.0)
-	ant_r.rotation = lerp_angle(ant_r.rotation, offset_ant_r + n_r * 0.7, delta * 14.0)
+	ant_phase += delta * 1.6 * m
+	var n_l = noise.get_noise_1d(ant_phase)
+	var n_r = noise.get_noise_1d(ant_phase + 72.0)
+	# Suavizado exponencial: con delta * 14 el tembleque dependia de los FPS, y
+	# por debajo de 14 el factor pasaba de 1 y las antenas se pasaban de largo.
+	var t = 1.0 - exp(-14.0 * delta)
+	ant_l_angle = lerp_angle(ant_l_angle, offset_ant_l + n_l * 0.7, t)
+	ant_r_angle = lerp_angle(ant_r_angle, offset_ant_r + n_r * 0.7, t)
+	# Nacen en la cabeza, asi que giran y se desplazan con el cuerpo. Body pivota
+	# sobre el origen del nodo raiz, que es su centro, y las antenas orbitan ese
+	# mismo punto: sin esto la base se despegaba ~2 px al balancearse.
+	ant_l.rotation = ant_l_angle + body_yaw
+	ant_r.rotation = ant_r_angle + body_yaw
+	ant_l.position = ant_rest_l.rotated(body_yaw) * body_bob + body_offset
+	ant_r.position = ant_rest_r.rotated(body_yaw) * body_bob + body_offset
+	ant_l.scale = ant_rest_scale_l * body_bob
+	ant_r.scale = ant_rest_scale_r * body_bob
 
 func _enter_state(new_state: State) -> void:
 	current_state = new_state
@@ -385,7 +534,9 @@ func _pick_new_target() -> void:
 			Vector2(bounds_min.x, bounds_min.y), Vector2(bounds_max.x, bounds_min.y),
 			Vector2(bounds_min.x, bounds_max.y), Vector2(bounds_max.x, bounds_max.y)
 		]
-		corners.sort_custom(func(a, b): return a.distance_to(last_impact_pos) > b.distance_to(last_impact_pos))
+		var flee_dir := global_position - last_impact_pos
+		flee_dir = flee_dir.normalized() if flee_dir.length() > 1.0 else Vector2.UP.rotated(rotation)
+		corners.sort_custom(func(a, b): return _corner_score(a, flee_dir) > _corner_score(b, flee_dir))
 		target_position = corners[0] if randf() < 0.7 else corners[1]
 		return
 
@@ -410,6 +561,15 @@ func _pick_new_target() -> void:
 			return
 	target_position = failsafe_point
 
+## Puntua una esquina para huir: lejos del impacto y, ademas, en la direccion
+## contraria al golpe.
+func _corner_score(corner: Vector2, flee_dir: Vector2) -> float:
+	var to_corner := corner - global_position
+	var align := 0.0
+	if to_corner.length() > 1.0:
+		align = to_corner.normalized().dot(flee_dir)
+	return corner.distance_to(last_impact_pos) + align * corner_flee_bias
+
 func _is_pos_valid(pos: Vector2) -> bool:
 	return pos.x > bounds_min.x and pos.x < bounds_max.x and pos.y > bounds_min.y and pos.y < bounds_max.y
 
@@ -418,7 +578,9 @@ func die() -> void:
 		return
 	is_dead = true
 
+	_kill_step_fade()
 	step_sound.stop()
+	step_sound.pitch_scale = 1.0
 	step_sound.stream = squash_audio
 	step_sound.volume_db = 10
 	step_sound.play()
@@ -433,6 +595,8 @@ func die() -> void:
 		burst.emitting = true
 
 	# Visual aplastado
+	body.rotation = 0.0
+	body.position = body_rest_pos
 	body.texture = load("res://assets/intro/cockroach_squashed.png")
 	body.region_enabled = false
 	body.scale = Vector2(1.5, 1.5)
