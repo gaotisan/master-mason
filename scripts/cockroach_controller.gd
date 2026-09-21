@@ -150,8 +150,11 @@ var time_passed: float = 0.0
 ## alto) y el nodo raiz las escala a 0,18: ~5,5 unidades locales son 1 pixel.
 @export var body_yaw_amount: float = 0.021
 @export var body_sway_amount: float = 7.0
-## Al doble de la cadencia: hay dos apoyos por ciclo.
-@export var body_bob_scale: float = 0.006
+## Al doble de la cadencia: hay dos apoyos por ciclo. Desactivado por defecto:
+## medido da 0,7 px de recorrido en el render de 2912, que en una pantalla de
+## 1080p se quedan en 0,46 px. No se ve. Y subirlo lo suficiente para que se
+## viera convertiria un rebote de 13 Hz en un zumbido.
+@export var body_bob_scale: float = 0.0
 ## El cuerpo entra en las curvas por detras del rumbo. Segundos de retardo: el
 ## desfase sale de la velocidad de giro, asi que solo se nota al girar de verdad.
 @export var body_turn_lag: float = 0.008
@@ -545,7 +548,10 @@ func _update_body_motion(delta: float) -> void:
 	# femures del tripode [FrontL, MidR, HindL].
 	var sway = sin(leg_phase) * walk_weight
 	body_yaw = sway * body_yaw_amount + body_lag
-	body_offset = Vector2(sway * body_sway_amount, 0.0)
+	# El vaiven va a noventa grados de la guiñada, no en fase. En fase los dos se
+	# restaban en la cabeza y se sumaban en el abdomen: el bicho coleaba en vez de
+	# pivotar, y la punta de la cabeza se quedaba en 0,85 px de recorrido.
+	body_offset = Vector2(cos(leg_phase) * body_sway_amount * walk_weight, 0.0)
 	# El rebote es una escala uniforme alrededor del centro del cuerpo, asi que
 	# las piezas de alrededor tienen que escalar su posicion ademas de su tamaño;
 	# si no, la base de las antenas se despega de la cabeza.
