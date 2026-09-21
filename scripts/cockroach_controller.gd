@@ -13,6 +13,22 @@ signal died
 var squash_audio = preload("res://assets/audio/slime-splatter.ogg")
 var spore_scene = preload("res://scenes/intro/spore_cloud.tscn")
 
+## Hoja del aplastado: cuerpo y antenas por separado, sacados del png de una
+## pieza. Los offsets ponen el centro de giro de cada antena en su raiz, y las
+## posiciones son su raiz en pixeles de la imagen (1024x1536, centro 512,768)
+## llevada al sistema del cuerpo y escalada como el.
+const DEAD_SHEET := "res://assets/intro/cockroach_squashed_parts.png"
+const DEAD_SCALE := 1.5
+## Pico real de FastNoiseLite Perlin, medido: get_noise_1d no llega a +-1.
+const NOISE_PEAK := 0.40
+const DEAD_BODY_REGION := Rect2(0, 0, 1024, 1536)
+const DEAD_ANT_L := {
+	"region": Rect2(16, 1552, 372, 204), "offset": Vector2(-183.0, -96.0), "base": Vector2(375, 270)
+}
+const DEAD_ANT_R := {
+	"region": Rect2(420, 1552, 385, 213), "offset": Vector2(190.5, -95.5), "base": Vector2(628, 276)
+}
+
 @onready var femurs: Array = [
 	$LegFrontL/Femur, $LegMidR/Femur, $LegHindL/Femur,
 	$LegFrontR/Femur, $LegMidL/Femur, $LegHindR/Femur
@@ -142,6 +158,27 @@ var time_passed: float = 0.0
 ## El corte seco al parar se oia; ahora se apaga en este tiempo.
 @export var step_fade_out: float = 0.12
 
+@export_group("Death Throes")
+## Las antenas siguen barriendo despues del golpe. El blackout deja la imagen
+## nitida 1,5 s y no la emborrona de verdad hasta los 4,5, asi que hay sitio de
+## sobra; pasado ese rato ya no se distingue nada.
+@export var death_twitch_time: float = 4.0
+## Amplitud del barrido en rad al principio (~12,6 grados de pico), decayendo
+## a cero. El ruido se normaliza antes: Perlin solo llega a +-0,39 de pico y
+## +-0,10 de media, asi que sin dividir la amplitud real era la cuarta parte.
+@export var death_twitch_amount: float = 0.22
+## Ciclos por segundo del barrido. La antena derecha va al 0,83 de este ritmo
+## para que las dos no parezcan sincronizadas.
+@export var death_twitch_hz: float = 1.8
+## La derecha se queda quieta antes que la izquierda: las dos apagandose a la
+## vez se lee como un mecanismo.
+@export var death_twitch_asymmetry: float = 0.78
+## Espasmos secos encima del barrido, en segundos desde el golpe. Los dos
+## latigos van en sentidos opuestos: se lee como una convulsion, no como viento.
+@export var death_spasm_times: PackedFloat32Array = [0.10, 0.34, 0.90, 1.8]
+@export var death_spasm_amount: float = 0.22
+@export var death_spasm_width: float = 0.18
+
 var femur_rest: Dictionary = {}
 var tibia_rest: Dictionary = {}
 var leg_offsets: Array = []
@@ -183,6 +220,8 @@ var body_offset := Vector2.ZERO
 var body_bob: float = 1.0
 var body_lag: float = 0.0
 var _prev_rotation: float = 0.0
+## Negativo mientras esta viva; el golpe lo pone a cero y a partir de ahi cuenta.
+var death_time: float = -1.0
 var is_inside: bool = false
 var was_walking: bool = false
 
@@ -291,6 +330,7 @@ func _disable_2d_lights(node: Node) -> void:
 
 func _process(delta: float) -> void:
 	if is_dead:
+		_update_death_throes(delta)
 		return
 	time_passed += delta
 	state_timer -= delta
@@ -570,6 +610,50 @@ func _corner_score(corner: Vector2, flee_dir: Vector2) -> float:
 		align = to_corner.normalized().dot(flee_dir)
 	return corner.distance_to(last_impact_pos) + align * corner_flee_bias
 
+## Recoloca una antena viva sobre su pieza de la hoja del aplastado. El offset
+## lleva el centro de giro a la raiz, asi que al girar la base no se despega de
+## la cabeza. Son hermanas de Body, no hijas, de ahi el * DEAD_SCALE.
+func _setup_dead_antenna(ant: Sprite2D, sheet: Texture2D, d: Dictionary) -> void:
+	ant.texture = sheet
+	ant.region_enabled = true
+	ant.region_rect = d["region"]
+	ant.offset = d["offset"]
+	ant.position = (d["base"] - DEAD_BODY_REGION.size * 0.5) * DEAD_SCALE
+	ant.scale = Vector2(DEAD_SCALE, DEAD_SCALE)
+	ant.rotation = 0.0
+	ant.visible = true
+
+## Coletazo: barrido de ruido que se apaga, con espasmos secos encima en los
+## primeros segundos. Las dos antenas se mueven en sentidos opuestos durante el
+## espasmo para que parezca una convulsion y no una corriente de aire.
+func _update_death_throes(delta: float) -> void:
+	if death_time < 0.0:
+		return
+	death_time += delta
+	var kl := 1.0 - clampf(death_time / death_twitch_time, 0.0, 1.0)
+	var kr := 1.0 - clampf(death_time / (death_twitch_time * death_twitch_asymmetry), 0.0, 1.0)
+	if kl <= 0.0:
+		ant_l.rotation = 0.0
+		ant_r.rotation = 0.0
+		death_time = -1.0
+		return
+	var env_l := kl * kl
+	var env_r := kr * kr
+	var spasm := 0.0
+	for t in death_spasm_times:
+		var u := death_time - t
+		if u >= 0.0 and u < death_spasm_width:
+			spasm += sin(u / death_spasm_width * PI) * death_spasm_amount
+	# Barrido continuo con la amplitud modulada por ruido. Solo con ruido el
+	# latigo se quedaba quieto la mayor parte del tiempo: Perlin pasa mucho mas
+	# rato cerca de cero que cerca de su pico, y salian tirones sueltos.
+	var n_l := noise.get_noise_1d(death_time * 3.0 + 500.0) / NOISE_PEAK
+	var n_r := noise.get_noise_1d(death_time * 3.0 + 900.0) / NOISE_PEAK
+	var w_l := sin(death_time * TAU * death_twitch_hz) * (0.55 + 0.45 * n_l)
+	var w_r := sin(death_time * TAU * death_twitch_hz * 0.83 + 1.7) * (0.55 + 0.45 * n_r)
+	ant_l.rotation = (w_l * death_twitch_amount + spasm) * env_l
+	ant_r.rotation = (w_r * death_twitch_amount - spasm * 0.7) * env_r
+
 func _is_pos_valid(pos: Vector2) -> bool:
 	return pos.x > bounds_min.x and pos.x < bounds_max.x and pos.y > bounds_min.y and pos.y < bounds_max.y
 
@@ -595,14 +679,20 @@ func die() -> void:
 		burst.emitting = true
 
 	# Visual aplastado
+	var sheet: Texture2D = load(DEAD_SHEET)
 	body.rotation = 0.0
 	body.position = body_rest_pos
-	body.texture = load("res://assets/intro/cockroach_squashed.png")
-	body.region_enabled = false
-	body.scale = Vector2(1.5, 1.5)
+	body.texture = sheet
+	body.region_enabled = true
+	body.region_rect = DEAD_BODY_REGION
+	body.scale = Vector2(DEAD_SCALE, DEAD_SCALE)
 
-	ant_l.visible = false
-	ant_r.visible = false
+	# Las antenas ya no se ocultan: son piezas sueltas de la misma hoja y se
+	# quedan en pantalla dando el coletazo.
+	_setup_dead_antenna(ant_l, sheet, DEAD_ANT_L)
+	_setup_dead_antenna(ant_r, sheet, DEAD_ANT_R)
+	death_time = 0.0
+
 	shadow.visible = false
 	rim_light.visible = false
 	for f in femurs:
