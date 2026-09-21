@@ -171,6 +171,20 @@ var time_passed: float = 0.0
 ## El corte seco al parar se oia; ahora se apaga en este tiempo.
 @export var step_fade_out: float = 0.12
 
+@export_group("Impact")
+## La camara es cenital, asi que aplastar no achata: ENSANCHA. El bicho se
+## extiende contra el suelo antes de reventar, y por eso el cadaver acaba siendo
+## mas grande que el vivo. Se extiende mas de ancho que de largo porque el
+## cuerpo es estrecho y alargado, y cede antes por su lado corto.
+@export var crush_time: float = 0.07
+@export var crush_spread: Vector2 = Vector2(1.5, 1.2)
+## Las patas salen despedidas hacia atras en el instante del golpe, en radianes.
+@export var crush_leg_splay: float = -0.45
+## El aplastado entra pasado de tamaño y se asienta. Sin esto aparecia ya clavado
+## en su escala final y el impacto no tenia peso: era un corte de montaje.
+@export var crush_overshoot: float = 1.18
+@export var crush_settle: float = 0.13
+
 @export_group("Death Throes")
 ## Las antenas siguen barriendo despues del golpe. El blackout deja la imagen
 ## nitida 1,5 s y no la emborrona de verdad hasta los 4,5, asi que hay sitio de
@@ -254,6 +268,7 @@ var body_rest_pos := Vector2.ZERO
 var body_rest_scale := Vector2.ONE
 var rim_rest_pos := Vector2.ZERO
 var rim_rest_scale := Vector2.ONE
+var shadow_rest_scale := Vector2.ONE
 var ant_rest_l := Vector2.ZERO
 var ant_rest_r := Vector2.ZERO
 var ant_rest_scale_l := Vector2.ONE
@@ -274,6 +289,12 @@ var dead_legs: Array[Sprite2D] = []
 ## Momento de la proxima sacudida por parpadeo, y su fuerza. -1 = ninguna.
 var blink_twitch_at: float = -1.0
 var blink_twitch_gain: float = 1.0
+## Contacto: >= 0 durante los milisegundos en que el bicho esta chafado pero aun
+## no ha reventado. Mientras dura sigue en pantalla el sprite vivo, deformado.
+var crush_t: float = -1.0
+## El asentamiento del reventon solo corre una vez; sin esta marca la escala se
+## quedaba parada en el ultimo valor interpolado y nunca llegaba a DEAD_SCALE.
+var crush_settled: bool = false
 var is_inside: bool = false
 var was_walking: bool = false
 
@@ -302,6 +323,7 @@ func _ready() -> void:
 	body_rest_scale = body.scale
 	rim_rest_pos = rim_light.position
 	rim_rest_scale = rim_light.scale
+	shadow_rest_scale = shadow.scale
 	_prev_rotation = rotation
 
 	for f in femurs:
@@ -382,7 +404,10 @@ func _disable_2d_lights(node: Node) -> void:
 
 func _process(delta: float) -> void:
 	if is_dead:
-		_update_death_throes(delta)
+		if crush_t >= 0.0:
+			_update_crush(delta)
+		else:
+			_update_death_throes(delta)
 		return
 	time_passed += delta
 	state_timer -= delta
@@ -665,6 +690,68 @@ func _corner_score(corner: Vector2, flee_dir: Vector2) -> float:
 		align = to_corner.normalized().dot(flee_dir)
 	return corner.distance_to(last_impact_pos) + align * corner_flee_bias
 
+## Contacto. El sprite vivo se extiende contra el suelo; al agotarse el tiempo,
+## revienta.
+func _update_crush(delta: float) -> void:
+	crush_t += delta
+	var k := clampf(crush_t / maxf(crush_time, 0.0001), 0.0, 1.0)
+	var e := 1.0 - (1.0 - k) * (1.0 - k)
+	var sp := Vector2(lerpf(1.0, crush_spread.x, e), lerpf(1.0, crush_spread.y, e))
+	body.scale = body_rest_scale * sp
+	# El reflejo calca la silueta del cuerpo y la sombra es su huella: si no se
+	# extienden con el, se despegan durante el contacto.
+	rim_light.scale = rim_rest_scale * sp
+	shadow.scale = shadow_rest_scale * sp
+	if k >= 1.0:
+		_burst()
+
+## Reventon: cambia a la hoja del aplastado, suelta visceras y chapoteo, y entra
+## pasado de tamaño para asentarse justo despues.
+func _burst() -> void:
+	crush_t = -1.0
+	step_sound.pitch_scale = 1.0
+	step_sound.stream = squash_audio
+	step_sound.volume_db = 10
+	step_sound.play()
+
+	var spores = spore_scene.instantiate()
+	get_parent().add_child(spores)
+	spores.global_position = global_position
+	var burst = spores.get_node_or_null("Burst")
+	if burst:
+		burst.emitting = true
+
+	var sheet: Texture2D = load(DEAD_SHEET)
+	body.rotation = 0.0
+	body.position = body_rest_pos
+	body.texture = sheet
+	body.region_enabled = true
+	body.region_rect = DEAD_BODY_REGION
+	_setup_dead_antenna(ant_l, sheet, DEAD_ANT_L)
+	_setup_dead_antenna(ant_r, sheet, DEAD_ANT_R)
+	for d in DEAD_LEGS:
+		dead_legs.append(_make_dead_leg(sheet, d))
+	_apply_dead_scale(DEAD_SCALE * crush_overshoot)
+	death_time = 0.0
+
+	shadow.visible = false
+	rim_light.visible = false
+	for f in femurs:
+		f.visible = false
+
+## Escala del cadaver entero. Las piezas sueltas se colocan en funcion de la
+## escala, asi que hay que mover su posicion ademas de su tamaño o se separan.
+func _apply_dead_scale(s: float) -> void:
+	body.scale = Vector2(s, s)
+	var parts := [[ant_l, DEAD_ANT_L], [ant_r, DEAD_ANT_R]]
+	for i in dead_legs.size():
+		parts.append([dead_legs[i], DEAD_LEGS[i]])
+	for pr in parts:
+		var n: Sprite2D = pr[0]
+		var d: Dictionary = pr[1]
+		n.scale = Vector2(s, s)
+		n.position = (d["base"] - DEAD_BODY_REGION.size * 0.5) * s
+
 ## Recoloca una antena viva sobre su pieza de la hoja del aplastado. El offset
 ## lleva el centro de giro a la raiz, asi que al girar la base no se despega de
 ## la cabeza. Son hermanas de Body, no hijas, de ahi el * DEAD_SCALE.
@@ -699,6 +786,10 @@ func _update_death_throes(delta: float) -> void:
 	if death_time < 0.0:
 		return
 	death_time += delta
+	if not crush_settled:
+		var ks := clampf(death_time / maxf(crush_settle, 0.0001), 0.0, 1.0)
+		_apply_dead_scale(lerpf(DEAD_SCALE * crush_overshoot, DEAD_SCALE, ks * ks))
+		crush_settled = ks >= 1.0
 	if death_time > death_total_time:
 		ant_l.rotation = 0.0
 		ant_r.rotation = 0.0
@@ -771,41 +862,14 @@ func die() -> void:
 
 	_kill_step_fade()
 	step_sound.stop()
-	step_sound.pitch_scale = 1.0
-	step_sound.stream = squash_audio
-	step_sound.volume_db = 10
-	step_sound.play()
 
-	# Partículas de impacto
-	var spores = spore_scene.instantiate()
-	get_parent().add_child(spores)
-	spores.global_position = global_position
-	
-	var burst = spores.get_node_or_null("Burst")
-	if burst:
-		burst.emitting = true
-
-	# Visual aplastado
-	var sheet: Texture2D = load(DEAD_SHEET)
-	body.rotation = 0.0
-	body.position = body_rest_pos
-	body.texture = sheet
-	body.region_enabled = true
-	body.region_rect = DEAD_BODY_REGION
-	body.scale = Vector2(DEAD_SCALE, DEAD_SCALE)
-
-	# Las antenas ya no se ocultan: son piezas sueltas de la misma hoja y se
-	# quedan en pantalla dando el coletazo.
-	_setup_dead_antenna(ant_l, sheet, DEAD_ANT_L)
-	_setup_dead_antenna(ant_r, sheet, DEAD_ANT_R)
-	for d in DEAD_LEGS:
-		dead_legs.append(_make_dead_leg(sheet, d))
-	death_time = 0.0
-
-	shadow.visible = false
-	rim_light.visible = false
+	# Contacto: todavia esta el sprite vivo, extendiendose contra el suelo. El
+	# reventon (textura, visceras y chapoteo) llega en _burst() unos milisegundos
+	# despues, y es ese desfase lo que le da peso al golpe.
+	crush_t = 0.0
 	for f in femurs:
-		f.visible = false
+		if f:
+			f.rotation = femur_rest[f] + leg_side.get(f, 1.0) * crush_leg_splay * leg_amp.get(f, 1.0)
 
 	# Efecto blackout - pasar posición de la cucaracha
 	var blackout_script = load("res://scripts/blackout_controller.gd")
