@@ -26,6 +26,10 @@ var blink_tween: Tween
 @export var next_scene: String = "res://scenes/intro/title_screen.tscn"
 
 signal blackout_complete
+## Se emite al empezar cada parpadeo, con su indice. La cucaracha se engancha
+## aqui para sacudirse justo cuando el parpado vuelve a subir, en vez de llevar
+## copiados los tiempos de blink_schedule y desincronizarse si se tocan.
+signal blinked(index: int)
 
 func start_blackout(origin_pos: Vector2 = Vector2(1456, 816)) -> void:
 	if is_active:
@@ -129,6 +133,7 @@ func _check_blinks(t: float) -> void:
 
 func _do_blink() -> void:
 	is_blinking = true
+	blinked.emit(next_blink_idx)
 	var close_val = randf_range(0.45, 0.75)
 	var dur = randf_range(0.3, 0.5)
 	

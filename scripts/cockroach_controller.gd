@@ -23,11 +23,21 @@ const DEAD_SCALE := 1.5
 const NOISE_PEAK := 0.40
 const DEAD_BODY_REGION := Rect2(0, 0, 1024, 1536)
 const DEAD_ANT_L := {
-	"region": Rect2(16, 1552, 372, 204), "offset": Vector2(-183.0, -96.0), "base": Vector2(375, 270)
+	"region": Rect2(16, 1552, 372, 204), "offset": Vector2(-185.0, -96.0), "base": Vector2(377, 270)
 }
 const DEAD_ANT_R := {
-	"region": Rect2(420, 1552, 385, 213), "offset": Vector2(190.5, -95.5), "base": Vector2(628, 276)
+	"region": Rect2(420, 1552, 385, 213), "offset": Vector2(192.5, -95.5), "base": Vector2(626, 276)
 }
+## Tibia y tarso de las cuatro patas traseras, seccionadas por la rodilla. Las
+## delanteras se quedan enteras en el cuerpo: la izquierda cruzaba la antena y
+## no compensaba volver a seccionar por ahi. "side" hace que las de un lado y
+## las del otro se encojan en espejo durante el espasmo.
+const DEAD_LEGS := [
+	{"region": Rect2(1040, 16, 169, 288), "offset": Vector2(-46.5, 143.0), "base": Vector2(136, 639), "side": 1.0},
+	{"region": Rect2(1225, 16, 210, 296), "offset": Vector2(68.0, 143.0), "base": Vector2(841, 642), "side": -1.0},
+	{"region": Rect2(1451, 16, 125, 441), "offset": Vector2(-43.5, 218.5), "base": Vector2(165, 916), "side": 1.0},
+	{"region": Rect2(1592, 16, 72, 301), "offset": Vector2(34.0, 147.5), "base": Vector2(800, 1070), "side": -1.0},
+]
 
 @onready var femurs: Array = [
 	$LegFrontL/Femur, $LegMidR/Femur, $LegHindL/Femur,
@@ -173,6 +183,40 @@ var time_passed: float = 0.0
 ## La derecha se queda quieta antes que la izquierda: las dos apagandose a la
 ## vez se lee como un mecanismo.
 @export var death_twitch_asymmetry: float = 0.78
+## Las patas se quedan rigidas antes que las antenas y se mueven bastante
+## menos: una cucaracha muerta encoge las patas y las deja, no las barre.
+@export var death_leg_time: float = 2.6
+@export var death_leg_amount: float = 0.09
+@export var death_leg_hz: float = 2.6
+## Reloj maestro del cadaver. El desmayo empieza a los 9 s y a los 10,5 la
+## pantalla ya es negra, asi que animar mas alla no lo ve nadie.
+@export var death_total_time: float = 9.0
+## Meneo lento de las antenas que releva al estertor y aguanta hasta el final.
+## Entra segun se apaga el estertor y no se suma a el, asi que los primeros
+## segundos quedan exactamente igual que antes. 0,09 rad son ~5 grados de tope,
+## que a la escala de la escena mueven la punta unos 7 pixeles: se ve incluso
+## con el desenfoque del desmayo encima.
+@export var death_idle_tremor: float = 0.09
+@export var death_idle_hz: float = 0.7
+## Cuales de los parpadeos del desmayo disparan una sacudida tardia, por orden.
+## No todos: siete seguidas pareceria que sigue viva. Estos tres caen a los
+## 5,1, 6,9 y 7,5 s. Mas alla de los 8 el desenfoque del desmayo ya borra
+## cualquier movimiento, asi que animar ahi no lo ve nadie.
+@export var death_blink_twitches: PackedInt32Array = [0, 2, 3]
+## Segundos tras arrancar el parpadeo. No cierran del todo (bajan entre el 45 y
+## el 75 %) y duran 0,3-0,5 s, asi que a los 0,18 el parpado esta subiendo: es
+## cuando mas sobresalta ver moverse algo que dabas por muerto.
+@export var blink_twitch_delay: float = 0.18
+@export var blink_twitch_amount: float = 0.20
+@export var blink_twitch_width: float = 0.35
+## Cada sacudida es MAS fuerte que la anterior, no mas floja. El desenfoque del
+## desmayo crece con el tiempo (radio de 11 px a los 5,5 s y de 22 a los 7,7), y
+## un movimiento por debajo de ese radio no se percibe: para seguir viendose, la
+## sacudida tiene que crecer al mismo ritmo que lo que la tapa.
+@export var death_blink_ramp: float = 1.3
+## Las patas acompañan la sacudida, pero menos: ya estan rigidas. Aun asi el
+## tramo de tibia es corto, asi que por debajo de esto tampoco vence al borroso.
+@export var death_leg_blink_ratio: float = 0.6
 ## Espasmos secos encima del barrido, en segundos desde el golpe. Los dos
 ## latigos van en sentidos opuestos: se lee como una convulsion, no como viento.
 @export var death_spasm_times: PackedFloat32Array = [0.10, 0.34, 0.90, 1.8]
@@ -222,6 +266,11 @@ var body_lag: float = 0.0
 var _prev_rotation: float = 0.0
 ## Negativo mientras esta viva; el golpe lo pone a cero y a partir de ahi cuenta.
 var death_time: float = -1.0
+## Las cuatro tibias traseras, creadas al morir.
+var dead_legs: Array[Sprite2D] = []
+## Momento de la proxima sacudida por parpadeo, y su fuerza. -1 = ninguna.
+var blink_twitch_at: float = -1.0
+var blink_twitch_gain: float = 1.0
 var is_inside: bool = false
 var was_walking: bool = false
 
@@ -623,6 +672,20 @@ func _setup_dead_antenna(ant: Sprite2D, sheet: Texture2D, d: Dictionary) -> void
 	ant.rotation = 0.0
 	ant.visible = true
 
+## Las tibias no existen mientras esta viva: se crean al morir y se cuelgan del
+## nodo raiz, igual que las antenas, para heredar su giro pero no el del cuerpo.
+func _make_dead_leg(sheet: Texture2D, d: Dictionary) -> Sprite2D:
+	var s := Sprite2D.new()
+	s.texture = sheet
+	s.region_enabled = true
+	s.region_rect = d["region"]
+	s.offset = d["offset"]
+	s.position = (d["base"] - DEAD_BODY_REGION.size * 0.5) * DEAD_SCALE
+	s.scale = Vector2(DEAD_SCALE, DEAD_SCALE)
+	s.light_mask = 0
+	add_child(s)
+	return s
+
 ## Coletazo: barrido de ruido que se apaga, con espasmos secos encima en los
 ## primeros segundos. Las dos antenas se mueven en sentidos opuestos durante el
 ## espasmo para que parezca una convulsion y no una corriente de aire.
@@ -630,13 +693,15 @@ func _update_death_throes(delta: float) -> void:
 	if death_time < 0.0:
 		return
 	death_time += delta
-	var kl := 1.0 - clampf(death_time / death_twitch_time, 0.0, 1.0)
-	var kr := 1.0 - clampf(death_time / (death_twitch_time * death_twitch_asymmetry), 0.0, 1.0)
-	if kl <= 0.0:
+	if death_time > death_total_time:
 		ant_l.rotation = 0.0
 		ant_r.rotation = 0.0
+		for leg in dead_legs:
+			leg.rotation = 0.0
 		death_time = -1.0
 		return
+	var kl := 1.0 - clampf(death_time / death_twitch_time, 0.0, 1.0)
+	var kr := 1.0 - clampf(death_time / (death_twitch_time * death_twitch_asymmetry), 0.0, 1.0)
 	var env_l := kl * kl
 	var env_r := kr * kr
 	var spasm := 0.0
@@ -647,12 +712,48 @@ func _update_death_throes(delta: float) -> void:
 	# Barrido continuo con la amplitud modulada por ruido. Solo con ruido el
 	# latigo se quedaba quieto la mayor parte del tiempo: Perlin pasa mucho mas
 	# rato cerca de cero que cerca de su pico, y salian tirones sueltos.
+	# Sacudida tardia enganchada a un parpadeo. Va aparte del estertor y con su
+	# propia envolvente, para no alterar en nada los primeros segundos.
+	var late := 0.0
+	if blink_twitch_at >= 0.0:
+		var bu := death_time - blink_twitch_at
+		if bu >= blink_twitch_width:
+			blink_twitch_at = -1.0
+		elif bu >= 0.0:
+			late = sin(bu / blink_twitch_width * PI) * blink_twitch_amount * blink_twitch_gain
+	# Meneo lento de relevo: entra cuando el estertor se apaga (1 - kl) y se va
+	# con el reloj maestro. La raiz hace que aguante en vez de caer en picado.
+	var kt := 1.0 - clampf(death_time / death_total_time, 0.0, 1.0)
+	var n_t := noise.get_noise_1d(death_time * 1.1 + 700.0) / NOISE_PEAK
+	var tremor_env := death_idle_tremor * sqrt(kt) * (1.0 - kl)
+	var tremor := sin(death_time * TAU * death_idle_hz + 0.9) * (0.5 + 0.5 * n_t) * tremor_env
 	var n_l := noise.get_noise_1d(death_time * 3.0 + 500.0) / NOISE_PEAK
 	var n_r := noise.get_noise_1d(death_time * 3.0 + 900.0) / NOISE_PEAK
 	var w_l := sin(death_time * TAU * death_twitch_hz) * (0.55 + 0.45 * n_l)
 	var w_r := sin(death_time * TAU * death_twitch_hz * 0.83 + 1.7) * (0.55 + 0.45 * n_r)
-	ant_l.rotation = (w_l * death_twitch_amount + spasm) * env_l
-	ant_r.rotation = (w_r * death_twitch_amount - spasm * 0.7) * env_r
+	ant_l.rotation = (w_l * death_twitch_amount + spasm) * env_l + late + tremor
+	ant_r.rotation = (w_r * death_twitch_amount - spasm * 0.7) * env_r - late * 0.7 - tremor * 0.8
+
+	# Las patas: mismo espasmo pero mas corto, mas rigido y en espejo entre lados.
+	var kg := 1.0 - clampf(death_time / death_leg_time, 0.0, 1.0)
+	var env_g := kg * kg * kg
+	for i in dead_legs.size():
+		var ph := float(i) * 1.7
+		var side: float = DEAD_LEGS[i]["side"]
+		var ng := noise.get_noise_1d(death_time * 2.5 + 120.0 * i + 40.0) / NOISE_PEAK
+		var wg := sin(death_time * TAU * death_leg_hz + ph) * (0.45 + 0.55 * ng)
+		dead_legs[i].rotation = (wg * death_leg_amount + spasm * side) * env_g + late * side * death_leg_blink_ratio
+
+## Un parpadeo del desmayo. Solo algunos disparan sacudida, y cada una es mas
+## floja que la anterior.
+func _on_blackout_blink(index: int) -> void:
+	if not is_dead or death_time < 0.0:
+		return
+	var k := death_blink_twitches.find(index)
+	if k < 0:
+		return
+	blink_twitch_at = death_time + blink_twitch_delay
+	blink_twitch_gain = pow(death_blink_ramp, float(k))
 
 func _is_pos_valid(pos: Vector2) -> bool:
 	return pos.x > bounds_min.x and pos.x < bounds_max.x and pos.y > bounds_min.y and pos.y < bounds_max.y
@@ -691,6 +792,8 @@ func die() -> void:
 	# quedan en pantalla dando el coletazo.
 	_setup_dead_antenna(ant_l, sheet, DEAD_ANT_L)
 	_setup_dead_antenna(ant_r, sheet, DEAD_ANT_R)
+	for d in DEAD_LEGS:
+		dead_legs.append(_make_dead_leg(sheet, d))
 	death_time = 0.0
 
 	shadow.visible = false
@@ -704,6 +807,8 @@ func die() -> void:
 	blackout_node.set_script(blackout_script)
 	blackout_node.name = "BlackoutController"
 	get_tree().current_scene.add_child(blackout_node)
+	if blackout_node.has_signal("blinked"):
+		blackout_node.blinked.connect(_on_blackout_blink)
 	blackout_node.start_blackout(global_position)
 
 	emit_signal("died")
