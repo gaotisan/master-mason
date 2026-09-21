@@ -21,3 +21,4 @@ renderer/rendering_method="forward_plus"
 
 [autoload]
 GlobalExit="*res://scripts/main.gd"
+WindAmbience="*res://scripts/wind_ambience.gd"

@@ -1,4 +1,8 @@
-extends AudioStreamPlayer
+extends Node
+## Respiracion del encerrado y vaho del cristal.
+##
+## El viento ya no vive aqui: lo lleva el autoload WindAmbience para que no se
+## corte al cambiar de escena. Este nodo solo le fija el nivel de la cripta.
 
 var breathing_node: AudioStreamPlayer
 var sfx_loop = preload("res://assets/audio/second_rapid_breathing.ogg")
@@ -6,6 +10,8 @@ var shader_res = preload("res://scripts/vaho_cristal.gdshader")
 var cristal: ColorRect
 
 @export var use_vaho := true
+## Nivel del viento mientras estamos dentro del sarcofago.
+@export var wind_db := -5.0
 @export var vaho_base_intensity := 0.85
 
 var breath_timestamps := [0.9, 3.1, 5.2, 7.4, 9.1, 11.2, 13.5]
@@ -19,8 +25,7 @@ var breath_pitch := 1.0
 var breath_vol := -4.0
 
 func _ready():
-	self.volume_db = -5.0
-	self.play()
+	WindAmbience.fade_to(wind_db, 0.0)
 	cristal = get_tree().current_scene.find_child("Cristal", true, false)
 	if cristal:
 		var mat := ShaderMaterial.new()
@@ -37,9 +42,6 @@ func _ready():
 	breathing_node.play()
 
 func _process(delta):
-	if not self.playing:
-		self.play()
-	
 	playback_timer = breathing_node.get_playback_position()
 	# El loop ha vuelto al principio si la posicion retrocede; no depende de pillar
 	# un frame concreto por debajo de un umbral.

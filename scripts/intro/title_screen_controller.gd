@@ -58,7 +58,6 @@ var _elapsed := 0.0
 var _wind_db := 0.0     # base del volumen; la racha suma por encima
 
 @onready var _camera: Camera2D = $Camera
-@onready var _wind: AudioStreamPlayer = $Wind
 
 func _ready() -> void:
 	_time_a = randf() * 100.0
@@ -93,9 +92,12 @@ func _ready() -> void:
 
 	if _camera:
 		_camera.zoom = Vector2.ONE * zoom_start
+	# El viento viene sonando desde el sarcofago (autoload WindAmbience), que lo
+	# dejo justo en wind_db_start al desmayarse; aqui solo seguimos subiendolo.
 	_wind_db = wind_db_start
-	if _wind:
-		_wind.volume_db = _wind_db
+	# fade_to con duracion 0 mata de paso el fade del desmayo si aun colea.
+	WindAmbience.fade_to(_wind_db, 0.0)
+	WindAmbience.gust_db = 0.0
 
 	_run_sequence()
 
@@ -181,8 +183,8 @@ func _process(delta: float) -> void:
 	_mat.set_shader_parameter("fog_amount", _fog_level * pulse)
 
 	# Rachas de viento: solo suben el volumen, no tocan la imagen.
-	if _wind:
-		_wind.volume_db = _wind_db + _gust_strength() * 2.0
+	WindAmbience.base_db = _wind_db
+	WindAmbience.gust_db = _gust_strength() * 2.0
 
 func _flicker(t: float) -> float:
 	# 0.5 + 0.2 sin + 0.1 sin: rango 0.2..0.8, normalizado a ~0.25..1.0

@@ -22,8 +22,12 @@ var blink_schedule := [3.6, 4.6, 5.4, 6.0, 6.5, 6.9, 7.2]
 var next_blink_idx := 0
 var is_blinking := false
 var blink_tween: Tween
+var faint_started := false
 
 @export var next_scene: String = "res://scenes/intro/title_screen.tscn"
+## Nivel al que cae el viento durante el desmayo. Es el mismo con el que abre la
+## pantalla de titulo, asi que el relevo entre escenas no da ningun salto.
+@export var wind_db_faint: float = -9.0
 
 signal blackout_complete
 ## Se emite al empezar cada parpadeo, con su indice. La cucaracha se engancha
@@ -38,6 +42,7 @@ func start_blackout(origin_pos: Vector2 = Vector2(1456, 816)) -> void:
 	effect_time = 0.0
 	delay_finished = false
 	next_blink_idx = 0
+	faint_started = false
 	start_position = origin_pos
 	
 	ambient_controller = get_tree().current_scene.find_child("AmbientPlayer", true, false)
@@ -100,6 +105,11 @@ func _process(delta: float) -> void:
 	
 	# Fase 3: Desmayo (7.5-10s)
 	elif t < 10.0:
+		if not faint_started:
+			faint_started = true
+			# El viento se aleja mientras se pierde el sentido. No se para: sigue
+			# sonando en el autoload y la pantalla de titulo lo recoge donde queda.
+			WindAmbience.fade_to(wind_db_faint, 4.0)
 		if blink_tween and blink_tween.is_running():
 			blink_tween.kill()
 			is_blinking = false

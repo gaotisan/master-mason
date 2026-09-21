@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=26 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/intro/sarcophagus_base_16_9.png" id="1"]
 [ext_resource type="Script" path="res://scripts/flicker_light.gd" id="2"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://scripts/ambient_controller.gd" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/intro/pendulum.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/intro/hanging_pig.tscn" id="8"]
-[ext_resource type="AudioStream" path="res://assets/audio/viento_cabana.ogg" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/intro/fly_zone.tscn" id="10_flies"]
 [ext_resource type="PackedScene" path="res://scenes/intro/punch_effect.tscn" id="11_punch"]
 [ext_resource type="Script" path="res://scripts/flicker_glow.gd" id="12_glow"]
@@ -68,10 +67,7 @@ scale = Vector2(0.25, 0.25)
 position = Vector2(1456, 816)
 enabled = true
 
-[node name="AmbientPlayer" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("9")
-volume_db = -5.0
-autoplay = true
+[node name="AmbientPlayer" type="Node" parent="."]
 script = ExtResource("5")
 
 [node name="Lights" type="Node2D" parent="."]
