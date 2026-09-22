@@ -17,6 +17,11 @@ uniform sampler2D screen_texture : hint_screen_texture, filter_linear;
 
 uniform float aspect = 1.784;
 uniform float darkness : hint_range(0.0, 1.0) = 1.0;
+// Trozo de la imagen que la camara tiene en pantalla, en UV de la imagen
+// (x_min, y_min, x_max, y_max). Las luces estan medidas sobre la imagen, asi que
+// cuando la camara hace zoom la mascara se mueve con ella y no se queda pegada al
+// cristal de la pantalla.
+uniform vec4 view_rect = vec4(0.0, 0.0, 1.0, 1.0);
 
 // Velas (UV de la imagen)
 uniform vec2 candle_a = vec2(0.2981, 0.5086);
@@ -25,6 +30,10 @@ uniform float candle_radius : hint_range(0.0, 1.0) = 0.0;
 uniform float candle_a_flicker : hint_range(0.0, 1.5) = 1.0;
 uniform float candle_b_flicker : hint_range(0.0, 1.5) = 1.0;
 uniform float candle_glow : hint_range(0.0, 1.0) = 0.0;
+// 1 encendida, 0 apagada. La llama esta pintada en la imagen, asi que al apagar
+// una vela hay que tapar el dibujo: una sombra pequena justo donde estaba.
+uniform float candle_a_on : hint_range(0.0, 1.0) = 1.0;
+uniform float candle_b_on : hint_range(0.0, 1.0) = 1.0;
 
 // Foco superior (el "sol")
 uniform vec2 sun_pos = vec2(0.503, 0.0);
@@ -37,6 +46,9 @@ uniform float room_light : hint_range(0.0, 1.0) = 0.0;
 
 // Contorno del cristal del ataud, el marco del panel de la imagen.
 uniform float frame_light : hint_range(0.0, 1.0) = 0.0;
+// Oscuridad propia del interior del cristal, para la salida: al apagarse las
+// velas es el rectangulo lo que se apaga, aunque fuera siga dando el foco.
+uniform float window_dark : hint_range(0.0, 1.0) = 0.0;
 uniform float frame_width : hint_range(0.005, 0.2) = 0.032;
 
 // Destello que recorre las letras del titulo.
@@ -47,7 +59,7 @@ uniform vec4 title_rect = vec4(0.34, 0.33, 0.66, 0.62);
 // Vaho / humo ambiental dentro de la ventana del ataud.
 // window_rect = (x_min, y_min, x_max, y_max) del panel interior del marco.
 uniform float fog_amount : hint_range(0.0, 1.0) = 0.0;
-uniform vec4 window_rect = vec4(0.25, 0.288, 0.773, 0.699);
+uniform vec4 window_rect = vec4(0.2215, 0.320, 0.755, 0.702);
 
 const vec3 LUMW = vec3(0.3, 0.59, 0.11);
 const vec3 CANDLE_COLOR = vec3(1.0, 0.62, 0.25);
@@ -129,8 +141,9 @@ float fog_density(vec2 uv) {
 }
 
 void fragment() {
-	vec2 uv = SCREEN_UV;
-	vec4 scr = texture(screen_texture, uv);
+	// uv en el espacio de la imagen; la textura de pantalla se lee donde toca.
+	vec2 uv = mix(view_rect.xy, view_rect.zw, SCREEN_UV);
+	vec4 scr = texture(screen_texture, SCREEN_UV);
 	float lum = dot(scr.rgb, LUMW);
 
 	// Velas: el hueco respira con el parpadeo.
@@ -151,6 +164,18 @@ void fragment() {
 
 	float light = max(max(la, lb), max(max(ls, lf), room_light));
 	float dark = clamp(1.0 - light, 0.0, 1.0) * darkness;
+
+	// Vela apagada: se tapa la llama pintada con una sombra suave donde estaba.
+	// No llega a negro: asi, cuando el cristal ya esta apagado, la sombra se
+	// funde con el y no queda un punto mas oscuro que el resto.
+	float snuff = exp(-(da * da) / 0.0015) * (1.0 - candle_a_on)
+		+ exp(-(db * db) / 0.0015) * (1.0 - candle_b_on);
+	dark = max(dark, clamp(snuff, 0.0, 1.0) * 0.85 * darkness);
+
+	// El interior del cristal se apaga por su cuenta. El borde queda fuera de la
+	// sombra para que el marco siga dibujando el rectangulo.
+	float inside = 1.0 - smoothstep(-0.03, 0.0, bd);
+	dark = max(dark, inside * window_dark * darkness);
 
 	// --- Luz aditiva ---
 	vec3 add = vec3(0.0);

@@ -38,7 +38,10 @@ build_windows.bat run    # exporta y lanza el juego
 
 `main.tscn` → `scenes/intro/sarcophagus_intro.tscn` (ataúd, velas, moscas, cucaracha).
 Al aplastar la cucaracha se lanza el desmayo (`blackout_controller.gd`) y se pasa a
-`scenes/intro/title_screen.tscn`, que por ahora solo muestra la imagen del título.
+`scenes/intro/title_screen.tscn`, que enciende la sala con luz hasta mostrar el título.
+Pasados unos segundos las velas se apagan, la sala queda en penumbra y la cámara entra
+por el cristal del ataúd hasta el negro: ahí se pasa a `scenes/game/dark_stage.tscn`,
+el escenario (por ahora vacío y negro) donde se moverá Magnus.
 
 ## Fuentes de audio
 
