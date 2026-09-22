@@ -43,6 +43,16 @@ Pasados unos segundos las velas se apagan, la sala queda en penumbra y la cámar
 por el cristal del ataúd hasta el negro: ahí se pasa a `scenes/game/dark_stage.tscn`,
 el escenario (por ahora vacío y negro) donde se moverá Magnus.
 
+## Sprites de personajes
+
+Igual que el audio: el material en bruto (vídeos, fotogramas, sprites sueltos a
+resolución completa) está fuera del repo, en `godot\raw\master_mason\anim\`.
+Aquí solo entran las hojas finales, en `assets/characters/`.
+
+Antes de montar una animación en Godot, leer **[docs/sprites_magnus.md](docs/sprites_magnus.md)**:
+casilla, línea de suelo, `offset` del nodo, ajustes de importación y los dos avisos
+que hay sobre el material actual.
+
 ## Fuentes de audio
 
 Los mp3 originales, wav intermedios y grabaciones están fuera del repo, en
