@@ -8,8 +8,8 @@ que rehacer las tres.
 
 | archivo | que es |
 |---|---|
-| `assets/characters/magnus/*.png` | las 8 hojas, 292x360 por casilla |
-| `resources/characters/magnus_frames.tres` | el `SpriteFrames` con las 8 animaciones |
+| `assets/characters/magnus/*.png` | las 14 hojas, 292x360 por casilla (340x400 el salto corriendo, 380x360 las cuatro de la caida) |
+| `resources/characters/magnus_frames.tres` | el `SpriteFrames` con las 14 animaciones |
 | `scenes/characters/magnus.tscn` | el personaje |
 | `scripts/characters/magnus.gd` | la maquina de estados, y desde ella el sonido |
 | `assets/audio/magnus_paso_*.wav` | las pisadas: `a`/`b` al andar, `correr_a`/`correr_b` al correr |
@@ -39,8 +39,11 @@ animacion de giro, asi que es lo mas parecido que se puede montar con lo que hay
 si algun dia aparece una, sustituye a este apaño.
 
 El salto conserva el impulso que llevaba: saltar corriendo avanza en el aire, y al
-caer recupera el modo que llevaba (andar o correr) si la tecla sigue pulsada. Se
-puede cortar a partir del 72 % de la animacion, que es cuando ya ha aterrizado.
+caer recupera el modo que llevaba (andar o correr) si la tecla sigue pulsada. El
+salto de parado/andando (`saltar`) se puede cortar a partir del 85,5 % de la
+animacion (sprite 60 de 70, 0,23 s despues de tocar el suelo), y entra en el
+arranque de andar por el fotograma que mas se parece a la pose en la que se
+corta (`POSE_DESDE_SALTO` en `magnus.gd`); el salto corriendo, a partir del 85 %.
 
 El `.tres` se genera por script, no a mano: son 295 `AtlasTexture`, uno por
 fotograma, recortados de las hojas. El generador es
@@ -52,9 +55,10 @@ cd C:\Users\santiago.ochoa\godot\tools\anim
 python _spriteframes.py "..\..\projects\master_mason\resources\characters\magnus_frames.tres"
 ```
 
-El salto es el caso claro: el video venia a camara lenta y a 12 fps duraba
-**6,25 s**. Se reproduce a **60 fps**, con lo que dura **1,25 s**, y ademas en una
-pantalla de 60 Hz se ve cada fotograma exactamente una vez.
+Los saltos son el caso claro: los videos vienen a camara lenta (31 fotogramas de
+vuelo a 24 fps son 1,3 s). Se reproducen a **60 fps**, con lo que `saltar` dura
+**1,17 s** (0,52 de vuelo), y ademas en una pantalla de 60 Hz se ve cada
+fotograma exactamente una vez.
 
 Verificado corriendo el juego: el personaje ocupa el **19,4 %** del alto de
 pantalla, que es lo que se diseno (20,2 % teorico).
@@ -86,13 +90,26 @@ Los parametros del personaje y el porque de cada numero estan en
 | `arranque_correr` | 38 | 7 | 6 | 24 | una pasada |
 | `corriendo` | 24 | 6 | 4 | 24 | bucle |
 | `parada_correr` | 39 | 7 | 6 | 24 | una pasada |
-| `saltando` | 75 | 10 | 8 | 12 | una pasada |
+| `salto_andando` | 70 | 10 | 7 | 60 | una pasada |
+| `salto_corriendo` | 38 | 8 | 5 | 60 | una pasada, casilla 340x400 |
+| `giro` | 5 | 5 | 1 | 20 | una pasada |
+| `cayendo` | 14 | 7 | 2 | 24 | bucle, casilla 380x360 |
+| `caida` | 21 | 7 | 3 | 24 | una pasada, casilla 380x360 |
+| `tumbado` | 1 | 1 | 1 | - | quieto, casilla 380x360 |
+| `levantarse` | 63 | 8 | 8 | 24 | una pasada, casilla 380x360 |
 
 
-Todas comparten **casilla de 292 x 360 px**. Ojo: algunas hojas tienen casillas de
-sobra al final (2 en andando y arranque_andar, 4 en arranque_correr, 3 en
-parada_correr, 5 en saltando). Al crear el `SpriteFrames` hay que quedarse solo
-con los primeros N.
+Todas comparten **casilla de 292 x 360 px** salvo el salto corriendo y las cuatro
+de la caida. Ojo: algunas hojas tienen casillas de sobra al final (2 en andando y
+arranque_andar, 4 en arranque_correr, 3 en parada_correr, 2 en salto_corriendo,
+1 en levantarse). Al crear el `SpriteFrames` hay que quedarse solo con los
+primeros N.
+
+Las cuatro de la caida salen de un solo video y comparten casilla propia porque
+tumbado mide 678 px de master de ancho. La casilla es mas ancha pero **igual de
+alta y con el suelo en la misma fila** que la comun (pies en 677 de 720), asi que
+usan `offset_comun`, sin offset propio. Todo el detalle, fotogramas y medidas en
+`raw/master_mason/anim/magnus_caida/como_se_hizo.txt`.
 
 ## Como encadenan
 
@@ -101,7 +118,21 @@ En el juego: andar con la flecha, correr con doble pulsacion.
 ```
 respirando -> arranque_andar  -> andando      -> parada_andar  -> respirando
 respirando -> arranque_correr -> corriendo    -> parada_correr -> respirando
+(entrada)  -> cayendo -> caida -> tumbado -> levantarse -> respirando
 ```
+
+**La entrada es una cinematica.** `dark_stage` arranca con Magnus 1200 px por
+encima de su marca de suelo y `caer_desde_arriba()` lo deja caer con aceleracion
+cuadratica en 1,1 s (unos 2200 px/s al llegar) con el bucle `cayendo`; al tocar
+el suelo entra `caida`, se queda `tumbado` 1,2 s (temporizador, no animacion) y
+`levantarse` termina en la pose de reposo: su ultimo fotograma esta a 0,13 del
+primero de `respirando`, un paso normal de la propia animacion. Mientras dura no
+se acepta entrada (`Estado.CAYENDO..LEVANTARSE`, ver `CINEMATICA`); al acabar se
+emite `cinematica_terminada`. El bucle en el aire tiene la cabeza fijada -- el
+descenso lo pone el nodo -- y se arranca por el fotograma que deja el impacto
+justo en el que enlaza con `caida` (el 7, fotograma 32 del video), calculado a
+partir de la duracion. Tiempos en `caida_altura`, `caida_duracion` y
+`tumbado_espera`; `caida_al_empezar = false` en la escena la desactiva.
 
 En **andar** el enlace es exacto: `arranque_andar` acaba en el fotograma
 inmediatamente anterior al que abre `andando` en el video original (52 -> 53).
@@ -285,6 +316,70 @@ El volteo del sprite se hace al **terminar** la animacion, no al empezar
 (`_al_terminar` en `magnus.gd`): durante el giro se conserva el `flip_h` que
 hubiera.
 
+### Parar de andar: terminar el paso y frenar como los pies
+
+La parada de andar esta grabada desde **una sola fase** de la zancada: sus 21
+fotogramas casan con el ciclo alrededor de f26-f29 (y f3), siempre a >= 1,1
+pasos, y la otra mitad del ciclo no tiene equivalente. Entrando siempre por su
+fotograma 0, el salto de pose al soltar iba de 1,1 a **3,8 pasos** segun donde
+soltaras (media 2,4): el efecto raro al pararse. Y ademas la parada iba a 24 fps
+con el ciclo a 30: cambio de cadencia en seco.
+
+Segundo problema, medido siguiendo el pie plantado: en la parada el pie sigue
+avanzando 3-6 px master por fotograma durante 14 fotogramas antes de plantarse,
+mientras la frenada del nodo cortaba en ~5. Los pies seguian andando con el nodo
+ya parado.
+
+Lo montado, que es lo que hacen los juegos con una sola animacion de parada:
+
+- La parada a **30 fps**, como el ciclo.
+- Al soltar, el personaje **termina el paso**: se espera a un fotograma del ciclo
+  desde el que la entrada queda a <= 1,3 pasos (`PARADA_ANDAR_BUENOS`: f2-f3 y
+  f24-f30), como mucho `espera_parada_andar` = 10 fotogramas (0,33 s). Medido:
+  de 0 a 20 ticks de espera, 3-67 px de mas.
+- Se entra por el fotograma de la parada mas parecido a la pose actual
+  (`POSE_ANDAR_A_PARADA`).
+- El nodo frena siguiendo el **perfil medido** de los pies
+  (`FRENADA_ANDAR_PERFIL`), escalado para arrancar exacto en la velocidad que
+  traia: entra a 192 px/s en todos los casos, sin bajon, y para en 50-56 px.
+
+Queda un caso peor: soltando entre f4 y f12 la ventana buena esta a 12-20
+fotogramas, la espera se corta a 10 y se entra con salto de pose. Esperar mas
+seria 0,67 s andando solo. Lo que lo arreglaria del todo es una **segunda
+parada** grabada desde la otra fase de la zancada (el otro pie delante).
+
+### El arranque de andar: velocidad medida, no una rampa recta
+
+La rampa de subida del arranque de andar era una recta de 0 a la velocidad de
+crucero repartida en los 32 fotogramas tras la zona muerta. El video no hace
+eso. Midiendo el avance real del pie plantado respecto al eje del tronco
+(master px por fotograma): 0, 0.7, 2.2, 2.6, 4.6, 6.3, 7.1, 8.2, 8.3, 9.9,
+10.3, 12.1, 11.3, 11.0, 11.7, 11.7, 13.5, 12.6, 12.6... y luego, del 26 al 33,
+**afloja a 10, 8.6, 8.7, 12.8, 12.2, 9.6, 6, 1.3** mientras la recta seguia
+subiendo hasta 16. En esa cola el nodo iba de +2 a +15 px master por fotograma
+por delante de los pies: el deslizamiento "sutil pero se nota" de los primeros
+segundos de andar.
+
+Dos cosas mas salieron de la medida. Comparando cada fotograma del arranque con
+el ciclo, del 18 en adelante **el arranque ya es el ciclo**: el 18 casa con el
+f19 del ciclo (0,54 pasos), el 22 con el f22 (0,40), el 25 con el f25 (0,40)...
+Y el arranque iba a 24 fps mientras el ciclo, en el juego, va a 30 (192 px/s
+son 30 fotogramas/s de 6,4 px): los pies del arranque iban un 25 % mas lentos
+que los del ciclo.
+
+Lo montado ahora:
+
+- `arranque_andar` a **30 fps**, misma cadencia que el ciclo.
+- Su velocidad sale de `AVANCE_ARRANQUE_ANDAR`, la tabla medida a media escala
+  y a 30 fps (v = master/2 * 30), fotograma a fotograma. Los dos primeros son 0:
+  la zona muerta ya no hace falta como fraccion.
+- Se **corta en el 18** (`corte_arranque_andar`) y el ciclo entra por el **19**
+  (`entrada_andar`). Al empalme llega a 189 px/s contra 192 del ciclo.
+
+Comprobado: en el arranque el nodo recorre **72,1 px** y los pies, por la tabla,
+72. Antes el nodo hacia 128 (256 master) frente a 146 (292) de los pies, y ademas
+mal repartidos: corto al principio y largo al final.
+
 ### Pedir correr cuando ya se anda: entrar por la pose, no por la velocidad
 
 La primera pulsacion de un doble arranca a andar sin remedio -- no se sabe que
@@ -400,11 +495,21 @@ textura le sienta bien que la achiques y mal que la estires.
 
 ## Avisos sobre el material
 
-**El salto gira.** Empieza y acaba de perfil, pero en los fotogramas 21-50 de la
-seleccion el personaje rota 30-45 grados hacia camara y se le ven los dos brazos.
-No es un fallo del recorte, viene asi del video. A tamano pequeno puede colar;
-si no cuela, hay que pedir el video otra vez diciendo explicitamente que no rote
-en ningun momento.
+**El salto viejo giraba.** El primer `magnus_saltando` rotaba 30-45 grados hacia
+camara en pleno vuelo; venia asi del video. Se sustituyo por `magnus_salto_andando`,
+sacado de un video en el que el personaje anda, se agacha, salta y aterriza sin
+girar (fotogramas 89-158; detalle en su `como_se_hizo.txt`). Es un solo salto
+para parado y andando: el centrado va anclado al tronco, asi que el sprite no
+lleva desplazamiento cocido y el movimiento horizontal lo pone el nodo. Medido
+contra el resto: desde reposo entra a 0,052 (como las paradas), desde el ciclo
+de andar a 0,037 (~3 pasos) y acaba a 0,024 del reposo. El job viejo sigue en
+`raw/master_mason/anim/magnus_saltando/` por si hace falta.
+
+Dos cosas de este salto que afectan al encuadre: en el apogeo llega a 671 px
+sobre el suelo, 19 px por debajo del techo de la casilla comun (hubo que anadir
+40 px de verde arriba al video para poder recortar), y `centrar.ps1` le mide el
+suelo 4 px bajo porque en la cuclilla el pie aplasta mas que de pie: apoya en la
+fila 686 de la casilla en vez de en la 690, dentro del rango de las demas.
 
 **El brazo de la carrera va al doble de frecuencia.** Las piernas hacen su ciclo
 en 24 fotogramas, dos pasos. El brazo deberia hacer una sola oscilacion completa

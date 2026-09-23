@@ -52,8 +52,19 @@ extends Node2D
 ##
 ## Andar no lo necesita: su arranque y su ciclo salen del mismo video y entrar
 ## por el 0 ya da 0,5 pasos. El 33 medía algo mejor, 0,2, pero no se ve.
-@export var entrada_andar: int = 0
+@export var entrada_andar: int = 19
 @export var entrada_correr: int = 14
+## El arranque de andar se corta en el 18 y su velocidad no es una rampa recta
+## sino la medida en los sprites, fotograma a fotograma (ver AVANCE_ARRANQUE_ANDAR).
+## A partir del 18 el arranque ya ES el ciclo -- cada fotograma casa con el ciclo
+## en su misma posicion, 18->f19, 22->f22... -- y su cola (26-33) afloja mientras
+## el nodo seguia a tope: de +2 a +15 px master por fotograma de patinazo, que
+## era el deslizamiento "sutil pero se nota" de los primeros segundos. -1 lo
+## reproduce entero con la rampa antigua.
+@export var corte_arranque_andar: int = 18
+## Fotogramas del ciclo de andar que se espera, como mucho, a un apoyo que case
+## con la parada al soltar la tecla. 0 = entrar al instante (con el salto de pose).
+@export var espera_parada_andar: int = 10
 ## Ultimo fotograma que se usa del arranque de correr; -1 lo reproduce entero.
 ##
 ## Los ultimos fotogramas de esa animacion tienen el brazo yendo hacia atras y
@@ -91,12 +102,18 @@ extends Node2D
 @export var frenada_andar: float = 0.25
 @export var frenada_correr: float = 0.10
 ## Momento del salto en que toca el suelo, como fraccion de la animacion. A
-## partir de ahi el impulso que llevaba se apaga. Medido siguiendo la altura
-## sobre el suelo: aterriza en el fotograma 46 de 75.
-@export var aterrizaje: float = 0.62
+## partir de ahi el impulso que llevaba se apaga. Medido siguiendo la fila del
+## pie mas bajo en 04_limpios: despega en el sprite 15 de 70 y toca el suelo en
+## el 46 (indice 45 de 69). El salto de parado y el de andando son el mismo:
+## el sprite no lleva desplazamiento cocido, lo pone el nodo con _impulso.
+@export var aterrizaje: float = 0.652
 ## A partir de aqui el salto se puede cortar con otra tecla. Sin esto, la
 ## recuperacion deja al personaje 0,4 s sin responder despues de haber caido.
-@export var salto_interrumpible: float = 0.72
+## Es el sprite 60 de 70, 0,23 s despues de tocar el suelo: antes esta en
+## cuclillas y ningun fotograma de andar se le parece (0,060, casi 5 pasos
+## normales del ciclo); a partir de aqui baja a 0,046 (3,5 pasos, lo mismo que
+## se acepto para entrar al salto corriendo). El impulso ya esta apagado.
+@export var salto_interrumpible: float = 0.855
 ## Lo mismo para el salto corriendo, que es otra animacion con otros tiempos:
 ## medido siguiendo el punto mas bajo del personaje, despega en el fotograma 3
 ## de 38, llega al apogeo en el 17 y toca el suelo en el 30.
@@ -108,6 +125,23 @@ extends Node2D
 ## el origen del nodo: alto/2 menos los 15 px de margen de suelo a media escala.
 @export var offset_comun := Vector2(0, -165)
 @export var offset_salto_correr := Vector2(0, -185)
+## Cinematica de entrada (caer_desde_arriba): cae desde fuera de pantalla, se
+## estampa, se queda tumbado y se levanta. Mientras dura no se acepta entrada.
+## Las cuatro animaciones van en casilla propia (380x360) pero con la linea de
+## suelo en la misma fila que la comun, asi que usan offset_comun.
+##
+## El descenso lo pone el nodo, no el sprite: el bucle "cayendo" tiene la
+## cabeza fijada. Con 1200 px en 1,1 s y aceleracion cuadratica llega al suelo
+## a unos 2200 px/s, 36 px por tick: se lee como caida y no como flotar.
+@export var caida_altura: float = 1200.0
+@export var caida_duracion: float = 1.1
+## Cuanto se queda tumbado antes de empezar a levantarse. Sin pausa el golpe
+## no pesa; con mas de dos segundos parece que no va a levantarse.
+@export var tumbado_espera: float = 1.2
+
+## Se emite cuando la cinematica de entrada deja al personaje en reposo y con
+## el control devuelto.
+signal cinematica_terminada
 ## Niveles de sonido. Los archivos estan a -6 dBFS de pico; esto es lo que se
 ## les baja en el juego.
 @export var pasos_db: float = -6.0
@@ -129,7 +163,11 @@ const PISADAS := {
 }
 
 enum Estado { REPOSO, ARRANQUE_ANDAR, ANDAR, PARADA_ANDAR,
-			  ARRANQUE_CORRER, CORRER, PARADA_CORRER, SALTAR, GIRO }
+			  ARRANQUE_CORRER, CORRER, PARADA_CORRER, SALTAR, GIRO,
+			  CAYENDO, CAIDA, TUMBADO, LEVANTARSE }
+
+## Estados de la cinematica de entrada: sin control del jugador.
+const CINEMATICA := [Estado.CAYENDO, Estado.CAIDA, Estado.TUMBADO, Estado.LEVANTARSE]
 
 var _estado: Estado = Estado.REPOSO
 var _mirando := 1.0          # 1 derecha, -1 izquierda
@@ -137,7 +175,9 @@ var _recorrido := 0.0        # para mover la animacion con la distancia
 var _impulso := 0.0          # velocidad que llevaba al despegar, se conserva en el aire
 var _corria_al_saltar := false
 var _frenando_desde := 0.0   # velocidad que llevaba al empezar a frenar
-var _velocidad_suelo := 0.0  # la que traia al entrar en un arranque por pose; sostiene hasta que la rampa la alcanza
+var _velocidad_suelo := 0.0
+var _parada_espera := 0      # ticks esperando un apoyo bueno para parar de andar
+var _parada_entrada := 0     # fotograma de la parada por el que se entro  # la que traia al entrar en un arranque por pose; sostiene hasta que la rampa la alcanza
 var _giro_pendiente := 0.0   # hacia donde hay que girar cuando acabe de frenar
 var _giro_corriendo := false
 var _giro_destino := 0.0     # hacia donde mira al acabar la animacion de giro
@@ -154,6 +194,8 @@ func _ready() -> void:
 	_poner("reposo")
 
 func _unhandled_input(evento: InputEvent) -> void:
+	if _en_cinematica():
+		return
 	if evento.is_action_pressed("saltar") and _puede_saltar():
 		# El salto se lleva la velocidad que llevaba: saltar corriendo tiene que
 		# avanzar en el aire, no caer en el sitio.
@@ -173,6 +215,10 @@ func _unhandled_input(evento: InputEvent) -> void:
 			_arrancar(accion, false)
 
 func _physics_process(delta: float) -> void:
+	# En la cinematica de entrada el nodo lo mueve el tween de la caida y las
+	# animaciones se encadenan solas: aqui no hay nada que hacer.
+	if _en_cinematica():
+		return
 	var direccion := Input.get_axis("mover_izquierda", "mover_derecha")
 
 	# Girando no se acepta nada: son 0,30 s, y cortarlo a medias deja al
@@ -193,11 +239,14 @@ func _physics_process(delta: float) -> void:
 			# entre toque y toque: arranque f0 -> parada f0,3,4 -> arranque de
 			# correr f0, dos saltos de 0,97 y 1,25 pasos. De pie a pie es 0,23.
 			_cambiar(Estado.REPOSO)
-		elif _estado == Estado.ANDAR or _estado == Estado.ARRANQUE_ANDAR:
+		elif _estado == Estado.ANDAR:
+			_pedir_parada_andar()
+		elif _estado == Estado.ARRANQUE_ANDAR:
 			_cambiar(Estado.PARADA_ANDAR)
 		elif _estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER:
 			_cambiar(Estado.PARADA_CORRER)
 	elif _en_movimiento():
+		_parada_espera = 0   # volver a pulsar cancela la parada que estaba esperando
 		# Cambiar de sentido no puede ser un volteo en seco a toda velocidad.
 		# Se pasa por la frenada y se voltea cuando la velocidad ya es cero,
 		# que es el momento en que menos se nota. No hay animacion de giro,
@@ -218,6 +267,8 @@ func _physics_process(delta: float) -> void:
 	# aqui no sirve animation_finished: hay que mirar el fotograma.
 	if _estado == Estado.ARRANQUE_CORRER and _sprite.frame >= _ultimo_util():
 		_cambiar(Estado.CORRER)
+	elif _estado == Estado.ARRANQUE_ANDAR and corte_arranque_andar > 0 and _sprite.frame >= _ultimo_util():
+		_cambiar(Estado.ANDAR)
 
 	var velocidad := _velocidad()
 	if velocidad > 0.0:
@@ -254,11 +305,16 @@ func _velocidad() -> float:
 		Estado.CORRER:
 			return velocidad_correr
 		Estado.ARRANQUE_ANDAR:
+			if corte_arranque_andar > 0:
+				var k := clampi(_sprite.frame, 0, AVANCE_ARRANQUE_ANDAR.size() - 1)
+				return maxf(AVANCE_ARRANQUE_ANDAR[k], _velocidad_suelo)
 			return maxf(velocidad_andar * _rampa_subida(quieto_al_arrancar_andar), _velocidad_suelo)
 		Estado.ARRANQUE_CORRER:
 			return maxf(velocidad_correr * _rampa_subida(quieto_al_arrancar_correr), _velocidad_suelo)
 		Estado.PARADA_ANDAR:
-			return _frenando_desde * _rampa_bajada(frenada_andar)
+			var k := clampi(_sprite.frame, 0, FRENADA_ANDAR_PERFIL.size() - 1)
+			var base: float = FRENADA_ANDAR_PERFIL[clampi(_parada_entrada, 0, FRENADA_ANDAR_PERFIL.size() - 1)]
+			return _frenando_desde * FRENADA_ANDAR_PERFIL[k] / maxf(base, 0.05)
 		Estado.PARADA_CORRER:
 			return _frenando_desde * _rampa_bajada(frenada_correr)
 		Estado.SALTAR:
@@ -277,6 +333,8 @@ func _ultimo_util() -> int:
 	var n := _sprite.sprite_frames.get_frame_count(_sprite.animation)
 	if _estado == Estado.ARRANQUE_CORRER and corte_arranque_correr > 0:
 		return mini(corte_arranque_correr, n - 1)
+	if _estado == Estado.ARRANQUE_ANDAR and corte_arranque_andar > 0:
+		return mini(corte_arranque_andar, n - 1)
 	return n - 1
 
 ## 0..1 segun por donde va la animacion de una pasada. Va contra el ultimo
@@ -304,6 +362,19 @@ func _rampa_bajada(tramo: float) -> float:
 	if tramo <= 0.0:
 		return 0.0
 	return maxf(0.0, 1.0 - _progreso() / tramo)
+
+## Soltar la tecla andando: esperar (poco) a un apoyo que case con la parada y
+## entrar por el fotograma de la parada mas parecido a la pose actual.
+func _pedir_parada_andar() -> void:
+	var f := _sprite.frame
+	if f in PARADA_ANDAR_BUENOS or _parada_espera >= espera_parada_andar * 2 or espera_parada_andar <= 0:
+		_parada_espera = 0
+		var entrada: int = POSE_ANDAR_A_PARADA[clampi(f, 0, POSE_ANDAR_A_PARADA.size() - 1)]
+		_cambiar(Estado.PARADA_ANDAR)
+		_sprite.frame = entrada
+		_parada_entrada = entrada
+	else:
+		_parada_espera += 1
 
 func _arrancar(accion: String, corriendo: bool) -> void:
 	var hacia := -1.0 if accion == "mover_izquierda" else 1.0
@@ -336,9 +407,26 @@ func _arrancar(accion: String, corriendo: bool) -> void:
 ## si la rampa vale (p - zona) / (1 - zona), la p que da una velocidad v es
 ## zona + (v / crucero) * (1 - zona).
 func _enganchar_arranque(llevaba: float, desde_anim: String = "", desde_frame: int = 0) -> void:
+	# Saliendo del salto con la tecla pulsada: sigue andando. El cuerpo esta
+	# parado (el impulso se apago al tocar suelo) y agachado, asi que la
+	# velocidad no dice nada y manda la POSE: POSE_DESDE_SALTO da, para cada
+	# sprite del salto desde el que se puede cortar, el fotograma del arranque
+	# de andar que mas se le parece. Fuera de la tabla, el arranque desde 0.
+	if desde_anim == "saltar" and _estado == Estado.ARRANQUE_ANDAR:
+		var i := desde_frame - SALTO_CORTE_DESDE
+		if i >= 0 and i < POSE_DESDE_SALTO.size():
+			_sprite.frame = POSE_DESDE_SALTO[i]
+		return
 	if llevaba <= 0.0:
 		return
 	var corriendo := _estado == Estado.ARRANQUE_CORRER
+	if not corriendo and corte_arranque_andar > 0:
+		for k in range(AVANCE_ARRANQUE_ANDAR.size()):
+			if AVANCE_ARRANQUE_ANDAR[k] >= llevaba:
+				_sprite.frame = k
+				return
+		_sprite.frame = AVANCE_ARRANQUE_ANDAR.size() - 1
+		return
 	# Viniendo de andar, manda la POSE: ver las tablas arriba. La velocidad que
 	# se traia se sostiene aparte para que no haya bajon.
 	if corriendo and desde_anim in ["arranque_andar", "andar"]:
@@ -384,8 +472,10 @@ func _resolver_giro() -> void:
 	if _estado != Estado.PARADA_ANDAR and _estado != Estado.PARADA_CORRER:
 		_giro_pendiente = 0.0
 		return
-	var tramo := frenada_correr if _estado == Estado.PARADA_CORRER else frenada_andar
-	if _progreso() < tramo:
+	if _estado == Estado.PARADA_ANDAR:
+		if _velocidad() > _frenando_desde * 0.3:
+			return
+	elif _progreso() < frenada_correr:
 		return
 	var hacia := _giro_pendiente
 	var corriendo := _giro_corriendo
@@ -450,6 +540,37 @@ func _cambiar(nuevo: Estado) -> void:
 		Estado.PARADA_CORRER:   _poner("parada_correr")
 		Estado.SALTAR:          _poner("salto_correr" if _corria_al_saltar else "saltar")
 		Estado.GIRO:            _poner("giro")
+		Estado.CAYENDO:         _poner("cayendo")
+		Estado.CAIDA:           _poner("caida")
+		Estado.TUMBADO:         _poner("tumbado")
+		Estado.LEVANTARSE:      _poner("levantarse")
+
+func _en_cinematica() -> bool:
+	return _estado in CINEMATICA
+
+## Cinematica de entrada. Coloca al personaje caida_altura px por encima de
+## donde esta (la marca de suelo de la escena) y lo deja caer con aceleracion
+## hasta volver ahi. El resto lo encadena _al_terminar:
+##   cayendo (bucle, mientras baja) -> caida (impacto) -> tumbado (espera) ->
+##   levantarse -> reposo, y ahi se emite cinematica_terminada.
+## El fotograma 7 de cayendo (el 32 del video) es el que enlaza con caida sin
+## salto, asi que el bucle se arranca por el fotograma que, tras caida_duracion
+## a sus fps, deja el impacto justo ahi. Si la duracion se cambia en el editor
+## sigue cuadrando: se calcula, no esta cocido.
+func caer_desde_arriba() -> void:
+	var suelo := position.y
+	position.y = suelo - caida_altura
+	_mirar(1.0)
+	_cambiar(Estado.CAYENDO)
+	var n := _sprite.sprite_frames.get_frame_count("cayendo")
+	var fps := _sprite.sprite_frames.get_animation_speed("cayendo")
+	_sprite.frame = posmod(7 - int(round(caida_duracion * fps)), n)
+	var tw := create_tween()
+	tw.tween_property(self, "position:y", suelo, caida_duracion) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.finished.connect(func() -> void:
+		if _estado == Estado.CAYENDO:
+			_cambiar(Estado.CAIDA))
 
 ## Andar y correr los mueve _physics_process con la distancia recorrida, asi que
 ## el nodo NO debe reproducirlos: se le pone la animacion y se le para.
@@ -473,13 +594,52 @@ const MANUALES := ["andar", "correr"]
 ## correr que MAS SE PARECE (silueta y color, medido): media 1,05 y 1,34 pasos.
 ## La velocidad no se pierde por entrar antes: _velocidad_suelo la sostiene
 ## hasta que la rampa la alcanza.
+## Velocidad del nodo en cada fotograma del arranque de andar, en px/s de hoja.
+## Sale del avance real del pie plantado respecto al eje del tronco, medido sobre
+## 04_limpios (master px por fotograma: 0, 0.7, 2.2, 2.6, 4.6, 6.3, 7.1, 8.2, 8.3,
+## 9.9, 10.3, 12.1, 11.3, 11.0, 11.7, 11.7, 13.5, 12.6, 12.6), a media escala y
+## a los 30 fps a los que va la animacion: v = master/2 * 30. El ultimo da 189,
+## contra los 192 del ciclo. Con la recta antigua el nodo hacia 256 px master en
+## el arranque y los pies 292, y ademas mal repartidos.
+const AVANCE_ARRANQUE_ANDAR := [0.0, 10.5, 33.0, 39.0, 69.0, 94.5, 106.5, 123.0, 124.5, 148.5, 154.5, 181.5, 169.5, 165.0, 175.5, 175.5, 189.0, 189.0, 189.0]
+
 const POSE_DESDE_ARRANQUE_ANDAR := [0, 0, 0, 0, 0, 3, 4, 4, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 7, 7, 5]
+## PARAR DE ANDAR. La parada esta grabada desde UNA sola fase de la zancada: sus
+## fotogramas casan con el ciclo alrededor de f26-f29 (y f3), a >= 1,1 pasos, y la
+## otra mitad del ciclo no tiene equivalente. Entrando siempre por su fotograma 0
+## el salto de pose iba de 1,1 a 3,8 pasos segun donde soltaras (media 2,4): el
+## "efecto raro al pararse". Lo que hacen los juegos con una sola parada es dejar
+## que el personaje TERMINE EL PASO hasta un apoyo que case: aqui, como mucho
+## `espera_parada_andar` fotogramas del ciclo (10 = 0,33 s; 5 de media).
+## PARADA_ANDAR_BUENOS son los fotogramas del ciclo desde los que la entrada
+## queda a <= 1,3 pasos; POSE_ANDAR_A_PARADA dice por que fotograma de la parada
+## entrar desde cada fotograma del ciclo.
+const PARADA_ANDAR_BUENOS := [2, 3, 24, 25, 26, 27, 28, 29, 30]
+const POSE_ANDAR_A_PARADA := [5, 5, 4, 6, 1, 6, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 3, 3, 4, 4, 4, 5, 5]
+## Y el nodo no frena en seco: el pie plantado de la parada sigue avanzando 3-6 px
+## master por fotograma durante 14 fotogramas antes de plantarse del todo. Este es
+## el perfil medido, como fraccion de la velocidad de andar en cada fotograma de la
+## parada; la velocidad que se traia se escala para empezar exacta en el fotograma
+## de entrada.
+const FRENADA_ANDAR_PERFIL := [1.0, 0.95, 0.85, 0.75, 0.65, 0.55, 0.48, 0.42, 0.40, 0.40, 0.42, 0.40, 0.36, 0.32, 0.27, 0.20, 0.14, 0.10, 0.08, 0.05, 0.0]
+
 const POSE_DESDE_ANDAR := [5, 5, 6, 5, 6, 4, 6, 6, 6, 6, 4, 6, 4, 8, 8, 8, 8, 8, 7, 8, 7, 6, 6, 6, 6, 7, 4, 4, 5, 5, 6, 6, 5, 5]
+
+## Por que fotograma del arranque de andar seguir cuando el salto (saltar) se
+## corta con la tecla pulsada. El indice 0 es el sprite 60 del salto (indice
+## SALTO_CORTE_DESDE, el primero en que salto_interrumpible deja cortar); tiene
+## que ir a la par con ese export. Medido por silueta y color contra los 34 del
+## arranque: del sprite 60 al 64 aun esta medio agachado y lo mas parecido es
+## un paso ya lanzado (f20-24, 0,043-0,048); del 65 al 70 esta de pie y lo mas
+## parecido es el arranque recien empezado (f4-5, 0,025-0,035).
+const SALTO_CORTE_DESDE := 59
+const POSE_DESDE_SALTO := [21, 20, 21, 23, 24, 5, 5, 5, 5, 4, 4]
 
 func _poner(nombre: String) -> void:
 	_recorrido = 0.0
 	_ultimo_fotograma = -1
 	_velocidad_suelo = 0.0
+	_parada_entrada = 0
 	if nombre in MANUALES:
 		var andando := nombre == "andar"
 		var entrada := entrada_andar if andando else entrada_correr
@@ -521,6 +681,11 @@ func _pisar(fotograma: int, n: int) -> void:
 func _respirar(activa: bool) -> void:
 	if _fundido:
 		_fundido.kill()
+	# Apagar lo que ya esta apagado no es nada: sin esto se creaba un tween
+	# vacio y Godot lo avisaba como error en cada cambio de animacion de la
+	# cinematica de entrada, que encadena varias sin pasar por el reposo.
+	if not activa and not _respiracion.playing:
+		return
 	_fundido = create_tween()
 	if activa:
 		if not _respiracion.playing:
@@ -538,6 +703,17 @@ func _al_terminar() -> void:
 		Estado.ARRANQUE_CORRER: _cambiar(Estado.CORRER)
 		Estado.PARADA_ANDAR, Estado.PARADA_CORRER, Estado.SALTAR:
 			_cambiar(Estado.REPOSO)
+		Estado.CAIDA:
+			# Tumbado es un solo fotograma en bucle: no avisa de nada. La espera
+			# la pone un temporizador, y se comprueba el estado al volver por si
+			# algo lo hubiera sacado de ahi mientras tanto.
+			_cambiar(Estado.TUMBADO)
+			get_tree().create_timer(tumbado_espera).timeout.connect(func() -> void:
+				if _estado == Estado.TUMBADO:
+					_cambiar(Estado.LEVANTARSE))
+		Estado.LEVANTARSE:
+			_cambiar(Estado.REPOSO)
+			cinematica_terminada.emit()
 		Estado.GIRO:
 			# Ahora si: el ultimo fotograma del giro es el perfil del otro lado,
 			# que es exactamente el sprite de siempre volteado, asi que voltear
