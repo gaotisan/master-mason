@@ -2052,7 +2052,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"andar",
-"speed": 24.0
+"speed": 30.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -2239,7 +2239,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"arranque_correr",
-"speed": 24.0
+"speed": 30.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -2316,7 +2316,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"correr",
-"speed": 24.0
+"speed": 30.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -2438,7 +2438,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"parada_correr",
-"speed": 24.0
+"speed": 30.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -2839,7 +2839,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"cayendo",
-"speed": 24.0
+"speed": 30.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -2907,7 +2907,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"caida",
-"speed": 24.0
+"speed": 30.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -3109,5 +3109,5 @@ animations = [{
 }],
 "loop": false,
 "name": &"levantarse",
-"speed": 24.0
+"speed": 30.0
 }]

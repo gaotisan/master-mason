@@ -316,6 +316,42 @@ El volteo del sprite se hace al **terminar** la animacion, no al empezar
 (`_al_terminar` en `magnus.gd`): durante el giro se conserva el `flip_h` que
 hubiera.
 
+### Arrancar y parar de correr
+
+**El arranque de correr alcanzaba el crucero en el fotograma 8, no en el 28.**
+Midiendo el pie plantado: 6 fotogramas quieto, el 6 avanza 5,4 px master, el 7
+dieciseis, y del 8 en adelante ya va a 29-33, que es el crucero del ciclo (28,9).
+La rampa recta daba 5,7 en el fotograma 8: las piernas a tope con el cuerpo al
+20 %, el pie resbalando hacia atras todo el arranque. Ahora la velocidad sale de
+`AVANCE_ARRANQUE_CORRER` (0 x6, 81, 240, 435...) y el corte baja del 28 al **22**,
+entrando al ciclo por el **f9** (0,72 pasos, mejor que el 0,76 de antes y seis
+fotogramas mas corto).
+
+**Y `arranque_correr` y `parada_correr` iban a 24 fps con el ciclo a 30** (435
+px/s son 30 fotogramas/s de 14,5 px). Las dos a 30.
+
+**La parada de correr solo casa con una fase.** A diferencia de la de andar,
+entrar por el fotograma mas parecido no sirve: el mejor es siempre el 0. La
+distancia desde el ciclo va de 1,2 (f22) a 2,1 (f12-f15). Asi que se espera a una
+fase que case, igual que al andar.
+
+### El dial: tolerancia_parada_*
+
+Cuanto salto de pose se acepta al entrar en la parada, en pasos normales del
+ciclo. Se espera a un fotograma del ciclo que baje de eso. Es el unico numero que
+hay que tocar para elegir entre que se vea bien y que responda:
+
+| | tolerancia | fases que valen | espera maxima | medido |
+|---|---|---|---|---|
+| correr | 1,25 | solo f22 | 23 fotogramas | 0-46 ticks, hasta **341 px** |
+| correr | 1,60 | once fases | 9 fotogramas | 0-6 ticks, hasta **51 px** |
+| andar | 1,30 | f2-f3, f24-f30 | 20 fotogramas | 0-40 ticks, hasta **131 px** |
+
+Puesto en 1,25 y 1,30, que es lo pedido: que se vea bien aunque cueste
+responsividad. El personaje no se queda quieto esperando, **termina el paso**,
+que es lo que hace una persona al soltar. Las distancias medidas estan en
+`DIST_PARADA_ANDAR` y `DIST_PARADA_CORRER`.
+
 ### Parar de andar: terminar el paso y frenar como los pies
 
 La parada de andar esta grabada desde **una sola fase** de la zancada: sus 21
@@ -441,6 +477,44 @@ el ciclo, y el propio salto avanza 2,08 pasos de correr por fotograma: entrar co
 El video viene a camara lenta (1,1 s de vuelo); a 60 fps queda en 0,45 s. Y el
 video recorta la punta de la capucha en el apogeo, que se reconstruye
 geometricamente: es la punta, no la cabeza.
+
+### Repaso de las catorce animaciones
+
+Todas tienen que cumplir dos cosas: que la duracion de cada fotograma sea un
+numero ENTERO de ticks de fisica (60 Hz), o la cadencia tiembla; y que la linea
+de suelo caiga donde el `offset` del sprite la espera.
+
+| animacion | fps | ticks/fotograma | casilla |
+|---|---|---|---|
+| reposo | 12 | 5 | 292x360 |
+| arranque_andar, andar, parada_andar | 30 | 2 | 292x360 |
+| arranque_correr, correr, parada_correr | 30 | 2 | 292x360 |
+| giro | 20 | 3 | 292x360 |
+| saltar | 60 | 1 | 292x360 |
+| salto_correr | 60 | 1 | **340x400** |
+| cayendo, caida, levantarse | 30 | 2 | **380x360** |
+| tumbado | 1 | (un fotograma) | 380x360 |
+
+`andar` y `correr` los mueve el script por distancia -- el nodo esta parado --
+asi que su fps del .tres no se usa; se deja en 30 para no despistar.
+
+Las de caida estaban a 24 fps (2,5 ticks: unos fotogramas de 33 ms y otros de
+50). Pasadas a 30. `_caer()` calcula el fotograma de entrada del bucle con
+`get_animation_speed`, asi que se ajusta solo.
+
+Alineacion comprobada sobre los sprites: el suelo de las animaciones de la
+casilla comun cae entre 675 y 683 (master), y el de `tumbado`/`levantarse` en
+672, cinco pixeles = 1,3 en pantalla. Dentro del ruido.
+
+### Lo que no tiene arreglo sin material nuevo
+
+- **El salto en carrera entra y sale con 2,8-3,9 pasos de salto de pose.** Viene
+  de otro video, y el despegue y el aterrizaje son agachados que no existen en el
+  ciclo. Se compensa con que va a 60 fps: ese salto equivale a 1,4 fotogramas del
+  propio salto, o sea un parpadeo de 16 ms.
+- **Solo hay una parada por accion,** grabada desde una fase de la zancada. De ahi
+  la espera de `tolerancia_parada_*`. Una segunda parada con el otro pie delante
+  lo cerraria, pero los modelos de IA no la dan consistente.
 
 ## Importacion en Godot
 

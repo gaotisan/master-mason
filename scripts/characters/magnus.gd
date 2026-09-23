@@ -53,7 +53,7 @@ extends Node2D
 ## Andar no lo necesita: su arranque y su ciclo salen del mismo video y entrar
 ## por el 0 ya da 0,5 pasos. El 33 medía algo mejor, 0,2, pero no se ve.
 @export var entrada_andar: int = 19
-@export var entrada_correr: int = 14
+@export var entrada_correr: int = 9
 ## El arranque de andar se corta en el 18 y su velocidad no es una rampa recta
 ## sino la medida en los sprites, fotograma a fotograma (ver AVANCE_ARRANQUE_ANDAR).
 ## A partir del 18 el arranque ya ES el ciclo -- cada fotograma casa con el ciclo
@@ -62,9 +62,23 @@ extends Node2D
 ## era el deslizamiento "sutil pero se nota" de los primeros segundos. -1 lo
 ## reproduce entero con la rampa antigua.
 @export var corte_arranque_andar: int = 18
-## Fotogramas del ciclo de andar que se espera, como mucho, a un apoyo que case
-## con la parada al soltar la tecla. 0 = entrar al instante (con el salto de pose).
-@export var espera_parada_andar: int = 10
+## Cuantos fotogramas del ciclo se espera, como mucho, a un apoyo que case con la
+## parada al soltar la tecla. Puestos al ciclo entero = esperar SIEMPRE, que es lo
+## que hace que la parada se vea igual de bien cada vez. Cuesta responsividad: al
+## andar hasta 20 fotogramas (0,67 s) y al correr hasta 23 (0,77 s), porque el
+## personaje termina el paso antes de frenar. 0 = entrar al instante, como antes.
+@export var espera_parada_andar: int = 34
+@export var espera_parada_correr: int = 24
+## Cuanto salto de pose se tolera al entrar en la parada, en "pasos normales" del
+## ciclo (la diferencia mediana entre dos fotogramas consecutivos). Se espera a un
+## fotograma del ciclo que baje de esto; cuanto mas bajo, mejor se ve y mas se
+## tarda en parar. Las distancias medidas estan en DIST_PARADA_*.
+##
+##   correr: 1,25 -> solo la fase 22 (la mejor, 1,21), espera hasta 23 fotogramas
+##           1,60 -> once fases, espera hasta 9 fotogramas (0,30 s)
+##   andar:  1,30 -> nueve fases (f2-f3, f24-f30), espera hasta 20 fotogramas
+@export var tolerancia_parada_correr: float = 1.25
+@export var tolerancia_parada_andar: float = 1.30
 ## Ultimo fotograma que se usa del arranque de correr; -1 lo reproduce entero.
 ##
 ## Los ultimos fotogramas de esa animacion tienen el brazo yendo hacia atras y
@@ -76,7 +90,7 @@ extends Node2D
 ##
 ## Cortando en el 28 el rebote no llega a verse, y de paso el empalme con el
 ## bucle mejora: 0,75 pasos normales del ciclo en vez de 1,11.
-@export var corte_arranque_correr: int = 28
+@export var corte_arranque_correr: int = 22
 ## Girar con la animacion de giro en vez de voltear el sprite de golpe.
 ##
 ## La animacion son 9 fotogramas: perfil, 22, 45, 67 grados, frontal, y de vuelta
@@ -243,7 +257,9 @@ func _physics_process(delta: float) -> void:
 			_pedir_parada_andar()
 		elif _estado == Estado.ARRANQUE_ANDAR:
 			_cambiar(Estado.PARADA_ANDAR)
-		elif _estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER:
+		elif _estado == Estado.CORRER:
+			_pedir_parada_correr()
+		elif _estado == Estado.ARRANQUE_CORRER:
 			_cambiar(Estado.PARADA_CORRER)
 	elif _en_movimiento():
 		_parada_espera = 0   # volver a pulsar cancela la parada que estaba esperando
@@ -310,6 +326,9 @@ func _velocidad() -> float:
 				return maxf(AVANCE_ARRANQUE_ANDAR[k], _velocidad_suelo)
 			return maxf(velocidad_andar * _rampa_subida(quieto_al_arrancar_andar), _velocidad_suelo)
 		Estado.ARRANQUE_CORRER:
+			if corte_arranque_correr > 0:
+				var kc := clampi(_sprite.frame, 0, AVANCE_ARRANQUE_CORRER.size() - 1)
+				return maxf(AVANCE_ARRANQUE_CORRER[kc], _velocidad_suelo)
 			return maxf(velocidad_correr * _rampa_subida(quieto_al_arrancar_correr), _velocidad_suelo)
 		Estado.PARADA_ANDAR:
 			var k := clampi(_sprite.frame, 0, FRENADA_ANDAR_PERFIL.size() - 1)
@@ -367,12 +386,23 @@ func _rampa_bajada(tramo: float) -> float:
 ## entrar por el fotograma de la parada mas parecido a la pose actual.
 func _pedir_parada_andar() -> void:
 	var f := _sprite.frame
-	if f in PARADA_ANDAR_BUENOS or _parada_espera >= espera_parada_andar * 2 or espera_parada_andar <= 0:
+	var casa: bool = DIST_PARADA_ANDAR[clampi(f, 0, DIST_PARADA_ANDAR.size() - 1)] <= tolerancia_parada_andar
+	if casa or _parada_espera >= espera_parada_andar * 2 or espera_parada_andar <= 0:
 		_parada_espera = 0
 		var entrada: int = POSE_ANDAR_A_PARADA[clampi(f, 0, POSE_ANDAR_A_PARADA.size() - 1)]
 		_cambiar(Estado.PARADA_ANDAR)
 		_sprite.frame = entrada
 		_parada_entrada = entrada
+	else:
+		_parada_espera += 1
+
+## Soltar corriendo: esperar a la unica fase que casa con la parada.
+func _pedir_parada_correr() -> void:
+	var f := _sprite.frame
+	var casa: bool = DIST_PARADA_CORRER[clampi(f, 0, DIST_PARADA_CORRER.size() - 1)] <= tolerancia_parada_correr
+	if casa or _parada_espera >= espera_parada_correr * 2 or espera_parada_correr <= 0:
+		_parada_espera = 0
+		_cambiar(Estado.PARADA_CORRER)
 	else:
 		_parada_espera += 1
 
@@ -420,6 +450,13 @@ func _enganchar_arranque(llevaba: float, desde_anim: String = "", desde_frame: i
 	if llevaba <= 0.0:
 		return
 	var corriendo := _estado == Estado.ARRANQUE_CORRER
+	if corriendo and corte_arranque_correr > 0 and not (desde_anim in ["arranque_andar", "andar"]):
+		for k in range(AVANCE_ARRANQUE_CORRER.size()):
+			if AVANCE_ARRANQUE_CORRER[k] >= llevaba:
+				_sprite.frame = k
+				return
+		_sprite.frame = AVANCE_ARRANQUE_CORRER.size() - 1
+		return
 	if not corriendo and corte_arranque_andar > 0:
 		for k in range(AVANCE_ARRANQUE_ANDAR.size()):
 			if AVANCE_ARRANQUE_ANDAR[k] >= llevaba:
@@ -601,6 +638,13 @@ const MANUALES := ["andar", "correr"]
 ## a los 30 fps a los que va la animacion: v = master/2 * 30. El ultimo da 189,
 ## contra los 192 del ciclo. Con la recta antigua el nodo hacia 256 px master en
 ## el arranque y los pies 292, y ademas mal repartidos.
+## Lo mismo para correr, y aqui el error era mayor y al reves. Midiendo el pie
+## plantado: 6 fotogramas quieto, el 6 avanza 5,4 px master, el 7 dieciseis, y del
+## 8 en adelante YA VA A CRUCERO (32, 31, 26, 25, 29, 33...). La rampa recta daba
+## 5,7 en el fotograma 8: las piernas corriendo a tope con el cuerpo al 20 %, o
+## sea el pie resbalando hacia atras todo el arranque. En px/s de hoja.
+const AVANCE_ARRANQUE_CORRER := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 81.0, 240.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0]
+
 const AVANCE_ARRANQUE_ANDAR := [0.0, 10.5, 33.0, 39.0, 69.0, 94.5, 106.5, 123.0, 124.5, 148.5, 154.5, 181.5, 169.5, 165.0, 175.5, 175.5, 189.0, 189.0, 189.0]
 
 const POSE_DESDE_ARRANQUE_ANDAR := [0, 0, 0, 0, 0, 3, 4, 4, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 7, 7, 5]
@@ -614,7 +658,10 @@ const POSE_DESDE_ARRANQUE_ANDAR := [0, 0, 0, 0, 0, 3, 4, 4, 4, 4, 4, 6, 6, 6, 6,
 ## PARADA_ANDAR_BUENOS son los fotogramas del ciclo desde los que la entrada
 ## queda a <= 1,3 pasos; POSE_ANDAR_A_PARADA dice por que fotograma de la parada
 ## entrar desde cada fotograma del ciclo.
-const PARADA_ANDAR_BUENOS := [2, 3, 24, 25, 26, 27, 28, 29, 30]
+## Distancia de pose, en pasos normales, al entrar en la parada desde cada
+## fotograma del ciclo. Medido sobre los sprites (silueta y color).
+const DIST_PARADA_ANDAR := [1.7, 1.5, 1.3, 1.3, 1.7, 1.8, 1.8, 2.0, 2.1, 2.4, 2.5, 2.4, 2.4, 2.2, 2.3, 2.4, 2.7, 3.3, 3.2, 2.9, 2.8, 2.3, 2.2, 1.7, 1.3, 1.1, 1.1, 1.2, 1.1, 1.1, 1.2, 1.4, 1.6, 1.8]
+const DIST_PARADA_CORRER := [1.7, 1.7, 1.7, 1.5, 1.5, 1.4, 1.4, 1.6, 1.6, 1.7, 1.6, 1.8, 2.1, 2.1, 2.1, 2.1, 1.9, 1.9, 2.0, 1.9, 1.5, 1.3, 1.2, 1.6]
 const POSE_ANDAR_A_PARADA := [5, 5, 4, 6, 1, 6, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 3, 3, 4, 4, 4, 5, 5]
 ## Y el nodo no frena en seco: el pie plantado de la parada sigue avanzando 3-6 px
 ## master por fotograma durante 14 fotogramas antes de plantarse del todo. Este es
