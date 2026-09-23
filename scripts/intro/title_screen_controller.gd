@@ -1,5 +1,7 @@
 extends Node2D
 ## Pantalla de titulo. Todo se cuenta con luz:
+##  0. Negro. Los creditos (title_credits.gd): dos tarjetas que una luz recorre
+##     y apaga. Nada mas se mueve hasta que acaban.
 ##  1. Negro. Aparecen a la vez, muy poco a poco, el titileo de las dos velas y el
 ##     vaho del cristal del ataud: seguimos dentro del sarcofago.
 ##  2. Se enciende el foco de arriba sobre la pared alta.
@@ -18,6 +20,8 @@ extends Node2D
 ##     Ya entrando, el resto de la sala acompana y pierde la luz.
 ##  8. Todo es negro, y ahi arranca la escena del personaje.
 
+## Todos los tiempos de la secuencia cuentan desde que acaban los creditos.
+@export var show_credits: bool = true
 @export var fog_delay: float = 0.5
 @export var fog_time: float = 3.4
 @export var candle_start: float = 1.0
@@ -53,7 +57,7 @@ extends Node2D
 @export var wind_db_exit: float = -14.0
 
 @export_group("Salida")
-## Momento en que empieza la salida, contado desde el arranque de la pantalla.
+## Momento en que empieza la salida, contado desde el final de los creditos.
 ## El destello acaba en glint_start + glint_time; se deja ver el titulo un rato.
 @export var exit_start: float = 17.0
 ## Los tiempos de abajo son relativos a exit_start.
@@ -154,6 +158,17 @@ func _ready() -> void:
 	WindAmbience.fade_to(_wind_db, 0.0)
 	WindAmbience.gust_db = 0.0
 
+	if show_credits:
+		var credits: CanvasLayer = load("res://scripts/intro/title_credits.gd").new()
+		add_child(credits)
+		credits.finished.connect(_start_lights)
+	else:
+		_start_lights()
+
+## Arranca la secuencia de luz. Con creditos, cuando estos acaban; el reloj de
+## las rachas empieza a contar aqui.
+func _start_lights() -> void:
+	_elapsed = 0.0
 	_run_sequence()
 	_run_exit()
 
