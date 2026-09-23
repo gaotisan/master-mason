@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=304 format=3]
+[gd_resource type="SpriteFrames" load_steps=310 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/characters/magnus/magnus_respirando.png" id="tex_1"]
 [ext_resource type="Texture2D" path="res://assets/characters/magnus/magnus_arranque_andar.png" id="tex_2"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://assets/characters/magnus/magnus_corriendo.png" id="tex_6"]
 [ext_resource type="Texture2D" path="res://assets/characters/magnus/magnus_parada_correr.png" id="tex_7"]
 [ext_resource type="Texture2D" path="res://assets/characters/magnus/magnus_saltando.png" id="tex_8"]
+[ext_resource type="Texture2D" path="res://assets/characters/magnus/magnus_giro.png" id="tex_9"]
 
 [sub_resource type="AtlasTexture" id="atlas_1_0"]
 atlas = ExtResource("tex_1")
@@ -1189,6 +1190,26 @@ region = Rect2(876, 2520, 292, 360)
 atlas = ExtResource("tex_8")
 region = Rect2(1168, 2520, 292, 360)
 
+[sub_resource type="AtlasTexture" id="atlas_9_0"]
+atlas = ExtResource("tex_9")
+region = Rect2(0, 0, 292, 360)
+
+[sub_resource type="AtlasTexture" id="atlas_9_1"]
+atlas = ExtResource("tex_9")
+region = Rect2(292, 0, 292, 360)
+
+[sub_resource type="AtlasTexture" id="atlas_9_2"]
+atlas = ExtResource("tex_9")
+region = Rect2(584, 0, 292, 360)
+
+[sub_resource type="AtlasTexture" id="atlas_9_3"]
+atlas = ExtResource("tex_9")
+region = Rect2(876, 0, 292, 360)
+
+[sub_resource type="AtlasTexture" id="atlas_9_4"]
+atlas = ExtResource("tex_9")
+region = Rect2(1168, 0, 292, 360)
+
 [resource]
 animations = [{
 "frames": [{
@@ -2115,4 +2136,24 @@ animations = [{
 "loop": false,
 "name": &"saltar",
 "speed": 60.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("atlas_9_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("atlas_9_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("atlas_9_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("atlas_9_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("atlas_9_4")
+}],
+"loop": false,
+"name": &"giro",
+"speed": 20.0
 }]

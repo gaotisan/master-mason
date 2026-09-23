@@ -144,10 +144,34 @@ Esos son los valores de `avance_andar` / `avance_correr` en `magnus.gd`. Los
 antiguos (9,5 y 17,3) estaban sacados de la zancada y son los que patinaban.
 
 La velocidad nativa es a lo que anda el personaje si la animacion va a sus 24 fps
-de origen. En el juego estan puestas a 229 y 416, o sea un 49% y un 20% mas
-rapido, y la animacion se acelera sola para compensar (unos 36 y 29 fps
-efectivos). No patina igualmente, pero si la cadencia de piernas se ve nerviosa,
-lo que hay que bajar es la **velocidad**, nunca el avance.
+de origen. En el juego van mas rapido, y la animacion se acelera sola para
+compensar. No patina igualmente: si la cadencia de piernas se ve nerviosa, lo
+que hay que bajar es la **velocidad**, nunca el avance.
+
+### La velocidad no es libre: tiene que dar ticks enteros
+
+El fotograma solo cambia en un tick de fisica, asi que su duracion en pantalla es
+por fuerza un numero entero de ticks. Si `velocidad / avance` no divide a los 60
+Hz de la fisica, unos fotogramas duran un tick mas que otros y la cadencia va a
+tirones. No es problema de los sprites: es aliasing entre dos relojes.
+
+Estaba pasando. Con 229 y 416 salian 1,677 y 2,091 ticks por fotograma, o sea
+que andando unos fotogramas duraban 17 ms y otros 33, una variacion de 2 a 1.
+
+| | velocidad | fotogramas/s | ticks por fotograma |
+|---|---|---|---|
+| andando | **192 px/s** | 30 | 2 justos |
+| corriendo | **435 px/s** | 30 | 2 justos |
+
+La regla para cambiarlas: `velocidad = 30 * avance` (2 ticks) o `20 * avance`
+(3 ticks, mas lento pero igual de regular). Cualquier otro numero devuelve el
+tiron.
+
+Queda un detalle de coma flotante: 192/60 da 3,2 px por tick y el avance es 6,4,
+pero ninguno de los dos es exacto en binario y la suma se queda en 6,3999..., asi
+que sin margen un fotograma de cada veintitantos duraba un tick de mas. Por eso
+el calculo del fotograma en `magnus.gd` lleva un epsilon. Corriendo no pasaba,
+porque 435/60 = 7,25 y 14,5 si son exactos.
 
 Pero lo mejor no es fijar la velocidad, sino **mover la animacion con la
 distancia**: en vez de reproducirla a fps constante, avanzar el fotograma segun lo
@@ -194,47 +218,80 @@ La casilla se hizo simetrica a proposito (292 de ancho para un personaje que
 ocupa como mucho 262 hacia un lado): al voltearla, el personaje **no se
 desplaza**. Si algun dia se recorta la casilla para ahorrar, esto se rompe.
 
-### Pendiente: la animacion de giro
+### La animacion de giro
 
-Las ocho animaciones son **perfil puro**. No hay ni un fotograma frontal ni de
-tres cuartos, asi que cambiar de sentido salta de un perfil al otro sin nada en
-medio y canta. Ahora mismo el volteo se hace en el instante en que la frenada
-deja el cuerpo quieto, que es donde menos se nota, pero se nota.
+Las ocho animaciones de movimiento son **perfil puro**, asi que cambiar de
+sentido saltaba de un perfil al otro sin nada en medio y cantaba. Disimularlo
+deformando el sprite se probo y no colaba: con una silueta tan marcada -- capucha,
+barba, capa -- se lee como un fallo de dibujo, no como un giro.
 
-Disimularlo deformando el sprite (estrecharlo hasta casi nada y devolverlo ya
-volteado, como un pivote) **se probo y no vale**: con una silueta tan marcada
--- capucha, barba, capa -- se lee como un fallo de dibujo, no como un giro.
-Tampoco vale fundir una imagen con su espejo: salen dos personajes solapados.
+La solucion son fotogramas de verdad, y **no salen de un video**: son una hoja de
+rotacion pedida a una IA de imagen (`_fuentes/giro360.jpeg`), con el prompt en
+`_fuentes/prompt_giro.txt` y `referencia_magnus_perfil.png` como referencia.
 
-Hacen falta fotogramas. Lo que hay que pedir:
+**La hoja no venia ordenada, y hay que comprobarlo siempre.** Se pidieron 0, 22,
+45, 67 y 90 grados y llegaron **0, 22, 45, 135 y 90**: la cuarta pose se paso de
+largo del frontal en vez de quedarse antes. Montada en el orden en que venia, el
+personaje giraba, saltaba al otro lado y volvia.
 
-- Vídeo aparte, **mismo croma verde, 720p, mismo encuadre y misma distancia de
-  camara** que los otros. Si la camara cambia, la casilla y la linea de suelo
-  no cuadran con el resto y hay que recentrar todo.
-- El personaje **gira 180 grados sobre si mismo, sin desplazarse**, de perfil a
-  perfil.
-- Que gire **por delante**, enseñando cara y barba, no por la espalda: se lee
-  mucho mejor y evita tener que inventar como es la capucha por detras.
-- Despacio y entero mejor que rapido: sobra quitar fotogramas, no se pueden
-  inventar. Y que se quede **quieto un momento al principio y al final**, para
-  tener los extremos limpios con los que empalmar con reposo.
+Como se detecta sin ojo clinico, con dos medidas sobre las siluetas:
 
-Solo hace falta **media vuelta**: de perfil a frontal. La otra mitad sale
-volteando esos mismos fotogramas, y asi el giro a un lado y al otro son
-identicos y el final encaja exacto con el perfil espejado. O sea que de un giro
-de ~0,25 s se aprovechan unos 4-5 fotogramas reales.
+- **Simetria de cada pose**, o sea su distancia consigo misma volteada. Tiene que
+  bajar sin parar hasta el frontal y volver a subir. Salia 17, 16, 12, **15**, 3:
+  la cuarta rompia la progresion.
+- **Cada pose contra el espejo de las demas.** La cuarta contra el espejo de la
+  tercera daba 7, el valor mas bajo de toda la matriz, por debajo incluso de la
+  simetria propia de la tercera (12). Era la tercera espejada.
 
-En Godot entra como una animacion `giro` de una pasada, a fps fijo (no con la
-distancia: en el giro el cuerpo no avanza). Se dispara en `_mirar()` de
-`magnus.gd`, en el mismo punto donde hoy se hace el `flip_h`, y se reproduce mas
-rapida si venia corriendo.
+De ahi sale la animacion: **pasos de 45 grados clavados**, quedandose con 0, 45,
+90, 135 y 180. El de 180 es el de 0 **volteado contra el centro de la casilla**,
+que es exactamente lo que hace `flip_h`, asi que el ultimo fotograma encaja al
+pixel con los sprites de siempre del otro lado, y la misma animacion vale para
+los dos sentidos: reproducida volteada se lee de izquierda a derecha.
+
+Las poses de 22 grados se descartan. Metiendolas, los pasos quedaban en 15, 8,
+17, 17, 10, 15 -- una razon de 2,1 entre el mayor y el menor, porque falta la de
+67 grados -- y se veia acelerar al pasar por delante. Con solo las de 45 los
+pasos son **17, 17, 17, 18**, razon 1,06.
+
+Total: **5 fotogramas a 20 fps, 0,25 s**, que ademas son 3 ticks de fisica justos
+por fotograma.
+
+Si algun dia se consigue la pose de **67 grados** que falta, con ella y su espejo
+salen 9 fotogramas a 22,5 grados de paso, igual de uniformes y mas suaves.
+
+Hubo que ajustar tres cosas a mano, y las tres se notaban como **"los pies
+centellean"** o como un salto al entrar y salir del giro:
+
+- **La escala.** `centrar.ps1` alinea pero no reescala. Las poses venian a 1470
+  px de alto y se redujeron a **628**, que es lo que mide el personaje en el
+  reposo.
+- **El color de los pies.** La IA los ilumino distinto en cada pose: medidos
+  sobre la piel del pie (calida, r-g > 15, lo que la separa de la pierna, que es
+  gris neutro) la luminancia iba 70, 89, 68, 92, 70 -- **34% alternando
+  oscuro-dorado**, mientras el cuerpo entero solo variaba un 3%. Se corrige con
+  una ganancia por canal que lleva cada pose a la media de los pies del reposo.
+  Despues: 0,4%.
+- **La linea de suelo.** `centrar.ps1` ancla el suelo *medido* al margen pedido,
+  y en un video ese suelo lo marca el pie de apoyo, que cae por debajo del pixel
+  mas bajo de un fotograma de pie; con cinco poses quietas coinciden. El giro
+  salia en y=690 y el reposo esta en y=677 clavado en sus 30 fotogramas, o sea
+  que el personaje **bajaba 13 px** al entrar en el giro. Se corrige subiendo los
+  cinco fotogramas hasta 677.
+
+El resto lo hizo el flujo de siempre.
+
+El volteo del sprite se hace al **terminar** la animacion, no al empezar
+(`_al_terminar` en `magnus.gd`): durante el giro se conserva el `flip_h` que
+hubiera.
 
 ## Importacion en Godot
 
 Tres ajustes que importan, sobre todo si la camara va a cambiar de zoom:
 
 - **Mipmaps activadas.** Sin ellas, el personaje pequeno con bordes facetados
-  centellea al moverse. Cuestan un 33% mas de memoria y los valen.
+  centellea al moverse. Cuestan un 33% mas de memoria y los valen. Con una
+  condicion, que ahora mismo se cumple: ver el margen entre casillas aqui abajo.
 - **Filtro lineal**, no nearest. Esto es pintado, no pixel art.
 - El zoom se hace en la **`Camera2D`**, no escalando el nodo del personaje: asi
   escala toda la escena a la vez y el personaje no se despega del fondo.
@@ -242,6 +299,29 @@ Tres ajustes que importan, sobre todo si la camara va a cambiar de zoom:
 Coste de las siete hojas: 10,8 MB en disco, **104,7 MB de memoria de video** (139
 con mipmaps). Descontando el ciclo de correr que se descarte, unos 95. Si algun dia aprieta, activar compresion VRAM en la importacion antes
 que volver a reducir la resolucion.
+
+### El margen entre casillas, que es lo que hace seguras las mipmaps
+
+La hoja es un **atlas**: Godot la muestrea con filtrado bilineal y cada nivel de
+mipmap promedia bloques de la hoja entera, sin saber donde acaba una casilla y
+empieza la siguiente. Si el personaje llegara al borde de su casilla, el vecino
+se colaria por ahi y se verian fotogramas mezclados.
+
+Lo que lo impide es el **margen transparente** que el personaje deja dentro de su
+casilla. Un margen de M px aguanta mientras el texel del mipmap mida menos que M:
+el nivel L usa texels de 2^L px y se emplea a escala 1/2^L.
+
+Medido sobre las ocho hojas actuales, casilla a casilla, el margen mas justo es
+de **12 px** (izq 15, der 28, arr 12, abj 16), asi que el atlas esta limpio hasta
+**1/8 de escala**. El juego dibuja a 0,527 -- viewport 2912x1632 sobre una
+pantalla de 1536x864 -- o sea muy lejos del limite, y cualquier alejamiento de
+camara razonable tambien.
+
+Ese margen no es intencionado: sale de que la casilla se dimensiono a 292 de
+ancho para un personaje que ocupa como mucho 262. Por eso `hoja.ps1` lo mide al
+terminar y avisa si baja de 8 px, que es lo que pasaria con una animacion en la
+que el personaje llenase mas la casilla. Si algun dia salta ese aviso, las
+salidas son agrandar la casilla en `centrar.ps1` o importar esa hoja sin mipmaps.
 
 ## Tamano en pantalla
 
@@ -256,7 +336,7 @@ alto:
 Esta dimensionado para el **zoom maximo**, no para el tamano habitual: a una
 textura le sienta bien que la achiques y mal que la estires.
 
-## Dos avisos
+## Avisos sobre el material
 
 **El salto gira.** Empieza y acaba de perfil, pero en los fotogramas 21-50 de la
 seleccion el personaje rota 30-45 grados hacia camara y se le ven los dos brazos.
@@ -264,10 +344,30 @@ No es un fallo del recorte, viene asi del video. A tamano pequeno puede colar;
 si no cuela, hay que pedir el video otra vez diciendo explicitamente que no rote
 en ningun momento.
 
-**Los pies van a patinar.** El ciclo de carrera son 24 fotogramas a 24 fps, o sea
-1,00 s para dos zancadas. La velocidad de desplazamiento hay que ajustarla a ojo
-hasta que el pie de apoyo no resbale: en el video el personaje corre en el sitio,
-asi que no se pudo medir cuanto avanza por zancada.
+**El brazo de la carrera va al doble de frecuencia.** Las piernas hacen su ciclo
+en 24 fotogramas, dos pasos. El brazo deberia hacer una sola oscilacion completa
+en esos 24 -- cada brazo va en oposicion a su pierna -- y hace dos. Medido
+rastreando la mano cercana en los 192 fotogramas del video y autocorrelando su
+altura: el minimo cae en periodo 12, cuando para un brazo correcto el 12 tendria
+que ser un maximo, porque a media zancada el brazo esta en el extremo contrario
+de su recorrido.
+
+Pasa en el video entero, no en un tramo: no es una ventana mal elegida ni unos
+fotogramas rotos, es como el modelo entendio la carrera, asi que **ninguna
+seleccion lo arregla**. El sintoma es que el codo hace algo que no cuadra al
+volver a subir.
+
+Si se vuelve a pedir el video, hay que decirlo explicito, que es justo lo que los
+modelos se inventan cuando no se les dice:
+
+> The arms swing in opposition to the legs: when the left leg is forward the
+> right arm is forward. Each arm completes exactly ONE full forward-and-back
+> swing per full stride cycle (two steps), not one per step. Elbows stay bent at
+> roughly 90 degrees throughout, the forearms never straighten.
+
+La alternativa sin pedir nada es retocar los 24 limpios para que la capa tape el
+brazo siempre -- ya lo tapa en buena parte del ciclo -- a cambio de perder el
+gesto de los brazos al correr.
 
 ## Regenerar o anadir una animacion
 
