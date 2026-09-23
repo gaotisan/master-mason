@@ -285,6 +285,68 @@ El volteo del sprite se hace al **terminar** la animacion, no al empezar
 (`_al_terminar` en `magnus.gd`): durante el giro se conserva el `flip_h` que
 hubiera.
 
+### Pedir correr cuando ya se anda: entrar por la pose, no por la velocidad
+
+La primera pulsacion de un doble arranca a andar sin remedio -- no se sabe que
+era doble hasta que llega la segunda -- y si la segunda llega tarde, uno ya esta
+andando y pide correr desde el ciclo de andar. Entrar en el arranque de correr
+por el fotograma que da la velocidad que se lleva (el 14 a 192 px/s) dejaba la
+pose a **2,2-2,8 pasos** de cualquier fotograma de andar: mas que el rebote del
+brazo que se quito (1,8). Se veia como que "detecta que anda y luego pasa a
+correr".
+
+Ahora se entra por el fotograma del arranque de correr que **mas se parece** a la
+pose que se trae (tablas `POSE_DESDE_ARRANQUE_ANDAR` y `POSE_DESDE_ANDAR` en
+`magnus.gd`, medidas por silueta y color): media 1,05 y 1,34 pasos, peor caso
+1,87. Como esos fotogramas (4-8) tienen la rampa de velocidad aun baja, la
+velocidad que se traia se sostiene aparte (`_velocidad_suelo`) hasta que la rampa
+la alcanza: sin bajon, comprobado (minimo 192 px/s viniendo de andar). El cambio
+andar->correr en si, con la segunda pulsacion a tiempo, ya era pequeno:
+0,23-0,68 pasos.
+
+### Soltar en la zona muerta del arranque vuelve a reposo, no a la parada
+
+Un doble toque real es pulsar-**soltar**-pulsar. Al soltar en pleno arranque de
+andar el script entraba en la parada, y la parada empieza **a media zancada**
+(esta hecha para venir del ciclo). Con la segunda pulsacion se encadenaban tres
+animaciones en 0,25 s -- arranque f0, parada f0-4, arranque de correr f0 -- con
+dos saltos de pose de 0,97 y 1,25 pasos. Se veia como un sprite que se pone
+encima de otro sin coincidir.
+
+Si la velocidad es cero al soltar, los pies no se han movido y no hay nada que
+frenar: se vuelve a `reposo`, que es la misma pose de pie (de arranque f0 a
+arranque de correr f0 hay 0,23 pasos). Si ya se movia, la parada sigue igual.
+Efecto colateral: un toque muy corto (menos de ~5 ticks) ya no reproduce la
+parada, vuelve a reposo directamente.
+
+### El salto corriendo, y por que tiene casilla propia
+
+`salto_correr` sale de un video en el que el personaje corre, salta una piedra y
+se para; se usan solo los 38 fotogramas del salto (128-165). El detalle
+completo, con la piedra, las sombras y el polvo, esta en
+`raw/.../magnus_salto_corriendo/como_se_hizo.txt`. Dos cosas afectan al juego:
+
+**No cabe en la casilla comun.** En el apogeo llega a 313 px a la izquierda del
+eje y 691 por encima del suelo, y la casilla de 584x720 se queda corta por arriba
+y por la izquierda. Lo detecto el chequeo de margen de `hoja.ps1` (0 px). En vez
+de agrandar las nueve animaciones -- un 22 % mas de VRAM para ocho que no lo
+necesitan -- este salto va en su propia hoja de **340x400** por casilla, y
+`magnus.gd` cambia `_sprite.offset` al entrar y salir de la animacion
+(`offset_comun` -165, `offset_salto_correr` -185: alto/2 menos los 15 px de
+margen de suelo). Si algun dia otra animacion se sale, es el mismo mecanismo.
+
+**Entra desde cualquier fotograma de la carrera.** Se midio el primer fotograma
+del salto contra los 24 del ciclo: 2,75 pasos normales en el mejor caso, 3,86 en
+el peor, 3,41 de media. Elegir el momento perfecto ahorraria un 30 % a cambio de
+hasta 0,8 s de latencia al pulsar, asi que no se espera a nada. El desajuste no
+lo domina la zancada sino que la pose de despegue es un agachado que no existe en
+el ciclo, y el propio salto avanza 2,08 pasos de correr por fotograma: entrar con
+2,75 equivale a 1,3 fotogramas del salto, que es lo que un corte seco absorbe.
+
+El video viene a camara lenta (1,1 s de vuelo); a 60 fps queda en 0,45 s. Y el
+video recorta la punta de la capucha en el apogeo, que se reconstruye
+geometricamente: es la punta, no la cabeza.
+
 ## Importacion en Godot
 
 Tres ajustes que importan, sobre todo si la camara va a cambiar de zoom:
@@ -370,6 +432,13 @@ brazo siempre -- ya lo tapa en buena parte del ciclo -- a cambio de perder el
 gesto de los brazos al correr.
 
 ## Regenerar o anadir una animacion
+
+**Al importar una hoja nueva, Godot apaga los mipmaps.** El `.import` que genera
+`godot --headless --import` trae `mipmaps/generate=false` por defecto, mientras
+que las hojas de siempre los llevan encendidos: la animacion nueva se veria con
+otro filtrado al reducirse. Hay que poner `mipmaps/generate=true` en su
+`.import` y volver a importar. Paso dos veces (giro y salto corriendo) antes de
+apuntarlo aqui.
 
 Las herramientas estan en `godot\tools\anim\` (ver su README). Para una accion
 nueva de Magnus, con los mismos numeros:

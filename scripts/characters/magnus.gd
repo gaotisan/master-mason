@@ -1,6 +1,7 @@
 extends Node2D
 ## Magnus. La posicion del nodo es el punto donde pisa: el sprite lleva un
-## offset de -165 para que la linea de suelo de la casilla caiga en el origen.
+## offset (-165 en la casilla comun, -185 en la del salto corriendo) para que la
+## linea de suelo de la casilla caiga en el origen.
 ##
 ## Las animaciones encadenan asi:
 ##   reposo -> arranque_andar  -> andar  -> parada_andar  -> reposo
@@ -96,6 +97,17 @@ extends Node2D
 ## A partir de aqui el salto se puede cortar con otra tecla. Sin esto, la
 ## recuperacion deja al personaje 0,4 s sin responder despues de haber caido.
 @export var salto_interrumpible: float = 0.72
+## Lo mismo para el salto corriendo, que es otra animacion con otros tiempos:
+## medido siguiendo el punto mas bajo del personaje, despega en el fotograma 3
+## de 38, llega al apogeo en el 17 y toca el suelo en el 30.
+@export var aterrizaje_correr: float = 0.81
+@export var salto_correr_interrumpible: float = 0.85
+## El salto corriendo va en su propia casilla, 340x400 en la hoja frente a los
+## 292x360 del resto, porque en el apogeo el personaje se sale de la comun por
+## arriba y por la izquierda. El offset pone la linea de suelo de cada casilla en
+## el origen del nodo: alto/2 menos los 15 px de margen de suelo a media escala.
+@export var offset_comun := Vector2(0, -165)
+@export var offset_salto_correr := Vector2(0, -185)
 ## Niveles de sonido. Los archivos estan a -6 dBFS de pico; esto es lo que se
 ## les baja en el juego.
 @export var pasos_db: float = -6.0
@@ -125,6 +137,7 @@ var _recorrido := 0.0        # para mover la animacion con la distancia
 var _impulso := 0.0          # velocidad que llevaba al despegar, se conserva en el aire
 var _corria_al_saltar := false
 var _frenando_desde := 0.0   # velocidad que llevaba al empezar a frenar
+var _velocidad_suelo := 0.0  # la que traia al entrar en un arranque por pose; sostiene hasta que la rampa la alcanza
 var _giro_pendiente := 0.0   # hacia donde hay que girar cuando acabe de frenar
 var _giro_corriendo := false
 var _giro_destino := 0.0     # hacia donde mira al acabar la animacion de giro
@@ -171,7 +184,16 @@ func _physics_process(delta: float) -> void:
 	# toque corto dejaria al personaje 1,4 s andando solo antes de hacer caso.
 	if is_zero_approx(direccion):
 		_giro_pendiente = 0.0   # soltar cancela el cambio de sentido
-		if _estado == Estado.ANDAR or _estado == Estado.ARRANQUE_ANDAR:
+		var arrancando := _estado == Estado.ARRANQUE_ANDAR or _estado == Estado.ARRANQUE_CORRER
+		if arrancando and _velocidad() <= 0.0:
+			# Soltar en la zona muerta del arranque: los pies no se han movido y
+			# no hay nada que frenar. La parada empieza a media zancada -- esta
+			# hecha para venir del ciclo -- y metida aqui es un fotograma que no
+			# encaja con nada. Pasaba con cada doble pulsacion real, que suelta
+			# entre toque y toque: arranque f0 -> parada f0,3,4 -> arranque de
+			# correr f0, dos saltos de 0,97 y 1,25 pasos. De pie a pie es 0,23.
+			_cambiar(Estado.REPOSO)
+		elif _estado == Estado.ANDAR or _estado == Estado.ARRANQUE_ANDAR:
 			_cambiar(Estado.PARADA_ANDAR)
 		elif _estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER:
 			_cambiar(Estado.PARADA_CORRER)
@@ -232,20 +254,21 @@ func _velocidad() -> float:
 		Estado.CORRER:
 			return velocidad_correr
 		Estado.ARRANQUE_ANDAR:
-			return velocidad_andar * _rampa_subida(quieto_al_arrancar_andar)
+			return maxf(velocidad_andar * _rampa_subida(quieto_al_arrancar_andar), _velocidad_suelo)
 		Estado.ARRANQUE_CORRER:
-			return velocidad_correr * _rampa_subida(quieto_al_arrancar_correr)
+			return maxf(velocidad_correr * _rampa_subida(quieto_al_arrancar_correr), _velocidad_suelo)
 		Estado.PARADA_ANDAR:
 			return _frenando_desde * _rampa_bajada(frenada_andar)
 		Estado.PARADA_CORRER:
 			return _frenando_desde * _rampa_bajada(frenada_correr)
 		Estado.SALTAR:
 			var p := _progreso()
-			if p <= aterrizaje:
+			var toca := _aterrizaje()
+			if p <= toca:
 				return _impulso
 			# Al tocar suelo el impulso se va en lo que queda de aterrizaje.
-			var resto := maxf(1.0 - aterrizaje, 0.001)
-			return _impulso * maxf(0.0, 1.0 - (p - aterrizaje) / (resto * 0.5))
+			var resto := maxf(1.0 - toca, 0.001)
+			return _impulso * maxf(0.0, 1.0 - (p - toca) / (resto * 0.5))
 	return 0.0
 
 ## Ultimo fotograma que se usa de la animacion actual. Normalmente el ultimo que
@@ -300,20 +323,30 @@ func _arrancar(accion: String, corriendo: bool) -> void:
 	# siguiente, y andando ya lanzado la caida era de los 229 enteros. Eso es lo
 	# que se veia como "arranca a andar, luego corre y fluctua".
 	var llevaba := _velocidad()
+	var desde_anim := String(_sprite.animation)
+	var desde_frame := _sprite.frame
 	var nuevo := Estado.ARRANQUE_CORRER if corriendo else Estado.ARRANQUE_ANDAR
 	if _estado == nuevo:
 		return
 	_cambiar(nuevo)
-	_enganchar_arranque(llevaba)
+	_enganchar_arranque(llevaba, desde_anim, desde_frame)
 
 ## Coloca el arranque en el fotograma cuya rampa ya da la velocidad que se
 ## llevaba, para que no haya escalon al entrar. Es la inversa de _rampa_subida:
 ## si la rampa vale (p - zona) / (1 - zona), la p que da una velocidad v es
 ## zona + (v / crucero) * (1 - zona).
-func _enganchar_arranque(llevaba: float) -> void:
+func _enganchar_arranque(llevaba: float, desde_anim: String = "", desde_frame: int = 0) -> void:
 	if llevaba <= 0.0:
 		return
 	var corriendo := _estado == Estado.ARRANQUE_CORRER
+	# Viniendo de andar, manda la POSE: ver las tablas arriba. La velocidad que
+	# se traia se sostiene aparte para que no haya bajon.
+	if corriendo and desde_anim in ["arranque_andar", "andar"]:
+		var tabla: Array = POSE_DESDE_ARRANQUE_ANDAR if desde_anim == "arranque_andar" else POSE_DESDE_ANDAR
+		if desde_frame >= 0 and desde_frame < tabla.size():
+			_sprite.frame = tabla[desde_frame]
+			_velocidad_suelo = llevaba
+			return
 	var crucero := velocidad_correr if corriendo else velocidad_andar
 	var zona := quieto_al_arrancar_correr if corriendo else quieto_al_arrancar_andar
 	var n := _sprite.sprite_frames.get_frame_count(_sprite.animation)
@@ -327,7 +360,14 @@ func _puede_saltar() -> bool:
 
 ## Durante el vuelo no se acepta nada; despues de caer, si.
 func _salto_bloquea() -> bool:
-	return _estado == Estado.SALTAR and _progreso() < salto_interrumpible
+	return _estado == Estado.SALTAR and _progreso() < _interrumpible()
+
+## Los dos saltos son animaciones distintas con tiempos distintos.
+func _aterrizaje() -> float:
+	return aterrizaje_correr if _sprite.animation == "salto_correr" else aterrizaje
+
+func _interrumpible() -> float:
+	return salto_correr_interrumpible if _sprite.animation == "salto_correr" else salto_interrumpible
 
 func _en_movimiento() -> bool:
 	if _estado == Estado.ANDAR or _estado == Estado.ARRANQUE_ANDAR:
@@ -408,7 +448,7 @@ func _cambiar(nuevo: Estado) -> void:
 		Estado.ARRANQUE_CORRER: _poner("arranque_correr")
 		Estado.CORRER:          _poner("correr")
 		Estado.PARADA_CORRER:   _poner("parada_correr")
-		Estado.SALTAR:          _poner("saltar")
+		Estado.SALTAR:          _poner("salto_correr" if _corria_al_saltar else "saltar")
 		Estado.GIRO:            _poner("giro")
 
 ## Andar y correr los mueve _physics_process con la distancia recorrida, asi que
@@ -424,9 +464,22 @@ func _cambiar(nuevo: Estado) -> void:
 ## El resto de animaciones si van a fps fijo y las reproduce el nodo.
 const MANUALES := ["andar", "correr"]
 
+## Por que fotograma del arranque de correr entrar segun la pose que se traiga.
+## Cuando se pide correr ya andando -- o con la segunda pulsacion de un doble,
+## que llega con el arranque de andar ya en marcha -- entrar por el fotograma
+## que da la velocidad que se lleva (el 14) deja la pose a 2,2-2,8 pasos de
+## cualquier fotograma de andar: mas que el rebote del brazo que se quito. Estas
+## tablas dan, para cada fotograma de origen, el fotograma del arranque de
+## correr que MAS SE PARECE (silueta y color, medido): media 1,05 y 1,34 pasos.
+## La velocidad no se pierde por entrar antes: _velocidad_suelo la sostiene
+## hasta que la rampa la alcanza.
+const POSE_DESDE_ARRANQUE_ANDAR := [0, 0, 0, 0, 0, 3, 4, 4, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 7, 7, 5]
+const POSE_DESDE_ANDAR := [5, 5, 6, 5, 6, 4, 6, 6, 6, 6, 4, 6, 4, 8, 8, 8, 8, 8, 7, 8, 7, 6, 6, 6, 6, 7, 4, 4, 5, 5, 6, 6, 5, 5]
+
 func _poner(nombre: String) -> void:
 	_recorrido = 0.0
 	_ultimo_fotograma = -1
+	_velocidad_suelo = 0.0
 	if nombre in MANUALES:
 		var andando := nombre == "andar"
 		var entrada := entrada_andar if andando else entrada_correr
@@ -441,6 +494,7 @@ func _poner(nombre: String) -> void:
 		_ultimo_fotograma = entrada
 	else:
 		_sprite.play(nombre)
+	_sprite.offset = offset_salto_correr if nombre == "salto_correr" else offset_comun
 	_respirar(nombre == "reposo")
 
 ## Suena la pisada si entre el ultimo fotograma puesto y este se ha pasado por un

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bh8kyp74yua6n"
-path="res://.godot/imported/magnus_giro.png-d46bc3b0fa842ff771ec2caa2992c178.ctex"
+uid="uid://ddvcf1sv22gg5"
+path="res://.godot/imported/magnus_salto_corriendo.png-7bda55285fe478cc43f02df812152bec.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/magnus/magnus_giro.png"
-dest_files=["res://.godot/imported/magnus_giro.png-d46bc3b0fa842ff771ec2caa2992c178.ctex"]
+source_file="res://assets/characters/magnus/magnus_salto_corriendo.png"
+dest_files=["res://.godot/imported/magnus_salto_corriendo.png-7bda55285fe478cc43f02df812152bec.ctex"]
 
 [params]
 
