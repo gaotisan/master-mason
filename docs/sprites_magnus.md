@@ -480,27 +480,40 @@ geometricamente: es la punta, no la cabeza.
 
 ### Repaso de las catorce animaciones
 
-Todas tienen que cumplir dos cosas: que la duracion de cada fotograma sea un
-numero ENTERO de ticks de fisica (60 Hz), o la cadencia tiembla; y que la linea
-de suelo caiga donde el `offset` del sprite la espera.
+Hay dos cosas que comprobar, y **no aplican a todas por igual**.
 
-| animacion | fps | ticks/fotograma | casilla |
+La regla de los **ticks enteros** -- que 60/fps sea entero -- solo vale para
+`andar` y `correr`, que son las unicas cuyo fotograma pone el script desde
+`_physics_process`: ahi la duracion se cuantiza a ticks y si no es entera, unos
+fotogramas duran 17 ms y otros 33. Las demas las reproduce el `AnimatedSprite2D`
+en `_process`, con duracion de reloj, y su fps es una eleccion libre de ritmo.
+
+Lo que si aplica a los arranques y paradas es **igualar la cadencia del ciclo con
+el que empalman**: a 24 fps las piernas cambiarian de ritmo un 25 % al cruzar la
+costura hacia un ciclo que va a 30. Por eso estan a 30, no por los ticks.
+
+Y la linea de suelo tiene que caer donde el `offset` del sprite la espera.
+
+| animacion | fps | cuantizacion | casilla |
 |---|---|---|---|
-| reposo | 12 | 5 | 292x360 |
-| arranque_andar, andar, parada_andar | 30 | 2 | 292x360 |
-| arranque_correr, correr, parada_correr | 30 | 2 | 292x360 |
-| giro | 20 | 3 | 292x360 |
-| saltar | 60 | 1 | 292x360 |
-| salto_correr | 60 | 1 | **340x400** |
-| cayendo, caida, levantarse | 30 | 2 | **380x360** |
+| reposo | 12 | (de reloj) | 292x360 |
+| arranque_andar, parada_andar | 30 | (de reloj) | 292x360 |
+| **andar** | 30 | **2** | 292x360 |
+| arranque_correr, parada_correr | 30 | (de reloj) | 292x360 |
+| **correr** | 30 | **2** | 292x360 |
+| giro | 20 | (de reloj) | 292x360 |
+| saltar | 60 | (de reloj) | 292x360 |
+| salto_correr | 60 | (de reloj) | **340x400** |
+| cayendo, caida, levantarse | 24 | (de reloj) | **380x360** |
 | tumbado | 1 | (un fotograma) | 380x360 |
 
 `andar` y `correr` los mueve el script por distancia -- el nodo esta parado --
 asi que su fps del .tres no se usa; se deja en 30 para no despistar.
 
-Las de caida estaban a 24 fps (2,5 ticks: unos fotogramas de 33 ms y otros de
-50). Pasadas a 30. `_caer()` calcula el fotograma de entrada del bucle con
-`get_animation_speed`, asi que se ajusta solo.
+Las de caida se quedan a 24: no las mueve el script ni empalman con ningun ciclo
+movido por distancia, asi que su ritmo es una decision de animacion y no hay nada
+que igualar. (`caer_desde_arriba()` calcula el fotograma de entrada del bucle con
+`get_animation_speed`, asi que aguanta cualquier fps que se les ponga.)
 
 Alineacion comprobada sobre los sprites: el suelo de las animaciones de la
 casilla comun cae entre 675 y 683 (master), y el de `tumbado`/`levantarse` en

@@ -2839,7 +2839,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"cayendo",
-"speed": 30.0
+"speed": 24.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -2907,7 +2907,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"caida",
-"speed": 30.0
+"speed": 24.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -3109,5 +3109,5 @@ animations = [{
 }],
 "loop": false,
 "name": &"levantarse",
-"speed": 30.0
+"speed": 24.0
 }]
