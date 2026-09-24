@@ -133,6 +133,35 @@ extends Node2D
 ## de 38, llega al apogeo en el 17 y toca el suelo en el 30.
 @export var aterrizaje_correr: float = 0.81
 @export var salto_correr_interrumpible: float = 0.85
+## Empuje extra del salto corriendo, que en el sprite es un brinco corto: la
+## subida cocida son 94 px de hoja y el vuelo 0,47 s, o sea 204 px a 435 px/s,
+## dos tercios de la altura del personaje. Aqui se le anade lo que le falta:
+##   salto_correr_altura   arco vertical del SPRITE durante el vuelo, en px de
+##                         hoja, sincronizado con el fotograma (despegue -> toca)
+##   salto_correr_impulso  multiplica la velocidad que llevaba mientras vuela
+##   salto_correr_vuelo    speed_scale de la animacion en el aire (<1 = mas tiempo)
+## Con 80, 1,3 y 0,75 sube unos 175 px y avanza unos 340: algo mas de una altura.
+@export var salto_correr_altura: float = 80.0
+@export var salto_correr_impulso: float = 1.3
+@export var salto_correr_vuelo: float = 0.75
+## Sprites del despegue y de la toma de suelo del salto corriendo, medidos
+## siguiendo el pie mas bajo en 04_limpios: despega en el 3 (indice 2) y toca en
+## el 30 (indice 29). Entre los dos va el arco.
+@export var salto_correr_despegue: int = 2
+@export var salto_correr_toca: int = 29
+## Al tocar suelo con la direccion pulsada se sigue corriendo SIN pasar por el
+## arranque: entra el ciclo por este fotograma, el que mas se parece a la pose
+## de la toma de suelo (c_30 -> f17, 2,5 pasos normales del ciclo; los demas
+## fotogramas estan a 2,7-3,1). Antes se cortaba en el 85 % hacia el arranque
+## por velocidad, y como el impulso ya se habia apagado al tocar suelo, el
+## personaje se clavaba 0,3 s al caer y volvia a acelerar: eso era lo raro.
+@export var salto_correr_a_correr: int = 17
+## Soltando la direccion, tras el salto entra "aterrizaje_correr" (video
+## 166-199: se incorpora y da dos pasos cortos hasta quedarse de pie) y de ahi
+## a reposo. La velocidad baja durante la toma de suelo hasta esta fraccion de
+## la de correr, y se apaga en la primera parte de esa animacion.
+@export var aterrizaje_correr_velocidad: float = 0.5
+@export var aterrizaje_correr_frenada: float = 0.6
 ## El salto corriendo va en su propia casilla, 340x400 en la hoja frente a los
 ## 292x360 del resto, porque en el apogeo el personaje se sale de la comun por
 ## arriba y por la izquierda. El offset pone la linea de suelo de cada casilla en
@@ -145,13 +174,31 @@ extends Node2D
 ## suelo en la misma fila que la comun, asi que usan offset_comun.
 ##
 ## El descenso lo pone el nodo, no el sprite: el bucle "cayendo" tiene la
-## cabeza fijada. Con 1200 px en 1,1 s y aceleracion cuadratica llega al suelo
-## a unos 2200 px/s, 36 px por tick: se lee como caida y no como flotar.
+## cabeza fijada. Con 1200 px en 1,4 s y aceleracion cuadratica llega al suelo
+## a unos 1700 px/s, 29 px por tick: se lee como caida y no como flotar. Con
+## 1,1 s se veia un pelin rapida.
 @export var caida_altura: float = 1200.0
-@export var caida_duracion: float = 1.1
+@export var caida_duracion: float = 1.4
 ## Cuanto se queda tumbado antes de empezar a levantarse. Sin pausa el golpe
-## no pesa; con mas de dos segundos parece que no va a levantarse.
-@export var tumbado_espera: float = 1.2
+## no pesa; con mas de dos segundos parece que no va a levantarse. Con 1,2 el
+## golpe pesaba poco.
+@export var tumbado_espera: float = 1.8
+## Sonidos de la cinematica, sacados del audio del propio video de la caida
+## (raw/master_mason/audio/magnus/construye.py, seccion CAIDA). El aire acaba
+## justo en el golpe, asi que se arranca caida_duracion antes del impacto; el
+## roce de levantarse esta acelerado para durar lo que dura la animacion.
+## golpe_sprite es el sprite de "caida" en que suena el golpe en el video
+## (medido en construye.py: el ataque cae en el 6,7, o sea al empezar el 7,
+## cuando el cuerpo da contra el suelo; los pies lo tocan tres sprites antes
+## sin ruido).
+@export var golpe_db: float = -3.0
+@export var cinematica_db: float = -9.0
+@export var golpe_sprite: int = 7
+const SONIDOS_CAIDA := {
+	"aire": preload("res://assets/audio/magnus_caida_aire.ogg"),
+	"golpe": preload("res://assets/audio/magnus_caida_golpe.wav"),
+	"levantarse": preload("res://assets/audio/magnus_levantarse.ogg"),
+}
 
 ## Se emite cuando la cinematica de entrada deja al personaje en reposo y con
 ## el control devuelto.
@@ -178,7 +225,7 @@ const PISADAS := {
 
 enum Estado { REPOSO, ARRANQUE_ANDAR, ANDAR, PARADA_ANDAR,
 			  ARRANQUE_CORRER, CORRER, PARADA_CORRER, SALTAR, GIRO,
-			  CAYENDO, CAIDA, TUMBADO, LEVANTARSE }
+			  CAYENDO, CAIDA, TUMBADO, LEVANTARSE, ATERRIZAJE_CORRER }
 
 ## Estados de la cinematica de entrada: sin control del jugador.
 const CINEMATICA := [Estado.CAYENDO, Estado.CAIDA, Estado.TUMBADO, Estado.LEVANTARSE]
@@ -195,7 +242,8 @@ var _parada_entrada := 0     # fotograma de la parada por el que se entro  # la 
 var _giro_pendiente := 0.0   # hacia donde hay que girar cuando acabe de frenar
 var _giro_corriendo := false
 var _giro_destino := 0.0     # hacia donde mira al acabar la animacion de giro
-var _ultima_pulsacion := {}  # accion -> instante, para detectar el doble
+var _ultima_pulsacion := {}  # accion -> instante (de _reloj), para detectar el doble
+var _reloj := 0.0            # segundos de fisica desde que existe el nodo
 var _ultimo_fotograma := -1  # el ultimo que puso este script, para no repetir pisadas
 var _fundido: Tween         # fundido de la respiracion al entrar y salir del reposo
 
@@ -205,6 +253,7 @@ var _fundido: Tween         # fundido de la respiracion al entrar y salir del re
 
 func _ready() -> void:
 	_sprite.animation_finished.connect(_al_terminar)
+	_sprite.frame_changed.connect(_al_cambiar_fotograma)
 	_poner("reposo")
 
 func _unhandled_input(evento: InputEvent) -> void:
@@ -220,7 +269,11 @@ func _unhandled_input(evento: InputEvent) -> void:
 	for accion in ["mover_izquierda", "mover_derecha"]:
 		if not evento.is_action_pressed(accion):
 			continue
-		var ahora := Time.get_ticks_msec() / 1000.0
+		# Reloj de la fisica, no Time.get_ticks_msec(): ese es reloj de pared, y
+		# grabando con Movie Maker el juego va al 4 % de la velocidad real, con
+		# lo que dos toques a 0,2 s de juego estaban a 5 s de pared y el doble
+		# toque no se reconocia (salia andando en vez de corriendo).
+		var ahora := _reloj
 		var antes: float = _ultima_pulsacion.get(accion, -99.0)
 		_ultima_pulsacion[accion] = ahora
 		if ahora - antes <= doble_pulsacion:
@@ -229,6 +282,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 			_arrancar(accion, false)
 
 func _physics_process(delta: float) -> void:
+	_reloj += delta
 	# En la cinematica de entrada el nodo lo mueve el tween de la caida y las
 	# animaciones se encadenan solas: aqui no hay nada que hacer.
 	if _en_cinematica():
@@ -271,6 +325,11 @@ func _physics_process(delta: float) -> void:
 			_giro_pendiente = signf(direccion)
 			_giro_corriendo = _corriendo()
 			_cambiar(Estado.PARADA_CORRER if _corriendo() else Estado.PARADA_ANDAR)
+	elif _estado == Estado.SALTAR and _sprite.animation == "salto_correr" \
+			and _progreso() >= _aterrizaje() and signf(direccion) == _mirando:
+		# Saltando a la carrera con la tecla pulsada: en cuanto toca suelo sigue
+		# corriendo, directo al ciclo y a la velocidad que traia. Sin frenazo.
+		_seguir_corriendo_tras_salto()
 	elif _puede_cortar_salto():
 		# Ya ha caido y sigue con la tecla pulsada: sale andando sin esperar a
 		# que termine de recomponerse. Aqui no vale mirar solo las pulsaciones,
@@ -307,6 +366,8 @@ func _physics_process(delta: float) -> void:
 			_sprite.frame = fotograma
 			_pisar(fotograma, n)
 
+	_actualizar_salto_correr()
+
 ## Cuanto avanza el cuerpo ahora mismo.
 ##
 ## En arranques y paradas no puede ser la velocidad de crucero: la animacion
@@ -339,11 +400,21 @@ func _velocidad() -> float:
 		Estado.SALTAR:
 			var p := _progreso()
 			var toca := _aterrizaje()
+			var a_la_carrera := _sprite.animation == "salto_correr"
+			var aire := _impulso * (salto_correr_impulso if a_la_carrera else 1.0)
 			if p <= toca:
-				return _impulso
-			# Al tocar suelo el impulso se va en lo que queda de aterrizaje.
+				return aire
 			var resto := maxf(1.0 - toca, 0.001)
+			if a_la_carrera:
+				# Solo se llega aqui soltando la direccion (con ella pulsada se
+				# salta al ciclo al tocar suelo). De la velocidad del aire a la de
+				# entrada del aterrizaje, en lo que queda de animacion.
+				var fin := velocidad_correr * aterrizaje_correr_velocidad
+				return lerpf(aire, fin, clampf((p - toca) / resto, 0.0, 1.0))
+			# Al tocar suelo el impulso se va en lo que queda de aterrizaje.
 			return _impulso * maxf(0.0, 1.0 - (p - toca) / (resto * 0.5))
+		Estado.ATERRIZAJE_CORRER:
+			return velocidad_correr * aterrizaje_correr_velocidad * _rampa_bajada(aterrizaje_correr_frenada)
 	return 0.0
 
 ## Ultimo fotograma que se usa de la animacion actual. Normalmente el ultimo que
@@ -535,7 +606,7 @@ func _empezar_giro(hacia: float, corriendo: bool) -> void:
 func _puede_arrancar() -> bool:
 	if _estado == Estado.GIRO:
 		return false
-	if _estado == Estado.REPOSO:
+	if _estado == Estado.REPOSO or _estado == Estado.ATERRIZAJE_CORRER:
 		return true
 	if _estado == Estado.PARADA_ANDAR or _estado == Estado.PARADA_CORRER:
 		return true
@@ -580,10 +651,53 @@ func _cambiar(nuevo: Estado) -> void:
 		Estado.CAYENDO:         _poner("cayendo")
 		Estado.CAIDA:           _poner("caida")
 		Estado.TUMBADO:         _poner("tumbado")
-		Estado.LEVANTARSE:      _poner("levantarse")
+		Estado.LEVANTARSE:
+			_poner("levantarse")
+			_sonar(SONIDOS_CAIDA["levantarse"], cinematica_db)
+		Estado.ATERRIZAJE_CORRER: _poner("aterrizaje_correr")
 
 func _en_cinematica() -> bool:
 	return _estado in CINEMATICA
+
+## Toma de suelo del salto corriendo con la direccion pulsada: al ciclo de
+## correr por el fotograma que mas se parece a la pose, y la cuenta de distancia
+## colocada ahi para que el fotograma y el recorrido digan lo mismo.
+func _seguir_corriendo_tras_salto() -> void:
+	_cambiar(Estado.CORRER)
+	_sprite.frame = salto_correr_a_correr
+	_recorrido = float(salto_correr_a_correr) * avance_correr
+	_ultimo_fotograma = salto_correr_a_correr
+
+## Arco y ritmo del salto corriendo. El sprite trae un brinco corto cocido; el
+## arco del nodo se le suma durante el vuelo, atado al fotograma (con la
+## fraccion de fotograma, para que no vaya a escalones) y no al reloj, asi que
+## sigue cuadrando aunque cambie salto_correr_vuelo. Fuera del vuelo lo deja
+## todo a cero: se llama cada tick.
+func _actualizar_salto_correr() -> void:
+	var f := _sprite.frame
+	var en_vuelo := _estado == Estado.SALTAR and _sprite.animation == "salto_correr" \
+		and f >= salto_correr_despegue and f < salto_correr_toca
+	_sprite.speed_scale = salto_correr_vuelo if en_vuelo else 1.0
+	var arco := 0.0
+	if en_vuelo:
+		var tramo := float(maxi(salto_correr_toca - salto_correr_despegue, 1))
+		var t := clampf((float(f - salto_correr_despegue) + _sprite.frame_progress) / tramo, 0.0, 1.0)
+		arco = salto_correr_altura * 4.0 * t * (1.0 - t)
+	_sprite.position.y = -arco
+
+## Un sonido suelto por el reproductor de las pisadas, que en la cinematica
+## esta libre. desde = segundos del archivo por los que empezar.
+func _sonar(sonido: AudioStream, db: float, desde: float = 0.0) -> void:
+	_pasos.stream = sonido
+	_pasos.volume_db = db
+	_pasos.pitch_scale = 1.0
+	_pasos.play(desde)
+
+## El golpe suena en el sprite en que el cuerpo da contra el suelo, no al
+## entrar en la animacion: entre lo uno y lo otro hay siete sprites, 0,3 s.
+func _al_cambiar_fotograma() -> void:
+	if _estado == Estado.CAIDA and _sprite.frame == golpe_sprite:
+		_sonar(SONIDOS_CAIDA["golpe"], golpe_db)
 
 ## Cinematica de entrada. Coloca al personaje caida_altura px por encima de
 ## donde esta (la marca de suelo de la escena) y lo deja caer con aceleracion
@@ -608,6 +722,16 @@ func caer_desde_arriba() -> void:
 	tw.finished.connect(func() -> void:
 		if _estado == Estado.CAYENDO:
 			_cambiar(Estado.CAIDA))
+	# El aire esta recortado para acabar en el golpe. Si la caida dura mas que
+	# el archivo, se espera; si dura menos, se entra por el medio.
+	var aire: AudioStream = SONIDOS_CAIDA["aire"]
+	var sobra := caida_duracion - aire.get_length()
+	if sobra <= 0.0:
+		_sonar(aire, cinematica_db, -sobra)
+	else:
+		get_tree().create_timer(sobra).timeout.connect(func() -> void:
+			if _estado == Estado.CAYENDO:
+				_sonar(aire, cinematica_db))
 
 ## Andar y correr los mueve _physics_process con la distancia recorrida, asi que
 ## el nodo NO debe reproducirlos: se le pone la animacion y se le para.
@@ -748,8 +872,16 @@ func _al_terminar() -> void:
 	match _estado:
 		Estado.ARRANQUE_ANDAR:  _cambiar(Estado.ANDAR)
 		Estado.ARRANQUE_CORRER: _cambiar(Estado.CORRER)
-		Estado.PARADA_ANDAR, Estado.PARADA_CORRER, Estado.SALTAR:
+		Estado.PARADA_ANDAR, Estado.PARADA_CORRER, Estado.ATERRIZAJE_CORRER:
 			_cambiar(Estado.REPOSO)
+		Estado.SALTAR:
+			# El salto corriendo acaba en la zancada de la toma de suelo, no de
+			# pie: si se llega aqui es que se solto la direccion, y lo que sigue
+			# es incorporarse. El de parado ya acaba de pie.
+			if _sprite.animation == "salto_correr":
+				_cambiar(Estado.ATERRIZAJE_CORRER)
+			else:
+				_cambiar(Estado.REPOSO)
 		Estado.CAIDA:
 			# Tumbado es un solo fotograma en bucle: no avisa de nada. La espera
 			# la pone un temporizador, y se comprueba el estado al volver por si

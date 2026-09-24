@@ -8,7 +8,16 @@ extends Node2D
 ## Nivel al que llega el viento desde la pantalla de titulo. Solo se fija para
 ## que la escena arranque igual si se lanza sola desde el editor.
 @export var wind_db: float = -14.0
+## Entrada de Magnus: en vez de aparecer ya de pie, cae desde fuera de pantalla
+## sobre el negro, se estampa contra el suelo (que no se ve, pero el golpe lo
+## dibuja), se queda tumbado y se levanta hasta la pose de siempre. Hasta que
+## esta de pie no hay control. A false aparece de pie como antes.
+@export var caida_al_empezar: bool = true
+
+@onready var _magnus: Node2D = $Magnus
 
 func _ready() -> void:
 	WindAmbience.gust_db = 0.0
 	WindAmbience.fade_to(wind_db, 0.0)
+	if caida_al_empezar:
+		_magnus.caer_desde_arriba()

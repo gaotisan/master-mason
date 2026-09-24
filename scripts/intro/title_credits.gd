@@ -18,17 +18,17 @@ extends CanvasLayer
 signal finished
 
 ## Silencio en negro antes de la primera tarjeta.
-@export var lead_in: float = 1.2
+@export var lead_in: float = 0.7
 ## Cuanto tarda la luz en cruzar las letras (la cabeza del charco).
-@export var sweep_in: float = 2.6
+@export var sweep_in: float = 1.7
 ## Cuanto se quedan encendidas del todo antes de que la cola empiece a irse.
-@export var hold: float = 1.9
+@export var hold: float = 0.9
 ## Cuanto tarda la cola en apagarlas.
-@export var sweep_out: float = 2.4
+@export var sweep_out: float = 1.5
 ## Negro entre tarjetas.
-@export var gap: float = 0.9
+@export var gap: float = 0.5
 ## Negro despues de la ultima tarjeta, antes de que empiecen las velas.
-@export var tail_black: float = 0.8
+@export var tail_black: float = 0.5
 ## Anchura del charco de luz, en fraccion del ancho de pantalla.
 @export var softness: float = 0.32
 ## Espaciado entre letras, en px. Fijo: animarlo va a saltos de pixel entero.

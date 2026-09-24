@@ -8,8 +8,9 @@ que rehacer las tres.
 
 | archivo | que es |
 |---|---|
-| `assets/characters/magnus/*.png` | las 14 hojas, 292x360 por casilla (340x400 el salto corriendo, 380x360 las cuatro de la caida) |
-| `resources/characters/magnus_frames.tres` | el `SpriteFrames` con las 14 animaciones |
+| `assets/characters/magnus/*.png` | las 15 hojas, 292x360 por casilla (340x400 el salto corriendo, 380x360 las cuatro de la caida) |
+| `resources/characters/magnus_frames.tres` | el `SpriteFrames` con las 15 animaciones |
+| `scenes/dev/piloto_*.tscn` | pilotos de teclas para grabar al personaje sin nadie al teclado (ver al final) |
 | `scenes/characters/magnus.tscn` | el personaje |
 | `scripts/characters/magnus.gd` | la maquina de estados, y desde ella el sonido |
 | `assets/audio/magnus_paso_*.wav` | las pisadas: `a`/`b` al andar, `correr_a`/`correr_b` al correr |
@@ -43,7 +44,30 @@ caer recupera el modo que llevaba (andar o correr) si la tecla sigue pulsada. El
 salto de parado/andando (`saltar`) se puede cortar a partir del 85,5 % de la
 animacion (sprite 60 de 70, 0,23 s despues de tocar el suelo), y entra en el
 arranque de andar por el fotograma que mas se parece a la pose en la que se
-corta (`POSE_DESDE_SALTO` en `magnus.gd`); el salto corriendo, a partir del 85 %.
+corta (`POSE_DESDE_SALTO` en `magnus.gd`).
+
+**El salto corriendo lleva empuje anadido.** El sprite trae un brinco corto: 94 px
+de subida y 0,47 s de vuelo, 204 px de avance a 435 px/s, dos tercios de la
+altura del personaje. `magnus.gd` le suma un arco vertical al sprite
+(`salto_correr_altura`, 80 px), multiplica la velocidad en el aire
+(`salto_correr_impulso`, 1,3) y frena la animacion durante el vuelo
+(`salto_correr_vuelo`, 0,75). El arco va atado al fotograma, del despegue
+(sprite 3) a la toma de suelo (sprite 30), no al reloj, asi que cuadra con la
+pose sea cual sea la velocidad. Medido en el juego: sube 180 px y avanza 376 en
+0,6 s de vuelo, algo mas de una altura.
+
+Al tocar suelo hay dos salidas. **Con la direccion pulsada** entra directo al
+ciclo de correr por el fotograma que mas se parece a la toma de suelo
+(`salto_correr_a_correr`, f17, 2,5 pasos normales del ciclo) y a la velocidad
+que traia: antes se cortaba al 85 % hacia el arranque por velocidad, y como el
+impulso ya se habia apagado, el personaje se clavaba 0,3 s al caer y volvia a
+acelerar, que era lo raro del aterrizaje. **Soltandola**, la animacion acaba en
+la zancada de la toma de suelo y sigue `aterrizaje_correr` (video 166-199 del
+mismo salto: se incorpora y da dos pasos cortos hasta quedarse de pie, 0,57 s a
+60 fps) y de ahi a reposo; la velocidad baja a la mitad durante la toma de suelo
+y se apaga en el primer 60 % de esa animacion (`aterrizaje_correr_velocidad`,
+`aterrizaje_correr_frenada`). Enganches medidos: salto c_38 -> aterrizaje c_01 es
+0,13, el paso normal de esa animacion; su ultimo fotograma esta a 0,10 del reposo.
 
 El `.tres` se genera por script, no a mano: son 295 `AtlasTexture`, uno por
 fotograma, recortados de las hojas. El generador es
@@ -92,11 +116,12 @@ Los parametros del personaje y el porque de cada numero estan en
 | `parada_correr` | 39 | 7 | 6 | 24 | una pasada |
 | `salto_andando` | 70 | 10 | 7 | 60 | una pasada |
 | `salto_corriendo` | 38 | 8 | 5 | 60 | una pasada, casilla 340x400 |
+| `aterrizaje_correr` | 34 | 7 | 5 | 60 | una pasada, solo si se suelta la direccion en el aire |
 | `giro` | 5 | 5 | 1 | 20 | una pasada |
 | `cayendo` | 14 | 7 | 2 | 24 | bucle, casilla 380x360 |
 | `caida` | 21 | 7 | 3 | 24 | una pasada, casilla 380x360 |
 | `tumbado` | 1 | 1 | 1 | - | quieto, casilla 380x360 |
-| `levantarse` | 63 | 8 | 8 | 24 | una pasada, casilla 380x360 |
+| `levantarse` | 63 | 8 | 8 | 20 | una pasada, casilla 380x360 (a 24 se veia rapido) |
 
 
 Todas comparten **casilla de 292 x 360 px** salvo el salto corriendo y las cuatro
@@ -119,20 +144,32 @@ En el juego: andar con la flecha, correr con doble pulsacion.
 respirando -> arranque_andar  -> andando      -> parada_andar  -> respirando
 respirando -> arranque_correr -> corriendo    -> parada_correr -> respirando
 (entrada)  -> cayendo -> caida -> tumbado -> levantarse -> respirando
+corriendo  -> salto_corriendo -> corriendo            (direccion pulsada al tocar suelo)
+corriendo  -> salto_corriendo -> aterrizaje_correr -> respirando   (soltada)
 ```
 
 **La entrada es una cinematica.** `dark_stage` arranca con Magnus 1200 px por
 encima de su marca de suelo y `caer_desde_arriba()` lo deja caer con aceleracion
-cuadratica en 1,1 s (unos 2200 px/s al llegar) con el bucle `cayendo`; al tocar
-el suelo entra `caida`, se queda `tumbado` 1,2 s (temporizador, no animacion) y
-`levantarse` termina en la pose de reposo: su ultimo fotograma esta a 0,13 del
-primero de `respirando`, un paso normal de la propia animacion. Mientras dura no
-se acepta entrada (`Estado.CAYENDO..LEVANTARSE`, ver `CINEMATICA`); al acabar se
-emite `cinematica_terminada`. El bucle en el aire tiene la cabeza fijada -- el
-descenso lo pone el nodo -- y se arranca por el fotograma que deja el impacto
-justo en el que enlaza con `caida` (el 7, fotograma 32 del video), calculado a
-partir de la duracion. Tiempos en `caida_altura`, `caida_duracion` y
-`tumbado_espera`; `caida_al_empezar = false` en la escena la desactiva.
+cuadratica en 1,4 s (unos 1700 px/s al llegar) con el bucle `cayendo`; al tocar
+el suelo entra `caida`, se queda `tumbado` 1,8 s (temporizador, no animacion) y
+`levantarse` (3,15 s a 20 fps) termina en la pose de reposo: su ultimo fotograma
+esta a 0,13 del primero de `respirando`, un paso normal de la propia animacion.
+Mientras dura no se acepta entrada (`Estado.CAYENDO..LEVANTARSE`, ver
+`CINEMATICA`); al acabar se emite `cinematica_terminada`. El bucle en el aire
+tiene la cabeza fijada -- el descenso lo pone el nodo -- y se arranca por el
+fotograma que deja el impacto justo en el que enlaza con `caida` (el 7,
+fotograma 32 del video), calculado a partir de la duracion. Tiempos en
+`caida_altura`, `caida_duracion` y `tumbado_espera`; `caida_al_empezar = false`
+en la escena la desactiva. Los primeros valores (1,1 s y 1,2 s, levantarse a
+24 fps) se vieron rapidos y sin peso.
+
+Sus sonidos salen del audio del propio video, con `construye.py` (seccion
+CAIDA): `magnus_caida_aire.ogg` es el silbido del descenso, recortado para que
+acabe en el golpe, y el script lo arranca `caida_duracion` antes del impacto;
+`magnus_caida_golpe.wav` se dispara en el sprite 7 de `caida` (`golpe_sprite`),
+que es donde cae el ataque en el video, cuando el cuerpo da contra el suelo;
+`magnus_levantarse.ogg` es el roce de la ropa, acelerado x1,65 con `atempo`
+para durar lo que dura la animacion. Niveles en `golpe_db` y `cinematica_db`.
 
 En **andar** el enlace es exacto: `arranque_andar` acaba en el fotograma
 inmediatamente anterior al que abre `andando` en el video original (52 -> 53).
@@ -648,3 +685,26 @@ cd C:\Users\santiago.ochoa\godot\tools\anim
 
 Si la animacion nueva sube mas alto que el salto no cabra en los 720, habra que
 subir el alto y **reprocesar tambien las tres anteriores** con el valor nuevo.
+
+## Grabar al personaje sin nadie al teclado
+
+Para ver una animacion en el juego con los mismos gestos cada vez, hay pilotos de
+teclas en `scenes/dev/`: `piloto_salto_correr.tscn` arranca a correr con doble
+toque, salta con la direccion pulsada y vuelve a saltar soltandola en el aire.
+El guion es un export (`[segundo, accion, pulsar]`), y `piloto_traza.tscn`
+imprime ademas cada tick el estado, el fotograma, la velocidad y la posicion.
+
+```powershell
+# video (2912x1632, MJPEG con audio dentro; --resolution se ignora)
+godot --path . --write-movie salto.avi --fixed-fps 60 --quit-after 450 res://scenes/dev/piloto_salto_correr.tscn
+# solo la traza, sin ventana. --fixed-fps tambien aqui: sin el, en headless los
+# frames van a toda velocidad y el reloj de fisica no llega a los tiempos del guion
+godot --headless --path . --fixed-fps 60 --quit-after 230 res://scenes/dev/piloto_traza.tscn
+```
+
+Las pulsaciones se inyectan con `Input.parse_input_event`, que llega a
+`_unhandled_input` y actualiza `Input.get_axis` como una tecla real. Ojo con el
+reloj: grabando, el juego va al 4 % de la velocidad real, y cualquier cosa que
+mida tiempo con `Time.get_ticks_msec()` se descuadra. El doble toque lo hacia, y
+en las grabaciones el personaje salia andando en vez de corriendo hasta que paso
+al reloj de fisica (`_reloj` en `magnus.gd`).
