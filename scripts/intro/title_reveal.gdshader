@@ -56,6 +56,23 @@ uniform float glint : hint_range(-1.0, 2.0) = -1.0;
 uniform float glint_strength : hint_range(0.0, 1.0) = 0.75;
 uniform vec4 title_rect = vec4(0.34, 0.33, 0.66, 0.62);
 
+// Apagado de las letras del titulo, para la salida: estan pintadas en la imagen,
+// y oscurecer el cristal no basta porque oscurece letra y panel por igual y las
+// letras siguen leyendose cuando la camara ya se esta metiendo por el hueco.
+// No se tapan con una sombra (saldrian en negativo, mas oscuras que el panel):
+// se les quita el brillo que les sobra hasta dejarlas al nivel del panel, asi que
+// lo que ya era panel no se entera y la letra se funde en el.
+uniform float title_fade : hint_range(0.0, 1.0) = 0.0;
+// Cenido a las letras; la vela derecha (x 0.636) queda fuera a proposito.
+uniform vec4 title_fade_rect = vec4(0.365, 0.352, 0.575, 0.592);
+// Color y brillo del panel detras de las letras, medidos sobre el PNG en los
+// pixeles que no son ni letra ni sombra.
+uniform float title_panel_lum : hint_range(0.05, 0.6) = 0.22;
+uniform vec3 title_panel_col = vec3(0.372, 0.175, 0.049);
+// Cuanto se rellena el relieve oscuro. No llega a 1: aplanar del todo dejaria un
+// rectangulo liso dentro del panel, que se nota tanto como las letras.
+uniform float title_fill : hint_range(0.0, 1.0) = 0.8;
+
 // Vaho / humo ambiental dentro de la ventana del ataud.
 // window_rect = (x_min, y_min, x_max, y_max) del panel interior del marco.
 uniform float fog_amount : hint_range(0.0, 1.0) = 0.0;
@@ -177,6 +194,20 @@ void fragment() {
 	float inside = 1.0 - smoothstep(-0.03, 0.0, bd);
 	dark = max(dark, inside * window_dark * darkness);
 
+	// Las letras del titulo se aplanan contra el panel. Estan talladas, asi que no
+	// basta con quitarles el brillo: se quedaria el relieve oscuro leyendose en
+	// negativo, que es lo que peor queda con la camara ya dentro del hueco. Se
+	// tocan los dos lados: lo que sobresale del panel se baja aqui (por debajo de
+	// la sombra del cristal, no con max(), porque esa baja letra y panel por igual
+	// y no borra la diferencia), y el relieve oscuro se rellena mas abajo con luz.
+	float in_title = smoothstep(title_fade_rect.x, title_fade_rect.x + 0.025, uv.x)
+		* (1.0 - smoothstep(title_fade_rect.z - 0.025, title_fade_rect.z, uv.x))
+		* smoothstep(title_fade_rect.y, title_fade_rect.y + 0.025, uv.y)
+		* (1.0 - smoothstep(title_fade_rect.w - 0.025, title_fade_rect.w, uv.y));
+	float title_mix = in_title * title_fade;
+	float flatten = clamp(1.0 - title_panel_lum / max(lum, 0.001), 0.0, 1.0) * title_mix;
+	dark = clamp(1.0 - (1.0 - dark) * (1.0 - flatten * darkness), 0.0, 1.0);
+
 	// --- Luz aditiva ---
 	vec3 add = vec3(0.0);
 
@@ -197,6 +228,12 @@ void fragment() {
 	float gl = (uv.x - title_rect.x) / (title_rect.z - title_rect.x) + (uv.y - 0.5) * 0.45;
 	float band = exp(-pow((gl - glint) / 0.085, 2.0));
 	add += GLINT_COLOR * band * letters * in_rect * glint_strength;
+
+	// Relleno del relieve oscuro de las letras: solo donde la imagen esta por
+	// debajo del panel. Va multiplicado por (1.0 - dark) para que se apague con la
+	// sala; si no, al final quedaria un fantasma encendido sobre el negro.
+	float sunken = clamp(title_panel_lum - lum, 0.0, 1.0) * title_mix * title_fill;
+	add += title_panel_col * (sunken / max(title_panel_lum, 0.001)) * (1.0 - dark);
 
 	// --- Vaho ---
 	// El humo solo se ve donde le da luz: al principio son jirones alrededor de

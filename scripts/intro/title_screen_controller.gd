@@ -15,7 +15,8 @@ extends Node2D
 ## Y la salida, que deshace lo anterior:
 ##  6. Las velas se ponen nerviosas y se apagan, primero una y luego la otra, y
 ##     con ellas se apaga el interior del cristal: el rectangulo queda a oscuras
-##     mientras fuera el foco sigue dando en la pared.
+##     mientras fuera el foco sigue dando en la pared. Las letras del titulo se
+##     apagan ahi, antes que nada, para que el hueco este vacio al entrar.
 ##  7. La camara se mete despacio por ese rectangulo, como si salieramos por ahi.
 ##     Ya entrando, el resto de la sala acompana y pierde la luz.
 ##  8. Todo es negro, y ahi arranca la escena del personaje.
@@ -74,6 +75,12 @@ extends Node2D
 @export var window_dark_time: float = 4.6
 ## No llega a negro del todo: dentro se adivina algo hasta que la camara entra.
 @export var window_dark_full: float = 0.8
+## Las letras del titulo, pintadas en la imagen, se apagan aparte y antes que el
+## resto: oscurecer el cristal las baja igual que al panel y se seguirian leyendo
+## cuando la camara ya esta dentro del hueco, que es donde quedan raras. El shader
+## no las tapa, las funde con el panel.
+@export var title_fade_start: float = 1.0
+@export var title_fade_time: float = 4.0
 ## La camara entra por el cristal. Acelera: casi no se nota al principio.
 @export var zoom_in_start: float = 6.0
 @export var zoom_in_time: float = 5.0
@@ -145,6 +152,7 @@ func _ready() -> void:
 	_mat.set_shader_parameter("frame_light", 0.0)
 	_mat.set_shader_parameter("window_dark", 0.0)
 	_mat.set_shader_parameter("glint", -1.0)
+	_mat.set_shader_parameter("title_fade", 0.0)
 	_mat.set_shader_parameter("fog_amount", 0.0)
 	mask.material = _mat
 	layer.add_child(mask)
@@ -221,6 +229,10 @@ func _run_exit() -> void:
 
 	# Con las velas se apaga el interior del cristal. Fuera, el foco sigue.
 	tw.tween_method(_set_shader.bind("window_dark"), 0.0, window_dark_full, window_dark_time).set_delay(t0 + window_dark_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+	# Y con el cristal se van las letras del titulo, un poco antes: para cuando la
+	# camara empieza a meterse por el hueco, dentro ya no hay letras que leer.
+	tw.tween_method(_set_shader.bind("title_fade"), 0.0, 1.0, title_fade_time).set_delay(t0 + title_fade_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 	# Ya entrando, el resto de la sala acompana: el rebote se va y el foco se
 	# recoge hacia arriba. Es el arranque al reves.

@@ -25,10 +25,16 @@ esta al lado, en `02_salida\ficha.txt`). Las pisadas no van en bucle: andar y
 correr avanzan con la distancia, no con el reloj, asi que `magnus.gd` dispara
 cada golpe al pasar por el sprite de contacto (andar: 1 y 17; correr: 5 y 17).
 Los de correr son los mismos de andar acelerados un 15 % y 3 dB mas fuertes. La
-respiracion si es un bucle de 2,5 s recortado del mismo tramo del video que los
-30 sprites de `respirando`, con el zumbido de fondo del video restado; entra y
-sale con un fundido corto al cambiar de reposo. Niveles en `pasos_db` y
-`respiracion_db`, exportados en el nodo.
+respiracion si es un bucle de 2,5 s, pero ya no sale del video de `respirando`
+(llevaba zumbido): sale de un video aparte con el efecto aislado
+(`Elderly_mystic_breathing_calmly`), del que se coge la unica respiracion
+completa de valle a valle (2,30 s), se estira un 8,7 % con `atempo` a los 2,5 s
+de la animacion y se gira para que la inspiracion, que es la fuerte, suene
+mientras el pecho crece (sprites 8-19) y la espiracion mientras baja. Picos en
+1,20 y 2,02 s; la costura cae en el valle entre respiraciones, con fundido
+cruzado. El antiguo queda como `_v1` en `02_salida`. Entra y sale con un fundido
+corto al cambiar de reposo. Niveles en `pasos_db` y `respiracion_db`, exportados
+en el nodo.
 
 Controles (definidos en `project.godot`): flechas izquierda/derecha o A/D para
 andar, **doble pulsacion** de la misma flecha para correr, flecha arriba o espacio
