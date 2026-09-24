@@ -732,6 +732,12 @@ salta vertical y vuelve a quedarse quieto. Entra a 0,092 del reposo y sale a
 al caer; como se monto esta en `magnus_salto_parado/como_se_hizo.txt`. `saltar`
 sigue siendo el salto andando.
 
+**El giro venia con la tunica mas clara y mas roja** que los videos: hasta un
+11 % mas de valor y un 19 % mas de rojo sobre azul en el frontal, y al girar el
+abrigo se encendia y se apagaba. Se igualo al reposo con una ganancia por canal
+sobre lo calido (`magnus_giro/igualar_color.py`); capucha, barba y pies no
+estaban desviados y no se tocan. Detalle y numeros en su `como_se_hizo.txt`.
+
 **Los bordes no son iguales en los dos lotes.** Las hojas antiguas (reposo,
 andar, correr y sus transiciones, giro, salto de parado) llevan un borde suave de
 1-2 px con 1200-2300 px semitransparentes por sprite y un ribete magenta tenue en
