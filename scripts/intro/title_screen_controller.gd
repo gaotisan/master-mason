@@ -57,6 +57,25 @@ extends Node2D
 ## arranca con el viento ahi, para que no haya salto.
 @export var wind_db_exit: float = -14.0
 
+@export_group("Musica")
+## El tema del titulo arranca con los creditos, sobre el negro. El nivel es un
+## primer calculo a partir de la sonoridad de los archivos, no de oido: la
+## musica esta unos 27 dB por encima del viento, que es una ambientacion muy
+## discreta, asi que va muy bajada para no taparlo.
+@export var music_db: float = -18.0
+## Corto a proposito. El tema no tiene entrada: empieza con material y su momento
+## mas fuerte cae sobre 1,0 s, justo cuando la luz esta recorriendo el primer
+## credito. Con un fundido largo ese golpe llegaba sin oirse.
+@export var music_fade_in: float = 1.2
+## Adelanta la pista. Sube esto para que el tema llegue antes a su primer momento
+## importante y caiga sobre las letras; baja a 0 para empezar por el principio.
+@export var music_start_offset: float = 1.0
+## El tema se apaga mientras la camara entra por el cristal, y llega a silencio
+## antes del cambio de escena. Es mas corto que zoom_in_time para que quede un
+## momento de solo viento y negro antes de que entre el fondo del juego, que lo
+## pone dark_stage por su cuenta.
+@export var music_fade_out: float = 4.0
+
 @export_group("Salida")
 ## Momento en que empieza la salida, contado desde el final de los creditos.
 ## El destello acaba en glint_start + glint_time; se deja ver el titulo un rato.
@@ -166,6 +185,9 @@ func _ready() -> void:
 	WindAmbience.fade_to(_wind_db, 0.0)
 	WindAmbience.gust_db = 0.0
 
+	# La musica entra con los creditos, sobre el negro, antes que ninguna luz.
+	MusicAmbience.empezar_titulo(music_db, music_fade_in, music_start_offset)
+
 	if show_credits:
 		var credits: CanvasLayer = load("res://scripts/intro/title_credits.gd").new()
 		add_child(credits)
@@ -258,6 +280,12 @@ func _run_exit() -> void:
 
 	# El viento se aleja con nosotros.
 	tw.tween_method(_set_wind_db, wind_db_peak, wind_db_exit, zoom_in_time).set_delay(t0 + zoom_in_start).set_trans(Tween.TRANS_SINE)
+
+	# Y con el se va el tema del titulo, que no se cruza con el del juego: se
+	# apaga del todo aqui y el otro entra despues, ya en negro y en la escena
+	# siguiente. Solaparlos sonaba a cambio de pista; separarlos deja que el
+	# negro haga de junta entre las dos escenas.
+	tw.tween_callback(MusicAmbience.apagar_titulo.bind(music_fade_out)).set_delay(t0 + zoom_in_start)
 
 	tw.tween_callback(_leave).set_delay(t0 + zoom_in_start + zoom_in_time + black_hold)
 
