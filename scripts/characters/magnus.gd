@@ -242,7 +242,28 @@ signal cinematica_terminada
 ## Niveles de sonido. Los archivos estan a -6 dBFS de pico; esto es lo que se
 ## les baja en el juego.
 @export var pasos_db: float = -6.0
-@export var respiracion_db: float = -12.0
+## La respiracion responde al ESFUERZO, no al estado. Un bucle a volumen fijo
+## mientras estas parado es un metronomo y en diez segundos molesta. Ahora hay
+## una cuenta de esfuerzo de 0 a 1 que sube corriendo, andando y saltando y baja
+## en reposo; el volumen va de respiracion_tranquilo_db (esfuerzo 0) a
+## respiracion_db (esfuerzo 1), y al llegar a cero se apaga. Parado sin mas no
+## suena; tras correr entra fuerte y se va en respiracion_recuperacion segundos.
+## Al acabar la cinematica de entrada (se ha estampado y levantado) empieza a 1.
+@export var respiracion_db: float = -22.0
+## -40 o menos es apagada del todo.
+@export var respiracion_tranquilo_db: float = -40.0
+## Segundos de reposo para pasar de esfuerzo 1 a 0.
+@export var respiracion_recuperacion: float = 7.0
+## Segundos de correr y de andar para llegar a esfuerzo 1, y lo que suma un salto.
+@export var esfuerzo_correr: float = 4.0
+@export var esfuerzo_andar: float = 20.0
+@export var esfuerzo_salto: float = 0.35
+## Para que el bucle no sea un metronomo: cada ciclo varia el volumen al azar
+## dentro de +-esta cifra, y con esta probabilidad se salta un ciclo entero.
+## El tono no se toca: cambiarlo alargaria o acortaria el ciclo y la respiracion
+## se desfasaria del pecho.
+@export var respiracion_variacion_db: float = 2.0
+@export var respiracion_saltar_ciclo: float = 0.25
 ## Variacion de tono entre pisadas para que no suenen a metralleta.
 @export var pasos_variacion: float = 0.03
 
@@ -282,7 +303,10 @@ var _giro_destino := 0.0     # hacia donde mira al acabar la animacion de giro
 var _ultima_pulsacion := {}  # accion -> instante (de _reloj), para detectar el doble
 var _reloj := 0.0            # segundos de fisica desde que existe el nodo
 var _ultimo_fotograma := -1  # el ultimo que puso este script, para no repetir pisadas
-var _fundido: Tween         # fundido de la respiracion al entrar y salir del reposo
+var _fundido: Tween         # fundido de la respiracion al salir del reposo
+var _esfuerzo := 0.0         # 0 descansado .. 1 agotado; manda en la respiracion
+var _resp_pos := 0.0         # posicion del bucle de respirar en el ultimo tick, para ver cuando da la vuelta
+var _resp_ciclo_db := 0.0    # variacion de volumen del ciclo en curso (o -80 si se salta)
 
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _pasos: AudioStreamPlayer = $Pasos
@@ -306,6 +330,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 		# primer sprite esta a 0,38 del reposo: desde parado se veia arrancar
 		# una zancada de la nada.
 		_saltaba_parado = not _en_movimiento() and not _corria_al_saltar and _impulso <= 0.0
+		_esfuerzo = minf(_esfuerzo + esfuerzo_salto, 1.0)
 		_cambiar(Estado.SALTAR)
 		return
 	for accion in ["mover_izquierda", "mover_derecha"]:
@@ -337,6 +362,7 @@ func _physics_process(delta: float) -> void:
 	# animaciones se encadenan solas: aqui no hay nada que hacer.
 	if _en_cinematica():
 		return
+	_actualizar_esfuerzo(delta)
 	var direccion := Input.get_axis("mover_izquierda", "mover_derecha")
 
 	# Girando no se acepta nada: son 0,30 s, y cortarlo a medias deja al
@@ -917,25 +943,56 @@ func _pisar(fotograma: int, n: int) -> void:
 			_pasos.play()
 	_ultimo_fotograma = fotograma
 
-## Arranca o apaga la respiracion con un fundido corto: cortarla en seco al
+## Sube y baja la cuenta de esfuerzo y, en reposo, lleva el volumen de la
+## respiracion a donde le toca. El volumen no va con tween sino acercandose cada
+## tick (30 dB/s): asi no hay dos cosas moviendolo y el fundido de entrada sale
+## solo. Cuando el esfuerzo llega a cero, se apaga con el fundido de siempre.
+func _actualizar_esfuerzo(delta: float) -> void:
+	match _estado:
+		Estado.CORRER, Estado.ARRANQUE_CORRER:
+			_esfuerzo = minf(_esfuerzo + delta / maxf(esfuerzo_correr, 0.1), 1.0)
+		Estado.ANDAR, Estado.ARRANQUE_ANDAR:
+			_esfuerzo = minf(_esfuerzo + delta / maxf(esfuerzo_andar, 0.1), 1.0)
+		Estado.REPOSO:
+			_esfuerzo = maxf(_esfuerzo - delta / maxf(respiracion_recuperacion, 0.1), 0.0)
+	if _estado != Estado.REPOSO or not _respiracion.playing or (_fundido and _fundido.is_running()):
+		return
+	if _esfuerzo <= 0.0:
+		_respirar(false)
+		return
+	# Cada vuelta del bucle, una variacion nueva; a veces, un ciclo en silencio.
+	var pos := _respiracion.get_playback_position()
+	if pos < _resp_pos - 1.0:
+		_resp_ciclo_db = -80.0 if randf() < respiracion_saltar_ciclo else randf_range(-respiracion_variacion_db, respiracion_variacion_db)
+	_resp_pos = pos
+	var objetivo := lerpf(respiracion_tranquilo_db, respiracion_db, _esfuerzo) + _resp_ciclo_db
+	_respiracion.volume_db = move_toward(_respiracion.volume_db, objetivo, 30.0 * delta)
+
+## Arranca la respiracion al entrar en reposo -- solo si hay esfuerzo que
+## recuperar -- o la apaga con un fundido corto al salir: cortarla en seco al
 ## empezar a andar da un chasquido.
 func _respirar(activa: bool) -> void:
 	if _fundido:
 		_fundido.kill()
+		_fundido = null
+	if activa:
+		if _esfuerzo <= 0.0:
+			return
+		if not _respiracion.playing:
+			# Empieza 6 dB por debajo de su sitio y _actualizar_esfuerzo la sube.
+			_respiracion.volume_db = lerpf(respiracion_tranquilo_db, respiracion_db, _esfuerzo) - 6.0
+			_resp_ciclo_db = 0.0
+			_resp_pos = 0.0
+			_respiracion.play()
+		return
 	# Apagar lo que ya esta apagado no es nada: sin esto se creaba un tween
 	# vacio y Godot lo avisaba como error en cada cambio de animacion de la
 	# cinematica de entrada, que encadena varias sin pasar por el reposo.
-	if not activa and not _respiracion.playing:
+	if not _respiracion.playing:
 		return
 	_fundido = create_tween()
-	if activa:
-		if not _respiracion.playing:
-			_respiracion.volume_db = -40.0
-			_respiracion.play()
-		_fundido.tween_property(_respiracion, "volume_db", respiracion_db, 0.4)
-	elif _respiracion.playing:
-		_fundido.tween_property(_respiracion, "volume_db", -40.0, 0.25)
-		_fundido.tween_callback(_respiracion.stop)
+	_fundido.tween_property(_respiracion, "volume_db", -40.0, 0.25)
+	_fundido.tween_callback(_respiracion.stop)
 
 ## Los bucles no emiten esta senal; solo llegan aqui arranques, paradas y salto.
 func _al_terminar() -> void:
@@ -961,6 +1018,8 @@ func _al_terminar() -> void:
 				if _estado == Estado.TUMBADO:
 					_cambiar(Estado.LEVANTARSE))
 		Estado.LEVANTARSE:
+			# Acaba de estamparse y de levantarse: llega al reposo sin aliento.
+			_esfuerzo = 1.0
 			_cambiar(Estado.REPOSO)
 			cinematica_terminada.emit()
 		Estado.GIRO:

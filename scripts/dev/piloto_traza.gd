@@ -12,5 +12,7 @@ func _physics_process(delta: float) -> void:
 	if p == null or _t < desde or _t > hasta:
 		return
 	var s: AnimatedSprite2D = p.get_node("Sprite")
-	print("traza %.3f estado=%d anim=%s f=%d prog=%.2f x=%.1f spr_y=%.1f vel=%.1f speed=%.2f" % [
-		_t, p._estado, s.animation, s.frame, s.frame_progress, p.position.x, s.position.y, p._velocidad(), s.speed_scale])
+	var r: AudioStreamPlayer = p.get_node("Respiracion")
+	print("traza %.3f estado=%d anim=%s f=%d prog=%.2f x=%.1f spr_y=%.1f vel=%.1f speed=%.2f esfuerzo=%.2f resp=%s %.1fdB" % [
+		_t, p._estado, s.animation, s.frame, s.frame_progress, p.position.x, s.position.y, p._velocidad(), s.speed_scale,
+		p._esfuerzo, "on" if r.playing else "off", r.volume_db])

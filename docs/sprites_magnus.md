@@ -32,9 +32,20 @@ completa de valle a valle (2,30 s), se estira un 8,7 % con `atempo` a los 2,5 s
 de la animacion y se gira para que la inspiracion, que es la fuerte, suene
 mientras el pecho crece (sprites 8-19) y la espiracion mientras baja. Picos en
 1,20 y 2,02 s; la costura cae en el valle entre respiraciones, con fundido
-cruzado. El antiguo queda como `_v1` en `02_salida`. Entra y sale con un fundido
-corto al cambiar de reposo. Niveles en `pasos_db` y `respiracion_db`, exportados
-en el nodo.
+cruzado. El antiguo queda como `_v1` en `02_salida`.
+
+**La respiracion responde al esfuerzo, no al estado.** Un bucle a volumen fijo
+mientras estas parado era un metronomo: en diez segundos molestaba. Ahora hay
+una cuenta de esfuerzo de 0 a 1 que sube corriendo (a 1 en 4 s), andando (20 s)
+y con cada salto (+0,35), y baja en reposo (de 1 a 0 en 7 s). El volumen va de
+`respiracion_tranquilo_db` (esfuerzo 0, -40 = apagada) a `respiracion_db`
+(esfuerzo 1, -22), y al llegar a cero se apaga con el fundido corto de siempre.
+Parado sin mas no suena; tras correr entra fuerte y se va en siete segundos; al
+acabar la cinematica de entrada llega al reposo sin aliento (esfuerzo 1). Para
+que el bucle no sea regular, cada vuelta cambia el volumen al azar dentro de
++-2 dB y una de cada cuatro se salta (`respiracion_variacion_db`,
+`respiracion_saltar_ciclo`); el tono no se toca porque desfasaria el sonido del
+pecho. Todo son exports del nodo, junto con `pasos_db`.
 
 Las animaciones que reproduce el nodo (arranques, paradas, saltos, aterrizaje)
 tienen sus golpes en la tabla `GOLPES` de `magnus.gd`, disparados desde
