@@ -133,6 +133,12 @@ extends Node2D
 ## de 38, llega al apogeo en el 17 y toca el suelo en el 30.
 @export var aterrizaje_correr: float = 0.81
 @export var salto_correr_interrumpible: float = 0.85
+## Y para el salto de parado (66 sprites): toca el suelo en el 47 (indice 46,
+## 0,71) y se puede cortar desde el indice 60 (0,92), cuando ya esta casi de
+## pie; antes esta agachado y el arranque no se le parece. Del 47 al 65 se
+## incorpora hasta la pose de reposo, a la que llega a 0,05.
+@export var aterrizaje_parado: float = 0.71
+@export var salto_parado_interrumpible: float = 0.92
 ## Empuje extra del salto corriendo, que en el sprite es un brinco corto: la
 ## subida cocida son 94 px de hoja y el vuelo 0,47 s, o sea 204 px a 435 px/s,
 ## dos tercios de la altura del personaje. Aqui se le anade lo que le falta:
@@ -200,6 +206,36 @@ const SONIDOS_CAIDA := {
 	"levantarse": preload("res://assets/audio/magnus_levantarse.ogg"),
 }
 
+## Golpes de las animaciones que reproduce el nodo (arranques, paradas, saltos):
+## animacion -> sprite en que suena -> sonido. Se disparan desde frame_changed.
+## Los sprites de contacto estan medidos en 04_limpios siguiendo la fila del pie
+## mas bajo (un contacto es cuando baja hasta el suelo tras haber estado
+## levantado); los de los saltos, ademas, contra el ataque del audio de su
+## propio video (raw/master_mason/audio/magnus/construye.py, seccion SALTOS).
+## Antes todo esto era mudo: al arrancar a correr los primeros 0,6 s no sonaba
+## nada, y los saltos ni despegaban ni caian.
+const GOLPES := {
+	"arranque_correr": {17: preload("res://assets/audio/magnus_paso_correr_a.wav")},
+	"parada_andar":    {8:  preload("res://assets/audio/magnus_paso_b.wav")},
+	"parada_correr":   {5:  preload("res://assets/audio/magnus_paso_correr_b.wav")},
+	"aterrizaje_correr": {19: preload("res://assets/audio/magnus_paso_b.wav")},
+	"saltar": {
+		13: preload("res://assets/audio/magnus_salto_despegue.wav"),
+		48: preload("res://assets/audio/magnus_salto_caida.wav"),
+	},
+	"salto_correr": {
+		4:  preload("res://assets/audio/magnus_salto_correr_despegue.wav"),
+		33: preload("res://assets/audio/magnus_salto_correr_caida.wav"),
+	},
+	"salto_parado": {
+		18: preload("res://assets/audio/magnus_salto_parado_despegue.wav"),
+		47: preload("res://assets/audio/magnus_salto_parado_caida.wav"),
+	},
+}
+## Sprite del golpe de la caida del salto corriendo en GOLPES, para cuando no
+## se llega a el (se corta al ciclo al tocar suelo).
+const SALTO_CORRER_CAIDA_SPRITE := 33
+
 ## Se emite cuando la cinematica de entrada deja al personaje en reposo y con
 ## el control devuelto.
 signal cinematica_terminada
@@ -235,6 +271,7 @@ var _mirando := 1.0          # 1 derecha, -1 izquierda
 var _recorrido := 0.0        # para mover la animacion con la distancia
 var _impulso := 0.0          # velocidad que llevaba al despegar, se conserva en el aire
 var _corria_al_saltar := false
+var _saltaba_parado := false  # salto desde el reposo: animacion salto_parado
 var _frenando_desde := 0.0   # velocidad que llevaba al empezar a frenar
 var _velocidad_suelo := 0.0
 var _parada_espera := 0      # ticks esperando un apoyo bueno para parar de andar
@@ -264,6 +301,11 @@ func _unhandled_input(evento: InputEvent) -> void:
 		# avanzar en el aire, no caer en el sitio.
 		_impulso = _velocidad()
 		_corria_al_saltar = _estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER
+		# Quieto (reposo, o una parada ya frenada): salto de parado, que empieza
+		# y acaba en la pose de reposo. "saltar" sale de un video andando y su
+		# primer sprite esta a 0,38 del reposo: desde parado se veia arrancar
+		# una zancada de la nada.
+		_saltaba_parado = not _en_movimiento() and not _corria_al_saltar and _impulso <= 0.0
 		_cambiar(Estado.SALTAR)
 		return
 	for accion in ["mover_izquierda", "mover_derecha"]:
@@ -277,7 +319,15 @@ func _unhandled_input(evento: InputEvent) -> void:
 		var antes: float = _ultima_pulsacion.get(accion, -99.0)
 		_ultima_pulsacion[accion] = ahora
 		if ahora - antes <= doble_pulsacion:
-			_arrancar(accion, true)
+			# Doble toque hacia el otro lado: el primer toque ya lanzo el giro y
+			# el segundo llega con el giro a medias. Arrancar aqui lo cortaba
+			# (volteo en seco con el sprite de otro angulo); lo que toca es
+			# que el giro termine y salga corriendo, que es lo que hace
+			# _al_terminar con _giro_corriendo.
+			if _estado == Estado.GIRO:
+				_giro_corriendo = true
+			else:
+				_arrancar(accion, true)
 		elif _puede_arrancar():
 			_arrancar(accion, false)
 
@@ -560,10 +610,16 @@ func _salto_bloquea() -> bool:
 
 ## Los dos saltos son animaciones distintas con tiempos distintos.
 func _aterrizaje() -> float:
-	return aterrizaje_correr if _sprite.animation == "salto_correr" else aterrizaje
+	match String(_sprite.animation):
+		"salto_correr": return aterrizaje_correr
+		"salto_parado": return aterrizaje_parado
+	return aterrizaje
 
 func _interrumpible() -> float:
-	return salto_correr_interrumpible if _sprite.animation == "salto_correr" else salto_interrumpible
+	match String(_sprite.animation):
+		"salto_correr": return salto_correr_interrumpible
+		"salto_parado": return salto_parado_interrumpible
+	return salto_interrumpible
 
 func _en_movimiento() -> bool:
 	if _estado == Estado.ANDAR or _estado == Estado.ARRANQUE_ANDAR:
@@ -646,7 +702,13 @@ func _cambiar(nuevo: Estado) -> void:
 		Estado.ARRANQUE_CORRER: _poner("arranque_correr")
 		Estado.CORRER:          _poner("correr")
 		Estado.PARADA_CORRER:   _poner("parada_correr")
-		Estado.SALTAR:          _poner("salto_correr" if _corria_al_saltar else "saltar")
+		Estado.SALTAR:
+			if _corria_al_saltar:
+				_poner("salto_correr")
+			elif _saltaba_parado:
+				_poner("salto_parado")
+			else:
+				_poner("saltar")
 		Estado.GIRO:            _poner("giro")
 		Estado.CAYENDO:         _poner("cayendo")
 		Estado.CAIDA:           _poner("caida")
@@ -667,6 +729,9 @@ func _seguir_corriendo_tras_salto() -> void:
 	_sprite.frame = salto_correr_a_correr
 	_recorrido = float(salto_correr_a_correr) * avance_correr
 	_ultimo_fotograma = salto_correr_a_correr
+	# El golpe de la caida esta en el sprite 33 del salto, que por aqui no se
+	# llega a ver: suena en el propio corte, que es el momento del impacto.
+	_sonar(GOLPES["salto_correr"][SALTO_CORRER_CAIDA_SPRITE], pasos_db, 0.0, true)
 
 ## Arco y ritmo del salto corriendo. El sprite trae un brinco corto cocido; el
 ## arco del nodo se le suma durante el vuelo, atado al fotograma (con la
@@ -687,17 +752,22 @@ func _actualizar_salto_correr() -> void:
 
 ## Un sonido suelto por el reproductor de las pisadas, que en la cinematica
 ## esta libre. desde = segundos del archivo por los que empezar.
-func _sonar(sonido: AudioStream, db: float, desde: float = 0.0) -> void:
+func _sonar(sonido: AudioStream, db: float, desde: float = 0.0, variar: bool = false) -> void:
 	_pasos.stream = sonido
 	_pasos.volume_db = db
-	_pasos.pitch_scale = 1.0
+	_pasos.pitch_scale = randf_range(1.0 - pasos_variacion, 1.0 + pasos_variacion) if variar else 1.0
 	_pasos.play(desde)
 
-## El golpe suena en el sprite en que el cuerpo da contra el suelo, no al
+## Golpes de las animaciones que reproduce el nodo (ver GOLPES), y el de la
+## caida, que suena en el sprite en que el cuerpo da contra el suelo, no al
 ## entrar en la animacion: entre lo uno y lo otro hay siete sprites, 0,3 s.
 func _al_cambiar_fotograma() -> void:
 	if _estado == Estado.CAIDA and _sprite.frame == golpe_sprite:
 		_sonar(SONIDOS_CAIDA["golpe"], golpe_db)
+		return
+	var golpes: Dictionary = GOLPES.get(String(_sprite.animation), {})
+	if golpes.has(_sprite.frame):
+		_sonar(golpes[_sprite.frame], pasos_db, 0.0, true)
 
 ## Cinematica de entrada. Coloca al personaje caida_altura px por encima de
 ## donde esta (la marca de suelo de la escena) y lo deja caer con aceleracion

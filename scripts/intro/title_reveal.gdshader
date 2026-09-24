@@ -63,15 +63,22 @@ uniform vec4 title_rect = vec4(0.34, 0.33, 0.66, 0.62);
 // se les quita el brillo que les sobra hasta dejarlas al nivel del panel, asi que
 // lo que ya era panel no se entera y la letra se funde en el.
 uniform float title_fade : hint_range(0.0, 1.0) = 0.0;
-// Cenido a las letras; la vela derecha (x 0.636) queda fuera a proposito.
-uniform vec4 title_fade_rect = vec4(0.365, 0.352, 0.575, 0.592);
-// Color y brillo del panel detras de las letras, medidos sobre el PNG en los
-// pixeles que no son ni letra ni sombra.
-uniform float title_panel_lum : hint_range(0.05, 0.6) = 0.22;
-uniform vec3 title_panel_col = vec3(0.372, 0.175, 0.049);
+// Los bordes del rectangulo van difuminados, asi que tiene que sobrar sitio por
+// los cuatro lados: las letras ocupan x 0.376-0.556, y 0.364-0.577, y si el
+// difuminado las pilla se quedan a medio apagar los trazos de los extremos (el
+// palo de la M, la base de MASON). La vela derecha (x 0.636) queda fuera: a
+// x 0.61 la imagen ya vuelve a ser panel.
+uniform vec4 title_fade_rect = vec4(0.340, 0.334, 0.595, 0.610);
+// Brillo del panel detras de las letras, medido sobre el PNG a los lados de cada
+// trazo: (arriba, abajo). Es una rampa y no un numero porque el panel va de 0.27
+// arriba a 0.15 abajo, y con un valor fijo "THE" acaba mas oscura que su fondo y
+// "MASON" mas clara, que es justo el negativo que se queria quitar.
+uniform vec2 title_panel_lum = vec2(0.266, 0.149);
+// Color del panel ahi mismo. Solo se usa el tono: el nivel lo pone la rampa.
+uniform vec3 title_panel_col = vec3(0.315, 0.152, 0.048);
 // Cuanto se rellena el relieve oscuro. No llega a 1: aplanar del todo dejaria un
 // rectangulo liso dentro del panel, que se nota tanto como las letras.
-uniform float title_fill : hint_range(0.0, 1.0) = 0.8;
+uniform float title_fill : hint_range(0.0, 1.0) = 0.9;
 
 // Vaho / humo ambiental dentro de la ventana del ataud.
 // window_rect = (x_min, y_min, x_max, y_max) del panel interior del marco.
@@ -205,8 +212,15 @@ void fragment() {
 		* smoothstep(title_fade_rect.y, title_fade_rect.y + 0.025, uv.y)
 		* (1.0 - smoothstep(title_fade_rect.w - 0.025, title_fade_rect.w, uv.y));
 	float title_mix = in_title * title_fade;
-	float flatten = clamp(1.0 - title_panel_lum / max(lum, 0.001), 0.0, 1.0) * title_mix;
+	float title_panel = mix(title_panel_lum.x, title_panel_lum.y,
+		clamp((uv.y - title_fade_rect.y) / max(title_fade_rect.w - title_fade_rect.y, 0.001), 0.0, 1.0));
+	float flatten = clamp(1.0 - title_panel / max(lum, 0.001), 0.0, 1.0) * title_mix;
 	dark = clamp(1.0 - (1.0 - dark) * (1.0 - flatten * darkness), 0.0, 1.0);
+	// Brillo que tendran estas letras una vez aplanadas. Lo que venga despues tiene
+	// que mirar esto y no lum: el calor del foco se reparte segun lo cargado que
+	// este ya el pixel, y con lum las letras se quedaban sin su parte y salian a
+	// media luz sobre el panel, o sea seguian leyendose.
+	float lum_flat = mix(lum, title_panel, title_mix);
 
 	// --- Luz aditiva ---
 	vec3 add = vec3(0.0);
@@ -218,7 +232,7 @@ void fragment() {
 
 	// Un poco de calor del foco, solo donde el cuadro tiene sitio para mas luz:
 	// asi la parte alta se siente iluminada sin llegar a reventar a blanco.
-	float headroom = 1.0 - smoothstep(0.35, 0.85, lum);
+	float headroom = 1.0 - smoothstep(0.35, 0.85, lum_flat);
 	add += SUN_COLOR * pool(ds, sun_radius * 0.8) * sun_intensity * headroom * 0.1;
 
 	// Destello sobre las letras: banda diagonal enmascarada por el brillo de la imagen.
@@ -232,8 +246,8 @@ void fragment() {
 	// Relleno del relieve oscuro de las letras: solo donde la imagen esta por
 	// debajo del panel. Va multiplicado por (1.0 - dark) para que se apague con la
 	// sala; si no, al final quedaria un fantasma encendido sobre el negro.
-	float sunken = clamp(title_panel_lum - lum, 0.0, 1.0) * title_mix * title_fill;
-	add += title_panel_col * (sunken / max(title_panel_lum, 0.001)) * (1.0 - dark);
+	float sunken = clamp(title_panel - lum, 0.0, 1.0) * title_mix * title_fill;
+	add += title_panel_col * (sunken / max(dot(title_panel_col, LUMW), 0.001)) * (1.0 - dark);
 
 	// --- Vaho ---
 	// El humo solo se ve donde le da luz: al principio son jirones alrededor de

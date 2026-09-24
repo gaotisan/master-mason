@@ -36,14 +36,32 @@ cruzado. El antiguo queda como `_v1` en `02_salida`. Entra y sale con un fundido
 corto al cambiar de reposo. Niveles en `pasos_db` y `respiracion_db`, exportados
 en el nodo.
 
+Las animaciones que reproduce el nodo (arranques, paradas, saltos, aterrizaje)
+tienen sus golpes en la tabla `GOLPES` de `magnus.gd`, disparados desde
+`frame_changed`: el contacto del pie en `arranque_correr` (sprite 17),
+`parada_andar` (8), `parada_correr` (5) y `aterrizaje_correr` (19), medidos
+siguiendo la fila del pie mas bajo; y los despegues y caidas de los dos saltos,
+sacados del audio de sus propios videos (`construye.py`, seccion SALTOS) y
+colocados en el sprite del ataque medido: `saltar` 13 y 48, `salto_correr` 4 y
+33, `salto_parado` 18 y 47. Cuando el salto corriendo sigue al ciclo al tocar suelo, el golpe de la caida
+suena en el propio corte, porque el sprite 33 no llega a verse. Antes todo eso
+era mudo: al arrancar a correr no sonaba nada en 0,6 s y los saltos ni despegaban
+ni caian.
+
+**Niveles, pendiente de oido.** En la grabacion del piloto el viento de la escena
+tapaba las primeras pisadas de andar: el viento estaba a -35..-45 dBFS y las
+pisadas de andar llegaban a -26..-38. Con `pasos_db` a -6 se oyen justas sobre
+el viento; subirlas 3-4 dB o bajar `wind_db` al empezar la escena es cosa de
+escucharlo.
+
 Controles (definidos en `project.godot`): flechas izquierda/derecha o A/D para
 andar, **doble pulsacion** de la misma flecha para correr, flecha arriba o espacio
 para saltar. Al soltar, entra la frenada y vuelve a reposo.
 
 **Cambiar de sentido** no voltea en seco: pasa por la frenada, voltea cuando la
-velocidad ya es cero y arranca al otro lado. Tarda 0,18 s y frena 44 px. No hay
-animacion de giro, asi que es lo mas parecido que se puede montar con lo que hay;
-si algun dia aparece una, sustituye a este apaño.
+velocidad ya es cero y arranca al otro lado. Desde que existe la animacion de
+`giro` (5 poses, 0,25 s), el volteo lo hace ella y el `flip_h` se aplica al
+terminar; con `giro_activo = false` vuelve al volteo instantaneo de antes.
 
 El salto conserva el impulso que llevaba: saltar corriendo avanza en el aire, y al
 caer recupera el modo que llevaba (andar o correr) si la tecla sigue pulsada. El
@@ -75,7 +93,7 @@ y se apaga en el primer 60 % de esa animacion (`aterrizaje_correr_velocidad`,
 `aterrizaje_correr_frenada`). Enganches medidos: salto c_38 -> aterrizaje c_01 es
 0,13, el paso normal de esa animacion; su ultimo fotograma esta a 0,10 del reposo.
 
-El `.tres` se genera por script, no a mano: son 295 `AtlasTexture`, uno por
+El `.tres` se genera por script, no a mano: son 465 `AtlasTexture`, uno por
 fotograma, recortados de las hojas. El generador es
 `godot/tools/anim/_spriteframes.py`, y ahi estan tambien los **fps de cada
 animacion**, que no tienen por que ser los del video:
@@ -113,14 +131,15 @@ Los parametros del personaje y el porque de cada numero estan en
 
 | animacion | fotogramas | hframes | vframes | fps | tipo |
 |---|---|---|---|---|---|
-| `respirando` | 30 | 6 | 5 | 12 | bucle |
+| `respirando` | 29 de 30 | 6 | 5 | 11,6 | bucle (sin el c_30: cerraba a 0,058, dos pasos; sin el, 0,034; 29/11,6 sigue siendo 2,5 s, lo que dura el audio) |
 | `arranque_andar` | 34 | 6 | 6 | 24 | una pasada |
 | `andando` | 34 | 6 | 6 | 24 | bucle |
 | `parada_andar` | 21 | 7 | 3 | 24 | una pasada |
 | `arranque_correr` | 38 | 7 | 6 | 24 | una pasada |
 | `corriendo` | 24 | 6 | 4 | 24 | bucle |
 | `parada_correr` | 39 | 7 | 6 | 24 | una pasada |
-| `salto_andando` | 70 | 10 | 7 | 60 | una pasada |
+| `salto_andando` | 70 | 10 | 7 | 60 | una pasada (saltar andando) |
+| `salto_parado` | 66 | 9 | 8 | 60 | una pasada (saltar desde el reposo) |
 | `salto_corriendo` | 38 | 8 | 5 | 60 | una pasada, casilla 340x400 |
 | `aterrizaje_correr` | 34 | 7 | 5 | 60 | una pasada, solo si se suelta la direccion en el aire |
 | `giro` | 5 | 5 | 1 | 20 | una pasada |
@@ -273,6 +292,24 @@ Dentro de cada casilla de 292 x 360:
 Las tres animaciones se procesaron ancladas a esos dos valores, por eso el
 personaje no pega un salto al cambiar de una a otra.
 
+**La fila 345 es la teorica; la real es donde apoya el pie plantado.**
+`centrar.ps1` ancla el pixel mas bajo de cada job a la 690 del master (345 en la
+hoja), y ese pixel no es lo mismo en todas: en el reposo es la punta del pie, en
+la carrera el pie que empuja, en la cuclilla del salto el pie aplastado. Medido en
+2026-09-24 con la moda de la fila del pie mas bajo sobre los sprites con el pie
+plantado: reposo, andar, paradas y giro apoyaban en la 677, pero correr en la 683,
+arranque de correr en la 681, parada de correr en la 679 y el salto de parado en
+la 686. En pantalla eran 1-4,5 px de hundimiento al cambiar de animacion, y el
+mas visible el del salto: se hundia al saltar y subia al acabar. Se corrigieron
+desplazando esos cuatro jobs en `04_limpios` (`alinear.py --bajar -6/-4/-2/-9`,
+copia previa en `_sin_alinear/`) y ahora **todas apoyan en la 677** (338,5 de
+hoja, 6,5 px por encima del origen del nodo). El salto de parado se queda con 5 px
+de margen arriba en la hoja y `hoja.ps1` lo avisa: el atlas mezclaria casillas
+por debajo de 1/5 de escala, y el juego no baja de 1/2.
+
+Para una animacion nueva: despues de `centrar.ps1`, medir esa moda y llevarla a
+677 antes de exportar. Las cuatro de la caida y la cola del salto ya salieron asi.
+
 Para que el nodo se apoye en el suelo, el origen tiene que caer en la fila 345 y
 no en el centro de la casilla:
 
@@ -287,6 +324,14 @@ colocarlo sobre el terreno y para la fisica.
 ## Voltear para el otro lado
 
 Los sprites miran a la **derecha**. Para ir a la izquierda, `flip_h = true`.
+
+Un fallo que habia: el **doble toque hacia el otro lado** cortaba el giro. El
+primer toque lanza el giro (0,25 s) y el segundo llegaba con el giro a medias;
+como el doble toque arrancaba a correr sin mirar el estado, volteaba en seco con
+el sprite de otro angulo. Ahora, si el segundo toque llega girando, solo deja
+dicho que al terminar salga corriendo (`_giro_corriendo`), que es lo que ya hace
+`_al_terminar`. Medido con el piloto: giro 14,02-14,27 s completo y arranque de
+correr justo despues.
 
 La casilla se hizo simetrica a proposito (292 de ancho para un personaje que
 ocupa como mucho 262 hacia un lado): al voltearla, el personaje **no se
@@ -665,6 +710,33 @@ modelos se inventan cuando no se les dice:
 La alternativa sin pedir nada es retocar los 24 limpios para que la capa tape el
 brazo siempre -- ya lo tapa en buena parte del ciclo -- a cambio de perder el
 gesto de los brazos al correr.
+
+**El salto de parado ya tiene su animacion.** `saltar` sale de un video en el
+que el personaje ya anda cuando se agacha: su primer sprite esta a 0,38 del
+reposo, y saltar quieto arrancaba una zancada de la nada. Desde 2026-09-24,
+saltar desde el reposo (o desde una parada ya frenada) usa `salto_parado`, de un
+video propio (`salto_en_parado.mp4`): quieto en la pose de reposo, se agacha,
+salta vertical y vuelve a quedarse quieto. Entra a 0,092 del reposo y sale a
+0,074. El video traia dos saltos seguidos sin incorporarse entre medias y polvo
+al caer; como se monto esta en `magnus_salto_parado/como_se_hizo.txt`. `saltar`
+sigue siendo el salto andando.
+
+**Los bordes no son iguales en los dos lotes.** Las hojas antiguas (reposo,
+andar, correr y sus transiciones, giro, salto de parado) llevan un borde suave de
+1-2 px con 1200-2300 px semitransparentes por sprite y un ribete magenta tenue en
+la barba, herencia del croma magenta de aquellos videos; las nuevas (salto
+corriendo, aterrizaje, las cuatro de la caida) salen del croma verde con
+`-Radio 4` y `-Tolerancia 70`: borde mas duro, 50-90 px semitransparentes y algun
+ribete verdoso en el pelo. A tamano de juego es medio pixel y no se ve, pero si
+algun dia se rehace un lote, que sea con los parametros del otro para que la
+silueta pese igual en todas.
+
+**Lo que queda por pedir fuera:**
+
+- video de **carrera con el brazo bien** (ver el aviso del brazo);
+- un **giro completo** con la pose de 67 grados (ver `magnus_giro/como_se_hizo.txt`);
+- **respirar de perfil mas largo** o con dos ciclos, para que el bucle de 2,5 s no
+  se note al minuto de estar quieto: ahora es una sola respiracion repetida.
 
 ## Regenerar o anadir una animacion
 
