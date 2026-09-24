@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/intro/sarcophagus_intro.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/dev/piloto_capturas.gd" id="2"]
+
+[node name="PilotoAtaudArana" type="Node"]
+
+[node name="SarcophagusIntro" parent="." instance=ExtResource("1")]
+
+[node name="Piloto" type="Node" parent="."]
+script = ExtResource("2")
+momentos = PackedFloat32Array(4.0, 7.0, 10.0, 14.0, 18.0)
+carpeta = "user://capturas_ataud"
+prefijo = "ataud"

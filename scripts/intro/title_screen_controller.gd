@@ -9,6 +9,8 @@ extends Node2D
 ##  4. Ese mismo foco crece y se queda: su luz es la que acaba llegando a toda la
 ##     sala. El vaho se apaga mientras, porque con la sala a la vista ya no pinta.
 ##  5. Un destello recorre las letras del titulo.
+##  5b. El aracnobat lleva todo este rato en su trozo de telarana de la esquina de
+##     abajo a la derecha, pivotando y dando paseos cortos. Aqui no hace nada.
 ## El viento suena desde el primer fotograma y va ganando cuerpo, con rachas que
 ## siguen soplando mientras la pantalla este puesta.
 ##
@@ -90,7 +92,10 @@ extends Node2D
 @export var candle_out_time: float = 0.55
 ## El interior del cristal se apaga con las velas, al reves que en el arranque:
 ## primero el rectangulo, el resto de la sala sigue con la luz del foco.
-@export var window_dark_start: float = 1.0
+## Era 1.0. Se retraso porque el aracnobat sale por patas cuando arranca la
+## camara (+4.2) y con el valor viejo el cristal estaba ya al 68 % de oscuro a
+## esa altura: la huida no se veia. Con 2.4 queda al 28 % y se le ve salir.
+@export var window_dark_start: float = 2.4
 @export var window_dark_time: float = 4.6
 ## No llega a negro del todo: dentro se adivina algo hasta que la camara entra.
 @export var window_dark_full: float = 0.8
@@ -101,7 +106,10 @@ extends Node2D
 @export var title_fade_start: float = 1.0
 @export var title_fade_time: float = 4.0
 ## La camara entra por el cristal. Acelera: casi no se nota al principio.
-@export var zoom_in_start: float = 6.0
+## Era 6.0. Se adelanto para que arranque mientras el aracnobat todavia esta
+## aterrizando en la otra telarana: asi lo pierdes de vista porque te estas
+## metiendo tu, que es mas bonito que verlo posarse tranquilamente y luego irnos.
+@export var zoom_in_start: float = 4.2
 @export var zoom_in_time: float = 5.0
 @export var zoom_in_end: float = 7.0
 ## Ya entrando, el resto de la sala acompana: el rebote se va y el foco se
@@ -117,6 +125,10 @@ extends Node2D
 @export var black_lead: float = 0.5
 ## Negro antes de cambiar de escena.
 @export var black_hold: float = 0.6
+## El aracnobat sale por patas. No tiene tiempo propio: se dispara cuando la
+## camara arranca (zoom_in_start), porque lo que lo asusta es justamente que algo
+## se mueva. Este numero es solo el tiempo de reaccion, y por eso es pequeno.
+@export var spider_reaccion: float = 0.15
 @export var next_scene: String = "res://scenes/game/dark_stage.tscn"
 
 const CANDLE_A := Vector2(868, 830)
@@ -142,6 +154,7 @@ var _candle_b_lvl := 1.0
 var _leaving := false
 
 @onready var _camera: Camera2D = $Camera
+@onready var _spider: Node2D = get_node_or_null("Spider")
 
 func _ready() -> void:
 	_time_a = randf() * 100.0
@@ -228,6 +241,8 @@ func _run_sequence() -> void:
 	# Destello en las letras
 	tw.tween_method(_set_shader.bind("glint"), -0.3, 1.3, glint_time).set_delay(glint_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
+
+
 	# Zoom lento hacia fuera durante toda la secuencia
 	if _camera:
 		tw.tween_property(_camera, "zoom", Vector2.ONE, reveal_start + reveal_time + 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -264,6 +279,10 @@ func _run_exit() -> void:
 	tw.tween_method(_set_shader.bind("sun_radius"), sun_radius_full, sun_radius_dusk, dim_time).set_delay(dim_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_method(_set_shader.bind("sun_intensity"), 1.0, sun_intensity_dusk, dim_time).set_delay(dim_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_method(_set_shader.bind("frame_light"), 1.0, frame_light_dusk, dim_time).set_delay(dim_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+	# El aracnobat ve moverse la camara y sale por patas hacia arriba.
+	if _spider and _spider.has_method("volar"):
+		tw.tween_callback(_spider.volar).set_delay(t0 + zoom_in_start + spider_reaccion)
 
 	# La camara entra por el cristal. Empieza casi quieta y acelera.
 	if _camera:

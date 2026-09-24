@@ -39,9 +39,24 @@ build_windows.bat run    # exporta y lanza el juego
 `main.tscn` → `scenes/intro/sarcophagus_intro.tscn` (ataúd, velas, moscas, cucaracha).
 Al aplastar la cucaracha se lanza el desmayo (`blackout_controller.gd`) y se pasa a
 `scenes/intro/title_screen.tscn`, que enciende la sala con luz hasta mostrar el título.
-Pasados unos segundos las velas se apagan, la sala queda en penumbra y la cámara entra
-por el cristal del ataúd hasta el negro: ahí se pasa a `scenes/game/dark_stage.tscn`,
-el escenario (por ahora vacío y negro) donde se moverá Magnus.
+En las telarañas del panel hay un aracnobat (`scenes/intro/web_spider.tscn`): vive
+en la esquina de abajo a la derecha, donde pivota y da paseos cortos sin salirse de
+su trozo de telaraña. **Cuando la cámara empieza a moverse se asusta**, abre las
+alas y sube en vertical a la telaraña de la esquina de arriba, donde se posa
+mientras nosotros ya estamos entrando por el cristal. Pasados unos segundos las velas se apagan, la sala queda en penumbra y la
+cámara entra por el cristal del ataúd hasta el negro: ahí se pasa a
+`scenes/game/dark_stage.tscn`, el escenario (por ahora vacío y negro) donde se moverá
+Magnus.
+
+Para revisar esos tiempos sin estar delante:
+
+```powershell
+..\..\engine\Godot_v4.6.2\Godot_v4.6.2-stable_win64_console.exe --path . ^
+    --fixed-fps 30 res://scenes/dev/piloto_titulo_arana.tscn
+```
+
+Guarda una captura en cada segundo que se le pida (`scripts/dev/piloto_capturas.gd`)
+y sale. Las imágenes quedan en `%APPDATA%\Godot\app_userdata\Master Mason\`.
 
 ## Sprites de personajes
 
