@@ -58,3 +58,10 @@ func emit_impact():
 			punch_disabled = true  # Desactivar después de matar
 		elif d < fear_radius and bug.has_method("on_near_miss"):
 			bug.on_near_miss(center)
+	# Y los que se asustan del golpe pero no se pueden aplastar: la araña de la
+	# telarana. A estos no se les mide la distancia a proposito -- esta colgada de
+	# los hilos de la sala, o sea que el golpe le llega por toda la telarana por
+	# lejos que caiga el puño.
+	for bug in get_tree().get_nodes_in_group("asustadizo"):
+		if bug.has_method("on_near_miss"):
+			bug.on_near_miss(center)

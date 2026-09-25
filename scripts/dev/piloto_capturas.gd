@@ -16,9 +16,15 @@ extends Node
 @export var prefijo: String = "cap"
 ## Segundos de margen antes de cerrar, tras la ultima captura.
 @export var cola: float = 0.2
+## Acciones a pulsar por el camino: [segundo, "accion"]. Se inyectan como
+## InputEventAction, que es lo que hace que lleguen tanto a _input como a
+## Input.is_action_pressed, igual que una tecla de verdad. Sirve para capturar lo
+## que pasa DESPUES de un golpe sin nadie al teclado.
+@export var pulsaciones: Array = []
 
 var _t := 0.0
 var _i := 0
+var _p := 0
 var _guardando := false
 
 func _ready() -> void:
@@ -29,6 +35,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	while _p < pulsaciones.size() and _t >= float(pulsaciones[_p][0]):
+		_pulsar(String(pulsaciones[_p][1]))
+		_p += 1
 	if _guardando:
 		return
 	if _i < momentos.size() and _t >= momentos[_i]:
@@ -39,6 +48,19 @@ func _process(delta: float) -> void:
 		return
 	if _i >= momentos.size() and _t >= momentos[momentos.size() - 1] + cola:
 		get_tree().quit()
+
+## Un toque: pulsar y soltar en el mismo fotograma sobra para las acciones que
+## se miran con is_action_pressed en _input.
+func _pulsar(accion: String) -> void:
+	var ev := InputEventAction.new()
+	ev.action = accion
+	ev.pressed = true
+	Input.parse_input_event(ev)
+	var fin := InputEventAction.new()
+	fin.action = accion
+	fin.pressed = false
+	Input.parse_input_event(fin)
+	print("pulsacion %.2f s -> %s" % [_t, accion])
 
 func _capturar(n: int) -> void:
 	await RenderingServer.frame_post_draw

@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/intro/sarcophagus_base_16_9.png" id="1"]
 [ext_resource type="Script" path="res://scripts/flicker_light.gd" id="2"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/tutorial/key_prompt.tscn" id="13_key"]
 [ext_resource type="Script" path="res://scripts/tutorial/input_tutor.gd" id="14_tutor"]
 [ext_resource type="Resource" path="res://resources/tutorial/punch_hint.tres" id="15_hint"]
+[ext_resource type="PackedScene" path="res://scenes/intro/web_spider.tscn" id="16_spider"]
 
 [sub_resource type="Gradient" id="Gradient_radial"]
 offsets = PackedFloat32Array(0, 0.7)
@@ -57,6 +58,21 @@ color = Color(0, 0, 0, 1)
 [node name="BackgroundImage" type="Sprite2D" parent="."]
 position = Vector2(1456, 816)
 texture = ExtResource("1")
+
+[node name="CornerSpider" parent="." instance=ExtResource("16_spider") groups=["asustadizo"]]
+light_mask = 0
+alto_px = 220.0
+posada = Vector2(2196, 310)
+paseo_radio = Vector2(80, 45)
+angulo_posada = -28.0
+tinte = Color(0.58, 0.5, 0.41, 1)
+espera_min = 3.0
+espera_max = 9.0
+paseo_min = 20.0
+paseo_max = 70.0
+paseo_velocidad = 42.0
+refugio = Vector2(2310, 175)
+regreso_velocidad = 12.0
 
 [node name="Pendulum" parent="." instance=ExtResource("6")]
 modulate = Color(0.55, 0.45, 0.35, 0.85)

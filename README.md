@@ -39,14 +39,27 @@ build_windows.bat run    # exporta y lanza el juego
 `main.tscn` → `scenes/intro/sarcophagus_intro.tscn` (ataúd, velas, moscas, cucaracha).
 Al aplastar la cucaracha se lanza el desmayo (`blackout_controller.gd`) y se pasa a
 `scenes/intro/title_screen.tscn`, que enciende la sala con luz hasta mostrar el título.
-En las telarañas del panel hay un aracnobat (`scenes/intro/web_spider.tscn`): vive
-en la esquina de abajo a la derecha, donde pivota y da paseos cortos sin salirse de
-su trozo de telaraña. **Cuando la cámara empieza a moverse se asusta**, abre las
-alas y sube en vertical a la telaraña de la esquina de arriba, donde se posa
-mientras nosotros ya estamos entrando por el cristal. Pasados unos segundos las velas se apagan, la sala queda en penumbra y la
-cámara entra por el cristal del ataúd hasta el negro: ahí se pasa a
+Pasados unos segundos las velas se apagan, la sala queda en penumbra y la cámara
+entra por el cristal del ataúd hasta el negro: ahí se pasa a
 `scenes/game/dark_stage.tscn`, el escenario (por ahora vacío y negro) donde se moverá
 Magnus.
+
+### La araña
+
+La misma escena (`scenes/intro/web_spider.tscn`) sale en las dos pantallas, sólo
+cambiando sus `@export`. En su sitio pivota y da paseos cortos sin salirse de su
+trozo de telaraña; las patas se mueven con el movimiento, no a fps fijo.
+
+- **En el ataúd**, esquina de arriba a la derecha, en penumbra, a 220 px de
+  envergadura. Nunca vuela y **nunca sale a la luz**. Al dar el puñetazo sale
+  corriendo al rincón oscuro de encima —oscureciéndose por el camino, porque ahí
+  llega un 58 % de luz— y vuelve a su sitio a rastras, tardando unos 15 s. La
+  cucaracha tiene esa esquina vetada (`zona_vetada`), destinos y trayectos
+  incluidos, para no pisársela.
+- **En el título**, esquina de abajo a la derecha del panel, a 140 px. Cuando la
+  cámara empieza a moverse se asusta, abre las alas y sube en vertical a la
+  telaraña de la esquina de arriba, donde se posa mientras nosotros ya estamos
+  entrando por el cristal.
 
 Para revisar esos tiempos sin estar delante:
 

@@ -92,6 +92,12 @@ var time_passed: float = 0.0
 @export var idle_time_max: float = 8.0
 @export var bounds_min: Vector2 = Vector2(150, 150)
 @export var bounds_max: Vector2 = Vector2(2760, 1480)
+## Trozo de la sala al que no va NUNCA: la esquina de arriba a la derecha, que es
+## donde vive la araña de la telarana (CornerSpider). No es por que se lleven mal,
+## es que la araña esta ahi quieta en penumbra todo el rato y si la cucaracha se
+## le mete encima se rompe el unico sitio de la escena que da respeto. Se aplica
+## a los destinos que sortea y tambien a las esquinas de huida.
+@export var zona_vetada: Rect2 = Rect2(1900, 0, 1012, 640)
 @export var failsafe_point: Vector2 = Vector2(1456, 816)
 
 @export_group("Locomotion")
@@ -654,6 +660,12 @@ func _pick_new_target() -> void:
 			Vector2(bounds_min.x, bounds_min.y), Vector2(bounds_max.x, bounds_min.y),
 			Vector2(bounds_min.x, bounds_max.y), Vector2(bounds_max.x, bounds_max.y)
 		]
+		for i in corners.size():
+			corners[i] = _fuera_de_veto(corners[i])
+		# Y si para llegar a la esquina elegida hay que cruzar la zona, se descarta.
+		var libres := corners.filter(func(c): return _camino_libre(global_position, c))
+		if not libres.is_empty():
+			corners = libres
 		var flee_dir := global_position - last_impact_pos
 		flee_dir = flee_dir.normalized() if flee_dir.length() > 1.0 else Vector2.UP.rotated(rotation)
 		corners.sort_custom(func(a, b): return _corner_score(a, flee_dir) > _corner_score(b, flee_dir))
@@ -668,7 +680,7 @@ func _pick_new_target() -> void:
 			var dir = (last_impact_pos - global_position).normalized()
 			var timid_dir = dir.rotated(randf_range(-0.3, 0.3))
 			var candidate = global_position + (timid_dir * step_dist)
-			if _is_pos_valid(candidate):
+			if _is_pos_valid(candidate) and _camino_libre(global_position, candidate):
 				target_position = candidate
 				return
 
@@ -676,7 +688,7 @@ func _pick_new_target() -> void:
 	for i in range(30):
 		var ang = randf_range(0, TAU)
 		var candidate = global_position + Vector2(cos(ang), sin(ang)) * randf_range(300, 600)
-		if _is_pos_valid(candidate):
+		if _is_pos_valid(candidate) and _camino_libre(global_position, candidate):
 			target_position = candidate
 			return
 	target_position = failsafe_point
@@ -853,7 +865,35 @@ func _on_blackout_blink(index: int) -> void:
 	blink_twitch_gain = pow(death_blink_ramp, float(k))
 
 func _is_pos_valid(pos: Vector2) -> bool:
-	return pos.x > bounds_min.x and pos.x < bounds_max.x and pos.y > bounds_min.y and pos.y < bounds_max.y
+	if pos.x <= bounds_min.x or pos.x >= bounds_max.x:
+		return false
+	if pos.y <= bounds_min.y or pos.y >= bounds_max.y:
+		return false
+	return not zona_vetada.has_point(pos)
+
+## La zona vetada no basta con esquivarla al elegir destino: la cucaracha va en
+## linea recta, asi que un destino valido al otro lado puede hacerle cruzar la
+## esquina por el medio. Esto comprueba el camino entero.
+func _camino_libre(desde: Vector2, hasta: Vector2) -> bool:
+	if zona_vetada.size.x <= 0.0:
+		return true
+	if zona_vetada.has_point(desde) or zona_vetada.has_point(hasta):
+		return false
+	var a := zona_vetada.position
+	var b := zona_vetada.end
+	var esquinas := [a, Vector2(b.x, a.y), b, Vector2(a.x, b.y)]
+	for i in 4:
+		if Geometry2D.segment_intersects_segment(desde, hasta, esquinas[i], esquinas[(i + 1) % 4]) != null:
+			return false
+	return true
+
+## Baja un punto por debajo de la zona vetada si cae dentro. Se usa con las
+## esquinas de huida, que no se sortean: si se descartara la de arriba a la
+## derecha, huyendo desde la izquierda se quedaria sin salida por ese lado.
+func _fuera_de_veto(p: Vector2) -> Vector2:
+	if zona_vetada.size.x <= 0.0 or not zona_vetada.has_point(p):
+		return p
+	return Vector2(p.x, zona_vetada.end.y + 1.0)
 
 func die() -> void:
 	if is_dead:

@@ -1,15 +1,21 @@
 extends Node2D
-## El aracnobat de las telaranas de la pantalla de titulo.
+## Una araña que vive en un trozo de telarana y no se mueve de ahi.
 ##
-## Vive en la esquina de abajo a la derecha del panel. No esta clavado: dentro de
-## su trozo de telarana pivota sobre el cuerpo y da paseos cortos, con paradas
-## largas entre medias. Nunca se sale de ese trozo.
+## Dentro de su trozo pivota sobre el cuerpo y da paseos cortos, con paradas
+## largas entre medias, y nunca se sale. Se usa en dos sitios:
 ##
-## Y cuando la camara empieza a moverse hacia el cristal, se asusta: abre las
-## alas y sube en vertical a la telarana de la esquina de arriba, justo encima de
-## donde estaba, donde se posa. No se aleja hacia el fondo ni se hace pequeno: se
-## mueve por el plano del panel, que es donde esta la telarana. Para cuando
-## aterriza la camara ya esta metida, asi que lo normal es no verle posarse.
+##   title_screen    esquina de abajo a la derecha del panel; ahi ademas se le
+##                   llama a volar() y se larga (ver abajo).
+##   sarcophagus     esquina de arriba a la derecha, en penumbra. Ahi NO se le
+##                   llama a volar() nunca: se queda quieta en su rincon toda la
+##                   escena, que es justo lo que se quiere. Si no se llama, las
+##                   hojas de las alas no llegan a cargarse siquiera.
+##
+## Cuando se le llama a volar(), se asusta: abre las alas y sube en vertical a la
+## telarana de la esquina de arriba, justo encima de donde estaba, donde se posa.
+## No se aleja hacia el fondo ni se hace pequeno: se mueve por el plano del
+## panel, que es donde esta la telarana. Para cuando aterriza la camara ya esta
+## metida, asi que lo normal es no verle posarse.
 ##
 ## POR QUE FUNCIONA MEZCLAR LAS DOS VISTAS. El video de origen esta grabado
 ## cenital cuando anda y de frente cuando vuela, que a priori no pega. Pero el
@@ -102,6 +108,28 @@ signal posado
 @export var respiracion: float = 0.006
 @export var respiracion_hz: float = 0.42
 
+@export_group("Sobresalto")
+## Adonde sale corriendo cuando algo golpea cerca. Va mas arriba y FUERA de la
+## telarana, al rincon en penumbra: donde esta posada el fondo tiene luminancia
+## 57 y ahi 33, o sea que casi se pierde de vista. Esa es la gracia.
+@export var refugio: Vector2 = Vector2(2310, 175)
+## Sale disparada. Una araña asustada no acelera, ya esta a tope en el primer paso.
+@export var huida_velocidad: float = 280.0
+## El tinte alla arriba. No es un capricho: el fondo del rincon tiene luminancia
+## 33 y el de su telarana 57, o sea que ahi llega un 58 % de luz. Si la araña
+## subiera con el mismo tinte se veria IGUAL de clara sobre un fondo mas oscuro,
+## que es justo lo que delata a un sprite pegado encima. Con el mismo factor
+## aplicado, el contraste contra su fondo se mantiene y lo que se lee es que se
+## ha metido en la sombra. Sale de tinte * 0,58.
+@export var tinte_refugio: Color = Color(0.336, 0.29, 0.238)
+## Cuanto se queda escondida antes de atreverse a volver.
+@export var refugio_espera_min: float = 3.0
+@export var refugio_espera_max: float = 6.0
+## Y a que velocidad vuelve. MUY lenta a proposito: el contraste entre el tiron
+## de la huida y el regreso a rastras es todo el efecto. A 12 px/s tarda unos
+## 15 s en volver a su sitio, y las patas se le mueven apenas.
+@export var regreso_velocidad: float = 12.0
+
 @export_group("Vuelo")
 ## Lo que dura la subida, con las alas ya fuera. Despegue y aterrizaje duran
 ## aparte lo que duran sus animaciones (0,92 s y 0,67 s a 24 fps). Corto: son
@@ -138,7 +166,7 @@ const ABRIR_ALZADO := 9
 ## Fotograma de cerrar_alas a partir del cual ya esta plegada sobre la pared.
 const CERRAR_POSADO := 6
 
-enum { ESPERA, GIRO, ORIENTA, PASEO, DESPEGUE, VUELO, ATERRIZAJE, FIN }
+enum { ESPERA, GIRO, ORIENTA, PASEO, HUIDA, ESCONDIDA, REGRESO, DESPEGUE, VUELO, ATERRIZAJE, FIN }
 
 var _sprite: Sprite2D
 var _estado := ESPERA
@@ -156,6 +184,8 @@ var _paso := 0.0
 var _avance := 1.0
 var _grado_px := 1.0
 var _salida := Vector2.ZERO
+var _tras_orientar := PASEO
+var _dist_refugio := 0.0
 
 func _ready() -> void:
 	_escala = alto_px / ALTO_HOJA
@@ -167,10 +197,14 @@ func _ready() -> void:
 	_sprite.scale = Vector2.ONE * _escala
 	_sprite.modulate = tinte
 	_sprite.rotation_degrees = angulo_posada
+	# light_mask es por CanvasItem y no se hereda: sin esto, poner light_mask=0 en
+	# el nodo de la escena no serviria de nada y las velas del ataud le darian luz.
+	_sprite.light_mask = light_mask
 	add_child(_sprite)
 	_poner("andando", 0)
 
 	position = posada
+	_dist_refugio = posada.distance_to(refugio)
 	_espera = randf_range(espera_min, espera_max)
 
 func _poner(anim: String, f: int) -> void:
@@ -225,19 +259,35 @@ func _process(delta: float) -> void:
 	_reloj += delta
 	# El abdomen bombea. Es casi invisible a proposito: lo que tiene que hacer es
 	# que no parezca una calcomania, no que se vea respirar.
-	if _estado <= PASEO:
+	if _estado <= REGRESO:
 		var pulso := 1.0 + respiracion * sin(_reloj * TAU * respiracion_hz)
 		_sprite.scale = Vector2(_escala, _escala * pulso)
+
+	# La luz se interpola con lo cerca que este del refugio. Solo en los estados de
+	# suelo: volando no pinta nada, y ademas en el titulo el refugio ni se usa.
+	if _estado <= REGRESO:
+		_actualizar_tinte()
 
 	match _estado:
 		ESPERA: _hacer_espera(delta)
 		GIRO: _hacer_giro(delta)
 		ORIENTA: _hacer_orienta(delta)
+		HUIDA: _hacer_huida(delta)
+		ESCONDIDA: _hacer_escondida(delta)
+		REGRESO: _hacer_regreso(delta)
 		PASEO: _hacer_paseo(delta)
 		DESPEGUE: _hacer_despegue(delta)
 		VUELO: _hacer_vuelo(delta)
 		ATERRIZAJE: _hacer_aterrizaje(delta)
 		FIN: return
+
+## Cuanto mas cerca del refugio, mas apagada. Entre medias interpola, asi que la
+## huida la va apagando sobre la marcha y el regreso la va devolviendo a la luz.
+func _actualizar_tinte() -> void:
+	if _dist_refugio <= 1.0:
+		return
+	var k: float = clampf(position.distance_to(posada) / _dist_refugio, 0.0, 1.0)
+	_sprite.modulate = tinte.lerp(tinte_refugio, k)
 
 ## Quieta. Al acabar la espera decide: o pivota en el sitio, o se da un paseo
 ## corto por su trozo de telarana.
@@ -268,6 +318,7 @@ func _hacer_espera(delta: float) -> void:
 	_gr_hasta = _gr_desde + wrapf(objetivo - _gr_desde, -180.0, 180.0)
 	_dur = orienta_tiempo
 	_t = 0.0
+	_tras_orientar = PASEO
 	_estado = ORIENTA
 
 ## Un punto de su trozo de telarana, ni tan cerca que no se note ni fuera de la
@@ -303,8 +354,9 @@ func _hacer_orienta(delta: float) -> void:
 	_gastar(0.0, _sprite.rotation_degrees - antes)
 	if k >= 1.0:
 		_t = 0.0
-		_dur = maxf(_pos_desde.distance_to(_pos_hasta) / maxf(paseo_velocidad, 1.0), 0.05)
-		_estado = PASEO
+		var v: float = paseo_velocidad if _tras_orientar == PASEO else regreso_velocidad
+		_dur = maxf(_pos_desde.distance_to(_pos_hasta) / maxf(v, 0.5), 0.05)
+		_estado = _tras_orientar
 
 func _hacer_paseo(delta: float) -> void:
 	_t += delta
@@ -313,6 +365,72 @@ func _hacer_paseo(delta: float) -> void:
 	var s := k * k * (3.0 - 2.0 * k)
 	var antes := position
 	position = _pos_desde.lerp(_pos_hasta, s)
+	_gastar(position.distance_to(antes), 0.0)
+	if k >= 1.0:
+		_estado = ESPERA
+		_espera = randf_range(espera_min, espera_max)
+
+## Algo ha golpeado cerca. Lo llama punch_effect al dar el puñetazo, por el grupo
+## "asustadizo". Sale corriendo al rincon oscuro y despues vuelve a rastras.
+func on_near_miss(_origen: Vector2 = Vector2.ZERO) -> void:
+	asustar()
+
+func asustar() -> void:
+	if _estado >= DESPEGUE or _estado == HUIDA or _estado == ESCONDIDA:
+		return
+	_pos_desde = position
+	_pos_hasta = refugio
+	_gr_desde = _sprite.rotation_degrees
+	var dir := _pos_hasta - _pos_desde
+	if dir.length() < 1.0:
+		return
+	_gr_hasta = _gr_desde + wrapf(rad_to_deg(dir.angle()) + 90.0 - _gr_desde, -180.0, 180.0)
+	_dur = maxf(dir.length() / maxf(huida_velocidad, 1.0), 0.08)
+	_t = 0.0
+	_estado = HUIDA
+
+## Sale disparada. A diferencia del paseo, NO se orienta antes: gira mientras
+## corre y ademas deprisa, porque lo que asusta de una araña es justamente que se
+## mueva antes de que te de tiempo a verla girar.
+func _hacer_huida(delta: float) -> void:
+	_t += delta
+	var k: float = clampf(_t / _dur, 0.0, 1.0)
+	var antes_p := position
+	var antes_g := _sprite.rotation_degrees
+	position = _pos_desde.lerp(_pos_hasta, k)
+	_sprite.rotation_degrees = lerpf(_gr_desde, _gr_hasta, minf(k * 2.5, 1.0))
+	_gastar(position.distance_to(antes_p), _sprite.rotation_degrees - antes_g)
+	if k >= 1.0:
+		_estado = ESCONDIDA
+		_espera = randf_range(refugio_espera_min, refugio_espera_max)
+
+## Quieta en el rincon, sin mover ni una pata. Es lo unico que hace bien una
+## araña asustada: desaparecer.
+func _hacer_escondida(delta: float) -> void:
+	_espera -= delta
+	if _espera > 0.0:
+		return
+	_pos_desde = position
+	_pos_hasta = posada
+	_gr_desde = _sprite.rotation_degrees
+	var dir := _pos_hasta - _pos_desde
+	if dir.length() < 1.0:
+		_estado = ESPERA
+		_espera = randf_range(espera_min, espera_max)
+		return
+	_gr_hasta = _gr_desde + wrapf(rad_to_deg(dir.angle()) + 90.0 - _gr_desde, -180.0, 180.0)
+	_dur = orienta_tiempo * 2.5
+	_t = 0.0
+	_tras_orientar = REGRESO
+	_estado = ORIENTA
+
+## Vuelve a su sitio a rastras. Sin suavizado de arranque ni de frenada: a esta
+## velocidad no se notaria, y en cambio si se nota que no para de avanzar.
+func _hacer_regreso(delta: float) -> void:
+	_t += delta
+	var k: float = clampf(_t / _dur, 0.0, 1.0)
+	var antes := position
+	position = _pos_desde.lerp(_pos_hasta, k)
 	_gastar(position.distance_to(antes), 0.0)
 	if k >= 1.0:
 		_estado = ESPERA
