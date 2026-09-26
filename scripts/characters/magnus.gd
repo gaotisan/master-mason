@@ -265,6 +265,23 @@ var salto_bloqueado := false
 ## corriendo, asi que el limite no es una pared exacta: dejar ese margen.
 @export var limite_izquierdo: float = -INF
 @export var limite_derecho: float = INF
+## Cuanto antes del limite deja de contar la tecla, segun el paso: lo que
+## recorre como mucho desde que suelta hasta quedarse quieto. Andando son la
+## espera a un apoyo bueno (hasta 131 px) y la frenada (50-56); corriendo, la
+## espera a la fase de la parada (hasta 341) y su frenada. Con 0 (por defecto)
+## el limite es donde deja de contar la tecla y la frenada lo pasa.
+@export var frenada_limite_andar: float = 0.0
+@export var frenada_limite_correr: float = 0.0
+## Recorrido de un salto, para recortarlo junto a un limite (ver
+## _impulso_hasta_limite), medido del despegue al reposo soltando la direccion.
+## Saltar andando: 165 px con 192 px/s, proporcional al impulso (0,86 s; 0,9
+## con margen). Salto corriendo: 452 px con 435 px/s, pero no proporcional: al
+## caer resbala en aterrizaje_correr a una velocidad fija (la mitad de la de
+## correr, frenando), unos 45 px pase lo que pase. Se toma 0,95 s por px/s mas
+## esos 45 px, que da 458 para el salto entero.
+const RECORRIDO_SALTO_CORRER := 0.95
+const RESBALE_SALTO_CORRER := 45.0
+const RECORRIDO_SALTO := 0.9
 ## Distancia a la que andar_hasta() da el objetivo por alcanzado y suelta el
 ## eje. La parada de andar recorre 50-130 px tras soltar.
 @export var margen_llegada: float = 70.0
@@ -804,8 +821,24 @@ func _eje() -> float:
 			_objetivo_x = NAN
 	return d
 
+## Con frenada_limite_* la tecla deja de contar ANTES del limite, lo que tarda
+## en pararse con el paso que lleve: asi el limite es donde acaba de verdad, y
+## andando puede acercarse mucho mas que corriendo.
 func _fuera_de_limite(hacia: float) -> bool:
-	return (hacia < 0.0 and position.x <= limite_izquierdo) or (hacia > 0.0 and position.x >= limite_derecho)
+	var m := frenada_limite_correr if _corriendo() else frenada_limite_andar
+	return (hacia < 0.0 and position.x <= limite_izquierdo + m) or (hacia > 0.0 and position.x >= limite_derecho - m)
+
+## Un salto hacia un limite no puede llevarle mas alla: se recorta el impulso
+## para que el recorrido del salto (vuelo y toma de suelo, ver
+## RECORRIDO_SALTO_*) quepa en lo que queda hasta el limite.
+func _impulso_hasta_limite(impulso: float, a_la_carrera: bool) -> float:
+	var limite := limite_derecho if _mirando > 0.0 else limite_izquierdo
+	if is_inf(limite) or impulso <= 0.0:
+		return impulso
+	var queda := maxf((limite - position.x) * _mirando, 0.0)
+	if a_la_carrera:
+		return minf(impulso, maxf(queda - RESBALE_SALTO_CORRER, 0.0) / RECORRIDO_SALTO_CORRER)
+	return minf(impulso, queda / RECORRIDO_SALTO)
 
 ## Con andar_hasta en curso, la llegada se avisa cuando ya esta en reposo. El
 ## arranque no se pide aqui: el eje de _eje() lo arranca en _physics_process
@@ -882,6 +915,16 @@ func _saltar() -> void:
 		_impulso = 0.0
 	_saltaba_parado = not _corria_al_saltar and _impulso <= 0.0 \
 		and (not _en_movimiento() or _estado == Estado.ARRANQUE_CORRER or de_pie)
+	# Junto a un limite el salto se acorta para no pasarlo. Si ya casi no queda
+	# sitio, salta en el sitio (de parado): un brinco a la carrera que no avanza
+	# se leia como un fallo.
+	var tope := _impulso_hasta_limite(_impulso, _corria_al_saltar)
+	if tope < _impulso:
+		_impulso = tope
+		if _impulso < velocidad_andar * 0.3:
+			_impulso = 0.0
+			_corria_al_saltar = false
+			_saltaba_parado = true
 	_esfuerzo = minf(_esfuerzo + esfuerzo_salto, 1.0)
 	if relanzar:
 		_estado = Estado.REPOSO  # para que _cambiar reponga la animacion
