@@ -20,6 +20,11 @@ const DECORADO := preload("res://scenes/game/casa_interior_decorado.tscn")
 const DOMINUS := preload("res://scenes/characters/dominus.tscn")
 const MAGNUS := preload("res://scenes/characters/magnus.tscn")
 const DIALOGO := preload("res://scenes/ui/dialogo.tscn")
+## El tipo del dialogo va por su script precargado y no por su class_name: el
+## registro de class_name vive en la cache de .godot, compartida entre ramas, y
+## tras abrir main (donde el dialogo no existe) se queda sin el hasta que el
+## editor la regenera. Asi la escena carga igual aunque se lance sin editor.
+const DialogoScript := preload("res://scripts/ui/dialogo.gd")
 const FUENTE_TITULO := preload("res://assets/fonts/Cinzel-Variable.ttf")
 const ESCENA_INICIO := "res://main.tscn"
 
@@ -55,7 +60,7 @@ var _decorado: Node2D
 var _dominus: Node2D
 var _magnus: Node2D
 var _sombra: Sprite2D
-var _dialogo: Dialogo
+var _dialogo: DialogoScript
 var _vistos := {}
 var _explorando := false
 var _tiempo_explorando := 0.0
