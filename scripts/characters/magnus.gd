@@ -161,6 +161,100 @@ extends Node2D
 ## el 30 (indice 29). Entre los dos va el arco.
 @export var salto_correr_despegue: int = 2
 @export var salto_correr_toca: int = 29
+## CARRERILLA. Un contador de 0 a 1 que se llena corriendo a crucero con la
+## tecla hacia delante (estado CORRER, carrerilla_tiempo segundos hasta lleno) y
+## se vacia en cuanto deja de pedir correr (soltando, frenando, andando, parado:
+## carrerilla_vaciado segundos de lleno a vacio); en el aire del salto corriendo
+## se congela. El salto corriendo escala con el las tres cosas que pone el nodo:
+## el arco (salto_correr_altura -> salto_correr_altura_max), el empuje
+## (salto_correr_impulso -> salto_correr_impulso_max) y, derivado del arco, el
+## ritmo en el aire (ver _ritmo_vuelo: con la misma gravedad, mas altura es mas
+## vuelo, asi que la animacion va mas lenta para que los fotogramas del aire
+## duren lo que dura el salto; nunca mas lento que salto_correr_vuelo_min ni
+## que VUELO_MIN, que ya se lee como camara lenta). Cada salto gasta carrerilla_gasto_salto de lo que
+## llevaba: saltar en cadena no repite el salto maximo sin fin, que en un viejo
+## no se cree. Recien arrancado a correr el contador esta a 0 y el salto es el
+## de antes. A false, el contador no se mueve de 0 y todo es como antes.
+@export var carrerilla_activa: bool = true
+@export var carrerilla_tiempo: float = 1.5
+@export var carrerilla_vaciado: float = 0.4
+@export var carrerilla_gasto_salto: float = 0.5
+@export var salto_correr_altura_max: float = 130.0
+@export var salto_correr_impulso_max: float = 1.6
+@export var salto_correr_vuelo_min: float = 0.6
+## ALTURA VARIABLE del salto corriendo: un toque corto da un brinco mas bajo
+## (el arco anadido baja hasta salto_corto_factor) y mantener la tecla durante
+## la subida da el arco entero. El arco va atado al fotograma, asi que cambiarle
+## la amplitud de golpe seria un salto vertical: soltada antes del despegue (el
+## arco aun vale 0) el brinco es corto desde el principio; soltada en el aire,
+## la amplitud se acerca al objetivo con una curva exponencial
+## (SALTO_CORTO_TAU, en fraccion del vuelo) y solo mientras sube, sin quitarle
+## nunca mas del 60 % de su velocidad de subida (SALTO_CORTO_FRENO). Soltar
+## pronto da el brinco corto entero; soltar cerca del apogeo, casi el salto
+## entero, que es lo que haria el cuerpo. Menos arco es menos vuelo con la
+## misma gravedad (_ritmo_vuelo): cae antes y avanza algo menos. A false,
+## siempre el arco entero.
+@export var salto_variable_activo: bool = true
+@export var salto_corto_factor: float = 0.55
+## SALTO CARGADO desde parado: con la tecla mantenida, salto_parado se queda
+## quieto en la cuclilla (carga_fotograma: la cabeza mas baja, medida sobre la
+## hoja; el despegue suena en el 18) mientras carga, y al soltar (o al
+## llenarse) sigue el salto con un arco anadido proporcional a la carga: 0 ->
+## nada, llena -> salto_cargado_altura px, con la animacion del aire frenada
+## hasta salto_cargado_vuelo para que tanta altura no suba de golpe. El arco
+## anadido sigue la curva de los pies dibujados (PIES_SALTO_PARADO) escalada,
+## asi que despega y apoya justo cuando despegan y apoyan los pies del sprite,
+## sin tiron. La carga cuenta con el reloj de fisica desde el momento en que el
+## salto llega a la cuclilla (carga_fotograma a los fps de la animacion), no
+## desde que el sprite lo vio: asi no depende de los fps de pantalla. Los
+## primeros carga_umbral segundos no cuentan: una pulsacion algo larga es el
+## salto de siempre. Llena a carga_umbral + carga_max. Un toque que se suelta
+## antes de llegar a la cuclilla (0,27 s) es el salto de siempre, sin pausa.
+## Cargando no se gira ni se arranca: es parte del salto. A false, el salto de
+## parado de siempre.
+@export var salto_cargado_activo: bool = true
+@export var carga_max: float = 0.6
+@export var carga_umbral: float = 0.05
+@export var carga_fotograma: int = 16
+@export var salto_cargado_altura: float = 120.0
+@export var salto_cargado_vuelo: float = 0.75
+## Despegue y toma de suelo del salto de parado (pie mas bajo sobre la hoja:
+## sube desde el 18 y apoya en el 45). Entre los dos va el arco de la carga.
+@export var salto_parado_despegue: int = 18
+@export var salto_parado_toca: int = 45
+## EMPALMES DEL SALTO CORRIENDO.
+## arco_desde_despegue: el arco del nodo empieza en 0 en el primer tick del
+##   vuelo. El sprite va a 60 fps y la fisica lee el fotograma del despegue con
+##   frame_progress ya a 1, asi que antes el primer tick se comia un fotograma
+##   entero de arco (11 px de golpe, luego 8; con la carrerilla llena 18 y 10).
+##   A false, como antes.
+## aterrizaje_carrera_suavizado: al tocar suelo con la direccion pulsada sigue
+##   corriendo a la velocidad del aire y el sobrante sobre la de correr se
+##   apaga con esta constante de tiempo (segundos), en vez de caer de golpe a
+##   435 en un tick (antes 565 -> 435; con la carrerilla llena 696 -> 435, que se
+##   leia como un frenazo). Las piernas van por distancia: solo ciclan algo mas
+##   deprisa unas decimas. 0 = de golpe, como antes.
+## Y el empuje extra de la carrerilla (lo que pasa de salto_correr_impulso) no
+## se aplica con los pies en el suelo, antes del despegue, sino que entra en
+## los SALTO_EMPUJE_RAMPA primeros fotogramas del vuelo: si no, los pies
+## resbalaban a x1,6 tres ticks antes de despegar.
+@export var arco_desde_despegue: bool = true
+@export var aterrizaje_carrera_suavizado: float = 0.12
+const SALTO_EMPUJE_RAMPA := 3.0
+## Ritmo minimo en el aire: por debajo el salto parece a camara lenta.
+const VUELO_MIN := 0.55
+## Px que sube el pie mas bajo cocido en el sprite del salto corriendo (97 en
+## el apogeo, f17-19): con el arco del nodo, la altura del salto para
+## _ritmo_vuelo.
+const SUBIDA_SALTO_CORRER := 97.0
+## Altura variable: constante de la curva con que la amplitud baja hacia el
+## brinco corto (en fraccion del vuelo), y cuanto de la velocidad de subida del
+## arco puede quitarle como mucho.
+## Y en que tramo del vuelo tras soltar entra ese freno, de nada a entero (unos
+## tres ticks).
+const SALTO_CORTO_TAU := 0.12
+const SALTO_CORTO_FRENO := 0.6
+const SALTO_CORTO_ENTRADA := 0.06
 ## Al tocar suelo con la direccion pulsada se sigue corriendo SIN pasar por el
 ## arranque: entra el ciclo por este fotograma, el que mas se parece a la pose
 ## de la toma de suelo (c_30 -> f17, 2,5 pasos normales del ciclo; los demas
@@ -370,6 +464,20 @@ var _resp_pos := 0.0         # posicion del bucle de respirar en el ultimo tick,
 var _resp_ciclo_db := 0.0    # variacion de volumen del ciclo en curso (o -80 si se salta)
 var _resp_base_db := -40.0   # volumen que pide el esfuerzo, suavizado; el ciclo se le suma aparte
 var _salto_pedido := -99.0   # instante (de _reloj) del ultimo salto pedido que no se pudo hacer
+var _carrerilla := 0.0       # 0..1, ver carrerilla_activa
+var _salto_impulso := 1.3    # empuje, ritmo en el aire y arco del salto corriendo en curso,
+var _salto_vuelo := 0.75     #   fijados al saltar segun la carrerilla
+var _arco_max := 80.0
+var _arco_amp := 80.0        # amplitud del arco ahora (baja hacia el brinco corto al soltar)
+var _arco_t := -1.0          # por donde iba el vuelo (0..1) el tick anterior; -1 aun en el suelo
+var _arco_t0 := -1.0         # fotogramas de vuelo que marcaba el sprite en el primer tick del vuelo (ver arco_desde_despegue)
+var _salto_soltado := false  # se solto la tecla de salto en la subida (altura variable)
+var _t_soltado := 0.0        # por donde iba el vuelo (0..1) al soltarla
+var _sobrante := 0.0         # px/s por encima de la de correr tras caer corriendo; se apaga solo
+var _carga := 0.0            # 0..1, carga del salto de parado en curso
+var _cargando := false       # quieto en la cuclilla, cargando
+var _carga_hecha := false    # ya paso por la cuclilla en este salto (no vuelve a cargar)
+var _salto_desde := 0.0      # instante (de _reloj) en que empezo el salto en curso
 
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _pasos: AudioStreamPlayer = $Pasos
@@ -434,7 +542,10 @@ func _physics_process(delta: float) -> void:
 	if _en_cinematica():
 		return
 	_actualizar_esfuerzo(delta)
+	_actualizar_carga()
+	_apagar_sobrante(delta)
 	var direccion := _eje()
+	_actualizar_carrerilla(delta, direccion)
 	_avisar_llegada()
 
 	# Girando no se acepta nada: son 0,25 s, y cortarlo a medias deja al
@@ -552,7 +663,7 @@ func _physics_process(delta: float) -> void:
 			_sprite.frame = fotograma
 			_pisar(fotograma, n)
 
-	_actualizar_salto_correr()
+	_actualizar_saltos()
 
 ## Cuanto avanza el cuerpo ahora mismo.
 ##
@@ -566,7 +677,7 @@ func _velocidad() -> float:
 		Estado.ANDAR:
 			return velocidad_andar
 		Estado.CORRER:
-			return velocidad_correr
+			return velocidad_correr + _sobrante
 		Estado.ARRANQUE_ANDAR:
 			if corte_arranque_andar > 0:
 				var k := clampi(_sprite.frame, 0, AVANCE_ARRANQUE_ANDAR.size() - 1)
@@ -587,7 +698,7 @@ func _velocidad() -> float:
 			var p := _progreso()
 			var toca := _aterrizaje()
 			var a_la_carrera := _sprite.animation == "salto_correr"
-			var aire := _impulso * (salto_correr_impulso if a_la_carrera else 1.0)
+			var aire := _impulso * (_empuje_salto_correr() if a_la_carrera else 1.0)
 			if p <= toca:
 				return aire
 			var resto := maxf(1.0 - toca, 0.001)
@@ -837,8 +948,62 @@ func _impulso_hasta_limite(impulso: float, a_la_carrera: bool) -> float:
 		return impulso
 	var queda := maxf((limite - position.x) * _mirando, 0.0)
 	if a_la_carrera:
-		return minf(impulso, maxf(queda - RESBALE_SALTO_CORRER, 0.0) / RECORRIDO_SALTO_CORRER)
+		return minf(impulso, maxf(queda - RESBALE_SALTO_CORRER, 0.0) / _recorrido_salto_correr())
 	return minf(impulso, queda / RECORRIDO_SALTO)
+
+## Segundos por px/s que recorre el salto corriendo en curso (ver
+## RECORRIDO_SALTO_CORRER, medido con el empuje y el ritmo de siempre). Con la
+## carrerilla cambian el empuje y el tiempo en el aire, asi que al medido se le
+## suma lo que cambia la parte que depende de ellos: el vuelo (a su ritmo, con
+## la rampa del empuje extra al principio: SALTO_EMPUJE_RAMPA fotogramas a
+## medias) y la mitad de la cola tras tocar suelo (donde frena de la del aire a
+## la del aterrizaje). Lo de antes del despegue va siempre a
+## salto_correr_impulso y no cambia. Con los valores de siempre da
+## RECORRIDO_SALTO_CORRER justo. Supone el arco entero: el brinco corto cae
+## antes y se queda corto.
+func _recorrido_salto_correr() -> float:
+	var fps := _sprite.sprite_frames.get_animation_speed("salto_correr")
+	var n := _sprite.sprite_frames.get_frame_count("salto_correr")
+	var cola := float(n - 1 - salto_correr_toca) * 0.5 / fps
+	var vuelo := float(salto_correr_toca - salto_correr_despegue) / fps
+	var antes := salto_correr_impulso * (cola + vuelo / maxf(salto_correr_vuelo, 0.01))
+	var ritmo := maxf(_salto_vuelo, 0.01)
+	var extra := _salto_impulso - salto_correr_impulso
+	var ahora := _salto_impulso * (cola + vuelo / ritmo) - extra * SALTO_EMPUJE_RAMPA * 0.5 / (fps * ritmo)
+	return RECORRIDO_SALTO_CORRER + ahora - antes
+
+## Empuje, arco y ritmo del salto corriendo para una carrerilla m (0..1). A 0,
+## los de siempre, exactos.
+func _fijar_salto_correr(m: float) -> void:
+	_salto_impulso = lerpf(salto_correr_impulso, salto_correr_impulso_max, m)
+	_arco_max = lerpf(salto_correr_altura, salto_correr_altura_max, m)
+	_salto_vuelo = _ritmo_vuelo(_arco_max)
+
+## Ritmo de la animacion en el aire (speed_scale) para un arco anadido de amp
+## px, con la misma gravedad que el salto de siempre: el tiempo de vuelo va con
+## la raiz de la altura (la cocida del sprite mas el arco), asi que el ritmo
+## con su inversa. Con el arco de siempre da salto_correr_vuelo justo; mas alto
+## va mas lento, pero nunca por debajo de salto_correr_vuelo_min ni de
+## VUELO_MIN (camara lenta); mas bajo (el brinco corto), mas rapido. Antes era
+## un ritmo fijo por carrerilla, y el toque con la carrerilla llena quedaba mas
+## bajo que el salto de siempre pero mas rato en el aire: un planeo.
+func _ritmo_vuelo(amp: float) -> float:
+	var ritmo := salto_correr_vuelo * sqrt((SUBIDA_SALTO_CORRER + salto_correr_altura) 		/ maxf(SUBIDA_SALTO_CORRER + amp, 1.0))
+	if amp > salto_correr_altura:
+		ritmo = maxf(ritmo, maxf(salto_correr_vuelo_min, VUELO_MIN))
+	return ritmo
+
+## Multiplicador del empuje del salto corriendo en este momento: el de siempre
+## (salto_correr_impulso) con los pies en el suelo, y el extra de la carrerilla
+## entrando en los primeros SALTO_EMPUJE_RAMPA fotogramas del vuelo.
+func _empuje_salto_correr() -> float:
+	var extra := _salto_impulso - salto_correr_impulso
+	if extra == 0.0:
+		return salto_correr_impulso
+	var f := float(_sprite.frame - salto_correr_despegue) + _sprite.frame_progress
+	if _sprite.frame < salto_correr_despegue:
+		f = 0.0
+	return salto_correr_impulso + extra * clampf(f / SALTO_EMPUJE_RAMPA, 0.0, 1.0)
 
 ## Con andar_hasta en curso, la llegada se avisa cuando ya esta en reposo. El
 ## arranque no se pide aqui: el eje de _eje() lo arranca en _physics_process
@@ -896,7 +1061,7 @@ func _saltar() -> void:
 	# andar: la cola de "saltar" o del de parado ya viene frenando, y de
 	# la del salto corriendo no se relanza (ver _salto_en_cola_correr), que ahi
 	# aun va a ~490 px/s y en "saltar" seria un frenazo en un tick.
-	_impulso = minf(_velocidad(), velocidad_andar) if relanzar else _velocidad()
+	_impulso = minf(_velocidad(), velocidad_andar) if relanzar else _velocidad() - (_sobrante if _estado == Estado.CORRER else 0.0)
 	# Salto corriendo solo si ya corre de verdad. En los fotogramas quietos del
 	# arranque de correr (0-5, velocidad 0) el salto corriendo brincaba en el
 	# sitio y al caer resbalaba hacia delante hasta 217 px/s.
@@ -915,6 +1080,37 @@ func _saltar() -> void:
 		_impulso = 0.0
 	_saltaba_parado = not _corria_al_saltar and _impulso <= 0.0 \
 		and (not _en_movimiento() or _estado == Estado.ARRANQUE_CORRER or de_pie)
+	# Lo que pone el nodo al salto corriendo, segun la carrerilla que lleve (a 0,
+	# los valores de siempre, exactos). Antes del recorte junto al limite, que
+	# depende de ellos. Y el estado de la altura variable y de la carga, de cero.
+	var m := _carrerilla if carrerilla_activa else 0.0
+	_fijar_salto_correr(m)
+	# Junto a un limite, primero se gasta menos carrerilla: el salto mas grande
+	# que quepa entero, bajando hacia el de siempre. Recortar solo el empuje
+	# dejaba el arco y el vuelo de la carrerilla llena sobre un avance de 150 px:
+	# un bote en el sitio. Si ni el de siempre cabe, se recorta el empuje abajo.
+	if _corria_al_saltar and m > 0.0 and _impulso_hasta_limite(_impulso, true) < _impulso:
+		var bajo := 0.0
+		var alto := m
+		for i in 7:
+			var medio := (bajo + alto) * 0.5
+			_fijar_salto_correr(medio)
+			if _impulso_hasta_limite(_impulso, true) < _impulso:
+				alto = medio
+			else:
+				bajo = medio
+		m = bajo
+		_fijar_salto_correr(m)
+	if _corria_al_saltar and carrerilla_activa:
+		_carrerilla *= 1.0 - clampf(carrerilla_gasto_salto, 0.0, 1.0)
+	_arco_amp = _arco_max
+	_arco_t = -1.0
+	_arco_t0 = -1.0
+	_salto_soltado = false
+	_carga = 0.0
+	_cargando = false
+	_carga_hecha = false
+	_salto_desde = _reloj
 	# Junto a un limite el salto se acorta para no pasarlo. Si ya casi no queda
 	# sitio, salta en el sitio (de parado): un brinco a la carrera que no avanza
 	# se leia como un fallo.
@@ -1031,6 +1227,8 @@ func _cambiar(nuevo: Estado) -> void:
 	# delante en vez de quedarse casi donde estaba.
 	if nuevo == Estado.PARADA_ANDAR or nuevo == Estado.PARADA_CORRER:
 		_frenando_desde = _velocidad()
+	if nuevo != Estado.CORRER:
+		_sobrante = 0.0
 	_estado = nuevo
 	match nuevo:
 		Estado.REPOSO:          _poner("reposo")
@@ -1063,7 +1261,12 @@ func _en_cinematica() -> bool:
 ## correr por el fotograma que mas se parece a la pose, y la cuenta de distancia
 ## colocada ahi para que el fotograma y el recorrido digan lo mismo.
 func _seguir_corriendo_tras_salto() -> void:
+	# La del aire sigue, y lo que pasa de la de correr se apaga solo (ver
+	# aterrizaje_carrera_suavizado).
+	var aire := _velocidad()
 	_cambiar(Estado.CORRER)
+	if aterrizaje_carrera_suavizado > 0.0:
+		_sobrante = maxf(aire - velocidad_correr, 0.0)
 	_sprite.frame = salto_correr_a_correr
 	_recorrido = float(salto_correr_a_correr) * avance_correr
 	_ultimo_fotograma = salto_correr_a_correr
@@ -1071,22 +1274,137 @@ func _seguir_corriendo_tras_salto() -> void:
 	# llega a ver: suena en el propio corte, que es el momento del impacto.
 	_sonar(GOLPES["salto_correr"][SALTO_CORRER_CAIDA_SPRITE], pasos_db, 0.0, true)
 
-## Arco y ritmo del salto corriendo. El sprite trae un brinco corto cocido; el
-## arco del nodo se le suma durante el vuelo, atado al fotograma (con la
-## fraccion de fotograma, para que no vaya a escalones) y no al reloj, asi que
-## sigue cuadrando aunque cambie salto_correr_vuelo. Fuera del vuelo lo deja
-## todo a cero: se llama cada tick.
-func _actualizar_salto_correr() -> void:
+## Arco y ritmo de los saltos. El sprite trae el salto cocido; el arco del nodo
+## se le suma durante el vuelo, atado al fotograma (con la fraccion de
+## fotograma, para que no vaya a escalones) y no al reloj, asi que sigue
+## cuadrando aunque cambie el ritmo. Fuera del vuelo lo deja todo a cero: se
+## llama cada tick.
+##   salto corriendo: parabola de _arco_amp (la carrerilla y la altura
+##                    variable) a _ritmo_vuelo(_arco_amp)
+##   salto de parado: quieto en la cuclilla mientras carga, y luego la curva de
+##                    los pies dibujados escalada a salto_cargado_altura * carga
+func _actualizar_saltos() -> void:
 	var f := _sprite.frame
-	var en_vuelo := _estado == Estado.SALTAR and _sprite.animation == "salto_correr" \
-		and f >= salto_correr_despegue and f < salto_correr_toca
-	_sprite.speed_scale = salto_correr_vuelo if en_vuelo else 1.0
+	var en_salto := _estado == Estado.SALTAR
+	var velocidad := 1.0
 	var arco := 0.0
-	if en_vuelo:
+	if en_salto and _sprite.animation == &"salto_correr" \
+			and f >= salto_correr_despegue and f < salto_correr_toca:
+		# Fotogramas de vuelo que lleva, y desde donde cuenta la parabola: con
+		# arco_desde_despegue, desde lo que marcaba el sprite en el primer tick
+		# del vuelo, asi que ese tick vale 0 y el arco acaba igual en toca.
+		var tf := float(f - salto_correr_despegue) + _sprite.frame_progress
+		if _arco_t0 < 0.0:
+			_arco_t0 = tf if arco_desde_despegue else 0.0
 		var tramo := float(maxi(salto_correr_toca - salto_correr_despegue, 1))
-		var t := clampf((float(f - salto_correr_despegue) + _sprite.frame_progress) / tramo, 0.0, 1.0)
-		arco = salto_correr_altura * 4.0 * t * (1.0 - t)
+		var t := clampf((tf - _arco_t0) / maxf(tramo - _arco_t0, 1.0), 0.0, 1.0)
+		var corto := _arco_max * clampf(salto_corto_factor, 0.0, 1.0)
+		if salto_variable_activo:
+			if not _salto_soltado and not _salto_mantenido():
+				_salto_soltado = true
+				# Soltada antes de que el arco suba (primer tick del vuelo, arco
+				# en 0): el brinco corto entero desde el principio, sin transicion.
+				if _arco_t < 0.0 and t <= 0.0:
+					_arco_amp = corto
+				_t_soltado = t
+			var avance := maxf(t - _arco_t, 0.0) if _arco_t >= 0.0 else 0.0
+			if _salto_soltado and t < 0.5 and _arco_amp > corto:
+				# Hacia el brinco corto con una curva exponencial: baja mucho al
+				# principio y cada vez menos, asi que la subida no vuelve a
+				# acelerar (con un tramo recto, al acabarse el tramo la subida
+				# doblaba de golpe su velocidad: un segundo empujon)...
+				var objetivo := corto + (_arco_amp - corto) * exp(-avance / SALTO_CORTO_TAU)
+				# ...y sin quitarle mas del 60 % de su velocidad de subida (se
+				# anula al llegar al apogeo).
+				var freno := SALTO_CORTO_FRENO * _arco_amp * (1.0 - 2.0 * t) / maxf(t * (1.0 - t), 0.01) * avance
+				# Y entrando poco a poco (SALTO_CORTO_ENTRADA): soltar tarde, con la
+				# subida aun rapida, le quitaba el 60 % de golpe en un tick.
+				var entrada := clampf((t - _t_soltado) / SALTO_CORTO_ENTRADA, 0.0, 1.0)
+				_arco_amp = lerpf(_arco_amp, maxf(corto, maxf(objetivo, _arco_amp - freno)), entrada)
+		_arco_t = t
+		velocidad = _ritmo_vuelo(_arco_amp)
+		arco = _arco_amp * 4.0 * t * (1.0 - t)
+	elif en_salto and _sprite.animation == &"salto_parado":
+		if _cargando:
+			velocidad = 0.0
+		elif _carga > 0.0 and f >= salto_parado_despegue and f < salto_parado_toca:
+			velocidad = lerpf(1.0, maxf(salto_cargado_vuelo, VUELO_MIN), _carga)
+			arco = salto_cargado_altura * _carga * _pies_salto_parado()
+	_sprite.speed_scale = velocidad
 	_sprite.position.y = -arco
+
+## Altura de los pies dibujados en salto_parado ahora, de 0 a 1 (1 = apogeo
+## cocido, 65 px), interpolada con la fraccion de fotograma. El fotograma que
+## se ve es el f con frame_progress llegando a 1 (a ritmo 1 la fisica siempre
+## lo lee a 1), asi que se interpola entre el anterior y el: a ritmo 1 da
+## exactamente la curva del dibujo.
+func _pies_salto_parado() -> float:
+	var n := PIES_SALTO_PARADO.size()
+	var x := float(_sprite.frame) - 1.0 + _sprite.frame_progress
+	var i := clampi(floori(x), 0, n - 1)
+	var a: float = PIES_SALTO_PARADO[i]
+	var b: float = PIES_SALTO_PARADO[mini(i + 1, n - 1)]
+	return lerpf(a, b, clampf(x - float(i), 0.0, 1.0)) / PIES_SALTO_PARADO_APOGEO
+
+## La tecla de salto sigue pulsada (y el jugador tiene el control y puede
+## saltar: con salto_bloqueado, arriba es otra cosa y la carga se suelta).
+func _salto_mantenido() -> bool:
+	return not control_bloqueado and not salto_bloqueado and Input.is_action_pressed("saltar")
+
+## Carrerilla: sube corriendo a crucero con la tecla hacia delante (no en la
+## espera de la parada tras soltar, ni con la tecla anulada por la frenada del
+## limite), se congela en el aire del salto corriendo y baja en todo lo demas.
+## Ver carrerilla_activa.
+func _actualizar_carrerilla(delta: float, direccion: float) -> void:
+	if not carrerilla_activa:
+		_carrerilla = 0.0
+	elif _estado == Estado.CORRER and signf(direccion) == _mirando:
+		_carrerilla = minf(_carrerilla + delta / maxf(carrerilla_tiempo, 0.01), 1.0)
+	elif not (_estado == Estado.SALTAR and _sprite.animation == &"salto_correr"):
+		_carrerilla = maxf(_carrerilla - delta / maxf(carrerilla_vaciado, 0.01), 0.0)
+
+## Tras caer corriendo, lo que pasa de la de correr se apaga solo (ver
+## aterrizaje_carrera_suavizado); por debajo de 2 px/s ya es cero.
+func _apagar_sobrante(delta: float) -> void:
+	if _estado != Estado.CORRER or aterrizaje_carrera_suavizado <= 0.0:
+		_sobrante = 0.0
+		return
+	_sobrante *= exp(-delta / aterrizaje_carrera_suavizado)
+	if _sobrante < 2.0:
+		_sobrante = 0.0
+
+## Salto cargado: mientras esta quieto en la cuclilla la carga sube; soltar la
+## tecla, llenarla o perder el control lo suelta y el salto sigue por donde iba.
+## La pausa la pone _al_cambiar_fotograma al llegar a carga_fotograma. La carga
+## sale del reloj de fisica contado desde que el salto llega a la cuclilla (a
+## los fps de la animacion desde que empezo), no desde que el sprite lo noto en
+## _process: si no, la misma pulsacion daba mas o menos carga segun los fps de
+## pantalla (122 a 132 px de altura entre 30 y 144 fps).
+func _actualizar_carga() -> void:
+	if not _cargando:
+		return
+	if _estado != Estado.SALTAR or _sprite.animation != &"salto_parado":
+		_cargando = false
+		return
+	var fps := _sprite.sprite_frames.get_animation_speed("salto_parado")
+	var cuclilla := _salto_desde + float(carga_fotograma) / maxf(fps, 1.0)
+	_carga = clampf((_reloj - cuclilla - carga_umbral) / maxf(carga_max, 0.01), 0.0, 1.0)
+	if _carga >= 1.0 or not _salto_mantenido():
+		_cargando = false
+
+## Datos para el panel de estudio del movimiento (datos_movimiento.gd). Solo
+## lectura.
+func datos_movimiento() -> Dictionary:
+	return {
+		"estado": Estado.keys()[_estado],
+		"animacion": String(_sprite.animation),
+		"fotograma": _sprite.frame,
+		"velocidad": _velocidad(),
+		"carrerilla": _carrerilla,
+		"carga": _carga if _estado == Estado.SALTAR and _sprite.animation == &"salto_parado" else 0.0,
+		"cargando": _cargando,
+		"arco": -_sprite.position.y,
+	}
 
 ## Un sonido suelto por el reproductor de las pisadas, que en la cinematica
 ## esta libre. desde = segundos del archivo por los que empezar.
@@ -1106,6 +1424,19 @@ func _al_cambiar_fotograma() -> void:
 			_sonar(SONIDOS_CAIDA["golpe"], golpe_db)
 			impacto.emit()
 			return
+	# Salto cargado: llega a la cuclilla con la tecla aun pulsada y se queda ahi.
+	# Aqui y no en _physics_process para no pasarse: frame_changed sale dentro
+	# del paso del sprite que cambia el fotograma. Ese mismo paso aun termina de
+	# llenar frame_progress con la velocidad que habia leido antes de la senal,
+	# y la vuelta siguiente de su bucle ya lee speed_scale 0 y se para. Se queda
+	# en el 16 con el progreso lleno, asi que al soltar el 17 sale en el paso
+	# siguiente.
+	if salto_cargado_activo and not _carga_hecha and _estado == Estado.SALTAR \
+			and _sprite.animation == &"salto_parado" and _sprite.frame == carga_fotograma:
+		_carga_hecha = true
+		if _salto_mantenido():
+			_cargando = true
+			_sprite.speed_scale = 0.0
 	var golpes: Dictionary = GOLPES.get(String(_sprite.animation), {})
 	if golpes.has(_sprite.frame):
 		_sonar(golpes[_sprite.frame], pasos_db, 0.0, true)
@@ -1122,6 +1453,13 @@ func _al_cambiar_fotograma() -> void:
 ## caida_duracion pasan duracion * fps fotogramas con decimales (33,6) y el
 ## impacto llega en el ultimo entero; con round() caia en el 6.
 func caer_desde_arriba() -> void:
+	# En la cinematica _physics_process no llega a _actualizar_saltos: lo que
+	# hubiera dejado un salto (la pausa de la carga a speed_scale 0, un arco) se
+	# quedaria puesto y las animaciones de la caida no avanzarian nunca.
+	_cargando = false
+	_carga = 0.0
+	_sprite.speed_scale = 1.0
+	_sprite.position.y = 0.0
 	var suelo := position.y
 	position.y = suelo - caida_altura
 	_mirar(1.0)
@@ -1161,6 +1499,14 @@ func caer_desde_arriba() -> void:
 ##
 ## El resto de animaciones si van a fps fijo y las reproduce el nodo.
 const MANUALES := ["andar", "correr"]
+
+## Pies del salto de parado sobre la linea de suelo, en px de hoja por
+## fotograma (fila del pixel opaco mas bajo de cada casilla contra la de pie, la
+## misma medida que la tabla del panel, scripts/game/datos_movimiento.gd).
+## Despegan en el 18, apogeo en el 30-31 y apoyan en el 45. El arco del salto
+## cargado es esta curva escalada.
+const PIES_SALTO_PARADO := [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 6, 11, 17, 23, 29, 37, 45, 52, 58, 62, 65, 65, 64, 63, 61, 58, 55, 50, 45, 38, 31, 23, 15, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+const PIES_SALTO_PARADO_APOGEO := 65.0
 
 ## Pies en el suelo desde que llega el nodo. En los cinco primeros sprites de
 ## "caida" (c_01..c_05) el personaje del video aun no habia tocado: su punto mas

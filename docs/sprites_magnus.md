@@ -16,6 +16,7 @@ que rehacer las tres.
 | `assets/audio/magnus_paso_*.wav` | las pisadas: `a`/`b` al andar, `correr_a`/`correr_b` al correr |
 | `assets/audio/magnus_respirar_ciclo.ogg` | la respiracion del reposo tras un esfuerzo (bucle de 2,5 s, igual que la animacion); en reposo normal no suena |
 | `scenes/game/dark_stage.tscn` | la escena negra, con Magnus instanciado |
+| `scripts/game/datos_movimiento.gd` | el panel de estudio del escenario negro (estado, velocidad, carrerilla, carga, ultimo salto); H lo oculta |
 
 **Sonido.** Los videos de `raw\master_mason\anim\_fuentes` traen audio, y va
 sincronizado con la imagen: medido, cada golpe de pie cae medio fotograma
@@ -133,6 +134,154 @@ fotograma exactamente una vez.
 
 Verificado corriendo el juego: el personaje ocupa el **19,4 %** del alto de
 pantalla, que es lo que se diseno (20,2 % teorico).
+
+## Carrerilla, altura variable y salto cargado
+
+Tres mecanicas encima de los saltos y dos empalmes del salto corriendo, cada
+cosa con su interruptor en el nodo. Con `carrerilla_activa`,
+`salto_variable_activo`, `salto_cargado_activo` y `arco_desde_despegue` a
+`false` y `aterrizaje_carrera_suavizado` a 0, las trazas del piloto salen
+identicas a las de antes, tick a tick (21 guiones: correr, saltar con toque y
+mantenido, de parado, andando, girando, en cadena y contra el borde).
+
+**Carrerilla.** Un contador de 0 a 1 que se llena corriendo a crucero con la
+tecla hacia delante (estado `CORRER`, 1,5 s hasta lleno, `carrerilla_tiempo`).
+Se vacia en 0,4 s (`carrerilla_vaciado`) en cuanto deja de pedir correr:
+soltando la tecla (tambien mientras espera la fase de la parada), con la tecla
+anulada por la frenada del limite, frenando, andando o parado. En el aire del
+salto corriendo se congela. El salto corriendo escala con el arco 80 -> 130 px
+(`salto_correr_altura_max`) y empuje 1,3 -> 1,6 (`salto_correr_impulso_max`).
+El ritmo del aire no es un numero fijo: sale del arco con la misma gravedad
+que el salto de siempre (`_ritmo_vuelo`: el tiempo de vuelo va con la raiz de
+la altura, la cocida del sprite, 97 px, mas el arco), 0,75 con el arco de
+siempre y 0,66 con la carrerilla llena. Nunca va por debajo de
+`salto_correr_vuelo_min` (0,6) ni de 0,55 (`VUELO_MIN`), que ya se lee como
+camara lenta. Cada salto gasta la mitad de lo que llevaba
+(`carrerilla_gasto_salto`): saltar en cadena da 225, 201 y 191 px, no el
+maximo sin fin. Recien arrancado, el contador esta a 0 y el salto es el de
+antes.
+
+**Altura variable** (solo el salto corriendo). Un toque corto baja el arco
+anadido al 55 % (`salto_corto_factor`); mantener la tecla durante la subida da
+el entero. Como el arco va atado al fotograma, la amplitud no cambia de golpe:
+
+- soltada antes del despegue (el arco aun vale 0), el brinco es corto desde el
+  principio;
+- soltada en el aire, la amplitud baja hacia el objetivo con una curva
+  exponencial (`SALTO_CORTO_TAU`, 0,12 del vuelo), solo mientras sube, sin
+  quitarle mas del 60 % de su velocidad de subida (`SALTO_CORTO_FRENO`) y con
+  ese freno entrando en unos tres ticks (`SALTO_CORTO_ENTRADA`).
+
+Medido: la subida por tick nunca vuelve a acelerar (con carrerilla llena y
+toque: 12,9, 11,3, 8,8, 6,7, 5,6, 4,7...). Con el tramo recto de antes, al
+acabarse el tramo la subida doblaba de golpe su velocidad. Menos arco es menos
+vuelo con la misma gravedad, asi que el brinco corto cae antes y avanza algo
+menos. Antes el toque con la carrerilla llena era mas bajo que el salto de
+siempre pero estaba mas rato en el aire: un planeo.
+
+**Salto cargado** (desde parado). Con la tecla mantenida, `salto_parado` se
+queda quieto en la cuclilla, el fotograma **16** (`carga_fotograma`: la cabeza
+mas baja de la hoja, fila 64; el 17 ya sube y el despegue suena en el 18).
+Al soltar, o al llenarse, sigue el salto con un arco anadido de hasta 120 px
+(`salto_cargado_altura`) y el aire frenado hasta 0,75 (`salto_cargado_vuelo`),
+los dos proporcionales a la carga.
+
+- **El arco anadido** es la curva de los pies dibujados (`PIES_SALTO_PARADO`,
+  del 18 al 45) escalada. Asi despega y apoya justo cuando despegan y apoyan
+  los pies del sprite: sube 2, 5, 7, 10... px por tick, sin tiron.
+- **La carga** cuenta con el reloj de fisica desde el instante en que el salto
+  llega a la cuclilla (16 fotogramas a 60 fps), no desde que el sprite lo noto
+  en `_process`. Antes la misma pulsacion daba de 122 a 132 px segun los fps de
+  pantalla; ahora, 118-122 entre 24 y 144 fps. Los primeros 0,05 s no cuentan
+  (`carga_umbral`), asi que una pulsacion algo larga es el salto de siempre.
+  Llena a 0,65 s de cuclilla (`carga_umbral` + `carga_max`), y ahi salta sola.
+- **La pausa** la pone `frame_changed`: ese paso del sprite aun llena
+  `frame_progress` con la velocidad que tenia, y la vuelta siguiente de su
+  bucle ya ve `speed_scale` 0 y se para. Se queda en el 16 con el progreso
+  lleno, y al soltar el 17 sale en el paso siguiente.
+- **Tecla y control.** Un toque que suelta antes de 0,27 s no llega a la
+  cuclilla y es el salto de siempre. Cargando no se gira ni se arranca, porque
+  es parte del salto: con una direccion pulsada sale andando al caer, y con la
+  contraria gira al caer. `salto_bloqueado` o `control_bloqueado` sueltan la
+  carga. `caer_desde_arriba()` limpia lo que dejara un salto (la pausa a
+  `speed_scale` 0, el arco); antes, llamada en plena carga, dejaba la
+  cinematica colgada para siempre.
+
+**Empalmes del salto corriendo.**
+
+- **`arco_desde_despegue`.** El sprite va a 60 fps y la fisica lee el
+  fotograma del despegue con `frame_progress` ya a 1. Por eso el primer tick
+  del vuelo se comia un fotograma entero de arco: 11 px de golpe y luego 8,
+  que con la carrerilla llena eran 18 y 10. Ahora la parabola cuenta desde lo
+  que marcaba el sprite en ese primer tick: vale 0 ahi y acaba igual al tocar
+  suelo.
+- **Empuje.** El extra de la carrerilla (lo que pasa de 1,3) no se aplica con
+  los pies en el suelo, antes del despegue. Entra en los tres primeros
+  fotogramas del vuelo (`SALTO_EMPUJE_RAMPA`); si no, los pies resbalaban a x1,6
+  antes de despegar. Lo de antes del despegue sigue siendo lo de siempre
+  (435 -> 565).
+- **`aterrizaje_carrera_suavizado`** (0,12 s). Al caer con la direccion pulsada
+  sigue corriendo a la velocidad del aire, y lo que pasa de 435 se apaga con
+  esa constante de tiempo: 696, 694, 660, 631, 606... Antes caia de golpe a 435
+  en un tick (hoy 565 -> 435; con la carrerilla llena, 696 -> 435, que se leia
+  como un frenazo). Las piernas van por distancia, asi que solo ciclan algo mas
+  deprisa unas decimas. Un salto justo despues no se lleva ese sobrante.
+
+Medido con pilotos (60 Hz). La altura es la de los pies sobre el suelo en el
+apogeo, y la distancia va del despegue al reposo, soltando la direccion al
+saltar. La "gravedad" es 8 x altura / vuelo al cuadrado; la del salto de siempre es 4130.
+
+| salto corriendo | mantenido: altura | distancia | toque: altura | distancia |
+|---|---|---|---|---|
+| carrerilla 0 (el de siempre) | 177 px | 415 px | 142 px | 387 px |
+| carrerilla 0,5 | 202 px | 488 px | 156 px | 445 px |
+| carrerilla 1 | 225 px | 554 px | 169 px | 496 px |
+
+Con la carrerilla llena, mantenido: 0,65 s de vuelo, gravedad 4260 y ritmo
+0,66. Con toque: 0,57 s, gravedad 4180. Todos quedan entre 4180 y 4400: ninguno
+flota.
+
+| salto de parado, tecla pulsada | altura |
+|---|---|
+| hasta 0,30 s | 65 px (el de siempre) |
+| 0,35 s | 75 px |
+| 0,45 s | 98 px |
+| 0,57 s | 122 px |
+| 0,70 s | 148 px |
+| 0,92 s o mas (salta sola) | 185 px |
+
+**Limites.** `_impulso_hasta_limite` recorta el salto corriendo con
+`_recorrido_salto_correr()`: el 0,95 s por px/s medido de siempre, mas lo que
+cambian el vuelo (a su ritmo, con la rampa del empuje) y media cola con el
+empuje y el ritmo del salto en curso. Con los valores de siempre da 0,95 justo.
+Junto al borde, **primero se gasta menos carrerilla**: `_saltar` busca por
+biseccion la mayor que quepa entera. Solo si ni el salto de siempre cabe se
+recorta el empuje, como antes. Recortar solo el empuje dejaba el arco y el
+vuelo de la carrerilla llena sobre 150 px de avance: un bote en el sitio.
+Supone el arco entero, asi que el toque se queda algo corto del limite.
+
+Probado con la carrerilla llena contra cada borde de `dark_stage`, saltando
+cada 0,1 s de 2,9 a 4,6 s, a los dos lados, con toque y mantenido, y con la
+direccion mantenida y soltada (144 casos):
+
+- mantenido: como mucho **8,6 px** mas alla del limite;
+- con toque: se queda al menos 3,7 px antes;
+- cerca del borde el salto baja hacia el de siempre (202, 181, 176 px) y nunca
+  pasa de el.
+
+El salto cargado no avanza, asi que no hay nada que recortar.
+
+**El panel.** `dark_stage` lleva `DatosMovimiento` (CanvasLayer con
+`scripts/game/datos_movimiento.gd`): texto gris apagado y pequeno arriba a la
+izquierda (26 px, gris 0,48 al 80 %) con estado y animacion, velocidad,
+carrerilla, carga y el ultimo salto. Del ultimo salto da la distancia (del
+despegue al reposo, o a tocar si sigue corriendo), el tramo en el aire y la
+altura. No sale durante la cinematica de la caida. La altura de los pies se
+saca de una tabla por fotograma de los tres saltos (fila del pixel opaco mas
+bajo de cada casilla contra la de pie, medida sobre las hojas) mas el arco del
+nodo; cuadra con los pixeles medidos en video a 1-3 px. La tecla H lo oculta;
+se lee la tecla directamente, sin accion en `project.godot`. Magnus le da los
+datos con `datos_movimiento()`.
 
 ## Donde esta cada cosa
 
