@@ -19,14 +19,19 @@ func _ready():
 	if camera:
 		default_offset = camera.offset
 
+## Temblor del golpe. Decae con exp() y no con lerp(delta * 12): el lerp dependia
+## de los FPS y, con un frame de mas de 83 ms (el del golpe mortal los tenia), el
+## peso pasaba de 1, la intensidad se volvia negativa y el temblor se cortaba en
+## seco. 13,4 da el mismo 0,8 por frame que el lerp a 60 fps, asi que el temblor
+## dura lo mismo que antes. Por debajo de 0,25 px se da por acabado: exp() nunca
+## llega a 0.
 func _process(delta):
-	if shake_intensity > 0:
-		shake_intensity = lerp(shake_intensity, 0.0, delta * 12)
+	if shake_intensity > 0.0:
+		shake_intensity *= exp(-13.4 * delta)
+		if shake_intensity < 0.25:
+			shake_intensity = 0.0
 		if camera:
-			camera.offset = Vector2(
-				randf_range(-1, 1) * shake_intensity,
-				randf_range(-1, 1) * shake_intensity
-			)
+			camera.offset = default_offset + Vector2(randf_range(-1, 1), randf_range(-1, 1)) * shake_intensity
 	elif camera:
 		camera.offset = default_offset
 	if debug_draw_impact:

@@ -7,10 +7,12 @@ extends Node2D
 var _tiempo: float = 0.0
 
 func _ready() -> void:
+	# Solo se mueve el offset al punto de anclaje; la posicion de cada hijo se
+	# respeta. Antes se ponia a cero y la sombra (Shadow, desplazada en
+	# pendulum.tscn) quedaba escondida justo debajo del sprite, como si no hubiera.
 	for child in get_children():
 		if child is Sprite2D:
 			child.offset = -offset_pivot
-			child.position = Vector2.ZERO # Centramos el nodo hijo
 
 func _process(delta: float) -> void:
 	_tiempo += delta

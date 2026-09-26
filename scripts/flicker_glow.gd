@@ -10,8 +10,12 @@ var time_passed: float = 0.0
 @onready var original_pos = position
 
 func _ready() -> void:
-	seed(noise_seed)
-	time_passed = randf() * 100.0
+	# Generador propio y no seed(): seed() resiembra el aleatorio GLOBAL, y todo lo
+	# que se prepara despues (moscas, cerdo, cucaracha) salia igual en cada partida.
+	# Misma semilla, misma fase: la luz y el halo de cada vela siguen a la par.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = noise_seed
+	time_passed = rng.randf() * 100.0
 
 func _process(delta: float) -> void:
 	time_passed += delta * 2.5

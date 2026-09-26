@@ -17,7 +17,20 @@ var spore_scene = preload("res://scenes/intro/spore_cloud.tscn")
 ## pieza. Los offsets ponen el centro de giro de cada antena en su raiz, y las
 ## posiciones son su raiz en pixeles de la imagen (1024x1536, centro 512,768)
 ## llevada al sistema del cuerpo y escalada como el.
-const DEAD_SHEET := "res://assets/intro/cockroach_squashed_parts.png"
+## Precargada, no con load() al reventar: es un png de 2048x2048 y leerlo en ese
+## frame costaba 75-100 ms, justo durante el asentamiento del aplastado, que se
+## comia casi entero dentro del tiron. Cuesta ~17 MB de VRAM desde el principio.
+const DEAD_SHEET: Texture2D = preload("res://assets/intro/cockroach_squashed_parts.png")
+## Lo mismo con el blackout: cargar el script (y lo que el precarga) en el frame
+## del golpe congelaba la pantalla ~40-60 ms y el contacto salia ya extendido.
+## Lo que aun costaba al estrenarse (shaders y particulas) lo paga
+## _calentar_primer_uso() al cargar la escena.
+const BLACKOUT_SCRIPT := preload("res://scripts/blackout_controller.gd")
+## Tope del paso de tiempo del contacto y del asentamiento. Si aun asi cae un
+## tiron (equipo cargado, un fotograma lento), la animacion sigue viendose en
+## vez de saltar a su final. 1/30 y no
+## 1/60 para no ralentizar el golpe en equipos que van a 30 fps.
+const CRUSH_MAX_STEP := 1.0 / 30.0
 const DEAD_SCALE := 1.5
 ## Pico real de FastNoiseLite Perlin, medido: get_noise_1d no llega a +-1.
 const NOISE_PEAK := 0.40
@@ -116,7 +129,8 @@ var time_passed: float = 0.0
 @export var heading_noise: float = 0.12
 ## Al huir elegia esquina solo por lo lejos que quedaba del impacto, sin mirar
 ## donde estaba ella: si el golpe caia en medio, corria hacia el puno. Este peso
-## anade "y ademas que le de la espalda al golpe" al criterio.
+## anade "y ademas que le de la espalda al golpe" al criterio (el resto del
+## criterio esta en _corner_score).
 @export var corner_flee_bias: float = 900.0
 
 @export_group("Leg Animation")
@@ -233,8 +247,9 @@ var time_passed: float = 0.0
 @export var blink_twitch_amount: float = 0.20
 @export var blink_twitch_width: float = 0.35
 ## Cada sacudida es MAS fuerte que la anterior, no mas floja. El desenfoque del
-## desmayo crece con el tiempo (radio de 11 px a los 5,5 s y de 22 a los 7,7), y
-## un movimiento por debajo de ese radio no se percibe: para seguir viendose, la
+## desmayo crece con el tiempo (blur_amount de blackout_controller: ~0,9 a los
+## 5,5 s y ~1,9 a los 7,7, el doble de radio), y un movimiento por debajo de
+## ese radio no se percibe: para seguir viendose, la
 ## sacudida tiene que crecer al mismo ritmo que lo que la tapa.
 @export var death_blink_ramp: float = 1.3
 ## Las patas acompañan la sacudida, pero menos: ya estan rigidas. Aun asi el
@@ -309,6 +324,11 @@ var bg_lum: Image
 const BG_SCALE := 8
 var candle_lights: Array = []
 
+## cockroach.tscn pone texture_filter = LINEAR_WITH_MIPMAPS en el nodo raiz y
+## los hijos lo heredan (tambien las tibias del cadaver, creadas en runtime). Se
+## pinta a 0,18 desde un atlas de 2048 (~0,12 en una pantalla de 1080p) y sin
+## mipmaps las patas y antenas finas centelleaban al girar. El atlas vivo ya los
+## traia importados; la hoja del aplastado no, y con ella se queda en lineal.
 func _ready() -> void:
 	add_to_group("squashable")
 	_disable_2d_lights(self)
@@ -356,6 +376,39 @@ func _ready() -> void:
 	_prev_global_pos = global_position
 	target_position = failsafe_point
 	_enter_state(State.IDLE)
+	_calentar_primer_uso()
+
+## Estrena lo que el golpe mortal usa por primera vez, para que no lo estrene el
+## golpe. Godot no compila los shaders al precargarlos, sino al primer uso y en
+## el hilo principal: el material del blackout al asignarlo, y las particulas de
+## la bruma y del reventon al emitir por primera vez. Sin esto el frame del golpe
+## y el del reventon se congelaban ~100-200 ms cada uno (segundos en el primer
+## arranque, con la cache de shaders vacia), y el paso a la variante sin mipmaps
+## daba otro tiron. Aqui ese coste cae en la carga de la escena. La cucaracha
+## solo existe en el ataud, asi que esto solo corre ahi.
+func _calentar_primer_uso() -> void:
+	# A los shaders del blackout les basta con crear su RID: no se dibuja nada.
+	BLACKOUT_SCRIPT.BLACKOUT_SHADER.get_rid()
+	BLACKOUT_SCRIPT.BLACKOUT_SHADER_LOD0.get_rid()
+	# Las particulas si tienen que emitir de verdad: su shader se compila al
+	# emitir por primera vez. Van en una capa por debajo de la escena, que el fondo
+	# tapa entera (es opaco y de pantalla completa): no se ven ni suenan. Al hijo propio, no al padre, que
+	# aun esta montando sus nodos. Dos fotogramas y fuera.
+	var capa := CanvasLayer.new()
+	capa.layer = -1
+	add_child(capa)
+	var haze: GPUParticles2D = BLACKOUT_SCRIPT.HAZE_SCENE.instantiate()
+	var nube: Node2D = spore_scene.instantiate()
+	for n: Node2D in [haze, nube]:
+		n.position = get_viewport_rect().size * 0.5
+		capa.add_child(n)
+	haze.emitting = true
+	var burst := nube.get_node_or_null("Burst") as GPUParticles2D
+	if burst:
+		burst.emitting = true
+	await get_tree().process_frame
+	await get_tree().process_frame
+	capa.queue_free()
 
 ## Copia reducida del fondo para leer su luminancia, y las luces de las velas
 ## para tomar su parpadeo.
@@ -481,6 +534,9 @@ func _on_step_fade_done() -> void:
 	step_sound.volume_db = step_base_db
 	step_fade = null
 
+## Dueña del modulate del nodo raiz: lo recalcula cada frame, asi que el color
+## no se ajusta en cockroach.tscn (por eso alli ya no hay modulate), sino con
+## color_center, color_center_warmth y color_edge_fog.
 func _update_visibility_logic() -> void:
 	var pos = global_position
 	is_inside = Geometry2D.is_point_in_polygon(pos, light_polygon)
@@ -666,10 +722,26 @@ func _pick_new_target() -> void:
 		var libres := corners.filter(func(c): return _camino_libre(global_position, c))
 		if not libres.is_empty():
 			corners = libres
+		# La esquina en la que ya esta no cuenta como huida. Las dos de la derecha
+		# caen dentro del radio de miedo del puno, asi que si seguia golpeando la
+		# elegia a menudo: giraba hacia la pared y se quedaba quieta 4-7 s sin correr.
+		var lejos := corners.filter(func(c): return c.distance_to(global_position) > 250.0)
+		if not lejos.is_empty():
+			corners = lejos
+		# Tampoco vale una esquina cuyo camino pase junto al punto del golpe: al
+		# quitar la propia esquina, desde arriba a la derecha la segunda opcion era la
+		# diagonal a abajo a la izquierda, que cruzaba a menos de 100 px del puno. El
+		# umbral no llega a la distancia actual al golpe (si esta cerca, su propio
+		# punto de partida ya queda "cerca") para no descartarlas todas sin motivo.
+		var holgura := minf(300.0, global_position.distance_to(last_impact_pos) * 0.8)
+		var despejadas := corners.filter(func(c): return Geometry2D.get_closest_point_to_segment(last_impact_pos, global_position, c).distance_to(last_impact_pos) > holgura)
+		if not despejadas.is_empty():
+			corners = despejadas
 		var flee_dir := global_position - last_impact_pos
 		flee_dir = flee_dir.normalized() if flee_dir.length() > 1.0 else Vector2.UP.rotated(rotation)
 		corners.sort_custom(func(a, b): return _corner_score(a, flee_dir) > _corner_score(b, flee_dir))
-		target_position = corners[0] if randf() < 0.7 else corners[1]
+		# Si los filtros solo dejan una esquina, esa; si no, la mejor casi siempre.
+		target_position = corners[0] if (randf() < 0.7 or corners.size() < 2) else corners[1]
 		return
 
 	if has_been_scared_once and not arrived_at_impact:
@@ -693,19 +765,24 @@ func _pick_new_target() -> void:
 			return
 	target_position = failsafe_point
 
-## Puntua una esquina para huir: lejos del impacto y, ademas, en la direccion
-## contraria al golpe.
+## Puntua una esquina para huir: lejos del impacto, en la direccion contraria al
+## golpe y, ademas, con un camino que no pase junto al puno. Sin este ultimo
+## termino, desde la esquina de abajo a la derecha salia ganando la de arriba a la
+## izquierda, y la diagonal cruzaba a 50 px del punto del golpe: huia hacia el.
+## Este termino solo ordena; lo que garantiza que no cruce junto al puno es el
+## filtro de holgura de _pick_new_target.
 func _corner_score(corner: Vector2, flee_dir: Vector2) -> float:
 	var to_corner := corner - global_position
 	var align := 0.0
 	if to_corner.length() > 1.0:
 		align = to_corner.normalized().dot(flee_dir)
-	return corner.distance_to(last_impact_pos) + align * corner_flee_bias
+	var paso_junto_al_golpe := Geometry2D.get_closest_point_to_segment(last_impact_pos, global_position, corner)
+	return corner.distance_to(last_impact_pos) + align * corner_flee_bias + paso_junto_al_golpe.distance_to(last_impact_pos)
 
 ## Contacto. El sprite vivo se extiende contra el suelo; al agotarse el tiempo,
 ## revienta.
 func _update_crush(delta: float) -> void:
-	crush_t += delta
+	crush_t += minf(delta, CRUSH_MAX_STEP)
 	var k := clampf(crush_t / maxf(crush_time, 0.0001), 0.0, 1.0)
 	var e := 1.0 - (1.0 - k) * (1.0 - k)
 	var sp := Vector2(lerpf(1.0, crush_spread.x, e), lerpf(1.0, crush_spread.y, e))
@@ -733,7 +810,7 @@ func _burst() -> void:
 	if burst:
 		burst.emitting = true
 
-	var sheet: Texture2D = load(DEAD_SHEET)
+	var sheet: Texture2D = DEAD_SHEET
 	body.rotation = 0.0
 	body.position = body_rest_pos
 	body.texture = sheet
@@ -797,7 +874,9 @@ func _make_dead_leg(sheet: Texture2D, d: Dictionary) -> Sprite2D:
 func _update_death_throes(delta: float) -> void:
 	if death_time < 0.0:
 		return
-	death_time += delta
+	# Mientras se asienta el paso va topado, como en el contacto; despues el reloj
+	# corre libre para que el desmayo y las sacudidas sigan en su sitio.
+	death_time += delta if crush_settled else minf(delta, CRUSH_MAX_STEP)
 	if not crush_settled:
 		var ks := clampf(death_time / maxf(crush_settle, 0.0001), 0.0, 1.0)
 		_apply_dead_scale(lerpf(DEAD_SCALE * crush_overshoot, DEAD_SCALE, ks * ks))
@@ -854,7 +933,8 @@ func _update_death_throes(delta: float) -> void:
 		dead_legs[i].rotation = (wg * death_leg_amount + spasm * side) * env_g + late * side * death_leg_blink_ratio
 
 ## Un parpadeo del desmayo. Solo algunos disparan sacudida, y cada una es mas
-## floja que la anterior.
+## fuerte que la anterior (death_blink_ramp > 1), para vencer al desenfoque
+## creciente.
 func _on_blackout_blink(index: int) -> void:
 	if not is_dead or death_time < 0.0:
 		return
@@ -912,9 +992,8 @@ func die() -> void:
 			f.rotation = femur_rest[f] + leg_side.get(f, 1.0) * crush_leg_splay * leg_amp.get(f, 1.0)
 
 	# Efecto blackout - pasar posición de la cucaracha
-	var blackout_script = load("res://scripts/blackout_controller.gd")
 	var blackout_node = Node.new()
-	blackout_node.set_script(blackout_script)
+	blackout_node.set_script(BLACKOUT_SCRIPT)
 	blackout_node.name = "BlackoutController"
 	get_tree().current_scene.add_child(blackout_node)
 	if blackout_node.has_signal("blinked"):

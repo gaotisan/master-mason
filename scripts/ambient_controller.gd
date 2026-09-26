@@ -70,7 +70,11 @@ func _do_vaho_pulse(duration: float, power: float):
 		return
 	var mat := cristal.material
 	mat.set_shader_parameter("seed", randf() * 100.0)
-	residue_level = clamp(residue_level + 0.15, 0.0, 1.0)
+	# Tope en 0,5 y no en 1: el vaho que queda sube 0,066/s y solo baja 0,03/s, y
+	# a partir de ~0,75 (a los 19 s, justo cuando sale el aviso del tutorial) el
+	# centro del cristal se quedaba clavado en el tope del shader, blanco fijo, y
+	# las respiraciones ya no se veian. Con 0,5 cada una conserva margen.
+	residue_level = clamp(residue_level + 0.15, 0.0, 0.5)
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_method(func(v): mat.set_shader_parameter("intensity", v), 0.0, power, duration * 0.3)

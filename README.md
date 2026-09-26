@@ -31,7 +31,9 @@ build_windows.bat run    # exporta y lanza el juego
 
 ## Controles
 
-- `UP`: golpear con la mano.
+- En el ataúd, `UP`: golpear con la mano.
+- Con Magnus: flechas izquierda/derecha o `A`/`D` para andar, doble pulsación para
+  correr, `UP` o espacio para saltar.
 - `ESC`: salir.
 
 ## Flujo actual
@@ -41,8 +43,9 @@ Al aplastar la cucaracha se lanza el desmayo (`blackout_controller.gd`) y se pas
 `scenes/intro/title_screen.tscn`, que enciende la sala con luz hasta mostrar el título.
 Pasados unos segundos las velas se apagan, la sala queda en penumbra y la cámara
 entra por el cristal del ataúd hasta el negro: ahí se pasa a
-`scenes/game/dark_stage.tscn`, el escenario (por ahora vacío y negro) donde se moverá
-Magnus.
+`scenes/game/dark_stage.tscn`, el escenario negro donde cae Magnus, se levanta y
+se le puede mover (andar, correr, saltar, girarse). Es también el banco de
+pruebas de los pilotos de `scenes/dev/`.
 
 ### La araña
 

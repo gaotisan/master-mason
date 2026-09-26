@@ -46,6 +46,7 @@ light_mask = 0
 position = Vector2(150, 1200)
 scale = Vector2(0.6, 0.6)
 texture = ExtResource("1")
+offset = Vector2(432, 187)
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {"": SubResource("AnimationLibrary_punch")

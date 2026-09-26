@@ -6,6 +6,25 @@ var shader_mat: ShaderMaterial
 var ambient_controller: Node
 var haze_effect: GPUParticles2D
 
+## Precargados para que arrancar el desmayo no lea nada de disco en el frame del
+## golpe: con load() ahi se congelaba la imagen justo cuando el bicho se aplasta.
+## Precargar no basta del todo: Godot compila el shader de un material, y el de
+## unas particulas, la primera vez que se usan, no al cargarlos. Eso costaba otro
+## tiron de ~100-200 ms en el golpe (segundos con la cache de shaders vacia), y lo
+## paga la cucaracha al cargar la escena: ver _calentar_primer_uso() en
+## cockroach_controller.gd, que usa estas tres constantes.
+const HAZE_SCENE := preload("res://scenes/intro/spore_haze.tscn")
+const BLACKOUT_SHADER := preload("res://scripts/blackout_effect.gdshader")
+## El mismo shader sin mipmaps. Generar los mipmaps de la pantalla entera cada
+## fotograma es lo mas caro del desmayo en la Quadro P520 (unos 16 ms a su reloj
+## bajo), y mientras el paso del desenfoque no pasa de 4 px el shader solo lee el
+## nivel 0: ahi se usa este y la imagen sale igual. Ver _elegir_shader().
+## Es el que va desde el golpe (desenfoque 0) hasta que el paso pasa de 3,4 px,
+## a unos 6,7 s en 1080p: asi el aplastamiento, el asentamiento y el temblor van
+## a ~26 ms por fotograma y no a ~47 (reloj bajo de la P520), y CRUSH_MAX_STEP
+## no los ralentiza. El de mipmaps no se usa hasta ese momento, ya en el desmayo.
+const BLACKOUT_SHADER_LOD0 := preload("res://scripts/blackout_effect_lod0.gdshader")
+
 var is_active := false
 var effect_time := 0.0
 var delay_finished := false
@@ -48,8 +67,7 @@ func start_blackout(origin_pos: Vector2 = Vector2(1456, 816)) -> void:
 	ambient_controller = get_tree().current_scene.find_child("AmbientPlayer", true, false)
 	
 	# Crear el haze desde la posición de la cucaracha
-	var haze_scene = load("res://scenes/intro/spore_haze.tscn")
-	haze_effect = haze_scene.instantiate()
+	haze_effect = HAZE_SCENE.instantiate()
 	get_tree().current_scene.add_child(haze_effect)
 	haze_effect.global_position = start_position
 	haze_effect.emitting = true
@@ -66,7 +84,7 @@ func start_blackout(origin_pos: Vector2 = Vector2(1456, 816)) -> void:
 	blackout_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	shader_mat = ShaderMaterial.new()
-	shader_mat.shader = load("res://scripts/blackout_effect.gdshader")
+	shader_mat.shader = _elegir_shader()
 	blackout_overlay.material = shader_mat
 	
 	canvas_layer.add_child(blackout_overlay)
@@ -79,6 +97,8 @@ func _process(delta: float) -> void:
 	effect_time += delta
 	
 	if effect_time < 1.5:
+		# Nada cambia en pantalla todavia (desenfoque 0, variante sin mipmaps).
+		_update_shader()
 		return
 	
 	if not delay_finished:
@@ -129,6 +149,9 @@ func _process(delta: float) -> void:
 		is_active = false
 		emit_signal("blackout_complete")
 		_change_scene()
+		# change_scene_to_file saca ya la escena del arbol: a partir de aqui no hay
+		# ventana ni viewport que consultar, y la imagen ya no se ve.
+		return
 	
 	_update_shader()
 
@@ -152,8 +175,27 @@ func _do_blink() -> void:
 	blink_tween.tween_property(self, "blink", 0.0, dur * 0.6).set_trans(Tween.TRANS_SINE)
 	blink_tween.tween_callback(func(): is_blinking = false)
 
+## Que variante del shader toca. El shader calcula
+## lod = log2(paso_px) - 2 con paso_px = blur_amount * 0.0016 * sqrt(ancho * alto)
+## de la pantalla renderizada: con paso_px <= 4 el lod es 0 y los mipmaps sobran.
+## Se cambia antes de llegar (al 85 %) por si el tamano calculado aqui no fuera
+## exactamente el que ve el shader.
+func _elegir_shader() -> Shader:
+	if not is_inside_tree():
+		return shader_mat.shader if shader_mat and shader_mat.shader else BLACKOUT_SHADER
+	var vp := get_viewport()
+	var tam := Vector2(vp.get_texture().get_size()) if vp and vp.get_texture() else Vector2.ZERO
+	tam = tam.max(Vector2(get_window().size))
+	if tam.x <= 0.0 or tam.y <= 0.0:
+		return BLACKOUT_SHADER
+	var paso_px := blur * 0.001 * 1.6 * sqrt(tam.x * tam.y)
+	return BLACKOUT_SHADER_LOD0 if paso_px <= 4.0 * 0.85 else BLACKOUT_SHADER
+
 func _update_shader() -> void:
 	if shader_mat:
+		var sh := _elegir_shader()
+		if shader_mat.shader != sh:
+			shader_mat.shader = sh
 		shader_mat.set_shader_parameter("blur_amount", blur)
 		shader_mat.set_shader_parameter("vignette_intensity", vignette)
 		shader_mat.set_shader_parameter("blackout", blackout)

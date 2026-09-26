@@ -118,10 +118,15 @@ extends Node2D
 @export var sun_radius_dusk: float = 0.75
 @export var sun_intensity_dusk: float = 0.55
 @export var frame_light_dusk: float = 0.4
-## Ultimo tramo del zoom en que lo poco que quedaba de luz se va del todo.
+## Tope de lo que puede durar el ultimo apagado, el que lleva a negro lo poco que
+## quedaba de luz, como fraccion del zoom. Es solo un tope: cada parametro empieza
+## ese apagado cuando acaba el suyo de antes (room_dim_fraction para foco y marco,
+## window_dark_start + window_dark_time para el cristal), asi que con los valores
+## de ahora duran 1.5 s y 1.7 s y este numero no cambia nada salvo que baje de ~0.3.
 @export var black_fraction: float = 0.45
 ## El negro se completa este tiempo antes de que acabe el zoom, para que los
-## ultimos fotogramas ya sean negro y no letras gigantes a medio apagar.
+## ultimos fotogramas ya sean negro y no letras gigantes a medio apagar. Marca el
+## final de todos los apagados a negro (black_end), empiecen cuando empiecen.
 @export var black_lead: float = 0.5
 ## Negro antes de cambiar de escena.
 @export var black_hold: float = 0.6
@@ -129,6 +134,10 @@ extends Node2D
 ## camara arranca (zoom_in_start), porque lo que lo asusta es justamente que algo
 ## se mueva. Este numero es solo el tiempo de reaccion, y por eso es pequeno.
 @export var spider_reaccion: float = 0.15
+## A donde se pasa tras el negro: dark_stage, donde cae Magnus.
+## Se empieza a cargar en segundo plano cuando la pantalla ya esta en negro
+## (ver _pedir_carga), para no tocar la fluidez de nada de lo que se ve.
+## En la web sin hilos se sigue cargando al final, en _leave.
 @export var next_scene: String = "res://scenes/game/dark_stage.tscn"
 
 const CANDLE_A := Vector2(868, 830)
@@ -141,6 +150,9 @@ const IMAGE_SIZE := Vector2(2912, 1632)
 const WINDOW_RECT := Vector4(0.2215, 0.320, 0.755, 0.702)
 
 var _mat: ShaderMaterial
+## La mascara, y su version barata para los creditos (ver title_mask_creditos).
+var _mask: ColorRect
+var _mat_creditos: ShaderMaterial
 var _time_a := 0.0
 var _time_b := 0.0
 var _candle_on := 0.0   # 0..1, cuanto han encendido ya las velas
@@ -152,6 +164,13 @@ var _unrest := 0.0      # 0..1, lo nerviosas que estan las velas antes de morir
 var _candle_a_lvl := 1.0   # 1 encendida, 0 apagada
 var _candle_b_lvl := 1.0
 var _leaving := false
+## Si la carga en segundo plano de next_scene llego a pedirse.
+var _carga_pedida := false
+## Partida del zoom de entrada, apuntada en su primer paso (ver _zoom_in_step).
+var _zin_listo := false
+var _zin_z0 := 1.0
+var _zin_p0 := Vector2.ZERO
+var _zin_anchor := Vector2.ZERO
 
 @onready var _camera: Camera2D = $Camera
 @onready var _spider: Node2D = get_node_or_null("Spider")
@@ -175,6 +194,12 @@ func _ready() -> void:
 	_mat.set_shader_parameter("candle_b", CANDLE_B / IMAGE_SIZE)
 	_mat.set_shader_parameter("sun_pos", SUN / IMAGE_SIZE)
 	_mat.set_shader_parameter("window_rect", WINDOW_RECT)
+	# La mascara mira el brillo del fondo para saber que es letra y que es panel.
+	# Lo lee de la textura del fondo, no de lo que ya hay en pantalla: leer la
+	# pantalla obliga a copiarla entera cada fotograma, y debajo solo hay este
+	# fondo (y la araña, que no pisa ni las letras ni el foco).
+	_mat.set_shader_parameter("bg_tex", ($Background as Sprite2D).texture)
+	# De repuesto: un fundido global de toda la oscuridad. Se deja en 1 a proposito.
 	_mat.set_shader_parameter("darkness", 1.0)
 	_mat.set_shader_parameter("candle_radius", 0.0)
 	_mat.set_shader_parameter("candle_glow", 0.0)
@@ -187,7 +212,26 @@ func _ready() -> void:
 	_mat.set_shader_parameter("title_fade", 0.0)
 	_mat.set_shader_parameter("fog_amount", 0.0)
 	mask.material = _mat
+	# Mientras salen los creditos todo esta a 0 y la mascara es negro liso: se
+	# pinta con un shader que da ese mismo negro sin calcular nada por pixel
+	# (title_reveal entero costaba unos 9 ms por fotograma en la P520 ahi). Solo
+	# cambia lo que cuesta; los tiempos y lo que se ve son los mismos.
+	_mask = mask
+	if show_credits:
+		_mat_creditos = ShaderMaterial.new()
+		_mat_creditos.shader = load("res://scripts/intro/title_mask_creditos.gdshader")
+		_mat_creditos.set_shader_parameter("darkness", 1.0)
+		mask.material = _mat_creditos
 	layer.add_child(mask)
+	# La mascara sigue a la camara, y la camara la mueven los tweens, que corren
+	# DESPUES de _process: calculado ahi, view_rect iba un fotograma tarde y en el
+	# zoom de entrada la luz se quedaba atras del dibujo. Justo antes de pintar ya
+	# se han movido todos.
+	RenderingServer.frame_pre_draw.connect(_sync_view_rect)
+
+	# Las hojas del vuelo del aracnobat, que si no se cargarian en pleno zoom.
+	if _spider and _spider.has_method("precargar_vuelo"):
+		_spider.precargar_vuelo()
 
 	if _camera:
 		_camera.zoom = Vector2.ONE * zoom_start
@@ -208,9 +252,29 @@ func _ready() -> void:
 	else:
 		_start_lights()
 
+func _exit_tree() -> void:
+	if RenderingServer.frame_pre_draw.is_connected(_sync_view_rect):
+		RenderingServer.frame_pre_draw.disconnect(_sync_view_rect)
+	# Si se sale del titulo sin que _leave haya recogido la carga (ESC antes de
+	# _leave o durante su espera, o --quit-after en las pruebas), la carga en
+	# segundo plano se queda sin recoger y al cerrar sale como objeto sin liberar.
+	# Se recoge aqui, pero solo si ya ha acabado: recogerla a medias bloquea hasta
+	# que termine, y salir con ESC justo tras los creditos dejaba la ventana
+	# congelada varios segundos. Si aun estaba cargando se deja que el motor la
+	# corte al cerrar, aunque eso llene el log de errores de parseo falsos: es raro
+	# y no se ve en el juego.
+	if _carga_pedida:
+		_carga_pedida = false
+		if ResourceLoader.load_threaded_get_status(next_scene) == ResourceLoader.THREAD_LOAD_LOADED:
+			ResourceLoader.load_threaded_get(next_scene)
+
 ## Arranca la secuencia de luz. Con creditos, cuando estos acaban; el reloj de
 ## las rachas empieza a contar aqui.
 func _start_lights() -> void:
+	# Vuelve la mascara de verdad; en este fotograma todo sigue a 0, asi que da el
+	# mismo negro que la de los creditos.
+	if _mask and _mask.material != _mat:
+		_mask.material = _mat
 	_elapsed = 0.0
 	_run_sequence()
 	_run_exit()
@@ -275,6 +339,11 @@ func _run_exit() -> void:
 	# recoge hacia arriba. Es el arranque al reves.
 	var dim_time := zoom_in_time * room_dim_fraction
 	var dim_start := t0 + zoom_in_start
+	# El negro final (mas abajo) acaba en black_end; black_start es lo antes que
+	# puede arrancar, pero cada parametro espera ademas a su propio apagado.
+	var black_time := zoom_in_time * black_fraction
+	var black_start := t0 + zoom_in_start + zoom_in_time - black_lead - black_time
+	var black_end := black_start + black_time
 	tw.tween_method(_set_shader.bind("room_light"), 1.0, 0.0, dim_time).set_delay(dim_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_method(_set_shader.bind("sun_radius"), sun_radius_full, sun_radius_dusk, dim_time).set_delay(dim_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_method(_set_shader.bind("sun_intensity"), 1.0, sun_intensity_dusk, dim_time).set_delay(dim_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -285,17 +354,29 @@ func _run_exit() -> void:
 		tw.tween_callback(_spider.volar).set_delay(t0 + zoom_in_start + spider_reaccion)
 
 	# La camara entra por el cristal. Empieza casi quieta y acelera.
+	# Zoom y posicion van juntos alrededor de un punto fijo de la imagen, que se
+	# queda quieto en pantalla mientras todo crece: sale de donde este la camara y
+	# acaba centrada en el cristal, igual que antes. Con dos tweens sueltos (zoom y
+	# posicion con la misma curva) el centro del zoom nadaba: el marco se iba hacia
+	# un lado y volvia, un bamboleo de camara en vez de meterse recto.
+	# El tween lleva u de 0 a 1 con la curva; el zoom y la posicion de partida se
+	# leen en su primer paso (ver _zoom_in_step), no ahora, como hacia el
+	# tween_property de antes: si se mueven los tiempos y el zoom lento de la
+	# secuencia no ha vuelto a 1 todavia, se parte de donde este, sin salto.
 	if _camera:
 		var target := Vector2(WINDOW_RECT.x + WINDOW_RECT.z, WINDOW_RECT.y + WINDOW_RECT.w) * 0.5 * IMAGE_SIZE
-		tw.tween_property(_camera, "zoom", Vector2.ONE * zoom_in_end, zoom_in_time).set_delay(t0 + zoom_in_start).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-		tw.tween_property(_camera, "position", target, zoom_in_time).set_delay(t0 + zoom_in_start).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+		tw.tween_method(_zoom_in_step.bind(target), 0.0, 1.0, zoom_in_time).set_delay(t0 + zoom_in_start).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 
 	# Lo poco que quedaba de luz se va del todo en el ultimo tramo del zoom.
-	var black_time := zoom_in_time * black_fraction
-	var black_start := t0 + zoom_in_start + zoom_in_time - black_lead - black_time
-	tw.tween_method(_set_shader.bind("sun_intensity"), sun_intensity_dusk, 0.0, black_time).set_delay(black_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tw.tween_method(_set_shader.bind("frame_light"), frame_light_dusk, 0.0, black_time).set_delay(black_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tw.tween_method(_set_shader.bind("window_dark"), window_dark_full, 1.0, black_time).set_delay(black_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	# Cada parametro arranca cuando ha acabado su propio apagado de arriba, y no
+	# antes: si se pisaban, el de aqui mandaba desde su valor fijo de partida y
+	# habia un salto de luz de un fotograma y luego un paron. Acaban todos a la
+	# vez, en black_end, que no cambia.
+	var sf_start := maxf(black_start, dim_start + dim_time)
+	var wd_start := maxf(black_start, t0 + window_dark_start + window_dark_time)
+	tw.tween_method(_set_shader.bind("sun_intensity"), sun_intensity_dusk, 0.0, maxf(black_end - sf_start, 0.01)).set_delay(sf_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tw.tween_method(_set_shader.bind("frame_light"), frame_light_dusk, 0.0, maxf(black_end - sf_start, 0.01)).set_delay(sf_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tw.tween_method(_set_shader.bind("window_dark"), window_dark_full, 1.0, maxf(black_end - wd_start, 0.01)).set_delay(wd_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
 	# El viento se aleja con nosotros.
 	tw.tween_method(_set_wind_db, wind_db_peak, wind_db_exit, zoom_in_time).set_delay(t0 + zoom_in_start).set_trans(Tween.TRANS_SINE)
@@ -306,7 +387,24 @@ func _run_exit() -> void:
 	# negro haga de junta entre las dos escenas.
 	tw.tween_callback(MusicAmbience.apagar_titulo.bind(music_fade_out)).set_delay(t0 + zoom_in_start)
 
+	# La escena siguiente (Magnus y sus hojas de sprites) se empieza a cargar
+	# cuando la pantalla ya esta en negro del todo, y no antes: cargar en segundo
+	# plano resta fluidez, y ni los creditos, ni la entrada de la luz con el tema,
+	# ni el zoom por el cristal se pueden tocar. Lo que no haya acabado para
+	# _leave se espera sobre el mismo negro, igual que cuando se cargaba de golpe,
+	# pero sin congelar la ventana: _leave deja correr los fotogramas mientras
+	# tanto. El cambio de escena y el primer fotograma de la siguiente siguen costando
+	# lo suyo (instanciarlo y pintarlo), eso no lo quita la carga en segundo plano.
+	tw.tween_callback(_pedir_carga).set_delay(black_end)
 	tw.tween_callback(_leave).set_delay(t0 + zoom_in_start + zoom_in_time + black_hold)
+
+## Pide la carga en segundo plano de next_scene. Con use_sub_threads las
+## dependencias se cargan en paralelo. En la web sin hilos (preset Web,
+## threads_enabled=false) "segundo plano" seria este mismo hilo: no se pide y
+## _leave carga a la antigua.
+func _pedir_carga() -> void:
+	if not _carga_pedida and not OS.has_feature("nothreads"):
+		_carga_pedida = ResourceLoader.load_threaded_request(next_scene, "", true) == OK
 
 func _leave() -> void:
 	if _leaving:
@@ -314,7 +412,41 @@ func _leave() -> void:
 	_leaving = true
 	WindAmbience.gust_db = 0.0
 	WindAmbience.fade_to(wind_db_exit, 0.0)
-	get_tree().change_scene_to_file(next_scene)
+	# Ya no hay nada que ver: la pantalla es negro liso desde black_end. Sin esto
+	# _process seguiria poniendo el viento y, si la espera de abajo pasa de ~1.4 s,
+	# volveria la racha de _elapsed 28.2 (+2 dB) sobre el negro.
+	set_process(false)
+	# Lo que falte de la carga se espera sobre ese negro dejando correr los
+	# fotogramas: esperarla con load_threaded_get a secas congelaba la ventana
+	# (ni ESC ni Alt+F4, y Windows podia darla por colgada) hasta que acababa.
+	while _carga_pedida and ResourceLoader.load_threaded_get_status(next_scene) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		await get_tree().process_frame
+		if not is_inside_tree() or get_tree().paused:
+			return  # ESC o cierre de ventana: GlobalExit._salir pausa y sale
+	# Aqui la carga ya ha acabado. Si fallo o no se pidio (web sin hilos), se
+	# carga a la antigua.
+	var ps: PackedScene = null
+	if _carga_pedida and ResourceLoader.load_threaded_get_status(next_scene) != ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+		ps = ResourceLoader.load_threaded_get(next_scene) as PackedScene
+	_carga_pedida = false  # recogida (o fallida): _exit_tree ya no tiene que hacer nada
+	if ps:
+		get_tree().change_scene_to_packed(ps)
+	else:
+		get_tree().change_scene_to_file(next_scene)
+
+## Un paso del zoom de entrada; u va de 0 a 1 ya con la curva aplicada. En el
+## primero se apunta de donde parte la camara (zoom z0 en p0) y el punto de la
+## imagen que no se mueve en pantalla (anchor): con z0 la camara esta en p0 y con
+## zoom_in_end, centrada en target, el cristal.
+func _zoom_in_step(u: float, target: Vector2) -> void:
+	if not _zin_listo:
+		_zin_listo = true
+		_zin_z0 = _camera.zoom.x
+		_zin_p0 = _camera.position
+		_zin_anchor = _zin_p0 + (target - _zin_p0) * zoom_in_end / maxf(zoom_in_end - _zin_z0, 0.001)
+	var z := lerpf(_zin_z0, zoom_in_end, u)
+	_camera.zoom = Vector2.ONE * z
+	_camera.position = _zin_anchor - (_zin_anchor - _zin_p0) * _zin_z0 / z
 
 func _set_unrest(v: float) -> void:
 	_unrest = v
@@ -372,14 +504,6 @@ func _process(delta: float) -> void:
 	_mat.set_shader_parameter("candle_a_flicker", fa * _candle_a_lvl)
 	_mat.set_shader_parameter("candle_b_flicker", fb * _candle_b_lvl)
 
-	# La mascara de luz esta medida sobre la imagen: hay que decirle que trozo
-	# de la imagen tiene la camara en pantalla para que la siga en el zoom.
-	if _camera:
-		var half := IMAGE_SIZE * 0.5 / _camera.zoom
-		var lo := (_camera.position - half) / IMAGE_SIZE
-		var hi := (_camera.position + half) / IMAGE_SIZE
-		_mat.set_shader_parameter("view_rect", Vector4(lo.x, lo.y, hi.x, hi.y))
-
 	# El vaho respira despacio: sigue ahi dentro, aun respirando.
 	_breath += delta
 	var pulse := 0.78 + 0.22 * sin(_breath * 1.15)
@@ -388,6 +512,17 @@ func _process(delta: float) -> void:
 	# Rachas de viento: solo suben el volumen, no tocan la imagen.
 	WindAmbience.base_db = _wind_db
 	WindAmbience.gust_db = _gust_strength() * 2.0
+
+## La mascara de luz esta medida sobre la imagen: hay que decirle que trozo de la
+## imagen tiene la camara en pantalla para que la siga en el zoom. Va enganchado
+## a frame_pre_draw (ver _ready), con la camara ya movida por los tweens.
+func _sync_view_rect() -> void:
+	if not _camera:
+		return
+	var half := IMAGE_SIZE * 0.5 / _camera.zoom
+	var lo := (_camera.position - half) / IMAGE_SIZE
+	var hi := (_camera.position + half) / IMAGE_SIZE
+	_mat.set_shader_parameter("view_rect", Vector4(lo.x, lo.y, hi.x, hi.y))
 
 ## Bajon irregular 0..1 para la llama nerviosa: dos senos que no van a compas.
 func _dip(t: float) -> float:

@@ -13,9 +13,14 @@ shader_type canvas_item;
 // OSCURECE lo que hay debajo.
 render_mode unshaded, blend_premul_alpha;
 
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear;
+// El fondo del titulo (la imagen de 2912x1632), para leer su brillo. Antes se
+// leia la pantalla (hint_screen_texture), pero eso obliga a copiarla entera cada
+// fotograma, y debajo de la mascara solo esta este fondo (y la araña, que queda
+// fuera de las letras). Con view_rect al dia, uv cae en el mismo pixel.
+uniform sampler2D bg_tex : filter_linear;
 
 uniform float aspect = 1.784;
+// De repuesto: fundido global de toda la oscuridad. El controlador lo deja en 1.
 uniform float darkness : hint_range(0.0, 1.0) = 1.0;
 // Trozo de la imagen que la camara tiene en pantalla, en UV de la imagen
 // (x_min, y_min, x_max, y_max). Las luces estan medidas sobre la imagen, asi que
@@ -147,6 +152,12 @@ float fog_density(vec2 uv) {
 	vec2 c = vec2(window_rect.x + window_rect.z, window_rect.y + window_rect.w) * 0.5;
 	vec2 half_size = vec2(window_rect.z - window_rect.x, window_rect.w - window_rect.y) * 0.5;
 	vec2 q = (uv - c) / half_size;
+	// Fuera de la ventana el vaho vale 0 de todos modos (va multiplicado por box):
+	// se sale antes del ruido, que es lo caro del shader.
+	float box = 1.0 - smoothstep(0.72, 1.0, length(vec2(q.x * 0.95, q.y)));
+	if (box <= 0.0) {
+		return 0.0;
+	}
 
 	vec2 p = uv * vec2(aspect, 1.0) * 3.0;
 	vec2 drift = vec2(TIME * 0.022, -TIME * 0.048);
@@ -160,14 +171,13 @@ float fog_density(vec2 uv) {
 	m += blob(uv, vec2(c.x, window_rect.w - 0.075), vec2(0.25, 0.085)) * 0.95;
 	m = clamp(m, 0.0, 1.0);
 
-	float box = 1.0 - smoothstep(0.72, 1.0, length(vec2(q.x * 0.95, q.y)));
 	return m * box * n;
 }
 
 void fragment() {
-	// uv en el espacio de la imagen; la textura de pantalla se lee donde toca.
+	// uv en el espacio de la imagen; el brillo del fondo se lee en ese mismo uv.
 	vec2 uv = mix(view_rect.xy, view_rect.zw, SCREEN_UV);
-	vec4 scr = texture(screen_texture, SCREEN_UV);
+	vec4 scr = texture(bg_tex, uv);
 	float lum = dot(scr.rgb, LUMW);
 
 	// Velas: el hueco respira con el parpadeo.
@@ -184,7 +194,10 @@ void fragment() {
 
 	// Contorno del cristal del ataud.
 	float bd = border_dist(uv, window_rect);
-	float lf = exp(-pow(bd / frame_width, 2.0)) * frame_light;
+	// Al cuadrado a mano y no con pow(): dentro del cristal bd es negativo, y pow
+	// con base negativa no esta definido en GLSL (segun el driver da NaN).
+	float fx = bd / frame_width;
+	float lf = exp(-fx * fx) * frame_light;
 
 	float light = max(max(la, lb), max(max(ls, lf), room_light));
 	float dark = clamp(1.0 - light, 0.0, 1.0) * darkness;
@@ -240,7 +253,8 @@ void fragment() {
 	float in_rect = smoothstep(title_rect.x, title_rect.x + 0.03, uv.x) * (1.0 - smoothstep(title_rect.z - 0.03, title_rect.z, uv.x))
 		* smoothstep(title_rect.y, title_rect.y + 0.03, uv.y) * (1.0 - smoothstep(title_rect.w - 0.03, title_rect.w, uv.y));
 	float gl = (uv.x - title_rect.x) / (title_rect.z - title_rect.x) + (uv.y - 0.5) * 0.45;
-	float band = exp(-pow((gl - glint) / 0.085, 2.0));
+	float gx = (gl - glint) / 0.085;
+	float band = exp(-gx * gx);
 	add += GLINT_COLOR * band * letters * in_rect * glint_strength;
 
 	// Relleno del relieve oscuro de las letras: solo donde la imagen esta por
@@ -253,7 +267,13 @@ void fragment() {
 	// El humo solo se ve donde le da luz: al principio son jirones alrededor de
 	// cada llama, y se apaga del todo cuando la sala ya esta a la vista.
 	float lit = clamp(max(light, (ga + gb) * candle_glow), 0.0, 1.0);
-	float fog = clamp(fog_density(uv) * fog_amount * (0.6 + 0.4 * lit), 0.0, 0.7);
+	// El ruido solo se calcula mientras hay vaho: fuera de su rato fog_amount es
+	// 0 justo (lo deja asi el tween) y el resultado seria 0 igual. Es una
+	// uniform, asi que todos los pixeles van por la misma rama.
+	float fog = 0.0;
+	if (fog_amount > 0.0) {
+		fog = clamp(fog_density(uv) * fog_amount * (0.6 + 0.4 * lit), 0.0, 0.7);
+	}
 	vec3 fog_col = mix(FOG_COLOR, vec3(0.85, 0.6, 0.36), clamp((ga + gb) * candle_glow * 1.2, 0.0, 1.0));
 
 	// Composicion premultiplicada: primero se oscurece la sala, luego el vaho se

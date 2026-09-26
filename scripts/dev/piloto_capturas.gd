@@ -25,28 +25,23 @@ extends Node
 var _t := 0.0
 var _i := 0
 var _p := 0
-var _guardando := false
 
 func _ready() -> void:
-	if not carpeta.is_absolute_path() or carpeta.begins_with("user://"):
-		DirAccess.make_dir_recursive_absolute(carpeta)
-	else:
-		DirAccess.make_dir_recursive_absolute(carpeta)
+	# Vale igual para user:// que para una ruta absoluta del sistema.
+	DirAccess.make_dir_recursive_absolute(carpeta)
 
 func _process(delta: float) -> void:
 	_t += delta
 	while _p < pulsaciones.size() and _t >= float(pulsaciones[_p][0]):
 		_pulsar(String(pulsaciones[_p][1]))
 		_p += 1
-	if _guardando:
-		return
 	if _i < momentos.size() and _t >= momentos[_i]:
-		_guardando = true
+		# Sin await: cada captura espera a su propio frame_post_draw y guarda de
+		# un tiron, asi que no se pisan aunque caigan en fotogramas seguidos.
 		_capturar(_i)
 		_i += 1
-		_guardando = false
 		return
-	if _i >= momentos.size() and _t >= momentos[momentos.size() - 1] + cola:
+	if _i >= momentos.size() and (momentos.is_empty() or _t >= momentos[momentos.size() - 1] + cola):
 		get_tree().quit()
 
 ## Un toque: pulsar y soltar en el mismo fotograma sobra para las acciones que

@@ -15,6 +15,8 @@ extends Node2D
 
 @export_group("Fly Behavior")
 @export var flight_speed: float = 100.0
+## Probabilidad de posarse en cada frame A 60 FPS. Se convierte al frame real en
+## _update_fly: tirada por frame a secas, a 144 Hz se posaban 2,4 veces antes.
 @export var land_chance: float = 0.012
 @export var takeoff_chance: float = 0.3
 @export var walk_speed: float = 25.0
@@ -71,7 +73,7 @@ func _update_fly(fly: Dictionary, delta: float) -> void:
 	match fly["state"]:
 		FlyState.FLYING:
 			_update_flying(fly, delta)
-			if randf() < land_chance: _start_landing(fly)
+			if randf() < 1.0 - pow(1.0 - land_chance, delta * 60.0): _start_landing(fly)
 		FlyState.LANDING:
 			_update_landing(fly, delta)
 		FlyState.LANDED:
@@ -86,15 +88,21 @@ func _update_flying(fly: Dictionary, delta: float) -> void:
 	fly["circle_angle"] += fly["circle_speed"] * delta
 	var current_radius = fly["circle_radius"] * (1.0 + noise.get_noise_1d(t * 2.0) * 0.4)
 	var target_pos = fly["circle_center"] + Vector2(cos(fly["circle_angle"]), sin(fly["circle_angle"]) * 0.6) * current_radius
-	fly["pos"] = fly["pos"].lerp(target_pos, delta * 10.0)
-	fly["z_height"] = lerp(fly["z_height"], 10.0 + noise.get_noise_1d(t * 2.0) * 5.0, delta * 3.0)
+	fly["pos"] = fly["pos"].lerp(target_pos, _peso(10.0, delta))
+	fly["z_height"] = lerp(fly["z_height"], 10.0 + noise.get_noise_1d(t * 2.0) * 5.0, _peso(3.0, delta))
+
+## Peso de un lerp que a 60 FPS vale exactamente lo que el antiguo delta * k, pero
+## que no depende de los FPS: a otros ritmos compone igual por segundo y nunca
+## pasa de 1 aunque caiga un frame largo.
+func _peso(k: float, delta: float) -> float:
+	return 1.0 - pow(maxf(1.0 - k / 60.0, 0.0), delta * 60.0)
 
 func _start_landing(fly: Dictionary) -> void:
 	fly["state"] = FlyState.LANDING
 	fly["land_pos"] = Vector2(randf_range(-zone_radius * 0.8, zone_radius * 0.8), randf_range(zone_radius * 0.4, zone_radius * 0.9))
 
 func _update_landing(fly: Dictionary, delta: float) -> void:
-	fly["pos"] = fly["pos"].lerp(fly["land_pos"], delta * 7.0)
+	fly["pos"] = fly["pos"].lerp(fly["land_pos"], _peso(7.0, delta))
 	fly["z_height"] = move_toward(fly["z_height"], 0.0, delta * 45.0)
 	if fly["z_height"] <= 0.1:
 		_land(fly)

@@ -12,10 +12,12 @@ extends Node2D
 ## que se grabo saltando en el sitio. Si ademas moviesemos el nodo, saltaria dos
 ## veces.
 ##
-## Sonido: cada pisada se dispara desde el sprite en que el pie planta, y en
-## reposo suena la respiracion en bucle. Los pasos no van en un bucle de audio
-## porque andar y correr avanzan con la distancia, no con el reloj, y a la larga
-## se desfasarian. Los archivos salen de raw/master_mason/audio/magnus/.
+## Sonido: cada pisada se dispara desde el sprite en que el pie planta. Los
+## pasos no van en un bucle de audio porque andar y correr avanzan con la
+## distancia, no con el reloj, y a la larga se desfasarian. La respiracion sigue
+## al esfuerzo (ver respiracion_db): tras correr o saltar se oye y se va
+## apagando, y en reposo normal no suena. Los archivos salen de
+## raw/master_mason/audio/magnus/.
 
 ## Medidos sobre los sprites: la zancada es la separacion maxima entre los pies.
 ## Ver raw/master_mason/anim/magnus_comun.txt.
@@ -47,11 +49,13 @@ extends Node2D
 ## salen de videos distintos, asi que la pose en la que acaba uno no es la del
 ## fotograma 0 del otro. Comparando el ultimo fotograma del arranque contra los
 ## 24 del ciclo -- silueta y color, normalizados por altura -- entrar por el 0
-## da un salto de 1,8 pasos normales del ciclo, y entrar por el 12 lo deja en
-## 1,1, que ya no se distingue de un fotograma cualquiera.
+## daba un salto de 1,8 pasos normales del ciclo. Con el arranque cortado en el
+## 22 (corte_arranque_correr) el mejor es el 9: 0,72 pasos, que ya no se
+## distingue de un fotograma cualquiera.
 ##
-## Andar no lo necesita: su arranque y su ciclo salen del mismo video y entrar
-## por el 0 ya da 0,5 pasos. El 33 medía algo mejor, 0,2, pero no se ve.
+## En andar el arranque y el ciclo salen del mismo video, y a partir del 18 el
+## arranque ya ES el ciclo (ver corte_arranque_andar): se corta en el 18 y se
+## entra por el 19, que es su continuacion (0,54 pasos).
 @export var entrada_andar: int = 19
 @export var entrada_correr: int = 9
 ## El arranque de andar se corta en el 18 y su velocidad no es una rampa recta
@@ -88,14 +92,15 @@ extends Node2D
 ## fallo y no el gesto se ve en el otro extremo de la misma animacion, el 20-21,
 ## donde la mano solo se mueve 4,6 px, o sea que ahi el brazo si se demora.
 ##
-## Cortando en el 28 el rebote no llega a verse, y de paso el empalme con el
-## bucle mejora: 0,75 pasos normales del ciclo en vez de 1,11.
+## Cortando antes el rebote no llega a verse. Se corta en el 22 porque del 8
+## en adelante los pies ya van a crucero (ver AVANCE_ARRANQUE_CORRER), y el
+## empalme con el bucle por entrada_correr queda en 0,72 pasos.
 @export var corte_arranque_correr: int = 22
 ## Girar con la animacion de giro en vez de voltear el sprite de golpe.
 ##
-## La animacion son 9 fotogramas: perfil, 22, 45, 67 grados, frontal, y de vuelta
-## los cuatro espejados. Salen de una hoja de rotacion dibujada aparte, no de un
-## video. El volteo del sprite se hace al TERMINAR, no al empezar: durante el
+## La animacion son 5 fotogramas a 20 fps (0,25 s): perfil, 45, 90 (frontal),
+## 135 y el perfil del otro lado. Salen de una hoja de rotacion dibujada aparte,
+## no de un video. El volteo del sprite se hace al TERMINAR, no al empezar: durante el
 ## giro se conserva el flip_h que hubiera, y por eso la misma animacion sirve
 ## para los dos sentidos -- volteada se lee de izquierda a derecha.
 ##
@@ -103,9 +108,10 @@ extends Node2D
 @export var giro_activo: bool = true
 ## Margen para que dos pulsaciones cuenten como doble y arranque a correr.
 @export var doble_pulsacion: float = 0.30
-## Fraccion del arranque en la que el personaje todavia no ha movido los pies.
-## Medido sobre los sprites: 2 fotogramas de 34 al andar, 3 al correr. Al correr
-## la fraccion se cuenta sobre el arranque ya cortado, 3 de 28.
+## Fraccion del arranque en la que el personaje todavia no ha movido los pies,
+## para la rampa recta antigua: solo se usa con corte_arranque_* a -1. Con los
+## cortes puestos la velocidad sale de las tablas AVANCE_ARRANQUE_*, que ya
+## traen su zona quieta medida.
 @export var quieto_al_arrancar_andar: float = 0.06
 @export var quieto_al_arrancar_correr: float = 0.11
 ## Fraccion de la parada en la que el cuerpo frena de verdad. El resto de la
@@ -239,6 +245,32 @@ const SALTO_CORRER_CAIDA_SPRITE := 33
 ## Se emite cuando la cinematica de entrada deja al personaje en reposo y con
 ## el control devuelto.
 signal cinematica_terminada
+## Se emite en el sprite en que el cuerpo da contra el suelo en la caida de
+## entrada (el mismo del golpe de sonido): el nivel levanta ahi la hojarasca.
+signal impacto
+## Se emite cuando andar_hasta() ha llevado al personaje a su sitio y ya esta
+## en reposo.
+signal llegado
+
+## CONTROL DESDE FUERA. Los niveles y los dialogos necesitan quitarle las teclas
+## al jugador sin romper la maquina de estados: con control_bloqueado las
+## pulsaciones se ignoran y el eje deja de venir del teclado. Si el personaje
+## iba andando, se para como si hubiera soltado la tecla (termina el paso y
+## frena); no hay ningun corte en seco.
+var control_bloqueado := false
+## Deja andar pero no saltar: junto a una puerta, arriba es "empujar".
+var salto_bloqueado := false
+## Limites del mundo en x. Mas alla, la tecla hacia ese lado no cuenta: se para
+## terminando el paso, igual que al soltar. La frenada recorre hasta ~340 px
+## corriendo, asi que el limite no es una pared exacta: dejar ese margen.
+@export var limite_izquierdo: float = -INF
+@export var limite_derecho: float = INF
+## Distancia a la que andar_hasta() da el objetivo por alcanzado y suelta el
+## eje. La parada de andar recorre 50-130 px tras soltar.
+@export var margen_llegada: float = 70.0
+var _objetivo_x := NAN
+var _objetivo_correr := false
+var _esperando_llegada := false
 ## Niveles de sonido. Los archivos estan a -6 dBFS de pico; esto es lo que se
 ## les baja en el juego.
 @export var pasos_db: float = -6.0
@@ -266,6 +298,18 @@ signal cinematica_terminada
 @export var respiracion_saltar_ciclo: float = 0.25
 ## Variacion de tono entre pisadas para que no suenen a metralleta.
 @export var pasos_variacion: float = 0.03
+## Salto pedido antes de poder hacerlo: se recuerda este tiempo (segundos de
+## fisica) y sale en cuanto se puede. Sin esto, pulsar un poco antes de que
+## termine de caer, o durante el giro, no hacia nada y parecia que el juego no
+## respondia. Durante el giro se mantiene vivo hasta que el giro acaba.
+@export var margen_salto: float = 0.15
+## Reposo sin respiracion audible: al dar la vuelta el bucle (el valle entre dos
+## respiraciones) a veces se sostiene un poco, para que la misma respiracion de
+## 2,5 s no se lea como un bucle al minuto de estar quieto. Solo con la
+## respiracion callada: con ella sonando, el pecho tiene que ir con el audio.
+@export var reposo_pausa_prob: float = 0.35
+@export var reposo_pausa_min: float = 0.4
+@export var reposo_pausa_max: float = 1.2
 
 ## Sprite en que planta cada pie (medido en 04_limpios: maxima separacion de los
 ## pies al andar, pie que toca el suelo al correr) -> golpe que suena.
@@ -294,9 +338,9 @@ var _impulso := 0.0          # velocidad que llevaba al despegar, se conserva en
 var _corria_al_saltar := false
 var _saltaba_parado := false  # salto desde el reposo: animacion salto_parado
 var _frenando_desde := 0.0   # velocidad que llevaba al empezar a frenar
-var _velocidad_suelo := 0.0
+var _velocidad_suelo := 0.0  # la que traia al entrar en un arranque por pose; sostiene hasta que la rampa la alcanza
 var _parada_espera := 0      # ticks esperando un apoyo bueno para parar de andar
-var _parada_entrada := 0     # fotograma de la parada por el que se entro  # la que traia al entrar en un arranque por pose; sostiene hasta que la rampa la alcanza
+var _parada_entrada := 0     # fotograma de la parada por el que se entro
 var _giro_pendiente := 0.0   # hacia donde hay que girar cuando acabe de frenar
 var _giro_corriendo := false
 var _giro_destino := 0.0     # hacia donde mira al acabar la animacion de giro
@@ -307,6 +351,8 @@ var _fundido: Tween         # fundido de la respiracion al salir del reposo
 var _esfuerzo := 0.0         # 0 descansado .. 1 agotado; manda en la respiracion
 var _resp_pos := 0.0         # posicion del bucle de respirar en el ultimo tick, para ver cuando da la vuelta
 var _resp_ciclo_db := 0.0    # variacion de volumen del ciclo en curso (o -80 si se salta)
+var _resp_base_db := -40.0   # volumen que pide el esfuerzo, suavizado; el ciclo se le suma aparte
+var _salto_pedido := -99.0   # instante (de _reloj) del ultimo salto pedido que no se pudo hacer
 
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _pasos: AudioStreamPlayer = $Pasos
@@ -315,23 +361,20 @@ var _resp_ciclo_db := 0.0    # variacion de volumen del ciclo en curso (o -80 si
 func _ready() -> void:
 	_sprite.animation_finished.connect(_al_terminar)
 	_sprite.frame_changed.connect(_al_cambiar_fotograma)
+	_sprite.animation_looped.connect(_al_dar_vuelta)
 	_poner("reposo")
 
 func _unhandled_input(evento: InputEvent) -> void:
-	if _en_cinematica():
+	if _en_cinematica() or control_bloqueado:
 		return
-	if evento.is_action_pressed("saltar") and _puede_saltar():
-		# El salto se lleva la velocidad que llevaba: saltar corriendo tiene que
-		# avanzar en el aire, no caer en el sitio.
-		_impulso = _velocidad()
-		_corria_al_saltar = _estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER
-		# Quieto (reposo, o una parada ya frenada): salto de parado, que empieza
-		# y acaba en la pose de reposo. "saltar" sale de un video andando y su
-		# primer sprite esta a 0,38 del reposo: desde parado se veia arrancar
-		# una zancada de la nada.
-		_saltaba_parado = not _en_movimiento() and not _corria_al_saltar and _impulso <= 0.0
-		_esfuerzo = minf(_esfuerzo + esfuerzo_salto, 1.0)
-		_cambiar(Estado.SALTAR)
+	if evento.is_action_pressed("saltar"):
+		# Si ahora no se puede (en el aire, agachado al caer, girando), se
+		# recuerda margen_salto segundos y lo lanza _physics_process. Guardarlo
+		# no toca nada: ni impulso ni esfuerzo hasta que el salto sale de verdad.
+		if _puede_saltar():
+			_saltar()
+		elif not salto_bloqueado:
+			_salto_pedido = _reloj
 		return
 	for accion in ["mover_izquierda", "mover_derecha"]:
 		if not evento.is_action_pressed(accion):
@@ -340,6 +383,9 @@ func _unhandled_input(evento: InputEvent) -> void:
 		# grabando con Movie Maker el juego va al 4 % de la velocidad real, con
 		# lo que dos toques a 0,2 s de juego estaban a 5 s de pared y el doble
 		# toque no se reconocia (salia andando en vez de corriendo).
+		# Contra un limite del mundo, la tecla hacia ese lado no hace nada.
+		if _fuera_de_limite(-1.0 if accion == "mover_izquierda" else 1.0):
+			continue
 		var ahora := _reloj
 		var antes: float = _ultima_pulsacion.get(accion, -99.0)
 		_ultima_pulsacion[accion] = ahora
@@ -352,7 +398,15 @@ func _unhandled_input(evento: InputEvent) -> void:
 			if _estado == Estado.GIRO:
 				_giro_corriendo = true
 			else:
+				var desde_reposo := _estado == Estado.REPOSO
 				_arrancar(accion, true)
+				# Doble toque desde parado (lo normal: el primer toque suelta en la
+				# zona muerta del arranque de andar y vuelve a reposo): el arranque
+				# de correr entra por el 3 y no por el 0. Sigue quieto hasta el 5,
+				# pero la pose esta mas cerca del reposo (0,67 pasos frente a 0,84)
+				# y echa a correr 0,1 s antes.
+				if desde_reposo and _estado == Estado.ARRANQUE_CORRER:
+					_sprite.frame = ARRANQUE_CORRER_DESDE_REPOSO
 		elif _puede_arrancar():
 			_arrancar(accion, false)
 
@@ -363,11 +417,15 @@ func _physics_process(delta: float) -> void:
 	if _en_cinematica():
 		return
 	_actualizar_esfuerzo(delta)
-	var direccion := Input.get_axis("mover_izquierda", "mover_derecha")
+	var direccion := _eje()
+	_avisar_llegada()
 
-	# Girando no se acepta nada: son 0,30 s, y cortarlo a medias deja al
-	# personaje mirando a un sitio con el sprite de otro.
+	# Girando no se acepta nada: son 0,25 s, y cortarlo a medias deja al
+	# personaje mirando a un sitio con el sprite de otro. Un salto pedido
+	# mientras tanto se guarda vivo y sale al terminar el giro (_al_terminar).
 	if _estado == Estado.GIRO:
+		if _salto_en_espera():
+			_salto_pedido = _reloj
 		return
 
 	# Soltar la tecla lanza la frenada. Tambien durante el arranque: si no, un
@@ -375,13 +433,15 @@ func _physics_process(delta: float) -> void:
 	if is_zero_approx(direccion):
 		_giro_pendiente = 0.0   # soltar cancela el cambio de sentido
 		var arrancando := _estado == Estado.ARRANQUE_ANDAR or _estado == Estado.ARRANQUE_CORRER
-		if arrancando and _velocidad() <= 0.0:
-			# Soltar en la zona muerta del arranque: los pies no se han movido y
-			# no hay nada que frenar. La parada empieza a media zancada -- esta
-			# hecha para venir del ciclo -- y metida aqui es un fotograma que no
-			# encaja con nada. Pasaba con cada doble pulsacion real, que suelta
-			# entre toque y toque: arranque f0 -> parada f0,3,4 -> arranque de
-			# correr f0, dos saltos de 0,97 y 1,25 pasos. De pie a pie es 0,23.
+		if arrancando and (_velocidad() <= 0.0 \
+				or (_estado == Estado.ARRANQUE_ANDAR and _sprite.frame <= ARRANQUE_ANDAR_DE_PIE)):
+			# Soltar en la zona muerta del arranque: los pies casi no se han
+			# movido y no hay nada que frenar. La parada empieza a media zancada
+			# -- esta hecha para venir del ciclo -- y metida aqui es un fotograma
+			# que no encaja con nada. Pasaba con cada doble pulsacion real, que
+			# suelta entre toque y toque (80-120 ms, arranque f2-f3): arranque ->
+			# parada f0 -> arranque de correr f6, tres poses sueltas en 0,2 s.
+			# De pie a pie es 0,23 pasos.
 			_cambiar(Estado.REPOSO)
 		elif _estado == Estado.ANDAR:
 			_pedir_parada_andar()
@@ -393,14 +453,22 @@ func _physics_process(delta: float) -> void:
 			_cambiar(Estado.PARADA_CORRER)
 	elif _en_movimiento():
 		_parada_espera = 0   # volver a pulsar cancela la parada que estaba esperando
-		# Cambiar de sentido no puede ser un volteo en seco a toda velocidad.
-		# Se pasa por la frenada y se voltea cuando la velocidad ya es cero,
-		# que es el momento en que menos se nota. No hay animacion de giro,
-		# asi que esto es lo mas parecido que se puede montar con lo que hay.
+		# Cambiar de sentido no puede ser un volteo en seco a toda velocidad:
+		# se pasa por la frenada y, ya casi quieto, _resolver_giro lanza la
+		# animacion de giro.
 		if signf(direccion) != _mirando:
 			_giro_pendiente = signf(direccion)
 			_giro_corriendo = _corriendo()
-			_cambiar(Estado.PARADA_CORRER if _corriendo() else Estado.PARADA_ANDAR)
+			if _estado == Estado.ANDAR:
+				# La misma entrada por pose que al soltar (_pedir_parada_andar),
+				# pero sin esperar al apoyo: cambiar de sentido no espera. Entrar
+				# siempre por el f0 era un salto de pose de 1,1 a 3,8 pasos.
+				var entrada: int = POSE_ANDAR_A_PARADA[clampi(_sprite.frame, 0, POSE_ANDAR_A_PARADA.size() - 1)]
+				_cambiar(Estado.PARADA_ANDAR)
+				_sprite.frame = entrada
+				_parada_entrada = entrada
+			else:
+				_cambiar(Estado.PARADA_CORRER if _corriendo() else Estado.PARADA_ANDAR)
 	elif _estado == Estado.SALTAR and _sprite.animation == "salto_correr" \
 			and _progreso() >= _aterrizaje() and signf(direccion) == _mirando:
 		# Saltando a la carrera con la tecla pulsada: en cuanto toca suelo sigue
@@ -411,6 +479,17 @@ func _physics_process(delta: float) -> void:
 		# que termine de recomponerse. Aqui no vale mirar solo las pulsaciones,
 		# porque si la tecla no se ha soltado no hay ninguna nueva.
 		_arrancar("mover_derecha" if direccion > 0.0 else "mover_izquierda", _corria_al_saltar)
+	elif _puede_arrancar() and _giro_pendiente != signf(direccion):
+		# Direccion mantenida sin pulsacion nueva: la tecla venia pulsada de
+		# antes (durante la cinematica, o cambiada a mitad de un giro), o la
+		# pone andar_hasta. Las pulsaciones nuevas ya han arrancado en
+		# _unhandled_input, que va antes que este tick, asi que el doble toque
+		# no cambia. Andando por teclado arranca andando; andar_hasta, como
+		# pidiera. Hacia atras, _arrancar deja el giro para cuando haya frenado;
+		# si ya hay uno pendiente hacia ese lado no se vuelve a pedir, que le
+		# quitaria el correr a un cambio de sentido corriendo.
+		var corriendo := _objetivo_correr if control_bloqueado else false
+		_arrancar("mover_derecha" if direccion > 0.0 else "mover_izquierda", corriendo)
 
 	_resolver_giro()
 
@@ -420,6 +499,20 @@ func _physics_process(delta: float) -> void:
 		_cambiar(Estado.CORRER)
 	elif _estado == Estado.ARRANQUE_ANDAR and corte_arranque_andar > 0 and _sprite.frame >= _ultimo_util():
 		_cambiar(Estado.ANDAR)
+
+	# Salto guardado: sale en cuanto se puede. Va despues de lo de arriba a
+	# proposito: con la tecla pulsada, el corte del salto anterior ya ha salido
+	# andando y este sale como salto andando, no como uno de parado en mitad
+	# de la marcha.
+	# En la cola del salto corriendo se mantiene vivo, como en el giro: es
+	# corta (0,1 s) y el salto tiene que salir en cuanto entra el aterrizaje.
+	# Igual en los fotogramas quietos del arranque de correr: sale al coger
+	# velocidad, como salto corriendo.
+	if _salto_en_espera():
+		if _puede_saltar():
+			_saltar()
+		elif _salto_en_cola_correr() or _arrancando_a_correr_quieto():
+			_salto_pedido = _reloj
 
 	var velocidad := _velocidad()
 	if velocidad > 0.0:
@@ -484,8 +577,10 @@ func _velocidad() -> float:
 			if a_la_carrera:
 				# Solo se llega aqui soltando la direccion (con ella pulsada se
 				# salta al ciclo al tocar suelo). De la velocidad del aire a la de
-				# entrada del aterrizaje, en lo que queda de animacion.
-				var fin := velocidad_correr * aterrizaje_correr_velocidad
+				# entrada del aterrizaje, en lo que queda de animacion. El salto
+				# corriendo exige _impulso > velocidad_andar (ver _saltar), asi que
+				# aire >= 250 y esto siempre frena; el minf es por si acaso.
+				var fin := minf(velocidad_correr * aterrizaje_correr_velocidad, aire)
 				return lerpf(aire, fin, clampf((p - toca) / resto, 0.0, 1.0))
 			# Al tocar suelo el impulso se va en lo que queda de aterrizaje.
 			return _impulso * maxf(0.0, 1.0 - (p - toca) / (resto * 0.5))
@@ -556,8 +651,26 @@ func _pedir_parada_correr() -> void:
 func _arrancar(accion: String, corriendo: bool) -> void:
 	var hacia := -1.0 if accion == "mover_izquierda" else 1.0
 	# Arrancar hacia el otro lado no es arrancar: primero hay que darse la vuelta.
-	if giro_activo and hacia != _mirando and _estado != Estado.GIRO:
-		_empezar_giro(hacia, corriendo)
+	# Parado, en el acto. Si aun lleva velocidad (una parada a medio frenar, la
+	# cola de un salto, el aterrizaje del salto corriendo), el giro se deja
+	# pendiente y lo lanza _resolver_giro cuando ha frenado: girar aqui pasaba
+	# de 140-514 px/s a cero en un tick. (Aqui nunca se llega en GIRO: el doble
+	# toque se desvia antes y _puede_arrancar lo excluye.)
+	if giro_activo and hacia != _mirando:
+		if _estado == Estado.REPOSO:
+			_empezar_giro(hacia, corriendo)
+		else:
+			# Un doble toque durante la frenada lo convierte en giro corriendo;
+			# una pulsacion suelta no le quita el correr que ya llevaba.
+			_giro_corriendo = corriendo or (_giro_pendiente == hacia and _giro_corriendo)
+			_giro_pendiente = hacia
+		return
+	# En el aire no se arranca: un doble toque hacia delante saltando cortaba el
+	# salto en seco (arco y altura cocida a 0 en un tick). En la cola del salto
+	# corriendo hacia delante tampoco: con la tecla pulsada, _physics_process
+	# sigue corriendo en este mismo tick (_seguir_corriendo_tras_salto); si se
+	# arrancaba aqui, salia andando a 192 desde ~465 px/s.
+	if _salto_bloquea() or _salto_en_cola_correr():
 		return
 	_mirar(hacia)
 	# La velocidad que ya llevaba, antes de cambiar de estado.
@@ -589,10 +702,21 @@ func _enganchar_arranque(llevaba: float, desde_anim: String = "", desde_frame: i
 	# velocidad no dice nada y manda la POSE: POSE_DESDE_SALTO da, para cada
 	# sprite del salto desde el que se puede cortar, el fotograma del arranque
 	# de andar que mas se le parece. Fuera de la tabla, el arranque desde 0.
+	# Del corte_arranque_andar en adelante el arranque ya ES el ciclo, asi que
+	# se entra al ciclo por ese mismo fotograma: si se dejaba en el arranque, el
+	# corte de _physics_process lo pasaba a andar en el mismo tick y _poner lo
+	# llevaba a entrada_andar, y la pose medida (f20-24) no se veia nunca.
 	if desde_anim == "saltar" and _estado == Estado.ARRANQUE_ANDAR:
 		var i := desde_frame - SALTO_CORTE_DESDE
 		if i >= 0 and i < POSE_DESDE_SALTO.size():
-			_sprite.frame = POSE_DESDE_SALTO[i]
+			var k: int = POSE_DESDE_SALTO[i]
+			if corte_arranque_andar > 0 and k >= corte_arranque_andar:
+				_cambiar(Estado.ANDAR)
+				_sprite.frame = k
+				_recorrido = float(k) * avance_andar
+				_ultimo_fotograma = k
+			else:
+				_sprite.frame = k
 		return
 	if llevaba <= 0.0:
 		return
@@ -627,8 +751,143 @@ func _enganchar_arranque(llevaba: float, desde_anim: String = "", desde_frame: i
 	var p := zona + clampf(llevaba / crucero, 0.0, 1.0) * (1.0 - zona)
 	_sprite.frame = clampi(int(round(p * (n - 1))), 0, n - 1)
 
+## Lleva al personaje andando (o corriendo) hasta x, sin teclado: bloquea el
+## control y emite llegado cuando ya esta parado alli. Mueve la misma maquina de
+## estados que las teclas (arranque, ciclo, parada), asi que se ve igual que si
+## lo llevase el jugador. El control sigue bloqueado al llegar: quien lo pidio
+## decide cuando devolverlo. Si x queda mas alla de un limite del mundo, se para
+## en el limite y llegado sale igual.
+func andar_hasta(x: float, corriendo: bool = false) -> void:
+	_objetivo_x = x
+	_objetivo_correr = corriendo
+	_esperando_llegada = true
+	control_bloqueado = true
+
+## Se da la vuelta hacia x si no mira ya hacia alli (con la animacion de giro).
+## Solo desde reposo: en marcha, el cambio de sentido ya pasa por la frenada.
+func girar_hacia(x: float) -> void:
+	var hacia := signf(x - position.x)
+	if is_zero_approx(hacia) or hacia == _mirando or _estado != Estado.REPOSO:
+		return
+	if giro_activo:
+		_empezar_giro(hacia, false)
+	else:
+		_mirar(hacia)
+
+## 1 si mira a la derecha, -1 a la izquierda.
+func mirando() -> float:
+	return _mirando
+
+## Donde anclar lo que dice: un poco por encima de la capucha.
+func punto_cabeza() -> Vector2:
+	return global_position + Vector2(0, -372)
+
+## El eje de movimiento de este tick: el teclado, o el objetivo de andar_hasta
+## con el control bloqueado; en los dos casos, cero hacia un limite ya pasado.
+func _eje() -> float:
+	var d := 0.0
+	if control_bloqueado:
+		if not is_nan(_objetivo_x):
+			var falta := _objetivo_x - position.x
+			if absf(falta) > margen_llegada:
+				d = signf(falta)
+			else:
+				_objetivo_x = NAN
+	else:
+		d = Input.get_axis("mover_izquierda", "mover_derecha")
+	if not is_zero_approx(d) and _fuera_de_limite(signf(d)):
+		d = 0.0
+		if control_bloqueado:
+			# Objetivo de andar_hasta mas alla del limite: el limite cuenta como
+			# llegada. Si no, _objetivo_x no se borraba nunca, llegado no salia y
+			# un `await llegado` se quedaba colgado con el control quitado.
+			_objetivo_x = NAN
+	return d
+
+func _fuera_de_limite(hacia: float) -> bool:
+	return (hacia < 0.0 and position.x <= limite_izquierdo) or (hacia > 0.0 and position.x >= limite_derecho)
+
+## Con andar_hasta en curso, la llegada se avisa cuando ya esta en reposo. El
+## arranque no se pide aqui: el eje de _eje() lo arranca en _physics_process
+## igual que una tecla mantenida.
+func _avisar_llegada() -> void:
+	if control_bloqueado and _esperando_llegada and is_nan(_objetivo_x) and _estado == Estado.REPOSO:
+		_esperando_llegada = false
+		llegado.emit()
+
+## Girando no: el salto cortaria el giro con el sprite a 45 o 90 grados y
+## saldria mirando al lado de antes. Se guarda (ver margen_salto) y sale al
+## acabar el giro.
+## Tampoco desde la cola del salto corriendo (_salto_en_cola_correr): se
+## guarda y sale en el primer tick del aterrizaje, o del ciclo si la
+## direccion sigue pulsada.
+## Ni en los fotogramas quietos del arranque de correr (_arrancando_a_correr_quieto):
+## se guarda y sale como salto corriendo de verdad en cuanto hay velocidad.
 func _puede_saltar() -> bool:
+	if salto_bloqueado or _estado == Estado.GIRO or _salto_en_cola_correr() \
+			or _arrancando_a_correr_quieto():
+		return false
 	return _estado != Estado.SALTAR or not _salto_bloquea()
+
+## Arranque de correr aun sin velocidad de correr (quieto hasta el fotograma 5,
+## 81 px/s en el 6). Tras un doble toque desde parado, o un giro corriendo, se
+## pasa siempre por ahi, y saltar en esos fotogramas daba un salto de parado y,
+## al caer, andando: se perdia la carrera. Se espera hasta el fotograma 7 (como
+## mucho 0,13 s desde la entrada por el 3; 0,23 s saliendo del giro, que entra
+## por el 0) y sale salto corriendo.
+func _arrancando_a_correr_quieto() -> bool:
+	return _estado == Estado.ARRANQUE_CORRER and _velocidad() <= velocidad_andar
+
+## Ya en el suelo al final del salto corriendo, con la direccion suelta (con
+## ella pulsada ya habria pasado al ciclo). Relanzar aqui como "saltar" era un
+## escalon: de ~514 a 192 px/s en un tick y de la zancada de la toma de suelo
+## al primer sprite del otro salto. Son 6 fotogramas, 0,1 s; el aterrizaje
+## que viene detras arranca a 217 px/s, la misma que deja esta cola, y desde
+## ahi el salto sale sin escalon.
+func _salto_en_cola_correr() -> bool:
+	return _estado == Estado.SALTAR and _sprite.animation == &"salto_correr" and not _salto_bloquea()
+
+## Hay un salto pedido hace menos de margen_salto y nada lo impide desde fuera.
+func _salto_en_espera() -> bool:
+	return not control_bloqueado and not salto_bloqueado and _reloj - _salto_pedido <= margen_salto
+
+## Salta ya. Desde la cola de otro salto (ya caido, a partir de _interrumpible)
+## lo relanza desde el principio: _cambiar no reentra en el mismo estado y
+## play() con el mismo nombre no rebobina, asi que antes esa pulsacion se
+## tragaba pero subia el esfuerzo y cambiaba el impulso del salto en curso.
+func _saltar() -> void:
+	_salto_pedido = -99.0
+	var relanzar := _estado == Estado.SALTAR
+	# El salto se lleva la velocidad que llevaba: saltar corriendo tiene que
+	# avanzar en el aire, no caer en el sitio. Relanzando, como mucho la de
+	# andar: la cola de "saltar" o del de parado ya viene frenando, y de
+	# la del salto corriendo no se relanza (ver _salto_en_cola_correr), que ahi
+	# aun va a ~490 px/s y en "saltar" seria un frenazo en un tick.
+	_impulso = minf(_velocidad(), velocidad_andar) if relanzar else _velocidad()
+	# Salto corriendo solo si ya corre de verdad. En los fotogramas quietos del
+	# arranque de correr (0-5, velocidad 0) el salto corriendo brincaba en el
+	# sitio y al caer resbalaba hacia delante hasta 217 px/s.
+	_corria_al_saltar = (_estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER) \
+		and _impulso > velocidad_andar
+	# Quieto (reposo, una parada ya frenada, o la zona muerta del arranque de
+	# andar, del 0 al ARRANQUE_ANDAR_DE_PIE, con los pies aun juntos): salto de
+	# parado, que empieza y acaba en la pose de reposo. "saltar" sale de un video
+	# andando y su primer sprite esta a 0,38 del reposo: desde parado se veia
+	# arrancar una zancada de la nada. Pasaba al pulsar direccion y salto a la
+	# vez. Los 0-39 px/s de esa zona muerta no se llevan al aire. (Los
+	# fotogramas quietos del arranque de correr ni llegan aqui: el salto se
+	# guarda hasta que corre, ver _arrancando_a_correr_quieto.)
+	var de_pie := _estado == Estado.ARRANQUE_ANDAR and _sprite.frame <= ARRANQUE_ANDAR_DE_PIE
+	if de_pie:
+		_impulso = 0.0
+	_saltaba_parado = not _corria_al_saltar and _impulso <= 0.0 \
+		and (not _en_movimiento() or _estado == Estado.ARRANQUE_CORRER or de_pie)
+	_esfuerzo = minf(_esfuerzo + esfuerzo_salto, 1.0)
+	if relanzar:
+		_estado = Estado.REPOSO  # para que _cambiar reponga la animacion
+	_cambiar(Estado.SALTAR)
+	if relanzar:
+		_sprite.set_frame_and_progress(0, 0.0)
 
 ## Durante el vuelo no se acepta nada; despues de caer, si.
 func _salto_bloquea() -> bool:
@@ -656,20 +915,34 @@ func _corriendo() -> bool:
 	return _estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER
 
 ## Voltea y arranca al otro lado en cuanto la frenada ha dejado el cuerpo quieto.
+## Vale para las paradas y para lo que llega con velocidad desde un salto (la
+## cola del salto y el aterrizaje del salto corriendo); ahi se espera, como en
+## la parada de andar, a que quede por debajo del 30 % de la de andar.
 func _resolver_giro() -> void:
 	if is_zero_approx(_giro_pendiente):
 		return
-	if _estado != Estado.PARADA_ANDAR and _estado != Estado.PARADA_CORRER:
+	if _estado not in [Estado.PARADA_ANDAR, Estado.PARADA_CORRER, Estado.SALTAR, Estado.ATERRIZAJE_CORRER]:
 		_giro_pendiente = 0.0
+		return
+	# En el aire o agachado al caer no se gira: seria cortar el salto.
+	if _salto_bloquea():
 		return
 	if _estado == Estado.PARADA_ANDAR:
 		if _velocidad() > _frenando_desde * 0.3:
 			return
-	elif _progreso() < frenada_correr:
+	elif _estado == Estado.PARADA_CORRER:
+		if _progreso() < frenada_correr:
+			return
+	elif _velocidad() > velocidad_andar * 0.3:
 		return
 	var hacia := _giro_pendiente
 	var corriendo := _giro_corriendo
 	_giro_pendiente = 0.0
+	# La parada de correr se corta en su fotograma 4 y el pie planta en el 5:
+	# sin esto, la frenada entera de un cambio de sentido corriendo era muda y
+	# se leia como un patinazo.
+	if _estado == Estado.PARADA_CORRER and _sprite.frame < 5:
+		_sonar(GOLPES["parada_correr"][5], pasos_db, 0.0, true)
 	if giro_activo:
 		_empezar_giro(hacia, corriendo)
 		return
@@ -697,13 +970,9 @@ func _puede_arrancar() -> bool:
 func _puede_cortar_salto() -> bool:
 	return _estado == Estado.SALTAR and not _salto_bloquea()
 
-## Volteo instantaneo. Todas las animaciones son de perfil puro: no hay ni un
-## fotograma frontal ni de tres cuartos, asi que el cambio de sentido salta de
-## un perfil al otro sin nada en medio y se nota. Disimularlo deformando el
-## sprite (estrecharlo hasta casi nada y devolverlo ya volteado) se probo y no
-## cuela: con una silueta tan marcada -- barba, capucha, capa -- se lee como un
-## fallo, no como un giro. La solucion es una animacion de giro de verdad, unos
-## pocos fotogramas de perfil a frontal; ver docs/sprites_magnus.md.
+## Volteo del sprite. Con giro_activo se aplica al terminar la animacion de
+## giro, que acaba en el perfil del otro lado (el montaje esta en _empezar_giro
+## y _al_terminar); sin el, es el cambio de sentido instantaneo de antes.
 func _mirar(direccion: float) -> void:
 	if is_zero_approx(direccion):
 		return
@@ -788,9 +1057,12 @@ func _sonar(sonido: AudioStream, db: float, desde: float = 0.0, variar: bool = f
 ## caida, que suena en el sprite en que el cuerpo da contra el suelo, no al
 ## entrar en la animacion: entre lo uno y lo otro hay siete sprites, 0,3 s.
 func _al_cambiar_fotograma() -> void:
-	if _estado == Estado.CAIDA and _sprite.frame == golpe_sprite:
-		_sonar(SONIDOS_CAIDA["golpe"], golpe_db)
-		return
+	if _estado == Estado.CAIDA:
+		_apoyar_caida()
+		if _sprite.frame == golpe_sprite:
+			_sonar(SONIDOS_CAIDA["golpe"], golpe_db)
+			impacto.emit()
+			return
 	var golpes: Dictionary = GOLPES.get(String(_sprite.animation), {})
 	if golpes.has(_sprite.frame):
 		_sonar(golpes[_sprite.frame], pasos_db, 0.0, true)
@@ -803,7 +1075,9 @@ func _al_cambiar_fotograma() -> void:
 ## El fotograma 7 de cayendo (el 32 del video) es el que enlaza con caida sin
 ## salto, asi que el bucle se arranca por el fotograma que, tras caida_duracion
 ## a sus fps, deja el impacto justo ahi. Si la duracion se cambia en el editor
-## sigue cuadrando: se calcula, no esta cocido.
+## sigue cuadrando: se calcula, no esta cocido. Truncando, no redondeando: en
+## caida_duracion pasan duracion * fps fotogramas con decimales (33,6) y el
+## impacto llega en el ultimo entero; con round() caia en el 6.
 func caer_desde_arriba() -> void:
 	var suelo := position.y
 	position.y = suelo - caida_altura
@@ -811,13 +1085,16 @@ func caer_desde_arriba() -> void:
 	_cambiar(Estado.CAYENDO)
 	var n := _sprite.sprite_frames.get_frame_count("cayendo")
 	var fps := _sprite.sprite_frames.get_animation_speed("cayendo")
-	_sprite.frame = posmod(7 - int(round(caida_duracion * fps)), n)
+	_sprite.frame = posmod(7 - int(caida_duracion * fps), n)
 	var tw := create_tween()
 	tw.tween_property(self, "position:y", suelo, caida_duracion) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tw.finished.connect(func() -> void:
 		if _estado == Estado.CAYENDO:
-			_cambiar(Estado.CAIDA))
+			_cambiar(Estado.CAIDA)
+			# play() no emite frame_changed si el indice no cambia: el apoyo
+			# del primer sprite se pone aqui.
+			_apoyar_caida())
 	# El aire esta recortado para acabar en el golpe. Si la caida dura mas que
 	# el archivo, se espera; si dura menos, se entra por el medio.
 	var aire: AudioStream = SONIDOS_CAIDA["aire"]
@@ -833,8 +1110,8 @@ func caer_desde_arriba() -> void:
 ## el nodo NO debe reproducirlos: se le pone la animacion y se le para.
 ##
 ## Si se le deja reproduciendo, hay dos cosas moviendo el fotograma a la vez. El
-## nodo avanza por su reloj en _process -- 0,4 fotogramas por tick de fisica a
-## 24 fps y 60 Hz, mas si la pantalla va mas rapida -- y el siguiente tick lo
+## nodo avanza por su reloj en _process -- medio fotograma por tick de fisica a
+## 30 fps y 60 Hz, mas si la pantalla va mas rapida -- y el siguiente tick lo
 ## devuelve al que toca por distancia. El sprite salta adelante y atras entre dos
 ## poses, y como los poligonos de la tunica cambian de un fotograma al siguiente,
 ## se ve como si al personaje le cambiase la ropa mientras corre.
@@ -842,15 +1119,19 @@ func caer_desde_arriba() -> void:
 ## El resto de animaciones si van a fps fijo y las reproduce el nodo.
 const MANUALES := ["andar", "correr"]
 
-## Por que fotograma del arranque de correr entrar segun la pose que se traiga.
-## Cuando se pide correr ya andando -- o con la segunda pulsacion de un doble,
-## que llega con el arranque de andar ya en marcha -- entrar por el fotograma
-## que da la velocidad que se lleva (el 14) deja la pose a 2,2-2,8 pasos de
-## cualquier fotograma de andar: mas que el rebote del brazo que se quito. Estas
-## tablas dan, para cada fotograma de origen, el fotograma del arranque de
-## correr que MAS SE PARECE (silueta y color, medido): media 1,05 y 1,34 pasos.
-## La velocidad no se pierde por entrar antes: _velocidad_suelo la sostiene
-## hasta que la rampa la alcanza.
+## Pies en el suelo desde que llega el nodo. En los cinco primeros sprites de
+## "caida" (c_01..c_05) el personaje del video aun no habia tocado: su punto mas
+## bajo queda a 25, 20, 22, 23 y 10 px por encima de la linea de suelo de la
+## casilla (fila 337). El nodo llega al suelo a ~28 px por tick y se quedaba
+## flotando ahi 0,17 s antes de caer: la caida se leia ligera. Bajando el
+## sprite esos px, llega y apoya a la vez; del sexto en adelante ya apoya solo.
+const CAIDA_APOYO := [25.0, 20.0, 22.0, 23.0, 10.0]
+
+## Solo durante CAIDA; _physics_process no toca el sprite en la cinematica.
+func _apoyar_caida() -> void:
+	var f := _sprite.frame
+	_sprite.position.y = CAIDA_APOYO[f] if f < CAIDA_APOYO.size() else 0.0
+
 ## Velocidad del nodo en cada fotograma del arranque de andar, en px/s de hoja.
 ## Sale del avance real del pie plantado respecto al eje del tronco, medido sobre
 ## 04_limpios (master px por fotograma: 0, 0.7, 2.2, 2.6, 4.6, 6.3, 7.1, 8.2, 8.3,
@@ -858,26 +1139,48 @@ const MANUALES := ["andar", "correr"]
 ## a los 30 fps a los que va la animacion: v = master/2 * 30. El ultimo da 189,
 ## contra los 192 del ciclo. Con la recta antigua el nodo hacia 256 px master en
 ## el arranque y los pies 292, y ademas mal repartidos.
-## Lo mismo para correr, y aqui el error era mayor y al reves. Midiendo el pie
+const AVANCE_ARRANQUE_ANDAR := [0.0, 10.5, 33.0, 39.0, 69.0, 94.5, 106.5, 123.0, 124.5, 148.5, 154.5, 181.5, 169.5, 165.0, 175.5, 175.5, 189.0, 189.0, 189.0]
+## Ultimo fotograma del arranque de andar en que soltar vuelve a reposo en vez
+## de pasar por la parada. Solo el 0 tiene velocidad 0, pero hasta el 3 el nodo
+## ha avanzado ~2,7 px y los pies siguen casi juntos: la parada, que empieza a
+## media zancada, ahi es un fotograma que no encaja con nada.
+const ARRANQUE_ANDAR_DE_PIE := 3
+
+## Velocidad del nodo en cada fotograma del arranque de correr, y aqui el error
+## (con la rampa recta) era mayor y al reves. Midiendo el pie
 ## plantado: 6 fotogramas quieto, el 6 avanza 5,4 px master, el 7 dieciseis, y del
 ## 8 en adelante YA VA A CRUCERO (32, 31, 26, 25, 29, 33...). La rampa recta daba
 ## 5,7 en el fotograma 8: las piernas corriendo a tope con el cuerpo al 20 %, o
 ## sea el pie resbalando hacia atras todo el arranque. En px/s de hoja.
 const AVANCE_ARRANQUE_CORRER := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 81.0, 240.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0]
+## Por que fotograma entra el arranque de correr con un doble toque desde
+## reposo. Medido contra el reposo f0 (silueta y color, en pasos normales del
+## ciclo de andar): f0 0,84, f1 0,64, f2 0,66, f3 0,67, f4 0,83, f5 0,99. El 3
+## sigue quieto (velocidad 0 hasta el 5) y ahorra 0,1 s de fotogramas quietos.
+const ARRANQUE_CORRER_DESDE_REPOSO := 3
 
-const AVANCE_ARRANQUE_ANDAR := [0.0, 10.5, 33.0, 39.0, 69.0, 94.5, 106.5, 123.0, 124.5, 148.5, 154.5, 181.5, 169.5, 165.0, 175.5, 175.5, 189.0, 189.0, 189.0]
-
+## Por que fotograma del arranque de correr entrar segun la pose que se traiga.
+## Cuando se pide correr ya andando -- o con la segunda pulsacion de un doble,
+## que llega con el arranque de andar ya en marcha -- entrar por el fotograma
+## que da la velocidad que se lleva (el 14) deja la pose a 2,2-2,8 pasos de
+## cualquier fotograma de andar: mas que el rebote del brazo que se quito. Estas
+## tablas (esta y POSE_DESDE_ANDAR, mas abajo) dan, para cada fotograma de origen, el fotograma del arranque de
+## correr que MAS SE PARECE (silueta y color, medido): media 1,05 y 1,34 pasos.
+## La velocidad no se pierde por entrar antes: _velocidad_suelo la sostiene
+## hasta que la rampa la alcanza.
 const POSE_DESDE_ARRANQUE_ANDAR := [0, 0, 0, 0, 0, 3, 4, 4, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 7, 7, 5]
+
 ## PARAR DE ANDAR. La parada esta grabada desde UNA sola fase de la zancada: sus
 ## fotogramas casan con el ciclo alrededor de f26-f29 (y f3), a >= 1,1 pasos, y la
 ## otra mitad del ciclo no tiene equivalente. Entrando siempre por su fotograma 0
 ## el salto de pose iba de 1,1 a 3,8 pasos segun donde soltaras (media 2,4): el
 ## "efecto raro al pararse". Lo que hacen los juegos con una sola parada es dejar
 ## que el personaje TERMINE EL PASO hasta un apoyo que case: aqui, como mucho
-## `espera_parada_andar` fotogramas del ciclo (10 = 0,33 s; 5 de media).
-## PARADA_ANDAR_BUENOS son los fotogramas del ciclo desde los que la entrada
-## queda a <= 1,3 pasos; POSE_ANDAR_A_PARADA dice por que fotograma de la parada
-## entrar desde cada fotograma del ciclo.
+## `espera_parada_andar` fotogramas del ciclo como tope (34 = el ciclo entero, o
+## sea esperar siempre); la espera real la marca tolerancia_parada_andar: se
+## espera a un fotograma con DIST_PARADA_ANDAR por debajo, hasta 20 fotogramas.
+## POSE_ANDAR_A_PARADA dice por que fotograma de la parada entrar desde cada
+## fotograma del ciclo.
 ## Distancia de pose, en pasos normales, al entrar en la parada desde cada
 ## fotograma del ciclo. Medido sobre los sprites (silueta y color).
 const DIST_PARADA_ANDAR := [1.7, 1.5, 1.3, 1.3, 1.7, 1.8, 1.8, 2.0, 2.1, 2.4, 2.5, 2.4, 2.4, 2.2, 2.3, 2.4, 2.7, 3.3, 3.2, 2.9, 2.8, 2.3, 2.2, 1.7, 1.3, 1.1, 1.1, 1.2, 1.1, 1.1, 1.2, 1.4, 1.6, 1.8]
@@ -927,7 +1230,7 @@ func _poner(nombre: String) -> void:
 ## Suena la pisada si entre el ultimo fotograma puesto y este se ha pasado por un
 ## sprite de contacto. Se mira el tramo entero, no solo el fotograma actual, por
 ## si un tick de fisica salta mas de un sprite, que pasa en cuanto se corre
-## rapido: a 416 px/s y 14,5 px por fotograma toca cambiar 28,7 veces por
+## rapido: a 435 px/s y 14,5 px por fotograma toca cambiar 30 veces por
 ## segundo, y basta una bajada de framerate para saltarse un contacto.
 func _pisar(fotograma: int, n: int) -> void:
 	if fotograma == _ultimo_fotograma:
@@ -944,9 +1247,14 @@ func _pisar(fotograma: int, n: int) -> void:
 	_ultimo_fotograma = fotograma
 
 ## Sube y baja la cuenta de esfuerzo y, en reposo, lleva el volumen de la
-## respiracion a donde le toca. El volumen no va con tween sino acercandose cada
-## tick (30 dB/s): asi no hay dos cosas moviendolo y el fundido de entrada sale
-## solo. Cuando el esfuerzo llega a cero, se apaga con el fundido de siempre.
+## respiracion a donde le toca. El nivel que pide el esfuerzo no va con tween
+## sino acercandose cada tick (30 dB/s): asi no hay dos cosas moviendolo y el
+## fundido de entrada sale solo. La variacion de cada ciclo se le suma aparte y
+## de golpe, en la costura del bucle, que es el valle entre dos respiraciones y
+## ahi no se oye. Antes iba todo junto por el mismo move_toward, y un ciclo
+## saltado (-80 dB) se llevaba tambien la mitad del siguiente mientras el
+## volumen volvia a subir. Cuando el esfuerzo llega a cero, se apaga con el
+## fundido de siempre.
 func _actualizar_esfuerzo(delta: float) -> void:
 	match _estado:
 		Estado.CORRER, Estado.ARRANQUE_CORRER:
@@ -965,8 +1273,9 @@ func _actualizar_esfuerzo(delta: float) -> void:
 	if pos < _resp_pos - 1.0:
 		_resp_ciclo_db = -80.0 if randf() < respiracion_saltar_ciclo else randf_range(-respiracion_variacion_db, respiracion_variacion_db)
 	_resp_pos = pos
-	var objetivo := lerpf(respiracion_tranquilo_db, respiracion_db, _esfuerzo) + _resp_ciclo_db
-	_respiracion.volume_db = move_toward(_respiracion.volume_db, objetivo, 30.0 * delta)
+	var objetivo := lerpf(respiracion_tranquilo_db, respiracion_db, _esfuerzo)
+	_resp_base_db = move_toward(_resp_base_db, objetivo, 30.0 * delta)
+	_respiracion.volume_db = -80.0 if _resp_ciclo_db <= -80.0 else _resp_base_db + _resp_ciclo_db
 
 ## Arranca la respiracion al entrar en reposo -- solo si hay esfuerzo que
 ## recuperar -- o la apaga con un fundido corto al salir: cortarla en seco al
@@ -978,12 +1287,19 @@ func _respirar(activa: bool) -> void:
 	if activa:
 		if _esfuerzo <= 0.0:
 			return
-		if not _respiracion.playing:
-			# Empieza 6 dB por debajo de su sitio y _actualizar_esfuerzo la sube.
-			_respiracion.volume_db = lerpf(respiracion_tranquilo_db, respiracion_db, _esfuerzo) - 6.0
-			_resp_ciclo_db = 0.0
-			_resp_pos = 0.0
-			_respiracion.play()
+		# Empieza 6 dB por debajo de su sitio y _actualizar_esfuerzo la sube.
+		# Siempre desde el principio del bucle (el valle entre dos respiraciones),
+		# a la par que el fotograma 0 del pecho, que es por donde entra el reposo.
+		# Tambien si vuelve al reposo con el fundido de salida a medias (un toque
+		# corto, un giro en el sitio): seguir el audio por donde iba dejaba el
+		# pecho y el sonido desfasados media respiracion hasta el siguiente paseo.
+		# play() sobre un reproductor que ya suena apaga lo anterior con una
+		# rampa corta, sin chasquido.
+		_resp_base_db = lerpf(respiracion_tranquilo_db, respiracion_db, _esfuerzo) - 6.0
+		_respiracion.volume_db = _resp_base_db
+		_resp_ciclo_db = 0.0
+		_resp_pos = 0.0
+		_respiracion.play(0.0)
 		return
 	# Apagar lo que ya esta apagado no es nada: sin esto se creaba un tween
 	# vacio y Godot lo avisaba como error en cada cambio de animacion de la
@@ -993,6 +1309,20 @@ func _respirar(activa: bool) -> void:
 	_fundido = create_tween()
 	_fundido.tween_property(_respiracion, "volume_db", -40.0, 0.25)
 	_fundido.tween_callback(_respiracion.stop)
+
+## Reposo con la respiracion callada: a veces se sostiene el valle entre dos
+## respiraciones (la costura del bucle) un rato al azar, para que no se lea el
+## bucle. Con la respiracion sonando no: el pecho tiene que ir con el audio.
+## animation_looped y no frame_changed al fotograma 0, porque ese tambien salta
+## al entrar en reposo desde otra animacion, y ahi no toca pararse.
+func _al_dar_vuelta() -> void:
+	if _estado != Estado.REPOSO or _sprite.animation != &"reposo" or _respiracion.playing \
+			or randf() >= reposo_pausa_prob:
+		return
+	_sprite.pause()
+	get_tree().create_timer(randf_range(reposo_pausa_min, reposo_pausa_max), false).timeout.connect(func() -> void:
+		if _estado == Estado.REPOSO and _sprite.animation == &"reposo" and not _sprite.is_playing():
+			_sprite.play())
 
 ## Los bucles no emiten esta senal; solo llegan aqui arranques, paradas y salto.
 func _al_terminar() -> void:
@@ -1013,6 +1343,7 @@ func _al_terminar() -> void:
 			# Tumbado es un solo fotograma en bucle: no avisa de nada. La espera
 			# la pone un temporizador, y se comprueba el estado al volver por si
 			# algo lo hubiera sacado de ahi mientras tanto.
+			_sprite.position.y = 0.0  # por si acaso: CAIDA_APOYO ya acaba en 0
 			_cambiar(Estado.TUMBADO)
 			get_tree().create_timer(tumbado_espera).timeout.connect(func() -> void:
 				if _estado == Estado.TUMBADO:
@@ -1027,7 +1358,13 @@ func _al_terminar() -> void:
 			# que es exactamente el sprite de siempre volteado, asi que voltear
 			# aqui no se nota.
 			_mirar(_giro_destino)
-			var sigue := Input.get_axis("mover_izquierda", "mover_derecha")
+			# Salto pedido durante el giro (guardado en _physics_process): sale
+			# ahora, ya mirando al lado nuevo. Parado, asi que salto de parado;
+			# si sigue con la tecla pulsada, al caer sale andando hacia alli.
+			if _salto_en_espera():
+				_saltar()
+				return
+			var sigue := _eje()
 			if is_zero_approx(sigue) or signf(sigue) != _mirando:
 				_cambiar(Estado.REPOSO)
 			else:

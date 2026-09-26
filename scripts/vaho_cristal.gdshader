@@ -45,11 +45,13 @@ void fragment() {
 	vec2 d = (uv - center);
 	d.x *= 1.35;
 	float dist = length(d) * (2.0 / scale);
-	float mask = smoothstep(0.7, 0.2, dist);
+	// smoothstep con los bordes al reves no esta definido en GLSL; esta forma da
+	// exactamente la misma curva sin depender del driver.
+	float mask = 1.0 - smoothstep(0.2, 0.7, dist);
 
 	float n = fbm(uv * 3.0 + vec2(TIME * 0.01) + seed);
 	float hot = mask * (0.3 + n * 0.7) * intensity;
-	float cold = smoothstep(0.8, 0.2, dist + n * 0.1) * residue;
+	float cold = (1.0 - smoothstep(0.2, 0.8, dist + n * 0.1)) * residue;
 
 	float final_alpha = clamp(hot + cold * 0.8, 0.0, 0.6);
 	vec3 fog_color = vec3(0.95, 0.98, 1.0);

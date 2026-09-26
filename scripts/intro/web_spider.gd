@@ -9,7 +9,9 @@ extends Node2D
 ##   sarcophagus     esquina de arriba a la derecha, en penumbra. Ahi NO se le
 ##                   llama a volar() nunca: se queda quieta en su rincon toda la
 ##                   escena, que es justo lo que se quiere. Si no se llama, las
-##                   hojas de las alas no llegan a cargarse siquiera.
+##                   hojas de las alas no llegan a cargarse siquiera. El titulo, que
+##                   siempre vuela, las deja cargadas de antemano con
+##                   precargar_vuelo(), para que no se carguen en mitad del zoom.
 ##
 ## Cuando se le llama a volar(), se asusta: abre las alas y sube en vertical a la
 ## telarana de la esquina de arriba, justo encima de donde estaba, donde se posa.
@@ -186,6 +188,8 @@ var _grado_px := 1.0
 var _salida := Vector2.ZERO
 var _tras_orientar := PASEO
 var _dist_refugio := 0.0
+## Solo para retener las hojas del vuelo en la cache (ver precargar_vuelo).
+var _hojas_vuelo: Array[Texture2D] = []
 
 func _ready() -> void:
 	_escala = alto_px / ALTO_HOJA
@@ -219,6 +223,16 @@ func _poner(anim: String, f: int) -> void:
 func _n(anim: String) -> int:
 	return int(ANIMS[anim]["n"])
 
+## Solo el titulo: deja cargadas las hojas del vuelo antes de necesitarlas. Si
+## no, _poner() las carga al cambiar de animacion, y eso cae tres veces en mitad
+## del zoom de salida (despegue, vuelo, aterrizaje): un tiron por hoja. Con esto
+## load() las encuentra ya en la cache. El ataud no lo llama y sigue sin cargarlas.
+func precargar_vuelo() -> void:
+	if not _hojas_vuelo.is_empty():
+		return
+	for k in ["abrir", "volando", "cerrar"]:
+		_hojas_vuelo.append(load(ANIMS[k]["hoja"]))
+
 ## Suma esfuerzo (px recorridos + grados girados) y saca de ahi el fotograma.
 func _gastar(dist: float, grados: float) -> void:
 	_paso += dist + absf(grados) * _grado_px
@@ -230,6 +244,12 @@ func volar() -> float:
 		return 0.0
 	_estado = DESPEGUE
 	_t = 0.0
+	# El giro de la telarana se va sumando sin limite (cada pivote suma o resta
+	# unos grados), y el tween de abajo va a 0 absoluto: con 400 grados acumulados
+	# daba mas de una vuelta entera en 0,375 s, una pirueta justo al despegar. Se
+	# lleva al mismo angulo dentro de -180..180, que se ve igual, y asi deshace
+	# como mucho media vuelta por el camino corto.
+	_sprite.rotation_degrees = wrapf(_sprite.rotation_degrees, -180.0, 180.0)
 	_poner("abrir", 0)
 	# Mientras dura el tramo en que todavia es araña cenital, se deshace el giro:
 	# cuando salgan las alas ya esta de cara. Es lo que hace que las dos vistas
@@ -342,6 +362,8 @@ func _hacer_giro(delta: float) -> void:
 	_sprite.rotation_degrees = lerpf(_gr_desde, _gr_hasta, s)
 	_gastar(0.0, _sprite.rotation_degrees - antes)
 	if k >= 1.0:
+		# Mismo angulo, acotado: que no se vaya acumulando vuelta tras vuelta.
+		_sprite.rotation_degrees = wrapf(_sprite.rotation_degrees, -180.0, 180.0)
 		_estado = ESPERA
 		_espera = randf_range(espera_min, espera_max)
 
@@ -353,6 +375,7 @@ func _hacer_orienta(delta: float) -> void:
 	_sprite.rotation_degrees = lerpf(_gr_desde, _gr_hasta, s)
 	_gastar(0.0, _sprite.rotation_degrees - antes)
 	if k >= 1.0:
+		_sprite.rotation_degrees = wrapf(_sprite.rotation_degrees, -180.0, 180.0)
 		_t = 0.0
 		var v: float = paseo_velocidad if _tras_orientar == PASEO else regreso_velocidad
 		_dur = maxf(_pos_desde.distance_to(_pos_hasta) / maxf(v, 0.5), 0.05)
@@ -401,6 +424,7 @@ func _hacer_huida(delta: float) -> void:
 	_sprite.rotation_degrees = lerpf(_gr_desde, _gr_hasta, minf(k * 2.5, 1.0))
 	_gastar(position.distance_to(antes_p), _sprite.rotation_degrees - antes_g)
 	if k >= 1.0:
+		_sprite.rotation_degrees = wrapf(_sprite.rotation_degrees, -180.0, 180.0)
 		_estado = ESCONDIDA
 		_espera = randf_range(refugio_espera_min, refugio_espera_max)
 

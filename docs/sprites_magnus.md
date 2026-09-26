@@ -14,7 +14,7 @@ que rehacer las tres.
 | `scenes/characters/magnus.tscn` | el personaje |
 | `scripts/characters/magnus.gd` | la maquina de estados, y desde ella el sonido |
 | `assets/audio/magnus_paso_*.wav` | las pisadas: `a`/`b` al andar, `correr_a`/`correr_b` al correr |
-| `assets/audio/magnus_respirar_ciclo.ogg` | la respiracion en bucle del reposo (2,5 s, igual que la animacion) |
+| `assets/audio/magnus_respirar_ciclo.ogg` | la respiracion del reposo tras un esfuerzo (bucle de 2,5 s, igual que la animacion); en reposo normal no suena |
 | `scenes/game/dark_stage.tscn` | la escena negra, con Magnus instanciado |
 
 **Sonido.** Los videos de `raw\master_mason\anim\_fuentes` traen audio, y va
@@ -47,6 +47,16 @@ que el bucle no sea regular, cada vuelta cambia el volumen al azar dentro de
 `respiracion_saltar_ciclo`); el tono no se toca porque desfasaria el sonido del
 pecho. Todo son exports del nodo, junto con `pasos_db`.
 
+Cada vez que entra en reposo con esfuerzo, la respiracion arranca desde el
+principio del bucle, a la par que el fotograma 0 del pecho, aunque viniera de
+un fundido de salida a medias (un toque corto, un giro en el sitio): seguir el
+audio por donde iba dejaba sonido y pecho desfasados hasta 1,2 s. Y en reposo
+con la respiracion callada, al dar la vuelta la animacion a veces se sostiene
+el valle entre dos respiraciones un rato al azar (`reposo_pausa_prob` 0,35,
+entre `reposo_pausa_min` y `reposo_pausa_max`, 0,4-1,2 s) para que no se lea el
+bucle; con la respiracion sonando no, que el pecho tiene que ir con el audio.
+`reposo_pausa_prob = 0` lo quita.
+
 Las animaciones que reproduce el nodo (arranques, paradas, saltos, aterrizaje)
 tienen sus golpes en la tabla `GOLPES` de `magnus.gd`, disparados desde
 `frame_changed`: el contacto del pie en `arranque_correr` (sprite 17),
@@ -69,8 +79,10 @@ Controles (definidos en `project.godot`): flechas izquierda/derecha o A/D para
 andar, **doble pulsacion** de la misma flecha para correr, flecha arriba o espacio
 para saltar. Al soltar, entra la frenada y vuelve a reposo.
 
-**Cambiar de sentido** no voltea en seco: pasa por la frenada, voltea cuando la
-velocidad ya es cero y arranca al otro lado. Desde que existe la animacion de
+**Cambiar de sentido** no voltea en seco: pasa por la frenada, voltea cuando ya
+ha frenado (por debajo del 30 % de la velocidad con que entro en la parada de
+andar, pasado `frenada_correr` en la de correr, 30 % de la de andar en la cola
+del salto) y arranca al otro lado. Desde que existe la animacion de
 `giro` (5 poses, 0,25 s), el volteo lo hace ella y el `flip_h` se aplica al
 terminar; con `giro_activo = false` vuelve al volteo instantaneo de antes.
 
@@ -143,12 +155,12 @@ Los parametros del personaje y el porque de cada numero estan en
 | animacion | fotogramas | hframes | vframes | fps | tipo |
 |---|---|---|---|---|---|
 | `respirando` | 29 de 30 | 6 | 5 | 11,6 | bucle (sin el c_30: cerraba a 0,058, dos pasos; sin el, 0,034; 29/11,6 sigue siendo 2,5 s, lo que dura el audio) |
-| `arranque_andar` | 34 | 6 | 6 | 24 | una pasada |
-| `andando` | 34 | 6 | 6 | 24 | bucle |
-| `parada_andar` | 21 | 7 | 3 | 24 | una pasada |
-| `arranque_correr` | 38 | 7 | 6 | 24 | una pasada |
-| `corriendo` | 24 | 6 | 4 | 24 | bucle |
-| `parada_correr` | 39 | 7 | 6 | 24 | una pasada |
+| `arranque_andar` | 34 | 6 | 6 | 30 | una pasada |
+| `andando` | 34 | 6 | 6 | 30 | bucle |
+| `parada_andar` | 21 | 7 | 3 | 30 | una pasada |
+| `arranque_correr` | 38 | 7 | 6 | 30 | una pasada |
+| `corriendo` | 24 | 6 | 4 | 30 | bucle |
+| `parada_correr` | 39 | 7 | 6 | 30 | una pasada |
 | `salto_andando` | 70 | 10 | 7 | 60 | una pasada (saltar andando) |
 | `salto_parado` | 66 | 9 | 8 | 60 | una pasada (saltar desde el reposo) |
 | `salto_corriendo` | 38 | 8 | 5 | 60 | una pasada, casilla 340x400 |
@@ -206,6 +218,13 @@ acabe en el golpe, y el script lo arranca `caida_duracion` antes del impacto;
 que es donde cae el ataque en el video, cuando el cuerpo da contra el suelo;
 `magnus_levantarse.ogg` es el roce de la ropa, acelerado x1,65 con `atempo`
 para durar lo que dura la animacion. Niveles en `golpe_db` y `cinematica_db`.
+
+En los cinco primeros sprites de `caida` el personaje del video aun no ha tocado
+el suelo (su punto mas bajo queda 25, 20, 22, 23 y 10 px por encima de la linea
+de suelo): el nodo llegaba a ~28 px por tick y se quedaba flotando 0,17 s.
+`CAIDA_APOYO` baja el sprite esos px para que llegue y apoye a la vez. El bucle
+`cayendo` se arranca truncando `caida_duracion * fps` (no redondeando), para
+que el impacto caiga en su fotograma 7, el que enlaza con `caida`.
 
 En **andar** el enlace es exacto: `arranque_andar` acaba en el fotograma
 inmediatamente anterior al que abre `andando` en el video original (52 -> 53).
@@ -344,6 +363,38 @@ dicho que al terminar salga corriendo (`_giro_corriendo`), que es lo que ya hace
 `_al_terminar`. Medido con el piloto: giro 14,02-14,27 s completo y arranque de
 correr justo despues.
 
+El cambio de sentido **nunca gira a toda velocidad**: pulsar hacia atras en marcha,
+en una parada a medio frenar, en la cola de un salto o en el aterrizaje del
+salto corriendo deja el giro pendiente (`_giro_pendiente`) y lo lanza
+`_resolver_giro` cuando ya ha frenado (30 % de la de andar; en la parada de
+correr, pasado `frenada_correr`, y ahi suena el pie que planta aunque la parada
+se corte antes de su sprite 5). Andando, la parada del cambio de sentido entra
+por `POSE_ANDAR_A_PARADA` como al soltar, sin la espera.
+
+**Saltar durante el giro** no lo corta: el salto se guarda (`margen_salto`,
+0,15 s, que se mantiene vivo mientras dura el giro) y sale al terminar, ya
+mirando al lado nuevo. El mismo buffer vale para un salto pulsado justo antes de
+caer: sale en cuanto el salto en curso deja cortarse, y lo relanza desde el
+principio (antes esa pulsacion se tragaba pero subia el esfuerzo). La cola del
+salto corriendo es la excepcion: relanzar ahi como "saltar" frenaba de ~514 a
+192 px/s en un tick, asi que el buffer se mantiene vivo esos 0,1 s y el salto
+sale en el primer tick del aterrizaje (217 px/s, la misma que deja la cola), o
+del ciclo si la direccion sigue pulsada.
+
+**En el aire no se arranca.** Un doble toque hacia delante durante el vuelo
+cortaba el salto en seco (el arco y la altura cocida a 0 en un tick); ahora se
+ignora y, al caer, manda la tecla que siga pulsada. Hacia atras si cuenta: deja
+el giro pendiente (corriendo, si es doble), como en tierra. Y una direccion
+pulsada en la cola del salto corriendo (los ultimos 6 fotogramas) sigue
+corriendo por el ciclo, igual que si se hubiera mantenido desde antes; antes
+salia andando a 192 px/s desde ~465.
+
+**Una tecla mantenida** arranca igual que una pulsacion nueva: si venia pulsada
+durante la cinematica de entrada o se cambio a mitad del giro, al quedar libre
+el personaje sale andando. `andar_hasta()` usa el mismo camino; si el objetivo
+queda mas alla de un limite del mundo, el limite cuenta como llegada y `llegado`
+sale igual (antes no salia nunca y un `await llegado` se quedaba colgado).
+
 La casilla se hizo simetrica a proposito (292 de ancho para un personaje que
 ocupa como mucho 262 hacia un lado): al voltearla, el personaje **no se
 desplaza**. Si algun dia se recorta la casilla para ahorrar, esto se rompe.
@@ -469,9 +520,10 @@ Lo montado, que es lo que hacen los juegos con una sola animacion de parada:
 
 - La parada a **30 fps**, como el ciclo.
 - Al soltar, el personaje **termina el paso**: se espera a un fotograma del ciclo
-  desde el que la entrada queda a <= 1,3 pasos (`PARADA_ANDAR_BUENOS`: f2-f3 y
-  f24-f30), como mucho `espera_parada_andar` = 10 fotogramas (0,33 s). Medido:
-  de 0 a 20 ticks de espera, 3-67 px de mas.
+  desde el que la entrada queda a <= 1,3 pasos (`DIST_PARADA_ANDAR` por debajo
+  de `tolerancia_parada_andar`: f2-f3 y f24-f30). El tope,
+  `espera_parada_andar`, esta hoy en 34 (el ciclo entero, o sea esperar
+  siempre): la espera real es de hasta 20 fotogramas (0,67 s).
 - Se entra por el fotograma de la parada mas parecido a la pose actual
   (`POSE_ANDAR_A_PARADA`).
 - El nodo frena siguiendo el **perfil medido** de los pies
@@ -479,8 +531,8 @@ Lo montado, que es lo que hacen los juegos con una sola animacion de parada:
   traia: entra a 192 px/s en todos los casos, sin bajon, y para en 50-56 px.
 
 Queda un caso peor: soltando entre f4 y f12 la ventana buena esta a 12-20
-fotogramas, la espera se corta a 10 y se entra con salto de pose. Esperar mas
-seria 0,67 s andando solo. Lo que lo arreglaria del todo es una **segunda
+fotogramas. Con la espera en 10 se entraba con salto de pose; hoy se espera
+siempre, y el precio es hasta 0,67 s andando solo. Lo que lo arreglaria del todo es una **segunda
 parada** grabada desde la otra fase de la zancada (el otro pie delante).
 
 ### El arranque de andar: velocidad medida, no una rampa recta
@@ -506,8 +558,12 @@ Lo montado ahora:
 
 - `arranque_andar` a **30 fps**, misma cadencia que el ciclo.
 - Su velocidad sale de `AVANCE_ARRANQUE_ANDAR`, la tabla medida a media escala
-  y a 30 fps (v = master/2 * 30), fotograma a fotograma. Los dos primeros son 0:
-  la zona muerta ya no hace falta como fraccion.
+  y a 30 fps (v = master/2 * 30), fotograma a fotograma. El primero es 0 y el
+  segundo 10,5: la zona muerta ya no hace falta como fraccion. Soltar hasta el
+  fotograma 3 (`ARRANQUE_ANDAR_DE_PIE`) vuelve a reposo en vez de pasar por la
+  parada: es lo que pasa entre los dos toques de un doble real (80-120 ms), y
+  meter ahi la parada, que empieza a media zancada, daba tres poses sueltas en
+  0,2 s (arranque -> parada f0 -> arranque de correr f6).
 - Se **corta en el 18** (`corte_arranque_andar`) y el ciclo entra por el **19**
   (`entrada_andar`). Al empalme llega a 189 px/s contra 192 del ciclo.
 
@@ -543,11 +599,30 @@ animaciones en 0,25 s -- arranque f0, parada f0-4, arranque de correr f0 -- con
 dos saltos de pose de 0,97 y 1,25 pasos. Se veia como un sprite que se pone
 encima de otro sin coincidir.
 
-Si la velocidad es cero al soltar, los pies no se han movido y no hay nada que
-frenar: se vuelve a `reposo`, que es la misma pose de pie (de arranque f0 a
-arranque de correr f0 hay 0,23 pasos). Si ya se movia, la parada sigue igual.
-Efecto colateral: un toque muy corto (menos de ~5 ticks) ya no reproduce la
-parada, vuelve a reposo directamente.
+Si al soltar va por el fotograma 3 o antes del arranque de andar
+(`ARRANQUE_ANDAR_DE_PIE`; unos 8 ticks, ~0,13 s), los pies casi no se han movido
+y no hay nada que frenar: se vuelve a `reposo`, que es la misma pose de pie (de
+arranque f0 a arranque de correr f0 hay 0,23 pasos). Mas tarde, la parada sigue
+igual. En el arranque de correr, lo mismo mientras la velocidad es cero.
+
+La segunda pulsacion del doble llega entonces desde `reposo`, y el arranque de
+correr entra por su fotograma **3** (`ARRANQUE_CORRER_DESDE_REPOSO`), no por el
+0: medido contra el reposo f0, el 0 esta a 0,84 pasos y el 3 a 0,67 (el 1 y el
+2, 0,64-0,66; el 4, 0,83). Sigue quieto hasta el 5, pero ahorra 0,1 s: echa a
+correr unos 0,1 s mas tarde que cuando el doble entraba por el 6 ya andando, a
+cambio de no pasar por la parada. Una doble pulsacion lenta (soltar pasado el
+fotograma 3, mas de ~0,14 s pulsado) sigue pasando por la parada como antes.
+
+Efecto colateral: un toque de menos de ~0,14 s ya no da un pasito (antes 3-14 px
+a traves de la parada); se queda en el sitio y vuelve a reposo. El paso mas corto
+son ahora unos 24 px, con 0,15 s o mas de pulsacion.
+
+**Saltar en esos fotogramas quietos** del arranque de correr (hasta que pasa de
+192 px/s, el 7) no sale en el acto: se guarda y sale como salto corriendo en
+cuanto corre (como mucho 0,13 s entrando por el 3). Saltar ahi daba un salto de
+parado y, al caer con la tecla pulsada, salia andando: se perdia la carrera. Y
+**direccion y salto a la vez desde parado** (salto en la zona muerta del
+arranque de andar) da el salto de parado, no el de andar en el sitio.
 
 ### El salto corriendo, y por que tiene casilla propia
 
@@ -595,7 +670,7 @@ Y la linea de suelo tiene que caer donde el `offset` del sprite la espera.
 
 | animacion | fps | cuantizacion | casilla |
 |---|---|---|---|
-| reposo | 12 | (de reloj) | 292x360 |
+| reposo | 11,6 | (de reloj) | 292x360 |
 | arranque_andar, parada_andar | 30 | (de reloj) | 292x360 |
 | **andar** | 30 | **2** | 292x360 |
 | arranque_correr, parada_correr | 30 | (de reloj) | 292x360 |
@@ -603,13 +678,14 @@ Y la linea de suelo tiene que caer donde el `offset` del sprite la espera.
 | giro | 20 | (de reloj) | 292x360 |
 | saltar | 60 | (de reloj) | 292x360 |
 | salto_correr | 60 | (de reloj) | **340x400** |
-| cayendo, caida, levantarse | 24 | (de reloj) | **380x360** |
+| cayendo, caida | 24 | (de reloj) | **380x360** |
+| levantarse | 20 | (de reloj) | **380x360** |
 | tumbado | 1 | (un fotograma) | 380x360 |
 
 `andar` y `correr` los mueve el script por distancia -- el nodo esta parado --
 asi que su fps del .tres no se usa; se deja en 30 para no despistar.
 
-Las de caida se quedan a 24: no las mueve el script ni empalman con ningun ciclo
+Las de caida se quedan a 24 (`levantarse` a 20, que a 24 se veia rapida): no las mueve el script ni empalman con ningun ciclo
 movido por distancia, asi que su ritmo es una decision de animacion y no hay nada
 que igualar. (`caer_desde_arriba()` calcula el fotograma de entrada del bucle con
 `get_animation_speed`, asi que aguanta cualquier fps que se les ponga.)
@@ -635,12 +711,22 @@ Tres ajustes que importan, sobre todo si la camara va a cambiar de zoom:
 - **Mipmaps activadas.** Sin ellas, el personaje pequeno con bordes facetados
   centellea al moverse. Cuestan un 33% mas de memoria y los valen. Con una
   condicion, que ahora mismo se cumple: ver el margen entre casillas aqui abajo.
+  **Y solo cuentan si el filtro del CanvasItem es `*_WITH_MIPMAPS`**: con el
+  lineal por defecto del proyecto se suben a la GPU pero no se leen nunca, y
+  asi esta hoy: el `Sprite` de `magnus.tscn` sigue con el filtro por defecto.
+  Se probo `texture_filter = 4` (lineal con mipmaps): a la resolucion nativa
+  (2912x1632) no cambia nada, pero reducido a 0,527 (pantalla de 1536x864) el
+  personaje pierde ~20 % de contraste en los bordes y se ve desenfocado contra
+  fondos sin mipmaps. Queda pendiente de decidir a ojo: o se pone el filtro
+  (quiza con `rendering/textures/default_filters/texture_mipmap_bias` negativo,
+  que es de todo el proyecto), o se apagan las mipmaps en los `.import` de
+  Magnus y se ahorran los ~80 MiB.
 - **Filtro lineal**, no nearest. Esto es pintado, no pixel art.
 - El zoom se hace en la **`Camera2D`**, no escalando el nodo del personaje: asi
   escala toda la escena a la vez y el personaje no se despega del fondo.
 
-Coste de las siete hojas: 10,8 MB en disco, **104,7 MB de memoria de video** (139
-con mipmaps). Descontando el ciclo de correr que se descarte, unos 95. Si algun dia aprieta, activar compresion VRAM en la importacion antes
+Coste de las 16 hojas que carga `magnus_frames.tres`: **238,6 MiB de memoria de
+video** en RGBA8, 318,1 con mipmaps. Si algun dia aprieta, activar compresion VRAM en la importacion antes
 que volver a reducir la resolucion.
 
 ### El margen entre casillas, que es lo que hace seguras las mipmaps
