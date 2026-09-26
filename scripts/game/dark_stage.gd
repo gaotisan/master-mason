@@ -15,17 +15,17 @@ extends Node2D
 ## dibuja), se queda tumbado y se levanta hasta la pose de siempre. Hasta que
 ## esta de pie no hay control. A false aparece de pie como antes.
 @export var caida_al_empezar: bool = true
-## Limites de Magnus en x. La camara es fija (0-2912 px) y sobre el negro, si
-## se sale, no hay forma de saber donde esta. Los limites de magnus.gd no son
-## una pared: pasado el limite la tecla hacia ese lado deja de contar y frena
-## terminando el paso. Por eso van metidos hacia dentro lo que recorre en el
-## peor caso mas medio sprite (146 px). El peor caso no es saltar justo antes
-## del limite (~400 px) sino pasarlo corriendo: la parada de correr espera a su
-## fase buena sin frenar (hasta 45 ticks, ~330 px) y un salto corriendo pulsado
-## al final de esa espera lleva otros ~470 px. Medido con pilotos: ~800 px, con
-## Magnus en 163-2750 y los pies dentro de la vista por los dos lados.
-@export var limite_izquierdo: float = 960.0
-@export var limite_derecho: float = 1952.0
+## Limites de Magnus en x: donde tiene que quedarse, con medio personaje de
+## margen a cada borde de la camara fija (0-2912). La tecla hacia ese lado deja
+## de contar antes, lo que tarda en pararse con el paso que lleve (frenada_*),
+## y termina el paso y frena como al soltar: andando llega casi al borde y
+## corriendo se para antes. Un salto hacia el borde se acorta para no pasarlo, y
+## pegado al borde salta en el sitio. Es una demo para estudiar el movimiento:
+## cuanto mas sitio, mejor.
+@export var limite_izquierdo: float = 170.0
+@export var limite_derecho: float = 2742.0
+@export var frenada_andar: float = 200.0
+@export var frenada_correr: float = 380.0
 
 @onready var _magnus: Node2D = $Magnus
 
@@ -36,5 +36,7 @@ func _ready() -> void:
 	_magnus.position = $MagnusSpawn.position
 	_magnus.limite_izquierdo = limite_izquierdo
 	_magnus.limite_derecho = limite_derecho
+	_magnus.frenada_limite_andar = frenada_andar
+	_magnus.frenada_limite_correr = frenada_correr
 	if caida_al_empezar:
 		_magnus.caer_desde_arriba()
