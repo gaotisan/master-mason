@@ -243,7 +243,7 @@ const GOLPES := {
 const SALTO_CORRER_CAIDA_SPRITE := 33
 
 ## Se emite cuando la cinematica de entrada deja al personaje en reposo y con
-## el control devuelto.
+## el control devuelto (el bosque la usa para empezar su guion).
 signal cinematica_terminada
 ## Se emite en el sprite en que el cuerpo da contra el suelo en la caida de
 ## entrada (el mismo del golpe de sonido): el nivel levanta ahi la hojarasca.

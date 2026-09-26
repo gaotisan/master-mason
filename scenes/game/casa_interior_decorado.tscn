@@ -1,0 +1,557 @@
+[gd_scene load_steps=45 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/casa_interior_decorado.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/sala_fondo.png" id="2_fondo"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/puerta_hoja.png" id="3_puerta"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/pendulo_vara.png" id="4_vara"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/incensario.png" id="5_incensario"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/humo.png" id="6_humo"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/halo.png" id="7_halo"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/punto.png" id="8_punto"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/burbuja.png" id="9_burbuja"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/llama.png" id="10_llama"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/ruido_fuego.png" id="11_ruido"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/luz_puerta.png" id="12_luna"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/viga_frente.png" id="13_viga"]
+[ext_resource type="Shader" path="res://assets/world/casa_interior/fuego.gdshader" id="14_fuego"]
+[ext_resource type="Script" path="res://scripts/flicker_glow.gd" id="15_glow"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/esquina_izq.png" id="16_esq_izq"]
+[ext_resource type="Texture2D" path="res://assets/world/casa_interior/esquina_der.png" id="17_esq_der"]
+
+[sub_resource type="CanvasItemMaterial" id="Mat_suma"]
+blend_mode = 1
+
+[sub_resource type="ShaderMaterial" id="Mat_fuego_chimenea"]
+shader = ExtResource("14_fuego")
+shader_parameter/ruido = ExtResource("11_ruido")
+shader_parameter/velocidad = 0.45
+shader_parameter/intensidad = 1.0
+shader_parameter/plano = 0.0
+shader_parameter/altura = 0.52
+shader_parameter/color_borde = Color(0.62, 0.16, 0.03, 1)
+shader_parameter/color_medio = Color(0.98, 0.5, 0.14, 1)
+shader_parameter/color_nucleo = Color(1, 0.8, 0.5, 1)
+shader_parameter/semilla = 0.0
+
+[sub_resource type="ShaderMaterial" id="Mat_fuego_brasero"]
+shader = ExtResource("14_fuego")
+shader_parameter/ruido = ExtResource("11_ruido")
+shader_parameter/velocidad = 0.35
+shader_parameter/intensidad = 0.5
+shader_parameter/plano = 1.0
+shader_parameter/altura = 0.4
+shader_parameter/color_borde = Color(0.55, 0.12, 0.02, 1)
+shader_parameter/color_medio = Color(0.95, 0.42, 0.1, 1)
+shader_parameter/color_nucleo = Color(1, 0.75, 0.4, 1)
+shader_parameter/semilla = 3.7
+
+[sub_resource type="Curve" id="Curva_humo"]
+max_value = 2.5
+_data = [Vector2(0, 0.62), 0.0, 1.6, 0, 0, Vector2(0.35, 1.05), 1.3, 1.3, 0, 0, Vector2(1, 2.1), 0.8, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurvaTex_humo"]
+curve = SubResource("Curva_humo")
+
+[sub_resource type="Gradient" id="Grad_humo"]
+offsets = PackedFloat32Array(0, 0.08, 0.45, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.085, 1, 1, 1, 0.05, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradTex_humo"]
+gradient = SubResource("Grad_humo")
+
+[sub_resource type="ParticleProcessMaterial" id="Part_humo"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 12.0
+direction = Vector3(0, -1, 0)
+spread = 30.0
+initial_velocity_min = 8.0
+initial_velocity_max = 18.0
+gravity = Vector3(0, -15, 0)
+damping_min = 1.0
+damping_max = 2.0
+angle_min = -180.0
+angle_max = 180.0
+angular_velocity_min = -10.0
+angular_velocity_max = 10.0
+scale_min = 0.55
+scale_max = 0.85
+scale_curve = SubResource("CurvaTex_humo")
+color = Color(1, 0.95, 0.88, 1)
+color_ramp = SubResource("GradTex_humo")
+
+[sub_resource type="Curve" id="Curva_burbuja"]
+_data = [Vector2(0, 0), 0.0, 1.5, 0, 0, Vector2(0.75, 1), 0.0, 0.0, 0, 0, Vector2(0.9, 1.25), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurvaTex_burbuja"]
+curve = SubResource("Curva_burbuja")
+
+[sub_resource type="ParticleProcessMaterial" id="Part_burbujas"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(88, 5, 1)
+gravity = Vector3(0, 0, 0)
+scale_min = 0.3
+scale_max = 0.55
+scale_curve = SubResource("CurvaTex_burbuja")
+color = Color(0.72, 0.52, 0.3, 0.85)
+
+[sub_resource type="Curve" id="Curva_vapor"]
+_data = [Vector2(0, 0.6), 0.0, 1.2, 0, 0, Vector2(1, 1.8), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurvaTex_vapor"]
+curve = SubResource("Curva_vapor")
+
+[sub_resource type="Gradient" id="Grad_vapor"]
+offsets = PackedFloat32Array(0, 0.15, 0.6, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.12, 1, 1, 1, 0.06, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradTex_vapor"]
+gradient = SubResource("Grad_vapor")
+
+[sub_resource type="ParticleProcessMaterial" id="Part_vapor_caldero"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(80, 4, 1)
+direction = Vector3(0, -1, 0)
+spread = 12.0
+initial_velocity_min = 12.0
+initial_velocity_max = 24.0
+gravity = Vector3(0, -5, 0)
+damping_min = 1.0
+damping_max = 2.0
+angle_min = -180.0
+angle_max = 180.0
+scale_min = 0.5
+scale_max = 0.8
+scale_curve = SubResource("CurvaTex_vapor")
+color = Color(1, 0.93, 0.85, 1)
+color_ramp = SubResource("GradTex_vapor")
+
+[sub_resource type="Curve" id="Curva_silbido"]
+_data = [Vector2(0, 0.5), 0.0, 1.5, 0, 0, Vector2(1, 2.2), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurvaTex_silbido"]
+curve = SubResource("Curva_silbido")
+
+[sub_resource type="Gradient" id="Grad_silbido"]
+offsets = PackedFloat32Array(0, 0.12, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.32, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradTex_silbido"]
+gradient = SubResource("Grad_silbido")
+
+[sub_resource type="ParticleProcessMaterial" id="Part_silbido"]
+particle_flag_disable_z = true
+direction = Vector3(0.25, -1, 0)
+spread = 14.0
+initial_velocity_min = 30.0
+initial_velocity_max = 55.0
+gravity = Vector3(0, -6, 0)
+damping_min = 25.0
+damping_max = 35.0
+angle_min = -180.0
+angle_max = 180.0
+scale_min = 0.12
+scale_max = 0.2
+scale_curve = SubResource("CurvaTex_silbido")
+color = Color(1, 0.96, 0.9, 1)
+color_ramp = SubResource("GradTex_silbido")
+
+[sub_resource type="Gradient" id="Grad_chispa"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradTex_chispa"]
+gradient = SubResource("Grad_chispa")
+
+[sub_resource type="ParticleProcessMaterial" id="Part_chispas"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(45, 6, 1)
+direction = Vector3(0, -1, 0)
+spread = 18.0
+initial_velocity_min = 50.0
+initial_velocity_max = 110.0
+gravity = Vector3(0, -15, 0)
+damping_min = 10.0
+damping_max = 25.0
+scale_min = 0.1
+scale_max = 0.2
+color = Color(1, 0.62, 0.28, 1)
+color_ramp = SubResource("GradTex_chispa")
+
+[sub_resource type="Gradient" id="Grad_polvo"]
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.4, 1, 1, 1, 0.4, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradTex_polvo"]
+gradient = SubResource("Grad_polvo")
+
+[sub_resource type="ParticleProcessMaterial" id="Part_polvo"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(620, 380, 1)
+direction = Vector3(1, -0.3, 0)
+spread = 180.0
+initial_velocity_min = 3.0
+initial_velocity_max = 9.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.1
+scale_max = 0.2
+color = Color(1, 0.82, 0.58, 1)
+color_ramp = SubResource("GradTex_polvo")
+
+[node name="CasaInteriorDecorado" type="Node2D"]
+texture_filter = 4
+script = ExtResource("1_script")
+
+[node name="Fondo" type="Sprite2D" parent="."]
+texture = ExtResource("2_fondo")
+centered = false
+
+[node name="PuertaEntrada" type="Node2D" parent="."]
+
+[node name="Hoja" type="Polygon2D" parent="PuertaEntrada"]
+texture = ExtResource("3_puerta")
+
+[node name="Canto" type="Polygon2D" parent="PuertaEntrada"]
+color = Color(0.11, 0.07, 0.045, 1)
+
+[node name="LuzLuna" type="Sprite2D" parent="."]
+modulate = Color(0.55, 0.7, 1, 0)
+material = SubResource("Mat_suma")
+position = Vector2(86, 1152)
+scale = Vector2(1.1, 1.2)
+texture = ExtResource("12_luna")
+centered = false
+
+[node name="Fuegos" type="Node2D" parent="."]
+
+[node name="Chimenea" type="Sprite2D" parent="Fuegos"]
+material = SubResource("Mat_fuego_chimenea")
+position = Vector2(2793, 1000)
+scale = Vector2(1.22, 1.75)
+texture = ExtResource("11_ruido")
+
+[node name="Brasero" type="Sprite2D" parent="Fuegos"]
+material = SubResource("Mat_fuego_brasero")
+position = Vector2(2548, 1052)
+scale = Vector2(1.35, 0.26)
+texture = ExtResource("11_ruido")
+
+[node name="Chispas" type="GPUParticles2D" parent="Fuegos"]
+material = SubResource("Mat_suma")
+position = Vector2(2792, 1075)
+amount = 6
+process_material = SubResource("Part_chispas")
+texture = ExtResource("8_punto")
+lifetime = 1.6
+randomness = 0.5
+
+[node name="EfectosCaldero" type="Node2D" parent="."]
+
+[node name="Vapor" type="GPUParticles2D" parent="EfectosCaldero"]
+position = Vector2(2548, 872)
+amount = 10
+process_material = SubResource("Part_vapor_caldero")
+texture = ExtResource("6_humo")
+lifetime = 3.5
+preprocess = 3.5
+randomness = 0.4
+visibility_rect = Rect2(-300, -400, 600, 450)
+
+[node name="Burbujas" type="GPUParticles2D" parent="EfectosCaldero"]
+position = Vector2(2548, 884)
+scale = Vector2(1, 0.62)
+amount = 7
+process_material = SubResource("Part_burbujas")
+texture = ExtResource("9_burbuja")
+lifetime = 1.1
+randomness = 0.6
+
+[node name="EfectosAlambique" type="Node2D" parent="."]
+
+[node name="Vapor" type="GPUParticles2D" parent="EfectosAlambique"]
+position = Vector2(1312, 846)
+emitting = false
+amount = 8
+process_material = SubResource("Part_silbido")
+texture = ExtResource("6_humo")
+lifetime = 1.4
+one_shot = true
+explosiveness = 0.65
+randomness = 0.3
+visibility_rect = Rect2(-200, -300, 400, 350)
+
+[node name="Halos" type="Node2D" parent="."]
+
+[node name="VelaOrganoI" type="Sprite2D" parent="Halos"]
+modulate = Color(1, 0.72, 0.4, 0.14)
+material = SubResource("Mat_suma")
+position = Vector2(455, 790)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 11
+position_vibration = 1.5
+base_alpha = 0.14
+
+[node name="VelaOrganoD" type="Sprite2D" parent="Halos"]
+modulate = Color(1, 0.72, 0.4, 0.14)
+material = SubResource("Mat_suma")
+position = Vector2(785, 790)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 12
+position_vibration = 1.5
+base_alpha = 0.14
+
+[node name="Candil" type="Sprite2D" parent="Halos"]
+modulate = Color(1, 0.72, 0.4, 0.14)
+material = SubResource("Mat_suma")
+position = Vector2(1180, 666)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 13
+position_vibration = 1.5
+base_alpha = 0.14
+
+[node name="Lamparilla" type="Sprite2D" parent="Halos"]
+modulate = Color(1, 0.7, 0.38, 0.14)
+material = SubResource("Mat_suma")
+position = Vector2(1312, 1000)
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 14
+position_vibration = 1.0
+base_alpha = 0.14
+
+[node name="VelaMantoI" type="Sprite2D" parent="Halos"]
+modulate = Color(1, 0.72, 0.4, 0.12)
+material = SubResource("Mat_suma")
+position = Vector2(2676, 636)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 15
+position_vibration = 1.5
+base_alpha = 0.12
+
+[node name="VelaMantoD" type="Sprite2D" parent="Halos"]
+modulate = Color(1, 0.72, 0.4, 0.12)
+material = SubResource("Mat_suma")
+position = Vector2(2846, 642)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 16
+position_vibration = 1.5
+base_alpha = 0.12
+
+[node name="Brasero" type="Sprite2D" parent="Halos"]
+modulate = Color(1, 0.45, 0.16, 0.18)
+material = SubResource("Mat_suma")
+position = Vector2(2548, 1060)
+scale = Vector2(2.6, 1.6)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 17
+position_vibration = 3.0
+base_alpha = 0.18
+
+[node name="Puertecita" type="Sprite2D" parent="Halos"]
+modulate = Color(1, 0.62, 0.3, 0.12)
+material = SubResource("Mat_suma")
+position = Vector2(1518, 1152)
+scale = Vector2(0.55, 0.22)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 18
+position_vibration = 0.0
+base_alpha = 0.12
+
+[node name="PenduloIncensario" type="Node2D" parent="."]
+position = Vector2(1450, 40)
+
+[node name="Sombra" type="Node2D" parent="PenduloIncensario"]
+modulate = Color(0, 0, 0, 0.2)
+position = Vector2(-60, -10)
+
+[node name="Vara" type="Sprite2D" parent="PenduloIncensario/Sombra"]
+texture = ExtResource("4_vara")
+centered = false
+offset = Vector2(-18, 0)
+
+[node name="Incensario" type="Node2D" parent="PenduloIncensario/Sombra"]
+position = Vector2(0, 760)
+
+[node name="Cuerpo" type="Sprite2D" parent="PenduloIncensario/Sombra/Incensario"]
+texture = ExtResource("5_incensario")
+centered = false
+offset = Vector2(-65, -6)
+
+[node name="Vara" type="Sprite2D" parent="PenduloIncensario"]
+texture = ExtResource("4_vara")
+centered = false
+offset = Vector2(-18, 0)
+
+[node name="Incensario" type="Node2D" parent="PenduloIncensario"]
+position = Vector2(0, 760)
+
+[node name="Humo" type="GPUParticles2D" parent="PenduloIncensario/Incensario"]
+position = Vector2(0, 34)
+amount = 170
+process_material = SubResource("Part_humo")
+texture = ExtResource("6_humo")
+lifetime = 6.0
+fixed_fps = 0
+local_coords = false
+visibility_rect = Rect2(-2000, -1200, 4000, 2400)
+
+[node name="Cuerpo" type="Sprite2D" parent="PenduloIncensario/Incensario"]
+texture = ExtResource("5_incensario")
+centered = false
+offset = Vector2(-65, -6)
+
+[node name="Brasa" type="Sprite2D" parent="PenduloIncensario/Incensario"]
+modulate = Color(1, 0.5, 0.2, 0.16)
+material = SubResource("Mat_suma")
+position = Vector2(0, 44)
+scale = Vector2(0.55, 0.55)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 19
+position_vibration = 0.0
+base_alpha = 0.16
+
+[node name="Llamas" type="Node2D" parent="."]
+
+[node name="VelaOrganoI" type="Sprite2D" parent="Llamas"]
+material = SubResource("Mat_suma")
+position = Vector2(455, 800)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("10_llama")
+offset = Vector2(0, -36)
+
+[node name="VelaOrganoD" type="Sprite2D" parent="Llamas"]
+material = SubResource("Mat_suma")
+position = Vector2(785, 800)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("10_llama")
+offset = Vector2(0, -36)
+
+[node name="Candil" type="Sprite2D" parent="Llamas"]
+material = SubResource("Mat_suma")
+position = Vector2(1180, 672)
+scale = Vector2(0.45, 0.45)
+texture = ExtResource("10_llama")
+offset = Vector2(0, -36)
+
+[node name="Lamparilla" type="Sprite2D" parent="Llamas"]
+material = SubResource("Mat_suma")
+position = Vector2(1312, 1005)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("10_llama")
+offset = Vector2(0, -36)
+
+[node name="VelaMantoI" type="Sprite2D" parent="Llamas"]
+material = SubResource("Mat_suma")
+position = Vector2(2676, 638)
+scale = Vector2(0.48, 0.48)
+texture = ExtResource("10_llama")
+offset = Vector2(0, -36)
+
+[node name="VelaMantoD" type="Sprite2D" parent="Llamas"]
+material = SubResource("Mat_suma")
+position = Vector2(2846, 644)
+scale = Vector2(0.45, 0.45)
+texture = ExtResource("10_llama")
+offset = Vector2(0, -36)
+
+[node name="Entrada" type="Marker2D" parent="."]
+position = Vector2(330, 1200)
+
+[node name="SitioDominus" type="Marker2D" parent="."]
+position = Vector2(2250, 1200)
+
+[node name="Mesa" type="Marker2D" parent="."]
+position = Vector2(2150, 1200)
+
+[node name="Organo" type="Marker2D" parent="."]
+position = Vector2(620, 1200)
+
+[node name="Potro" type="Marker2D" parent="."]
+position = Vector2(1050, 1200)
+
+[node name="Alambique" type="Marker2D" parent="."]
+position = Vector2(1336, 1200)
+
+[node name="Pendulo" type="Marker2D" parent="."]
+position = Vector2(1450, 1200)
+
+[node name="Puertas" type="Marker2D" parent="."]
+position = Vector2(1690, 1200)
+
+[node name="Trampilla" type="Marker2D" parent="."]
+position = Vector2(2100, 1200)
+
+[node name="Caldero" type="Marker2D" parent="."]
+position = Vector2(2548, 1200)
+
+[node name="Hacha" type="Marker2D" parent="."]
+position = Vector2(2870, 1200)
+
+[node name="LimiteIzq" type="Marker2D" parent="."]
+position = Vector2(300, 1200)
+
+[node name="LimiteDer" type="Marker2D" parent="."]
+position = Vector2(1850, 1200)
+
+[node name="Personajes" type="Node2D" parent="."]
+texture_filter = 2
+
+[node name="PrimerPlano" type="Node2D" parent="."]
+
+[node name="LuzChimenea" type="Sprite2D" parent="PrimerPlano"]
+modulate = Color(1, 0.55, 0.22, 0.12)
+material = SubResource("Mat_suma")
+position = Vector2(2790, 1000)
+scale = Vector2(5.5, 4.5)
+texture = ExtResource("7_halo")
+script = ExtResource("15_glow")
+noise_seed = 20
+position_vibration = 6.0
+base_alpha = 0.12
+
+[node name="Polvo" type="GPUParticles2D" parent="PrimerPlano"]
+material = SubResource("Mat_suma")
+position = Vector2(2240, 720)
+amount = 26
+process_material = SubResource("Part_polvo")
+texture = ExtResource("8_punto")
+lifetime = 14.0
+preprocess = 14.0
+randomness = 0.5
+visibility_rect = Rect2(-800, -500, 1600, 1000)
+
+[node name="Viga" type="Sprite2D" parent="PrimerPlano"]
+texture = ExtResource("13_viga")
+centered = false
+
+[node name="EsquinaIzq" type="Sprite2D" parent="PrimerPlano"]
+position = Vector2(0, 1236)
+texture = ExtResource("16_esq_izq")
+centered = false
+
+[node name="EsquinaDer" type="Sprite2D" parent="PrimerPlano"]
+position = Vector2(2500, 1380)
+texture = ExtResource("17_esq_der")
+centered = false

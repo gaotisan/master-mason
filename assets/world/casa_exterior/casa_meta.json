@@ -1,0 +1,435 @@
+{
+ "nota": "Coordenadas de ESCENA: origen = suelo en el centro de la puerta; y hacia abajo. Rects = [x, y, ancho, alto].",
+ "imagen": {
+  "ancho": 2600,
+  "alto": 1240,
+  "origen_en_imagen": [
+   800,
+   1200
+  ],
+  "offset_sprite": [
+   -800,
+   -1200
+  ]
+ },
+ "puerta": {
+  "rect": [
+   -110.0,
+   -390,
+   220,
+   390
+  ],
+  "bisagra": [
+   -110.0,
+   0
+  ],
+  "arranque_arco": -225
+ },
+ "luz_puerta": {
+  "origen_en_imagen": [
+   380,
+   470
+  ]
+ },
+ "ventanas": [
+  {
+   "nombre": "oculo_fondo",
+   "rect": [
+    840.0,
+    -834.0,
+    44.0,
+    44.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "linterna",
+   "rect": [
+    613.0,
+    -998.0,
+    38.0,
+    50.0
+   ],
+   "encendida": true,
+   "luz": 0.9
+  },
+  {
+   "nombre": "fuste",
+   "rect": [
+    626.0,
+    -830.0,
+    12.0,
+    40.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "garita_izq",
+   "rect": [
+    370.0,
+    -666.0,
+    12.0,
+    46.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "garita_der",
+   "rect": [
+    840.0,
+    -696.0,
+    12.0,
+    46.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "ventanal",
+   "rect": [
+    484.0,
+    -480.0,
+    92.0,
+    230.0
+   ],
+   "encendida": true,
+   "luz": 1.0
+  },
+  {
+   "nombre": "bloque_bajo",
+   "rect": [
+    715.0,
+    -194.0,
+    50.0,
+    84.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "bloque_saetera",
+   "rect": [
+    673.0,
+    -520.0,
+    14.0,
+    50.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "torcida_saetera",
+   "rect": [
+    1010.9,
+    -442.3,
+    27.5,
+    84.6
+   ],
+   "encendida": true,
+   "luz": 0.5
+  },
+  {
+   "nombre": "torcida_alta",
+   "rect": [
+    1042.6,
+    -730.6,
+    58.4,
+    98.3
+   ],
+   "encendida": true,
+   "luz": 0.95
+  },
+  {
+   "nombre": "torcida_baja",
+   "rect": [
+    1011.2,
+    -226.4,
+    40.6,
+    61.8
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "derecha_baja",
+   "rect": [
+    1546.0,
+    -210.0,
+    70.0,
+    100.0
+   ],
+   "encendida": true,
+   "luz": 0.6
+  },
+  {
+   "nombre": "volado_izq",
+   "rect": [
+    1462.0,
+    -452.0,
+    56.0,
+    80.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "volado_der",
+   "rect": [
+    1662.0,
+    -452.0,
+    56.0,
+    80.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "cabana",
+   "rect": [
+    1542.7,
+    -591.7,
+    44.4,
+    55.3
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "cuartito",
+   "rect": [
+    -726.0,
+    -496.0,
+    26.0,
+    40.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "cono_izq",
+   "rect": [
+    -600.0,
+    -742.0,
+    30.0,
+    40.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "torre_izq",
+   "rect": [
+    -614.0,
+    -362.0,
+    22.0,
+    92.0
+   ],
+   "encendida": true,
+   "luz": 0.7
+  },
+  {
+   "nombre": "torre_izq_oculo",
+   "rect": [
+    -593.0,
+    -506.0,
+    36.0,
+    36.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "buhardilla_640",
+   "rect": [
+    -183.0,
+    -658.0,
+    46.0,
+    88.0
+   ],
+   "encendida": true,
+   "luz": 0.9
+  },
+  {
+   "nombre": "buhardilla_812",
+   "rect": [
+    -12.1,
+    -669.9,
+    43.5,
+    88.9
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "buhardilla_962",
+   "rect": [
+    139.9,
+    -654.7,
+    48.0,
+    89.5
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "entramado_1",
+   "rect": [
+    -402.0,
+    -476.0,
+    64.0,
+    64.0
+   ],
+   "encendida": true,
+   "luz": 0.8
+  },
+  {
+   "nombre": "entramado_2",
+   "rect": [
+    -262.0,
+    -476.0,
+    64.0,
+    64.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "entramado_3",
+   "rect": [
+    178.0,
+    -476.0,
+    64.0,
+    64.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "entramado_4",
+   "rect": [
+    295.0,
+    -380.0,
+    40.0,
+    50.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "baja_izq",
+   "rect": [
+    -361.0,
+    -240.0,
+    62.0,
+    130.0
+   ],
+   "encendida": true,
+   "luz": 1.0
+  },
+  {
+   "nombre": "baja_der",
+   "rect": [
+    229.0,
+    -240.0,
+    62.0,
+    130.0
+   ],
+   "encendida": false,
+   "luz": 0.0
+  },
+  {
+   "nombre": "farol",
+   "rect": [
+    -139.0,
+    -410.0,
+    30.0,
+    54.0
+   ],
+   "encendida": true,
+   "luz": 0.9
+  }
+ ],
+ "chimeneas": [
+  [
+   1645.0,
+   -825.9
+  ],
+  [
+   -266.0,
+   -814
+  ]
+ ],
+ "luces_shader": [
+  [
+   0.55077,
+   0.17409,
+   0.04038,
+   0.463
+  ],
+  [
+   0.51154,
+   0.6111,
+   0.10269,
+   0.373
+  ],
+  [
+   0.70349,
+   0.61995,
+   0.05215,
+   0.139
+  ],
+  [
+   0.72193,
+   0.39461,
+   0.05631,
+   0.867
+  ],
+  [
+   0.91577,
+   0.83871,
+   0.05769,
+   0.006
+  ],
+  [
+   0.07577,
+   0.68563,
+   0.05492,
+   0.503
+  ],
+  [
+   0.24615,
+   0.45149,
+   0.05354,
+   0.898
+  ],
+  [
+   0.16538,
+   0.60968,
+   0.04523,
+   0.081
+  ],
+  [
+   0.18077,
+   0.79394,
+   0.06808,
+   0.554
+  ],
+  [
+   0.26,
+   0.65887,
+   0.04177,
+   0.617
+  ],
+  [
+   0.30769,
+   0.72109,
+   0.15808,
+   0.041
+  ]
+ ],
+ "luces_shader_tscn": "PackedVector4Array(0.55077, 0.17409, 0.04038, 0.463, 0.51154, 0.6111, 0.10269, 0.373, 0.70349, 0.61995, 0.05215, 0.139, 0.72193, 0.39461, 0.05631, 0.867, 0.91577, 0.83871, 0.05769, 0.006, 0.07577, 0.68563, 0.05492, 0.503, 0.24615, 0.45149, 0.05354, 0.898, 0.16538, 0.60968, 0.04523, 0.081, 0.18077, 0.79394, 0.06808, 0.554, 0.26, 0.65887, 0.04177, 0.617, 0.30769, 0.72109, 0.15808, 0.041)",
+ "n_luces": 11
+}

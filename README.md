@@ -33,7 +33,9 @@ build_windows.bat run    # exporta y lanza el juego
 
 - En el ataúd, `UP`: golpear con la mano.
 - Con Magnus: flechas izquierda/derecha o `A`/`D` para andar, doble pulsación para
-  correr, `UP` o espacio para saltar.
+  correr, `UP` o espacio para saltar. Junto a la puerta de la casa, `UP` la empuja.
+- En la conversación: `UP`, espacio o `Enter` para pasar de línea; izquierda y
+  derecha para elegir.
 - `ESC`: salir.
 
 ## Flujo actual
@@ -42,10 +44,46 @@ build_windows.bat run    # exporta y lanza el juego
 Al aplastar la cucaracha se lanza el desmayo (`blackout_controller.gd`) y se pasa a
 `scenes/intro/title_screen.tscn`, que enciende la sala con luz hasta mostrar el título.
 Pasados unos segundos las velas se apagan, la sala queda en penumbra y la cámara
-entra por el cristal del ataúd hasta el negro: ahí se pasa a
-`scenes/game/dark_stage.tscn`, el escenario negro donde cae Magnus, se levanta y
-se le puede mover (andar, correr, saltar, girarse). Es también el banco de
-pruebas de los pilotos de `scenes/dev/`.
+entra por el cristal del ataúd hasta el negro: ahí se pasa al bosque,
+`scenes/game/bosque.tscn`, y de él a la casa de Dóminus,
+`scenes/game/casa_dominus.tscn`. Al acabar la conversación sale el cartel de fin
+de la demo y cualquier tecla vuelve al principio.
+
+`scenes/game/dark_stage.tscn` (el escenario negro) sigue ahí como banco de pruebas
+de Magnus; los pilotos de `scenes/dev/` lo usan.
+
+### El bosque
+
+Sigue el principio del relato. Magnus cae al atardecer en un claro junto a un
+valle con una ciudad a lo lejos (hacia allí no se puede ir: se para solo y sale
+la frase de la intuición), se interna en el bosque, anochece mientras anda, y al
+final ve la luz temblorosa de la casa. La hora no va con el reloj sino con lo
+andado: `PALETAS` en `scripts/game/bosque.gd` da los colores de cada tramo y se
+interpola por la x de Magnus. Las frases del cuento salen como leyendas al pasar
+por cada sitio (`LEYENDAS`).
+
+Todo el dibujo son siluetas blancas que el juego tinta según la hora y la
+profundidad. Se generan por código, fuera del repo:
+
+```powershell
+cd C:\Users\santiago.ochoa\godot\tools\mundo
+python bosque.py              # todas las hojas a assets/world/bosque/
+python bosque.py capa2 suelo  # solo esas
+```
+
+Las capas de árboles se repiten (`Parallax2D`); sus bordes (el claro del
+principio y el de la casa) los pone `scripts/game/capa_bosque.gdshader`, con el
+paralaje de cada capa. Las capas grandes van importadas con compresión VRAM
+(BPTC) y mipmaps.
+
+### La casa de Dóminus
+
+`scenes/game/casa_dominus.tscn` monta el decorado
+(`casa_interior_decorado.tscn`), a Dóminus (`scenes/characters/dominus.tscn`) y
+el diálogo (`scenes/ui/dialogo.tscn`), y lleva el guion de la primera
+conversación en `scripts/game/casa_dominus.gd`: entrar, recorrer la sala (cada
+artilugio tiene su frase), la pregunta del nombre con una elección, y la charla
+del relato hasta «Iram» y el favor que Dóminus le reclama.
 
 ### La araña
 

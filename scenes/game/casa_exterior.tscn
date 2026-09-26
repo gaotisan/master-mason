@@ -1,0 +1,120 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/casa_exterior.gd" id="1_casa"]
+[ext_resource type="Texture2D" uid="uid://cfikg1hmsgche" path="res://assets/world/casa_exterior/humo.png" id="2_humo"]
+[ext_resource type="Texture2D" uid="uid://4ibcjtlp3kpt" path="res://assets/world/casa_exterior/casa_silueta.png" id="3_sil"]
+[ext_resource type="Texture2D" uid="uid://dl326jjjjuc37" path="res://assets/world/casa_exterior/casa_ventanas.png" id="4_ven"]
+[ext_resource type="Shader" path="res://assets/world/casa_exterior/casa_ventanas.gdshader" id="5_shv"]
+[ext_resource type="Texture2D" uid="uid://c8nnn1q4cst2o" path="res://assets/world/casa_exterior/puerta.png" id="6_pue"]
+[ext_resource type="Shader" path="res://assets/world/casa_exterior/puerta.gdshader" id="7_shp"]
+[ext_resource type="Texture2D" uid="uid://bbnk5uv3h2clo" path="res://assets/world/casa_exterior/luz_puerta.png" id="8_luz"]
+
+[sub_resource type="Curve" id="Curve_humo"]
+_data = [Vector2(0, 0.35), 0.0, 1.1, 0, 0, Vector2(1, 1), 0.3, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_humo"]
+curve = SubResource("Curve_humo")
+
+[sub_resource type="Gradient" id="Gradient_humo"]
+offsets = PackedFloat32Array(0, 0.14, 0.55, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.42, 1, 1, 1, 0.2, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_humo"]
+gradient = SubResource("Gradient_humo")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_humo"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(9, 3, 1)
+direction = Vector3(0.1, -1, 0)
+spread = 9.0
+initial_velocity_min = 14.0
+initial_velocity_max = 24.0
+gravity = Vector3(3, -3, 0)
+damping_min = 0.6
+damping_max = 1.4
+angle_min = -180.0
+angle_max = 180.0
+angular_velocity_min = -9.0
+angular_velocity_max = 9.0
+scale_min = 1.1
+scale_max = 1.5
+scale_curve = SubResource("CurveTexture_humo")
+color_ramp = SubResource("GradientTexture1D_humo")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ventanas"]
+shader = ExtResource("5_shv")
+shader_parameter/temblor = 0.13
+shader_parameter/velocidad = 1.0
+shader_parameter/luces = PackedVector4Array(0.55077, 0.17409, 0.04038, 0.463, 0.51154, 0.6111, 0.10269, 0.373, 0.70349, 0.61995, 0.05215, 0.139, 0.72193, 0.39461, 0.05631, 0.867, 0.91577, 0.83871, 0.05769, 0.006, 0.07577, 0.68563, 0.05492, 0.503, 0.24615, 0.45149, 0.05354, 0.898, 0.16538, 0.60968, 0.04523, 0.081, 0.18077, 0.79394, 0.06808, 0.554, 0.26, 0.65887, 0.04177, 0.617, 0.30769, 0.72109, 0.15808, 0.041)
+shader_parameter/n_luces = 11
+shader_parameter/aspecto = 0.476923
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_puerta"]
+shader = ExtResource("7_shp")
+shader_parameter/apertura = 0.3
+shader_parameter/fuga = 0.06
+shader_parameter/altura_ojo = 0.22
+shader_parameter/color_luz = Color(1, 0.7, 0.36, 1)
+shader_parameter/canto_luz = 0.3
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_aditivo"]
+blend_mode = 1
+
+[node name="CasaExterior" type="Node2D"]
+texture_filter = 4
+script = ExtResource("1_casa")
+
+[node name="Humo" type="Node2D" parent="."]
+
+[node name="ChimeneaNave" type="GPUParticles2D" parent="Humo"]
+self_modulate = Color(0.64, 0.7, 0.82, 0.55)
+position = Vector2(-266, -804)
+amount = 16
+texture = ExtResource("2_humo")
+lifetime = 9.0
+preprocess = 9.0
+randomness = 0.3
+visibility_rect = Rect2(-220, -560, 660, 620)
+process_material = SubResource("ParticleProcessMaterial_humo")
+
+[node name="ChimeneaCabana" type="GPUParticles2D" parent="Humo"]
+self_modulate = Color(0.64, 0.7, 0.82, 0.55)
+position = Vector2(1645, -815.9)
+amount = 16
+texture = ExtResource("2_humo")
+lifetime = 9.0
+preprocess = 9.0
+randomness = 0.3
+visibility_rect = Rect2(-220, -560, 660, 620)
+process_material = SubResource("ParticleProcessMaterial_humo")
+
+[node name="Silueta" type="Sprite2D" parent="."]
+self_modulate = Color(0.101961, 0.129412, 0.219608, 1)
+texture = ExtResource("3_sil")
+centered = false
+offset = Vector2(-800, -1200)
+
+[node name="Ventanas" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_ventanas")
+texture = ExtResource("4_ven")
+centered = false
+offset = Vector2(-800, -1200)
+
+[node name="Puerta" type="Sprite2D" parent="."]
+self_modulate = Color(0.101961, 0.129412, 0.219608, 1)
+material = SubResource("ShaderMaterial_puerta")
+position = Vector2(-110, 0)
+scale = Vector2(0.913545, 1)
+texture = ExtResource("6_pue")
+centered = false
+offset = Vector2(0, -390)
+
+[node name="LuzPuerta" type="Sprite2D" parent="."]
+material = SubResource("CanvasItemMaterial_aditivo")
+texture = ExtResource("8_luz")
+centered = false
+offset = Vector2(-380, -470)
+
+[node name="PuntoPuerta" type="Marker2D" parent="."]

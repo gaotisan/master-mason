@@ -1,0 +1,425 @@
+[gd_scene load_steps=50 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/bosque.gd" id="s_bosque"]
+[ext_resource type="Script" path="res://scripts/game/bandada.gd" id="s_bandada"]
+[ext_resource type="Shader" path="res://scripts/game/cielo.gdshader" id="sh_cielo"]
+[ext_resource type="Shader" path="res://scripts/game/capa_bosque.gdshader" id="sh_capa"]
+[ext_resource type="Shader" path="res://scripts/game/niebla.gdshader" id="sh_niebla"]
+[ext_resource type="Shader" path="res://scripts/game/humo.gdshader" id="sh_humo"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/cielo_manchas.png" id="t_manchas"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/luna.png" id="t_luna"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/valle.png" id="t_valle"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/humo.png" id="t_humo"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/capa0.png" id="t_capa0"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/capa1.png" id="t_capa1"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/capa2.png" id="t_capa2"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/capa3.png" id="t_capa3"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/suelo.png" id="t_suelo"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/suelo_frente.png" id="t_frente"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/primer_plano.png" id="t_primer"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/gargola.png" id="t_gargola"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/estructura.png" id="t_estructura"]
+[ext_resource type="Texture2D" path="res://assets/world/bosque/hoja.png" id="t_hoja"]
+[ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="p_magnus"]
+[ext_resource type="PackedScene" path="res://scenes/tutorial/key_prompt.tscn" id="p_tecla"]
+[ext_resource type="PackedScene" path="res://scenes/game/casa_exterior.tscn" id="p_casa"]
+
+[sub_resource type="ShaderMaterial" id="m_cielo"]
+shader = ExtResource("sh_cielo")
+shader_parameter/manchas = ExtResource("t_manchas")
+
+[sub_resource type="ShaderMaterial" id="m_humo"]
+shader = ExtResource("sh_humo")
+
+[sub_resource type="ShaderMaterial" id="m_capa0"]
+shader = ExtResource("sh_capa")
+shader_parameter/escala = 0.15
+shader_parameter/inicio = 2500.0
+shader_parameter/difuminado = 450.0
+
+[sub_resource type="ShaderMaterial" id="m_capa1"]
+shader = ExtResource("sh_capa")
+shader_parameter/escala = 0.3
+shader_parameter/inicio = 2800.0
+shader_parameter/difuminado = 450.0
+
+[sub_resource type="ShaderMaterial" id="m_capa2"]
+shader = ExtResource("sh_capa")
+shader_parameter/escala = 0.5
+shader_parameter/inicio = 3000.0
+shader_parameter/fin = 14900.0
+shader_parameter/difuminado = 400.0
+
+[sub_resource type="ShaderMaterial" id="m_capa3"]
+shader = ExtResource("sh_capa")
+shader_parameter/escala = 0.72
+shader_parameter/inicio = 3300.0
+shader_parameter/fin = 14500.0
+shader_parameter/difuminado = 350.0
+
+[sub_resource type="ShaderMaterial" id="m_niebla1"]
+shader = ExtResource("sh_niebla")
+shader_parameter/centro_y = 0.66
+shader_parameter/medio_alto = 0.34
+shader_parameter/manchas = ExtResource("t_manchas")
+
+[sub_resource type="ShaderMaterial" id="m_niebla2"]
+shader = ExtResource("sh_niebla")
+shader_parameter/centro_y = 0.78
+shader_parameter/medio_alto = 0.12
+shader_parameter/deriva = 0.007
+shader_parameter/manchas = ExtResource("t_manchas")
+
+[sub_resource type="ShaderMaterial" id="m_niebla3"]
+shader = ExtResource("sh_niebla")
+shader_parameter/centro_y = 0.805
+shader_parameter/medio_alto = 0.05
+shader_parameter/deriva = 0.01
+shader_parameter/manchas = ExtResource("t_manchas")
+
+[sub_resource type="Gradient" id="g_sombra"]
+offsets = PackedFloat32Array(0, 0.55, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 0.45, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="t_sombra"]
+gradient = SubResource("g_sombra")
+width = 280
+height = 46
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="g_brillo"]
+offsets = PackedFloat32Array(0, 0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0.5, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="t_brillo"]
+gradient = SubResource("g_brillo")
+width = 64
+height = 64
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[sub_resource type="Gradient" id="g_hojas_color"]
+offsets = PackedFloat32Array(0, 0.33, 0.66, 1)
+colors = PackedColorArray(0.69, 0.39, 0.22, 1, 0.55, 0.3, 0.17, 1, 0.76, 0.55, 0.3, 1, 0.45, 0.28, 0.2, 1)
+
+[sub_resource type="GradientTexture1D" id="t_hojas_color"]
+gradient = SubResource("g_hojas_color")
+
+[sub_resource type="Gradient" id="g_hojas_vida"]
+offsets = PackedFloat32Array(0, 0.08, 0.85, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 0.9, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="t_hojas_vida"]
+gradient = SubResource("g_hojas_vida")
+
+[sub_resource type="ParticleProcessMaterial" id="pm_hojas"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(1900, 40, 1)
+direction = Vector3(-0.35, 1, 0)
+spread = 25.0
+initial_velocity_min = 40.0
+initial_velocity_max = 95.0
+gravity = Vector3(0, 32, 0)
+angular_velocity_min = -140.0
+angular_velocity_max = 140.0
+scale_min = 0.45
+scale_max = 1.0
+color_ramp = SubResource("t_hojas_vida")
+color_initial_ramp = SubResource("t_hojas_color")
+turbulence_enabled = true
+turbulence_noise_strength = 1.2
+turbulence_noise_scale = 3.0
+turbulence_influence_min = 0.04
+turbulence_influence_max = 0.12
+
+[sub_resource type="Gradient" id="g_luciernaga"]
+offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 1)
+colors = PackedColorArray(0.6, 0.9, 1, 0, 0.6, 0.9, 1, 0.9, 0.6, 0.9, 1, 0.25, 0.6, 0.9, 1, 0.85, 0.6, 0.9, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="t_luciernaga"]
+gradient = SubResource("g_luciernaga")
+
+[sub_resource type="ParticleProcessMaterial" id="pm_luciernagas"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(1700, 230, 1)
+direction = Vector3(0, -1, 0)
+spread = 180.0
+initial_velocity_min = 4.0
+initial_velocity_max = 16.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.18
+scale_max = 0.34
+color_ramp = SubResource("t_luciernaga")
+turbulence_enabled = true
+turbulence_noise_strength = 2.0
+turbulence_noise_scale = 1.6
+turbulence_influence_min = 0.08
+turbulence_influence_max = 0.2
+
+[sub_resource type="CanvasItemMaterial" id="m_suma"]
+blend_mode = 1
+
+[sub_resource type="Gradient" id="g_hojarasca"]
+offsets = PackedFloat32Array(0, 0.7, 1)
+colors = PackedColorArray(0.52, 0.33, 0.2, 1, 0.45, 0.29, 0.19, 1, 0.4, 0.26, 0.18, 0)
+
+[node name="Bosque" type="Node2D"]
+script = ExtResource("s_bosque")
+
+[node name="Cielo" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Rect" type="ColorRect" parent="Cielo"]
+material = SubResource("m_cielo")
+offset_right = 2912.0
+offset_bottom = 1632.0
+mouse_filter = 2
+
+[node name="Luna" type="Sprite2D" parent="Cielo"]
+position = Vector2(2240, 300)
+scale = Vector2(0.75, 0.75)
+texture = ExtResource("t_luna")
+
+[node name="Valle" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.08, 1)
+
+[node name="Sprite" type="Sprite2D" parent="Valle"]
+position = Vector2(-560, 260)
+texture = ExtResource("t_valle")
+centered = false
+
+[node name="Humo1" type="Sprite2D" parent="Valle"]
+modulate = Color(1, 1, 1, 0.7)
+material = SubResource("m_humo")
+position = Vector2(830, 700)
+scale = Vector2(0.55, 0.5)
+texture = ExtResource("t_humo")
+
+[node name="Humo2" type="Sprite2D" parent="Valle"]
+modulate = Color(1, 1, 1, 0.7)
+material = SubResource("m_humo")
+position = Vector2(930, 690)
+scale = Vector2(0.45, 0.52)
+texture = ExtResource("t_humo")
+
+[node name="Humo3" type="Sprite2D" parent="Valle"]
+modulate = Color(1, 1, 1, 0.6)
+material = SubResource("m_humo")
+position = Vector2(1070, 705)
+scale = Vector2(0.5, 0.46)
+texture = ExtResource("t_humo")
+
+[node name="Pajaros" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 1)
+
+[node name="Bandada" type="Node2D" parent="Pajaros"]
+script = ExtResource("s_bandada")
+
+[node name="Capa0" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.15, 1)
+repeat_size = Vector2(4096, 0)
+repeat_times = 3
+
+[node name="Sprite" type="Sprite2D" parent="Capa0"]
+material = SubResource("m_capa0")
+position = Vector2(0, -40)
+scale = Vector2(2, 2)
+texture = ExtResource("t_capa0")
+centered = false
+
+[node name="Capa1" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.3, 1)
+repeat_size = Vector2(4096, 0)
+repeat_times = 3
+
+[node name="Sprite" type="Sprite2D" parent="Capa1"]
+material = SubResource("m_capa1")
+position = Vector2(0, -80)
+scale = Vector2(2, 2)
+texture = ExtResource("t_capa1")
+centered = false
+
+[node name="Niebla1" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0, 0)
+
+[node name="Rect" type="ColorRect" parent="Niebla1"]
+material = SubResource("m_niebla1")
+offset_top = 522.0
+offset_right = 2912.0
+offset_bottom = 1320.0
+mouse_filter = 2
+
+[node name="Capa2" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.5, 1)
+repeat_size = Vector2(4096, 0)
+repeat_times = 3
+
+[node name="Sprite" type="Sprite2D" parent="Capa2"]
+material = SubResource("m_capa2")
+position = Vector2(0, -120)
+texture = ExtResource("t_capa2")
+centered = false
+
+[node name="Capa3" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.72, 1)
+repeat_size = Vector2(4096, 0)
+repeat_times = 3
+
+[node name="Sprite" type="Sprite2D" parent="Capa3"]
+material = SubResource("m_capa3")
+position = Vector2(0, -200)
+texture = ExtResource("t_capa3")
+centered = false
+
+[node name="Niebla2" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0, 0)
+
+[node name="Rect" type="ColorRect" parent="Niebla2"]
+material = SubResource("m_niebla2")
+offset_top = 1077.0
+offset_right = 2912.0
+offset_bottom = 1300.0
+mouse_filter = 2
+
+[node name="Estructuras" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0.9, 1)
+
+[node name="A" type="Sprite2D" parent="Estructuras"]
+position = Vector2(12476, 60)
+texture = ExtResource("t_estructura")
+centered = false
+offset = Vector2(-210, 0)
+
+[node name="B" type="Sprite2D" parent="Estructuras"]
+position = Vector2(15050, 60)
+scale = Vector2(-0.85, 0.85)
+texture = ExtResource("t_estructura")
+centered = false
+offset = Vector2(-210, 206)
+
+[node name="Gargola" type="Node2D" parent="."]
+position = Vector2(12300, 1200)
+
+[node name="Silueta" type="Sprite2D" parent="Gargola"]
+position = Vector2(-672, -1470)
+texture = ExtResource("t_gargola")
+centered = false
+
+[node name="Casa" parent="." instance=ExtResource("p_casa")]
+position = Vector2(15400, 1200)
+
+[node name="Hojarasca" type="CPUParticles2D" parent="."]
+position = Vector2(1700, 1180)
+emitting = false
+amount = 36
+lifetime = 1.6
+one_shot = true
+explosiveness = 0.92
+texture = ExtResource("t_hoja")
+emission_shape = 3
+emission_rect_extents = Vector2(70, 8)
+direction = Vector2(0, -1)
+spread = 70.0
+gravity = Vector2(0, 540)
+initial_velocity_min = 150.0
+initial_velocity_max = 380.0
+angular_velocity_min = -420.0
+angular_velocity_max = 420.0
+damping_min = 30.0
+damping_max = 60.0
+scale_amount_min = 0.35
+scale_amount_max = 0.8
+color_ramp = SubResource("g_hojarasca")
+
+[node name="Suelo" type="Parallax2D" parent="."]
+repeat_size = Vector2(4096, 0)
+repeat_times = 3
+
+[node name="Sprite" type="Sprite2D" parent="Suelo"]
+position = Vector2(0, 1110)
+texture = ExtResource("t_suelo")
+centered = false
+
+[node name="Bulbos" type="Node2D" parent="Suelo"]
+
+[node name="Niebla3" type="Parallax2D" parent="."]
+scroll_scale = Vector2(0, 0)
+
+[node name="Rect" type="ColorRect" parent="Niebla3"]
+material = SubResource("m_niebla3")
+offset_top = 1232.0
+offset_right = 2912.0
+offset_bottom = 1395.0
+mouse_filter = 2
+
+[node name="Personajes" type="Node2D" parent="."]
+
+[node name="Sombra" type="Sprite2D" parent="Personajes"]
+modulate = Color(1, 1, 1, 0)
+position = Vector2(1700, 1202)
+texture = SubResource("t_sombra")
+
+[node name="Magnus" parent="Personajes" instance=ExtResource("p_magnus")]
+position = Vector2(1700, 1200)
+
+[node name="SueloFrente" type="Parallax2D" parent="."]
+repeat_size = Vector2(4096, 0)
+repeat_times = 3
+
+[node name="Sprite" type="Sprite2D" parent="SueloFrente"]
+position = Vector2(0, 1150)
+texture = ExtResource("t_frente")
+centered = false
+
+[node name="PrimerPlano" type="Parallax2D" parent="."]
+scroll_scale = Vector2(1.35, 1)
+repeat_size = Vector2(4096, 0)
+repeat_times = 3
+
+[node name="Sprite" type="Sprite2D" parent="PrimerPlano"]
+position = Vector2(0, 1330)
+texture = ExtResource("t_primer")
+centered = false
+
+[node name="AvisoPuerta" parent="." instance=ExtResource("p_tecla")]
+position = Vector2(15400, 680)
+key_size_px = 170.0
+
+[node name="Camara" type="Camera2D" parent="."]
+position = Vector2(1700, 746)
+
+[node name="Hojas" type="GPUParticles2D" parent="Camara"]
+position = Vector2(0, -900)
+amount = 40
+texture = ExtResource("t_hoja")
+lifetime = 12.0
+preprocess = 10.0
+local_coords = false
+visibility_rect = Rect2(-2400, -400, 4800, 2400)
+process_material = SubResource("pm_hojas")
+
+[node name="Luciernagas" type="GPUParticles2D" parent="Camara"]
+material = SubResource("m_suma")
+position = Vector2(0, 250)
+emitting = false
+amount = 30
+texture = SubResource("t_brillo")
+lifetime = 7.0
+preprocess = 4.0
+local_coords = false
+visibility_rect = Rect2(-2000, -600, 4000, 1200)
+process_material = SubResource("pm_luciernagas")
+
+[node name="Fundido" type="CanvasLayer" parent="."]
+layer = 50
+
+[node name="Rect" type="ColorRect" parent="Fundido"]
+offset_right = 2912.0
+offset_bottom = 1632.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

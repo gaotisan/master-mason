@@ -75,7 +75,7 @@ extends Node2D
 ## El tema se apaga mientras la camara entra por el cristal, y llega a silencio
 ## antes del cambio de escena. Es mas corto que zoom_in_time para que quede un
 ## momento de solo viento y negro antes de que entre el fondo del juego, que lo
-## pone dark_stage por su cuenta.
+## pone el bosque (scenes/game/bosque.tscn) por su cuenta.
 @export var music_fade_out: float = 4.0
 
 @export_group("Salida")
@@ -134,11 +134,12 @@ extends Node2D
 ## camara arranca (zoom_in_start), porque lo que lo asusta es justamente que algo
 ## se mueva. Este numero es solo el tiempo de reaccion, y por eso es pequeno.
 @export var spider_reaccion: float = 0.15
-## A donde se pasa tras el negro: dark_stage, donde cae Magnus.
+## A donde se pasa tras el negro: el bosque, donde cae Magnus. dark_stage
+## (el escenario negro de pruebas) sigue ahi por si se quiere volver a el.
 ## Se empieza a cargar en segundo plano cuando la pantalla ya esta en negro
 ## (ver _pedir_carga), para no tocar la fluidez de nada de lo que se ve.
 ## En la web sin hilos se sigue cargando al final, en _leave.
-@export var next_scene: String = "res://scenes/game/dark_stage.tscn"
+@export var next_scene: String = "res://scenes/game/bosque.tscn"
 
 const CANDLE_A := Vector2(868, 830)
 const CANDLE_B := Vector2(1852, 842)
@@ -387,13 +388,13 @@ func _run_exit() -> void:
 	# negro haga de junta entre las dos escenas.
 	tw.tween_callback(MusicAmbience.apagar_titulo.bind(music_fade_out)).set_delay(t0 + zoom_in_start)
 
-	# La escena siguiente (Magnus y sus hojas de sprites) se empieza a cargar
+	# La escena siguiente (el bosque, Magnus y sus hojas) se empieza a cargar
 	# cuando la pantalla ya esta en negro del todo, y no antes: cargar en segundo
 	# plano resta fluidez, y ni los creditos, ni la entrada de la luz con el tema,
 	# ni el zoom por el cristal se pueden tocar. Lo que no haya acabado para
 	# _leave se espera sobre el mismo negro, igual que cuando se cargaba de golpe,
 	# pero sin congelar la ventana: _leave deja correr los fotogramas mientras
-	# tanto. El cambio de escena y el primer fotograma de la siguiente siguen costando
+	# tanto. El cambio de escena y el primer fotograma del bosque siguen costando
 	# lo suyo (instanciarlo y pintarlo), eso no lo quita la carga en segundo plano.
 	tw.tween_callback(_pedir_carga).set_delay(black_end)
 	tw.tween_callback(_leave).set_delay(t0 + zoom_in_start + zoom_in_time + black_hold)

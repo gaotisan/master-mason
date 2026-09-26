@@ -2,8 +2,8 @@ extends Node2D
 ## Escenario negro donde va a moverse Magnus. De momento no hay nada mas que la
 ## camara y la marca de donde pisa el personaje: el fondo es el mismo negro en
 ## el que termina la pantalla de titulo, asi que el cambio de escena no se ve.
-## Es adonde lleva la pantalla de titulo, y tambien el escenario de pruebas de
-## Magnus (los pilotos de scenes/dev lo instancian).
+## Hoy es sobre todo el escenario de pruebas de Magnus (los pilotos de
+## scenes/dev lo instancian); el nivel jugable con camara que sigue es el bosque.
 ##
 ## Cuando la escena tenga fondo, aqui es donde toca abrir desde negro.
 
