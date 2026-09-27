@@ -16,7 +16,7 @@ que rehacer las tres.
 | `assets/audio/magnus_paso_*.wav` | las pisadas: `a`/`b` al andar, `correr_a`/`correr_b` al correr |
 | `assets/audio/magnus_respirar_ciclo.ogg` | la respiracion del reposo tras un esfuerzo (bucle de 2,5 s, igual que la animacion); en reposo normal no suena |
 | `scenes/game/dark_stage.tscn` | la escena negra, con Magnus instanciado |
-| `scripts/game/datos_movimiento.gd` | el panel de estudio del escenario negro (estado, velocidad, carrerilla, carga, ultimo salto); H lo oculta |
+| `scripts/game/datos_movimiento.gd` | el panel de estudio del escenario negro (estado, velocidad, carrerilla, ultimo salto); H lo oculta |
 
 **Sonido.** Los videos de `raw\master_mason\anim\_fuentes` traen audio, y va
 sincronizado con la imagen: medido, cada golpe de pie cae medio fotograma
@@ -135,14 +135,14 @@ fotograma exactamente una vez.
 Verificado corriendo el juego: el personaje ocupa el **19,4 %** del alto de
 pantalla, que es lo que se diseno (20,2 % teorico).
 
-## Carrerilla, altura variable y salto cargado
+## Carrerilla y altura variable del salto corriendo
 
-Tres mecanicas encima de los saltos y dos empalmes del salto corriendo, cada
-cosa con su interruptor en el nodo. Con `carrerilla_activa`,
-`salto_variable_activo`, `salto_cargado_activo` y `arco_desde_despegue` a
-`false` y `aterrizaje_carrera_suavizado` a 0, las trazas del piloto salen
-identicas a las de antes, tick a tick (21 guiones: correr, saltar con toque y
-mantenido, de parado, andando, girando, en cadena y contra el borde).
+Dos mecanicas encima del salto corriendo y dos empalmes suyos, cada cosa con su
+interruptor en el nodo. Con `carrerilla_activa`, `salto_variable_activo` y
+`arco_desde_despegue` a `false` y `aterrizaje_carrera_suavizado` a 0, las
+trazas del piloto salen identicas a las de antes, tick a tick (21 guiones:
+correr, saltar con toque y mantenido, de parado, andando, girando, en cadena y
+contra el borde).
 
 **Carrerilla.** Un contador de 0 a 1 que se llena corriendo a crucero con la
 tecla hacia delante (estado `CORRER`, 1,5 s hasta lleno, `carrerilla_tiempo`).
@@ -179,33 +179,13 @@ vuelo con la misma gravedad, asi que el brinco corto cae antes y avanza algo
 menos. Antes el toque con la carrerilla llena era mas bajo que el salto de
 siempre pero estaba mas rato en el aire: un planeo.
 
-**Salto cargado** (desde parado). Con la tecla mantenida, `salto_parado` se
-queda quieto en la cuclilla, el fotograma **16** (`carga_fotograma`: la cabeza
-mas baja de la hoja, fila 64; el 17 ya sube y el despegue suena en el 18).
-Al soltar, o al llenarse, sigue el salto con un arco anadido de hasta 120 px
-(`salto_cargado_altura`) y el aire frenado hasta 0,75 (`salto_cargado_vuelo`),
-los dos proporcionales a la carga.
-
-- **El arco anadido** es la curva de los pies dibujados (`PIES_SALTO_PARADO`,
-  del 18 al 45) escalada. Asi despega y apoya justo cuando despegan y apoyan
-  los pies del sprite: sube 2, 5, 7, 10... px por tick, sin tiron.
-- **La carga** cuenta con el reloj de fisica desde el instante en que el salto
-  llega a la cuclilla (16 fotogramas a 60 fps), no desde que el sprite lo noto
-  en `_process`. Antes la misma pulsacion daba de 122 a 132 px segun los fps de
-  pantalla; ahora, 118-122 entre 24 y 144 fps. Los primeros 0,05 s no cuentan
-  (`carga_umbral`), asi que una pulsacion algo larga es el salto de siempre.
-  Llena a 0,65 s de cuclilla (`carga_umbral` + `carga_max`), y ahi salta sola.
-- **La pausa** la pone `frame_changed`: ese paso del sprite aun llena
-  `frame_progress` con la velocidad que tenia, y la vuelta siguiente de su
-  bucle ya ve `speed_scale` 0 y se para. Se queda en el 16 con el progreso
-  lleno, y al soltar el 17 sale en el paso siguiente.
-- **Tecla y control.** Un toque que suelta antes de 0,27 s no llega a la
-  cuclilla y es el salto de siempre. Cargando no se gira ni se arranca, porque
-  es parte del salto: con una direccion pulsada sale andando al caer, y con la
-  contraria gira al caer. `salto_bloqueado` o `control_bloqueado` sueltan la
-  carga. `caer_desde_arriba()` limpia lo que dejara un salto (la pausa a
-  `speed_scale` 0, el arco); antes, llamada en plena carga, dejaba la
-  cinematica colgada para siempre.
+**Salto cargado desde parado: probado y quitado.** Se probo que, con la
+tecla mantenida desde parado, `salto_parado` se quedara quieto en la cuclilla
+(fotograma 16) cargando y al soltar saltara mas alto (hasta 120 px de arco
+anadido, con el aire frenado). Con el ritmo de esa animacion no quedaba bien:
+la cuclilla larga y la altura de mas no se leian como el mismo salto. Se quito
+entero (exports, pausa, arco y la linea del panel). El salto de parado vuelve a
+ser el de siempre: 65 px de pies, sin pausa, dure lo que dure la pulsacion.
 
 **Empalmes del salto corriendo.**
 
@@ -241,15 +221,6 @@ Con la carrerilla llena, mantenido: 0,65 s de vuelo, gravedad 4260 y ritmo
 0,66. Con toque: 0,57 s, gravedad 4180. Todos quedan entre 4180 y 4400: ninguno
 flota.
 
-| salto de parado, tecla pulsada | altura |
-|---|---|
-| hasta 0,30 s | 65 px (el de siempre) |
-| 0,35 s | 75 px |
-| 0,45 s | 98 px |
-| 0,57 s | 122 px |
-| 0,70 s | 148 px |
-| 0,92 s o mas (salta sola) | 185 px |
-
 **Limites.** `_impulso_hasta_limite` recorta el salto corriendo con
 `_recorrido_salto_correr()`: el 0,95 s por px/s medido de siempre, mas lo que
 cambian el vuelo (a su ritmo, con la rampa del empuje) y media cola con el
@@ -269,12 +240,10 @@ direccion mantenida y soltada (144 casos):
 - cerca del borde el salto baja hacia el de siempre (202, 181, 176 px) y nunca
   pasa de el.
 
-El salto cargado no avanza, asi que no hay nada que recortar.
-
 **El panel.** `dark_stage` lleva `DatosMovimiento` (CanvasLayer con
 `scripts/game/datos_movimiento.gd`): texto gris apagado y pequeno arriba a la
 izquierda (26 px, gris 0,48 al 80 %) con estado y animacion, velocidad,
-carrerilla, carga y el ultimo salto. Del ultimo salto da la distancia (del
+carrerilla y el ultimo salto. Del ultimo salto da la distancia (del
 despegue al reposo, o a tocar si sigue corriendo), el tramo en el aire y la
 altura. No sale durante la cinematica de la caida. La altura de los pies se
 saca de una tabla por fotograma de los tres saltos (fila del pixel opaco mas

@@ -196,32 +196,6 @@ extends Node2D
 ## siempre el arco entero.
 @export var salto_variable_activo: bool = true
 @export var salto_corto_factor: float = 0.55
-## SALTO CARGADO desde parado: con la tecla mantenida, salto_parado se queda
-## quieto en la cuclilla (carga_fotograma: la cabeza mas baja, medida sobre la
-## hoja; el despegue suena en el 18) mientras carga, y al soltar (o al
-## llenarse) sigue el salto con un arco anadido proporcional a la carga: 0 ->
-## nada, llena -> salto_cargado_altura px, con la animacion del aire frenada
-## hasta salto_cargado_vuelo para que tanta altura no suba de golpe. El arco
-## anadido sigue la curva de los pies dibujados (PIES_SALTO_PARADO) escalada,
-## asi que despega y apoya justo cuando despegan y apoyan los pies del sprite,
-## sin tiron. La carga cuenta con el reloj de fisica desde el momento en que el
-## salto llega a la cuclilla (carga_fotograma a los fps de la animacion), no
-## desde que el sprite lo vio: asi no depende de los fps de pantalla. Los
-## primeros carga_umbral segundos no cuentan: una pulsacion algo larga es el
-## salto de siempre. Llena a carga_umbral + carga_max. Un toque que se suelta
-## antes de llegar a la cuclilla (0,27 s) es el salto de siempre, sin pausa.
-## Cargando no se gira ni se arranca: es parte del salto. A false, el salto de
-## parado de siempre.
-@export var salto_cargado_activo: bool = true
-@export var carga_max: float = 0.6
-@export var carga_umbral: float = 0.05
-@export var carga_fotograma: int = 16
-@export var salto_cargado_altura: float = 120.0
-@export var salto_cargado_vuelo: float = 0.75
-## Despegue y toma de suelo del salto de parado (pie mas bajo sobre la hoja:
-## sube desde el 18 y apoya en el 45). Entre los dos va el arco de la carga.
-@export var salto_parado_despegue: int = 18
-@export var salto_parado_toca: int = 45
 ## EMPALMES DEL SALTO CORRIENDO.
 ## arco_desde_despegue: el arco del nodo empieza en 0 en el primer tick del
 ##   vuelo. El sprite va a 60 fps y la fisica lee el fotograma del despegue con
@@ -474,10 +448,6 @@ var _arco_t0 := -1.0         # fotogramas de vuelo que marcaba el sprite en el p
 var _salto_soltado := false  # se solto la tecla de salto en la subida (altura variable)
 var _t_soltado := 0.0        # por donde iba el vuelo (0..1) al soltarla
 var _sobrante := 0.0         # px/s por encima de la de correr tras caer corriendo; se apaga solo
-var _carga := 0.0            # 0..1, carga del salto de parado en curso
-var _cargando := false       # quieto en la cuclilla, cargando
-var _carga_hecha := false    # ya paso por la cuclilla en este salto (no vuelve a cargar)
-var _salto_desde := 0.0      # instante (de _reloj) en que empezo el salto en curso
 
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _pasos: AudioStreamPlayer = $Pasos
@@ -542,7 +512,6 @@ func _physics_process(delta: float) -> void:
 	if _en_cinematica():
 		return
 	_actualizar_esfuerzo(delta)
-	_actualizar_carga()
 	_apagar_sobrante(delta)
 	var direccion := _eje()
 	_actualizar_carrerilla(delta, direccion)
@@ -1082,7 +1051,7 @@ func _saltar() -> void:
 		and (not _en_movimiento() or _estado == Estado.ARRANQUE_CORRER or de_pie)
 	# Lo que pone el nodo al salto corriendo, segun la carrerilla que lleve (a 0,
 	# los valores de siempre, exactos). Antes del recorte junto al limite, que
-	# depende de ellos. Y el estado de la altura variable y de la carga, de cero.
+	# depende de ellos. Y el estado de la altura variable, de cero.
 	var m := _carrerilla if carrerilla_activa else 0.0
 	_fijar_salto_correr(m)
 	# Junto a un limite, primero se gasta menos carrerilla: el salto mas grande
@@ -1107,10 +1076,6 @@ func _saltar() -> void:
 	_arco_t = -1.0
 	_arco_t0 = -1.0
 	_salto_soltado = false
-	_carga = 0.0
-	_cargando = false
-	_carga_hecha = false
-	_salto_desde = _reloj
 	# Junto a un limite el salto se acorta para no pasarlo. Si ya casi no queda
 	# sitio, salta en el sitio (de parado): un brinco a la carrera que no avanza
 	# se leia como un fallo.
@@ -1281,8 +1246,7 @@ func _seguir_corriendo_tras_salto() -> void:
 ## llama cada tick.
 ##   salto corriendo: parabola de _arco_amp (la carrerilla y la altura
 ##                    variable) a _ritmo_vuelo(_arco_amp)
-##   salto de parado: quieto en la cuclilla mientras carga, y luego la curva de
-##                    los pies dibujados escalada a salto_cargado_altura * carga
+##   los demas (el de parado, el andando): solo lo cocido, a ritmo 1
 func _actualizar_saltos() -> void:
 	var f := _sprite.frame
 	var en_salto := _estado == Estado.SALTAR
@@ -1324,30 +1288,11 @@ func _actualizar_saltos() -> void:
 		_arco_t = t
 		velocidad = _ritmo_vuelo(_arco_amp)
 		arco = _arco_amp * 4.0 * t * (1.0 - t)
-	elif en_salto and _sprite.animation == &"salto_parado":
-		if _cargando:
-			velocidad = 0.0
-		elif _carga > 0.0 and f >= salto_parado_despegue and f < salto_parado_toca:
-			velocidad = lerpf(1.0, maxf(salto_cargado_vuelo, VUELO_MIN), _carga)
-			arco = salto_cargado_altura * _carga * _pies_salto_parado()
 	_sprite.speed_scale = velocidad
 	_sprite.position.y = -arco
 
-## Altura de los pies dibujados en salto_parado ahora, de 0 a 1 (1 = apogeo
-## cocido, 65 px), interpolada con la fraccion de fotograma. El fotograma que
-## se ve es el f con frame_progress llegando a 1 (a ritmo 1 la fisica siempre
-## lo lee a 1), asi que se interpola entre el anterior y el: a ritmo 1 da
-## exactamente la curva del dibujo.
-func _pies_salto_parado() -> float:
-	var n := PIES_SALTO_PARADO.size()
-	var x := float(_sprite.frame) - 1.0 + _sprite.frame_progress
-	var i := clampi(floori(x), 0, n - 1)
-	var a: float = PIES_SALTO_PARADO[i]
-	var b: float = PIES_SALTO_PARADO[mini(i + 1, n - 1)]
-	return lerpf(a, b, clampf(x - float(i), 0.0, 1.0)) / PIES_SALTO_PARADO_APOGEO
-
 ## La tecla de salto sigue pulsada (y el jugador tiene el control y puede
-## saltar: con salto_bloqueado, arriba es otra cosa y la carga se suelta).
+## saltar: con salto_bloqueado, arriba es otra cosa y cuenta como soltada).
 func _salto_mantenido() -> bool:
 	return not control_bloqueado and not salto_bloqueado and Input.is_action_pressed("saltar")
 
@@ -1373,25 +1318,6 @@ func _apagar_sobrante(delta: float) -> void:
 	if _sobrante < 2.0:
 		_sobrante = 0.0
 
-## Salto cargado: mientras esta quieto en la cuclilla la carga sube; soltar la
-## tecla, llenarla o perder el control lo suelta y el salto sigue por donde iba.
-## La pausa la pone _al_cambiar_fotograma al llegar a carga_fotograma. La carga
-## sale del reloj de fisica contado desde que el salto llega a la cuclilla (a
-## los fps de la animacion desde que empezo), no desde que el sprite lo noto en
-## _process: si no, la misma pulsacion daba mas o menos carga segun los fps de
-## pantalla (122 a 132 px de altura entre 30 y 144 fps).
-func _actualizar_carga() -> void:
-	if not _cargando:
-		return
-	if _estado != Estado.SALTAR or _sprite.animation != &"salto_parado":
-		_cargando = false
-		return
-	var fps := _sprite.sprite_frames.get_animation_speed("salto_parado")
-	var cuclilla := _salto_desde + float(carga_fotograma) / maxf(fps, 1.0)
-	_carga = clampf((_reloj - cuclilla - carga_umbral) / maxf(carga_max, 0.01), 0.0, 1.0)
-	if _carga >= 1.0 or not _salto_mantenido():
-		_cargando = false
-
 ## Datos para el panel de estudio del movimiento (datos_movimiento.gd). Solo
 ## lectura.
 func datos_movimiento() -> Dictionary:
@@ -1401,8 +1327,6 @@ func datos_movimiento() -> Dictionary:
 		"fotograma": _sprite.frame,
 		"velocidad": _velocidad(),
 		"carrerilla": _carrerilla,
-		"carga": _carga if _estado == Estado.SALTAR and _sprite.animation == &"salto_parado" else 0.0,
-		"cargando": _cargando,
 		"arco": -_sprite.position.y,
 	}
 
@@ -1424,19 +1348,6 @@ func _al_cambiar_fotograma() -> void:
 			_sonar(SONIDOS_CAIDA["golpe"], golpe_db)
 			impacto.emit()
 			return
-	# Salto cargado: llega a la cuclilla con la tecla aun pulsada y se queda ahi.
-	# Aqui y no en _physics_process para no pasarse: frame_changed sale dentro
-	# del paso del sprite que cambia el fotograma. Ese mismo paso aun termina de
-	# llenar frame_progress con la velocidad que habia leido antes de la senal,
-	# y la vuelta siguiente de su bucle ya lee speed_scale 0 y se para. Se queda
-	# en el 16 con el progreso lleno, asi que al soltar el 17 sale en el paso
-	# siguiente.
-	if salto_cargado_activo and not _carga_hecha and _estado == Estado.SALTAR \
-			and _sprite.animation == &"salto_parado" and _sprite.frame == carga_fotograma:
-		_carga_hecha = true
-		if _salto_mantenido():
-			_cargando = true
-			_sprite.speed_scale = 0.0
 	var golpes: Dictionary = GOLPES.get(String(_sprite.animation), {})
 	if golpes.has(_sprite.frame):
 		_sonar(golpes[_sprite.frame], pasos_db, 0.0, true)
@@ -1454,10 +1365,8 @@ func _al_cambiar_fotograma() -> void:
 ## impacto llega en el ultimo entero; con round() caia en el 6.
 func caer_desde_arriba() -> void:
 	# En la cinematica _physics_process no llega a _actualizar_saltos: lo que
-	# hubiera dejado un salto (la pausa de la carga a speed_scale 0, un arco) se
-	# quedaria puesto y las animaciones de la caida no avanzarian nunca.
-	_cargando = false
-	_carga = 0.0
+	# hubiera dejado un salto (el ritmo del aire, un arco) se quedaria puesto en
+	# las animaciones de la caida.
 	_sprite.speed_scale = 1.0
 	_sprite.position.y = 0.0
 	var suelo := position.y
@@ -1499,14 +1408,6 @@ func caer_desde_arriba() -> void:
 ##
 ## El resto de animaciones si van a fps fijo y las reproduce el nodo.
 const MANUALES := ["andar", "correr"]
-
-## Pies del salto de parado sobre la linea de suelo, en px de hoja por
-## fotograma (fila del pixel opaco mas bajo de cada casilla contra la de pie, la
-## misma medida que la tabla del panel, scripts/game/datos_movimiento.gd).
-## Despegan en el 18, apogeo en el 30-31 y apoyan en el 45. El arco del salto
-## cargado es esta curva escalada.
-const PIES_SALTO_PARADO := [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3, 6, 11, 17, 23, 29, 37, 45, 52, 58, 62, 65, 65, 64, 63, 61, 58, 55, 50, 45, 38, 31, 23, 15, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-const PIES_SALTO_PARADO_APOGEO := 65.0
 
 ## Pies en el suelo desde que llega el nodo. En los cinco primeros sprites de
 ## "caida" (c_01..c_05) el personaje del video aun no habia tocado: su punto mas
