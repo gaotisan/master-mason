@@ -1,8 +1,8 @@
 extends CanvasLayer
 ## Panel de estudio del movimiento de Magnus, solo para el escenario negro: un
 ## texto discreto en una esquina con el estado y la animacion, la velocidad, la
-## carrerilla, la carga del salto de parado y lo que midio el ultimo salto
-## (distancia del despegue al reposo y altura de los pies sobre el suelo). La
+## carrerilla y lo que midio el ultimo salto (distancia del despegue al reposo
+## y altura de los pies sobre el suelo). La
 ## tecla H lo oculta y lo vuelve a mostrar (se lee la tecla directamente: no
 ## hace falta una accion en project.godot para una ayuda de estudio).
 ##
@@ -128,7 +128,6 @@ func _componer(d: Dictionary) -> String:
 	lineas.append("%s   %s  f%d" % [String(d["estado"]).to_lower(), d["animacion"], d["fotograma"]])
 	lineas.append("velocidad   %d px/s" % roundi(d["velocidad"]))
 	lineas.append("carrerilla   %d %%" % roundi(float(d["carrerilla"]) * 100.0))
-	lineas.append("carga   %d %%%s" % [roundi(float(d["carga"]) * 100.0), "  (cargando)" if d["cargando"] else ""])
 	if ultimo.is_empty():
 		lineas.append("ultimo salto   -")
 	else:
