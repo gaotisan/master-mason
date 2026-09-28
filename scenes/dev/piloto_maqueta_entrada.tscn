@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/capitulo1/maqueta_vacio.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/dev/piloto.gd" id="2"]
+
+[node name="PilotoMaquetaEntrada" type="Node"]
+
+[node name="Maqueta" parent="." instance=ExtResource("1")]
+empezar_en = "entrada"
+cerrar_a_los = -1.0
+
+[node name="Piloto" type="Node" parent="."]
+script = ExtResource("2")
+guion = [[9.6, "mover_derecha", true], [14.2, "mover_derecha", false], [30.2, "mover_derecha", true], [31.0, "saltar", true], [31.4, "saltar", false], [31.9, "saltar", true], [32.2, "saltar", false], [32.6, "saltar", true], [32.9, "saltar", false], [33.4, "saltar", true], [33.8, "saltar", false], [34.6, "mover_derecha", false], [38.0, "mover_izquierda", true], [39.2, "mover_izquierda", false], [41.0, "saltar", true], [41.4, "saltar", false], [41.9, "saltar", true], [42.3, "saltar", false], [43.0, "mover_derecha", true], [44.0, "mover_derecha", false]]
+x_inicial = 430.0
+personaje = NodePath("../Maqueta/Peregrino")
