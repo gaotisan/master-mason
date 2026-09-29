@@ -3,20 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dvvame4kjw820"
-path="res://.godot/imported/magnus_arranque_andar.png-0bf14a53080037076e8c3290379c0bb9.ctex"
+path.bptc="res://.godot/imported/magnus_arranque_andar.png-0bf14a53080037076e8c3290379c0bb9.bptc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/characters/magnus/magnus_arranque_andar.png"
-dest_files=["res://.godot/imported/magnus_arranque_andar.png-0bf14a53080037076e8c3290379c0bb9.ctex"]
+dest_files=["res://.godot/imported/magnus_arranque_andar.png-0bf14a53080037076e8c3290379c0bb9.bptc.ctex"]
 
 [params]
 
-compress/mode=0
-compress/high_quality=false
+compress/mode=2
+compress/high_quality=true
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0

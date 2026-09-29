@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b0tblbyrldwfj"
-path.bptc="res://.godot/imported/magnus_caida.png-f557fa979d6c27b9c73042e47a8d1b16.bptc.ctex"
+uid="uid://5q0akpmrh3hp"
+path.bptc="res://.godot/imported/magnus_arranque_agachado.png-0860bda50a5ce752a39eb37a3c2cfcec.bptc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/characters/magnus/magnus_caida.png"
-dest_files=["res://.godot/imported/magnus_caida.png-f557fa979d6c27b9c73042e47a8d1b16.bptc.ctex"]
+source_file="res://assets/characters/magnus/magnus_arranque_agachado.png"
+dest_files=["res://.godot/imported/magnus_arranque_agachado.png-0860bda50a5ce752a39eb37a3c2cfcec.bptc.ctex"]
 
 [params]
 

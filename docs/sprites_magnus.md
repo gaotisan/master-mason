@@ -8,8 +8,8 @@ que rehacer las tres.
 
 | archivo | que es |
 |---|---|
-| `assets/characters/magnus/*.png` | las 15 hojas, 292x360 por casilla (340x400 el salto corriendo, 380x360 las cuatro de la caida) |
-| `resources/characters/magnus_frames.tres` | el `SpriteFrames` con las 15 animaciones |
+| `assets/characters/magnus/*.png` | las 17 hojas, 292x360 por casilla (340x400 el salto corriendo, 380x360 las cuatro de la caida) |
+| `resources/characters/magnus_frames.tres` | el `SpriteFrames` con las 19 animaciones |
 | `scenes/dev/piloto_*.tscn` | pilotos de teclas para grabar al personaje sin nadie al teclado (ver al final) |
 | `scenes/characters/magnus.tscn` | el personaje |
 | `scripts/characters/magnus.gd` | la maquina de estados, y desde ella el sonido |
@@ -78,7 +78,9 @@ escucharlo.
 
 Controles (definidos en `project.godot`): flechas izquierda/derecha o A/D para
 andar, **doble pulsacion** de la misma flecha para correr, flecha arriba o espacio
-para saltar. Al soltar, entra la frenada y vuelve a reposo.
+para saltar, flecha abajo o S para agacharse (mantenida; al soltarla se levanta)
+y, agachado, la direccion hacia donde mira para andar agachado.
+Al soltar la direccion, entra la frenada y vuelve a reposo.
 
 **Cambiar de sentido** no voltea en seco: pasa por la frenada, voltea cuando ya
 ha frenado (por debajo del 30 % de la velocidad con que entro en la parada de
@@ -117,8 +119,10 @@ y se apaga en el primer 60 % de esa animacion (`aterrizaje_correr_velocidad`,
 `aterrizaje_correr_frenada`). Enganches medidos: salto c_38 -> aterrizaje c_01 es
 0,13, el paso normal de esa animacion; su ultimo fotograma esta a 0,10 del reposo.
 
-El `.tres` se genera por script, no a mano: son 465 `AtlasTexture`, uno por
-fotograma, recortados de las hojas. El generador es
+El `.tres` se genera por script, no a mano: son 658 `AtlasTexture`, uno por
+casilla usada de cada hoja. Una hoja puede dar varias animaciones y una
+animacion puede repetir casillas (lista de indices: la ida y vuelta del
+agachado). El generador es
 `godot/tools/anim/_spriteframes.py`, y ahi estan tambien los **fps de cada
 animacion**, que no tienen por que ser los del video:
 
@@ -260,10 +264,13 @@ fuentes de audio:
 ```
 godot\raw\master_mason\anim\magnus_<accion>\   una carpeta por animacion
     04_limpios\   sprites sueltos a 584x720  <- MASTER, no se importa
-    05_salida\    magnus_<accion>_sheet.png  <- esto es lo que se copia aqui
+    05_salida\    magnus_<accion>_sheet.png  <- la rejilla, fuente del atlas
+                  magnus_<accion>_atlas.json <- donde quedo cada fotograma
 ```
 
-Al repo solo sube la hoja de `05_salida`, a `assets/characters/magnus/`.
+Al repo sube el **atlas** que `_spriteframes.py` saca de esa rejilla (ver
+"Escala: memoria de video" mas abajo), a `assets/characters/magnus/` con el
+nombre de la hoja. La rejilla no se copia a mano.
 
 Los parametros del personaje y el porque de cada numero estan en
 `godot\raw\master_mason\anim\magnus_comun.txt`.
@@ -288,6 +295,12 @@ Los parametros del personaje y el porque de cada numero estan en
 | `caida` | 21 | 7 | 3 | 24 | una pasada, casilla 380x360 |
 | `tumbado` | 1 | 1 | 1 | - | quieto, casilla 380x360 |
 | `levantarse` | 63 | 8 | 8 | 20 | una pasada, casilla 380x360 (a 24 se veia rapido) |
+| `agacharse` | 49 | 12 | 11 | 60 | una pasada; hoja `magnus_agacharse`, 127 casillas para las tres |
+| `agachado` | 54 | 12 | 11 | 24 | bucle de ida y vuelta, misma hoja |
+| `incorporarse` | 38 | 12 | 11 | 60 | una pasada, misma hoja |
+| `arranque_agachado` | 27 | 7 | 4 | 20 | una pasada; el nodo va por su tabla de avance |
+| `andar_agachado` | 42 | 7 | 6 | 20 | bucle movido por la distancia (4,65 px por fotograma, 93 px/s) |
+| `parada_agachado` | 31 | 8 | 4 | 20 | una pasada; el nodo va por su tabla de avance |
 
 
 Todas comparten **casilla de 292 x 360 px** salvo el salto corriendo y las cuatro
@@ -312,7 +325,41 @@ respirando -> arranque_correr -> corriendo    -> parada_correr -> respirando
 (entrada)  -> cayendo -> caida -> tumbado -> levantarse -> respirando
 corriendo  -> salto_corriendo -> corriendo            (direccion pulsada al tocar suelo)
 corriendo  -> salto_corriendo -> aterrizaje_correr -> respirando   (soltada)
+respirando -> agacharse -> agachado (mientras abajo) -> incorporarse -> respirando
+agachado   -> arranque_agachado -> andar_agachado -> parada_agachado -> agachado
 ```
+
+**Agacharse.** Mantener abajo (flecha o S) lo agacha; soltar, lo levanta.
+Agachado no anda ni salta: para hacer otra cosa hay que levantarse. Andando o
+corriendo, la tecla abajo anula la direccion: frena como al soltarla y se agacha
+al quedar quieto; en el aire, al caer. Cualquier cambio de idea a medias se
+deshace por el mismo camino, la animacion hacia atras desde el fotograma en que
+iba: soltar mientras baja lo sube, volver a pulsar mientras se levanta lo baja y
+vuelve al bucle por el fotograma que va justo antes del levantarse. Asi nunca
+salta de pose. Para asentarse no usa el del video, que rebotaba (la cabeza
+bajaba, subia 8 px y caia 16), sino el principio del levantarse al reves: la
+cabeza solo baja. Por eso soltar ya asentandose (desde el fotograma 43 de
+`agacharse`) sigue por el levantarse desde ese mismo sprite. La respiracion no
+se corta al agacharse: si venia jadeando, sigue y se va apagando (el agachado
+cuenta como descanso). Suenan dos roces de ropa (`agacharse_db`). Se apaga entera
+con `agacharse_activo`. Como se monto la animacion, y por que empieza con un
+puente de cinco sprites, en `magnus_agacharse/como_se_hizo.txt`.
+
+**Andar agachado.** Agachado, la direccion hacia donde mira lo pone a andar
+agachado: `arranque_agachado` (1,35 s, del agachado a la zancada), el ciclo
+`andar_agachado` y, al soltar la direccion o la tecla abajo, sigue hasta un
+punto del paso desde el que la parada casa y `parada_agachado` (1,55 s) lo deja
+en el agachado; sin la tecla abajo, ahi se levanta. Agachado no se gira: la
+direccion contraria no hace nada, hay que levantarse. Andando agachado va mas
+erguido y con la zancada abierta, y ningun fotograma del ciclo casa con el
+agachado quieto: de ahi el arranque y la parada. La parada solo casa desde seis
+fotogramas del ciclo (empieza con un pie concreto), asi que tras soltar anda
+hasta 1,8 s mas (0,9 de media). Soltar en los tres primeros fotogramas del
+arranque lo deja agachado sin mas. El ciclo va por la distancia, como andar; el
+arranque y la parada mueven el nodo por sus tablas de avance, medidas en el pie
+apoyado. Pisadas flojas (`pasos_agachado_db`), sin respiracion propia: cuenta como
+andar para el esfuerzo. Todo sale de un solo video, con el zoom de la camara
+corregido en el arranque: `magnus_andar_agachado/como_se_hizo.txt`.
 
 **La entrada es una cinematica.** `dark_stage` arranca con Magnus 1200 px por
 encima de su marca de suelo y `caer_desde_arriba()` lo deja caer con aceleracion
@@ -843,9 +890,46 @@ Tres ajustes que importan, sobre todo si la camara va a cambiar de zoom:
 - El zoom se hace en la **`Camera2D`**, no escalando el nodo del personaje: asi
   escala toda la escena a la vez y el personaje no se despega del fondo.
 
-Coste de las 16 hojas que carga `magnus_frames.tres`: **238,6 MiB de memoria de
-video** en RGBA8, 318,1 con mipmaps. Si algun dia aprieta, activar compresion VRAM en la importacion antes
-que volver a reducir la resolucion.
+### Escala: memoria de video
+
+Van a entrar muchas animaciones mas, y con las hojas en rejilla sin comprimir no
+escalaba: las 17 de hoy costaban **389 MiB** con mipmaps y cada fotograma nuevo
+0,53 MiB (una animacion de 60, 32 MiB). Desde 2026-09-28 las hojas del juego
+cuestan **40 MiB** entre todas (45 con las tres del andar agachado, 22
+animaciones y 808 fotogramas; sin esto serian 443), por dos cosas que no tocan
+los masters ni cambian nada en pantalla:
+
+- **Compresion en la GPU.** Cada `.import` de Magnus va con `compress/mode=2` y
+  `high_quality=true`: BC7 en escritorio, 1 byte por pixel en vez de 4. Medido
+  con un muestrario de doce animaciones a escala 1 y a 0,527: diferencia media
+  1,2/255, ningun pixel cambia mas de 21, PSNR 47 dB. `_spriteframes.py` deja
+  esos ajustes en el `.import` cada vez que corre (y lo crea si la hoja es
+  nueva), asi que ya no hay que acordarse de las mipmaps. Windows y la web de
+  escritorio usan BC7; solo una web en movil necesitaria ademas
+  `rendering/textures/vram_compression/import_etc2_astc`.
+- **Atlas recortado.** El personaje llena entre el 21 y el 52 % de su casilla.
+  `empaquetar.py` recorta cada casilla usada a su dibujo (alineado a bloques de
+  4 px, los de BC7) y las junta con 8 px de separacion; el `AtlasTexture` lleva
+  `margin = (dx, dy, casilla - recorte)`, que es lo que hace que Godot lo dibuje
+  con el tamano de la casilla entera y el dibujo en su sitio. Comprobado en el
+  muestrario, normal y volteado: mismas cajas, y la unica diferencia es un pixel
+  del borde mas tenue en dos figuras (el `fix_alpha_border` del importador
+  depende de los vecinos). La separacion de 8 px deja el atlas limpio hasta 1/8
+  de escala; antes el margen mas justo, el del salto de parado, era de 3 px.
+
+Para revisar todas las animaciones como las ve el juego (saltos de pose, suelo,
+temblor, recortes, motas, restos de croma y los enlaces que encadena
+`magnus.gd`): `python tools/anim/revisar.py`. Ver `tools/anim/README.md`.
+
+`python _spriteframes.py <tres>` hace las dos cosas y al final imprime lo que
+cuesta cada hoja; `--rejilla` vuelve a las rejillas enteras. Para comprobar una
+importacion a ojo y con numeros, `scenes/dev/muestrario_texturas.tscn` pinta
+fotogramas sueltos a escala 1 y 0,527 (`-- voltear` los voltea).
+
+Hoy todas las hojas cargan a la vez, porque van en un solo `SpriteFrames`. A 45
+MiB da igual. Cuando haya un juego de animaciones con baculo, lo natural es un
+segundo `SpriteFrames` (el generador puede sacar dos) y cambiar `sprite_frames`
+al cogerlo: asi solo se carga el que se usa.
 
 ### El margen entre casillas, que es lo que hace seguras las mipmaps
 
@@ -857,6 +941,10 @@ se colaria por ahi y se verian fotogramas mezclados.
 Lo que lo impide es el **margen transparente** que el personaje deja dentro de su
 casilla. Un margen de M px aguanta mientras el texel del mipmap mida menos que M:
 el nivel L usa texels de 2^L px y se emplea a escala 1/2^L.
+
+(Esto era asi con las hojas en rejilla. Desde que van empaquetadas -- ver
+"Escala: memoria de video" -- la separacion entre fotogramas es fija, 8 px
+transparentes, y el atlas queda limpio hasta 1/8 de escala en todas.)
 
 Medido sobre las ocho hojas actuales, casilla a casilla, el margen mas justo es
 de **12 px** (izq 15, der 28, arr 12, abj 16), asi que el atlas esta limpio hasta
@@ -961,12 +1049,11 @@ silueta pese igual en todas.
 
 ## Regenerar o anadir una animacion
 
-**Al importar una hoja nueva, Godot apaga los mipmaps.** El `.import` que genera
-`godot --headless --import` trae `mipmaps/generate=false` por defecto, mientras
-que las hojas de siempre los llevan encendidos: la animacion nueva se veria con
-otro filtrado al reducirse. Hay que poner `mipmaps/generate=true` en su
-`.import` y volver a importar. Paso dos veces (giro y salto corriendo) antes de
-apuntarlo aqui.
+**La hoja no se copia al juego a mano.** Se exporta la rejilla con `hoja.ps1`,
+se anade la animacion a `ANIMACIONES` en `_spriteframes.py` y se corre este:
+empaqueta la hoja, la deja en `assets/characters/magnus/`, le pone al `.import`
+compresion y mipmaps (Godot, por su cuenta, crea las hojas nuevas sin mipmaps) y
+escribe el `.tres`. Despues, `godot --headless --import`.
 
 Las herramientas estan en `godot\tools\anim\` (ver su README). Para una accion
 nueva de Magnus, con los mismos numeros:
@@ -980,7 +1067,13 @@ cd C:\Users\santiago.ochoa\godot\tools\anim
 .\centrar.ps1  -Job magnus_<accion> -Ancho 584 -Alto 720 -MargenSuelo 30
 .\fondo.ps1    -Job magnus_<accion> -Tolerancia 35 -Radio 4
 .\hoja.ps1     -Job magnus_<accion> -Cols <n> -Fps <n> -Escala 2
+python _spriteframes.py "..\..\projects\master_mason
+esources\characters\magnus_frames.tres"
 ```
+
+Con mas de 99 fotogramas no pasa nada: `elegir.ps1` y `centrar.ps1` numeran con
+las cifras que hagan falta (hasta el agacharse numeraban a dos y `p_100` se
+ordenaba antes que `p_11`).
 
 Si la animacion nueva sube mas alto que el salto no cabra en los 720, habra que
 subir el alto y **reprocesar tambien las tres anteriores** con el valor nuevo.
