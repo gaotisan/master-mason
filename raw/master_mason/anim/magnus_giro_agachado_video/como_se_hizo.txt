@@ -1,0 +1,88 @@
+magnus_giro_agachado_video: como se monto
+=========================================
+El giro agachado del juego (giro_agachado): el giro entero POR DETRAS, con TODOS
+los fotogramas del video y a su ritmo (24 fps), 65 sprites, 2,8 s.
+
+Historia (2026-10-05), por si alguien lo quiere acelerar:
+  1. magnus_giro_agachado: 5 vistas de una hoja de Gemini, 0,93 de paso medio
+     entre sprites. Se veia como cinco fotos.
+  2. este mismo job, primera version: los fotogramas 105, 107, ... 161 (uno de
+     cada dos) a 60 fps, 0,52 s. El usuario: "a saltitos" y rapido al lado del
+     andar agachado. Iba a 5 veces la velocidad del video, y los pasitos de los
+     pies (6 px) se leian como saltos.
+  3. magnus_giro_agachado_frente: por delante (31-70 y su espejo), 1 s a 60 fps.
+     Tampoco: "tiene que ser mucho mas fluida, el camina agachado va fluidisimo, y
+     el video tb va mucho mejor".
+  4. ESTA: todos los fotogramas a su ritmo. El andar agachado va a 20 fps con
+     0,16 de cambio por fotograma; esto va a 24 con 0,17. Lo que hacia ir a
+     saltitos era saltarse fotogramas, no el video.
+El usuario volvio a mandar el video como Wizard_turning_in_place_20261005201228.mp4:
+es el mismo archivo que el 171117 (mismo md5), asi que no hay toma nueva.
+
+Fuente: _fuentes/Wizard_turning_in_place_20261005171117.mp4 (Google Flow,
+1280x720, 24 fps, 240 fotogramas), pedido con _fuentes/prompt_giro_agachado_video.txt
+y los fotogramas inicial y final referencia_giro_video_inicio.png / _fin.png
+(el agachado del juego, c_089 de magnus_agacharse, a tamano de master en 1920x1080,
+y el mismo espejado). Camara quieta (pies en la fila 585 en todo el video), mismo
+tamano, nada encima.
+
+Que hace el video (tiene dos partes):
+    1-31    quieto de perfil (el 1 es la referencia); 20-31 la IA lo hunde un poco
+   31-61    gira hacia la camara hasta el frente; 61-85 de frente, ajustandose
+   85-100   vuelve al perfil derecho: la primera parte NO es un giro, va y vuelve
+  100-160   el giro entero POR DETRAS hasta el perfil izquierdo, a velocidad
+            uniforme y frenando al final
+  160-240   quieto, mirando a la izquierda (acaba en la referencia espejada)
+
+Que parte (medido a escala de master contra el agachado del juego):
+  - la primera, por delante: solo llega al frente y vuelve, asi que para girar
+    hay que montarla con su espejo (lo que era magnus_giro_agachado_frente), y en
+    el 31 la cabeza va 12 px de master mas baja que el agachado (la IA lo hundio):
+    click al empezar y al acabar.
+  - la segunda, POR DETRAS (103-162): el unico giro de 180 grados seguido del
+    video, sin espejos ni empalmes. La cabeza va a la altura del agachado al
+    empezar (103) y al acabar (162) y el video ya frena solo al final. Lo unico que
+    no casa es el mosaico de la tunica al empezar (0,43 del agachado), que se
+    tapa con dos de fundido y arrancando despacio. Es la que se usa.
+
+Pasos:
+  elegir.ps1  -Job magnus_giro_agachado_video -Frames "95-175"
+  python escalar.py          escala 1,5 justa (la referencia era de 1080p, el
+                             video de 720p) y lienzo de 1000x860, suelo a 100
+  centrar.ps1 -Job magnus_giro_agachado_video -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job magnus_giro_agachado_video -Tolerancia 35 -Radio 4 -Motas 300
+  (los 81 sprites, asi, a _todos/; el fotograma con fondo queda en _con_fondo/)
+  python montar.py           los 65 del juego, ver abajo
+  hoja.ps1    -Job magnus_giro_agachado_video -Cols 10 -Fps 24 -Escala 2
+  tools/anim/_spriteframes.py  ('giro_agachado', ..., 65, 10, 24.0, ...)
+
+montar.py:
+  - el agachado del juego (c_089), dos de fundido hacia el 103, los 60 fotogramas
+    del 103 al 162, uno de fundido y el agachado espejado: 65 sprites. Empieza y
+    acaba en el sprite del bucle: enlaces exactos; al acabar magnus.gd voltea.
+  - los fundidos son en alfa premultiplicado (fundir), para que el borde no se
+    oscurezca.
+  - quita las bolsas de croma que el fondo no alcanzo (de espaldas, entre el brazo
+    y el cuerpo, 115-139, hasta 1000 px de master, despintadas a verde azulado): se
+    buscan en el fotograma con fondo (el verde que no toca el borde) y se borran
+    con su orla de 2 px si es verdosa. Por color no se puede, la capucha es gris
+    azulada.
+  - sube 7 px y mueve de -2 a -4 px en x (lo que mejor encaja el principio con el
+    agachado y el final con el espejado), y una ganancia por zonas (tunica,
+    capucha, pies, ver magnus_giro_agachado/igualar_color.py) sacada de los dos
+    extremos. De espaldas sale mas oscuro: es la sombra de la espalda y se deja.
+
+Arranque suave: en _spriteframes.py la animacion lleva duraciones por fotograma
+(1, 1,6, 1,4, 1,25, 1,15, 1,05 y despues 1): los dos de fundido y los primeros del
+video duran algo mas, y el cambio de mosaico de la tunica no se lee como un golpe.
+2,77 s en total. Para acelerarlo sin perder suavidad, subir los fps (30 son 2,2 s),
+nunca quitar fotogramas.
+
+revisar.py: paso medio 0,170 (el andar agachado, 0,161), enlaces
+agachado <-> giro_agachado exactos.
+
+Comprobado grabando scenes/dev/piloto_giro_agachado.tscn (dos giros, el segundo
+tras un toque corto; 05_salida/giro_agachado_en_juego.mp4, aclarado): salen los
+65 sprites seguidos, 2,75 s, la cabeza se mueve como mucho 3 px de un sprite al
+siguiente (pantalla), el centro 2 px, y el cambio por sprite es parejo (media
+1,7, maximo 2,7 en unidades de la grabacion). Al voltear no cambia nada.

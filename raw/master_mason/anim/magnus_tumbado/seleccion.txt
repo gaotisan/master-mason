@@ -1,0 +1,3 @@
+﻿origen: ..\magnus_caida\01_frames
+frames: 60
+orden:  60

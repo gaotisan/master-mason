@@ -20,3 +20,12 @@
 *.mp3 binary
 *.ttf binary
 *.otf binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.apng binary
+*.mp4 binary
+*.WAV binary
+*.pptx binary
+*.pdf binary
+*.exe binary

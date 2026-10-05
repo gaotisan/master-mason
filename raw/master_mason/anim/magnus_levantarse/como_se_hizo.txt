@@ -1,0 +1,3 @@
+Este estado sale del video de la caida. Todo el detalle esta en
+..\magnus_caida\como_se_hizo.txt (fotogramas, casilla 760x720 compartida,
+suelo, volteo deshecho, enganches).

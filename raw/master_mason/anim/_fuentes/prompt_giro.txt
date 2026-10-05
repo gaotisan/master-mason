@@ -1,0 +1,97 @@
+PROMPT PARA LOS FOTOGRAMAS DEL GIRO DE MAGNUS
+=============================================
+Adjuntar SIEMPRE referencia_magnus_perfil.png como imagen de referencia de
+personaje y estilo, con el peso mas alto que permita la herramienta.
+Croma de todo el proyecto: #24D732
+
+QUE HACE FALTA
+--------------
+Solo MEDIA vuelta: del perfil mirando a la derecha (la pose que ya tenemos) a
+frontal. La otra mitad sale volteando esos mismos fotogramas, y asi el giro a un
+lado y al otro salen identicos y el ultimo encaja exacto con el perfil espejado.
+
+Cinco vistas, rotando SIEMPRE hacia la camara:
+
+   1.   0 grados  - perfil completo mirando a la DERECHA (la que ya tenemos)
+   2.  22 grados  - empieza a girar hacia la camara, sigue mirando a la derecha
+   3.  45 grados  - tres cuartos, entre perfil y frontal
+   4.  67 grados  - casi frontal, aun se le adivina el lado derecho
+   5.  90 grados  - frontal completo, de cara a la camara
+
+La numero 1 se pide aunque ya la tengamos: sirve para ver de un vistazo si el
+modelo ha clavado el personaje, y como ancla de escala. Las nuevas de verdad son
+la 2, 3, 4 y 5.
+
+Con eso el giro completo en el juego son 9 fotogramas (1,2,3,4,5 y luego 4,3,2,1
+volteados), unos 0,30 s a 30 fps. Si sale demasiado lento se quitan fotogramas;
+lo que no se puede es inventarselos, por eso se piden cuatro y no dos.
+
+EL PROMPT
+---------
+
+A character turnaround sheet: 5 full-body views of the SAME character, side by
+side, evenly spaced, on a flat pure chroma-key green background (#24D732).
+No shadows, no cast shadow under the feet, no gradient, no ground plane,
+no horizon, no props, no text, no labels, no panel borders or separator lines.
+
+Character: an old master builder, wizard-like. Tall pointed grey-blue hood
+covering the head, long white beard hanging down to mid-chest. Full-length heavy
+cloak down to the ankles, ending in a pointed hem at the front. The cloak is
+built from flat geometric triangular facets in dark maroon, brick red, ochre,
+warm brown and muted grey. Thin dark grey legs and bare skin-toned feet visible
+below the cloak. One hand visible at the cloak opening. Low-poly flat-shaded
+hand-painted stylised look with visible polygon facets, soft matte texture,
+no outlines, no cel-shading lines, no rim light.
+
+The five views show the character ROTATING TOWARDS THE CAMERA in equal steps,
+left to right:
+  1. Full side profile, facing RIGHT.
+  2. Rotated 22 degrees towards the camera, still clearly facing right.
+  3. Three-quarter view, rotated 45 degrees towards the camera.
+  4. Rotated 67 degrees towards the camera, nearly frontal.
+  5. Full front view, facing the camera directly.
+
+It must rotate towards the camera, never away: the face and beard stay visible
+and turn to face us. Never show the back of the character.
+
+CRITICAL: it is the same character in the SAME standing pose in all five -
+arms relaxed at the sides, feet together, upright, neutral, completely still.
+Only the rotation of the body changes between views. Identical height, identical
+scale, identical camera height and camera distance in all five. The feet must
+rest on exactly the same horizontal line in all five. Straight-on camera at
+chest height, orthographic feel, no perspective distortion, no tilt, no zoom
+difference. Full body visible in every view, nothing cropped, generous margin
+above the hood and below the feet.
+
+SI SALE MAL Y HAY QUE IR DE UNA EN UNA
+--------------------------------------
+Mismo bloque de "Character" y mismas reglas criticas, cambiando solo la vista, y
+adjuntando la referencia en todas. Riesgo: el estilo deriva entre imagenes, por
+eso se prefiere la hoja de una sola tirada.
+
+LO QUE NO IMPORTA Y LO QUE SI
+-----------------------------
+No importa la escala ni la posicion exactas: centrar.ps1 las cuadra por silueta
+y linea de suelo, que es lo que hace ya con las ocho animaciones.
+
+Si importa, y no tiene arreglo despues: que cambie el estilo, la capucha, la
+barba, el corte de la capa o la altura del personaje.
+
+El mosaico de triangulos de la capa no va a coincidir exactamente entre vistas.
+Da igual: ya parpadea entre fotogramas en los videos, y a 292 px de alto y
+9 fotogramas en 0,30 s no se ve.
+
+==========================================================================
+SI SE VUELVE A PEDIR EL VIDEO DE CARRERA: EL MOVIMIENTO DE BRAZOS
+==========================================================================
+El video actual tiene el brazo oscilando al doble de frecuencia de la que le
+toca: las piernas hacen su ciclo en 24 fotogramas y el brazo hace dos
+oscilaciones en vez de una. Pasa en el video entero. Anadir al prompt:
+
+The arms swing in opposition to the legs: when the left leg is forward the
+right arm is forward. Each arm completes exactly ONE full forward-and-back
+swing per full stride cycle (two steps), not one per step. Elbows stay bent
+at roughly 90 degrees throughout, the forearms never straighten.
+
+Y lo de siempre: mismo croma verde #24D732, 720p, mismo encuadre y misma
+distancia de camara que el resto.

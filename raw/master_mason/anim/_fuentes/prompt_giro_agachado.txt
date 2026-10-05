@@ -1,0 +1,95 @@
+PROMPT PARA LOS FOTOGRAMAS DEL GIRO AGACHADO DE MAGNUS
+======================================================
+Adjuntar DOS imagenes de referencia, con el peso mas alto que permita la
+herramienta:
+  - referencia_magnus_agachado.png  la POSE: el agachado exacto del juego (sale
+                                    del sprite c_089 de magnus_agacharse)
+  - referencia_magnus_perfil.png    el personaje y el estilo
+Croma de todo el proyecto: #24D732 (verde). NO gris ni blanco: la barba es casi
+blanca y con un fondo claro se pierde al quitarlo.
+
+POR QUE NO VALIA LA PRIMERA HOJA (Gemini_Generated_Image_p8ve0ep8ve0ep8ve,
+copiada en _fuentes/giro_agachado.jpeg)
+-----------------------------------------------------------------------
+- En el juego esta encorvado, con las manos en las rodillas y la tunica cayendo
+  hasta el suelo: de las piernas solo asoman los dedos de los pies. En las vistas
+  que giran (4, 5, 6, 7) esta en cuclillas, con las rodillas abiertas y las
+  piernas a la vista: al girar se veria subir la tunica y aparecer las piernas.
+- Cada pose mide distinto (274-324 px, +-8 %).
+- Solo hay un tres cuartos util; la fila de abajo vuelve al perfil derecho.
+- Fondo gris claro (223) y barba (205): al quitar el fondo se comeria la barba.
+
+QUE HACE FALTA
+--------------
+Solo MEDIA vuelta, como en el giro de pie: del perfil mirando a la derecha (la
+pose de la referencia) a frontal. La otra mitad sale volteando esos mismos
+fotogramas, y asi el giro a un lado y al otro salen identicos y el ultimo
+encaja exacto con el agachado espejado.
+
+Cinco vistas, rotando SIEMPRE hacia la camara:
+   1.   0 grados  - perfil mirando a la DERECHA, igual que la referencia
+   2.  22 grados  - empieza a girar hacia la camara
+   3.  45 grados  - tres cuartos
+   4.  67 grados  - casi frontal
+   5.  90 grados  - frontal, de cara a la camara
+Con las cinco y sus espejos salen 9 fotogramas a 22,5 grados de paso (mas suave
+que el giro de pie, que se quedo en 5 porque falto la de 67). La 1 se pide
+aunque la tengamos: es el ancla de escala y de postura.
+
+EL PROMPT
+---------
+
+A character turnaround sheet: 5 full-body views of the SAME character in the
+SAME crouching pose, side by side in one row, evenly spaced, not overlapping, on
+a flat pure chroma-key green background (#24D732). No shadows, no cast shadow
+under the feet, no gradient, no ground plane, no horizon, no props, no text, no
+labels, no panel borders or separator lines.
+
+Character: exactly the character of the reference images: an old master
+builder, wizard-like. Tall pointed grey-blue hood covering the head, long white
+beard. Full-length heavy cloak built from flat geometric triangular facets in
+dark maroon, brick red, ochre, warm brown and muted grey. Low-poly flat-shaded
+hand-painted stylised look with visible polygon facets, soft matte texture, no
+outlines, no cel-shading lines, no rim light.
+
+Pose: exactly the crouching pose of the attached crouching reference, in all
+five views. He is crouched low and hunched forward, back rounded, head forward,
+both hands resting on his knees. The heavy cloak drapes all the way down to the
+ground and covers his legs completely: only the tips of the bare toes show below
+the hem. The knees do NOT stick out of the cloak and the legs are NOT visible,
+in any view, including the front view. Completely still: only the rotation of
+the body changes between views.
+
+The five views show the character ROTATING TOWARDS THE CAMERA in equal steps,
+left to right:
+  1. Full side profile facing RIGHT, identical to the crouching reference.
+  2. Rotated 22 degrees towards the camera, still clearly facing right.
+  3. Three-quarter view, rotated 45 degrees towards the camera.
+  4. Rotated 67 degrees towards the camera, nearly frontal.
+  5. Full front view, facing the camera directly.
+
+It must rotate towards the camera, never away: the face and beard stay visible
+and turn to face us. Never show the back of the character.
+
+CRITICAL: identical height, identical scale, identical camera height and camera
+distance in all five. The top of the hood is at the same height in all five, and
+the feet rest on exactly the same horizontal line in all five. Straight-on camera
+at chest height, orthographic feel, no perspective distortion, no tilt, no zoom
+difference. Full body visible in every view, nothing cropped, generous margin
+above the hood and below the feet.
+
+SI SALE MAL Y HAY QUE IR DE UNA EN UNA
+--------------------------------------
+Mismo bloque de "Character", "Pose" y reglas criticas, cambiando solo la vista,
+y adjuntando las dos referencias en todas. Riesgo: el estilo deriva entre
+imagenes, por eso se prefiere la hoja de una sola tirada.
+
+LO QUE NO IMPORTA Y LO QUE SI
+-----------------------------
+No importa la escala ni la posicion exactas: se cuadran despues contra el
+agachado del juego (alto, linea de suelo y centro del tronco).
+Si importa, y no tiene arreglo despues: que cambie la postura (que se levante,
+que se vean las piernas o las rodillas fuera de la tunica), el estilo, la
+capucha, la barba o el corte de la capa.
+El mosaico de triangulos de la capa no va a coincidir exactamente entre vistas:
+da igual, en el giro de pie tampoco coincide y no se nota.

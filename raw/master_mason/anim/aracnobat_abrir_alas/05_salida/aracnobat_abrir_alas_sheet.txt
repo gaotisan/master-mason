@@ -1,0 +1,12 @@
+﻿animacion:  aracnobat_abrir_alas
+origen:     04_limpios
+hoja:       aracnobat_abrir_alas_sheet.png
+casilla:    292 x 176 px
+escala:     1/4   (master en 04_limpios: 1168 x 704)
+hframes:    6
+vframes:    4
+fotogramas: 22   (las 2 casillas sobrantes van vacias)
+fps:        24
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 22.

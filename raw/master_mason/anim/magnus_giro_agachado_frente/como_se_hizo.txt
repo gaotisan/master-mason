@@ -1,0 +1,51 @@
+YA NO SE USA (2026-10-05): el usuario lo vio todavia poco fluido ("el camina
+agachado va fluidisimo, y el video tb va mucho mejor"). El del juego es
+magnus_giro_agachado_video, por detras, con todos los fotogramas a 24 fps.
+
+magnus_giro_agachado_frente: como se monto
+==========================================
+El giro agachado del juego, POR DELANTE (hacia la camara), 1 s. Sustituye al de
+5 vistas de Gemini (magnus_giro_agachado) y al giro por detras
+(magnus_giro_agachado_video), que el usuario vio "a saltitos y a una velocidad
+rara" al lado de lo lento que anda agachado: los pies daban pasitos de 6 px y
+duraba medio segundo. Como modelo de secuencia y cadencia dio el video de un giro
+de pie (_fuentes/Wizard_rotating_on_green_background_20261005182314.mp4, job
+magnus_giro_pie_video): de perfil al frente y al otro perfil, siempre de cara,
+pausado.
+
+Fuente: _fuentes/Wizard_turning_in_place_20261005171117.mp4 (Flow), la primera
+mitad: 1-31 quieto de perfil (el 1 es la referencia, el agachado del juego), 31-70
+gira hacia la camara hasta el frente. La segunda mitad es su espejo.
+
+Pasos:
+  elegir.ps1  -Job magnus_giro_agachado_frente -Frames "1-75"
+  python escalar.py          escala 1,5 (referencia de 1080p, video de 720p)
+  centrar.ps1 -Job magnus_giro_agachado_frente -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job magnus_giro_agachado_frente -Tolerancia 35 -Radio 4 -Motas 300
+  (los 75 sprites, asi, a _todos/)
+  python montar.py
+  hoja.ps1    -Job magnus_giro_agachado_frente -Cols 10 -Fps 60 -Escala 2
+
+montar.py, por orden:
+  - bolsas de croma: de frente, entre piernas y brazos, quedaba verde encerrado
+    (hasta 1200 px de master) que fondo.ps1 no alcanza; se busca en el fotograma
+    con fondo (el verde que no toca el borde) y se borra con su orla verdosa
+  - hundimiento: la IA lo hunde al prepararse (485 px de alto en el 1, 473 en el
+    25) y no lo recupera; se escala sobre los pies por 485 / alto suavizado hasta
+    el 40, y de ahi la del 40 (1,02). Sin esto la cabeza bajaba 6 px de pantalla
+    al empezar. Casi de frente la capucha sube unos px: geometria, no se toca
+  - encaje con el agachado del juego (-1, -11) y ganancia por zonas (tunica,
+    capucha, pies) del 1 contra el agachado
+  - paso visual constante: en el video el giro va despacio al principio (0,1 por
+    fotograma) y deprisa al pasar por delante (0,5); de tres en tres el paso iba
+    de 0,3 a 0,8 y se veia a tirones. Se cogen 29 entre el 28 y el 70 a distancia
+    acumulada igual (28 30 33 36 38 40 42 44 46 48 50 51 52 54 55 56 ... 67 69 70)
+  - frente simetrico: el frente y su espejo no son iguales (0,74) y empalmarlos
+    era el paso mas grande; en el centro va la media de los dos (un fotograma a
+    60 fps: el doble dibujo no se ve)
+  - cabeza suave: la punta de la capucha a una curva suavizada escalando cada
+    sprite sobre sus pies (+-1 %), sin mover los pies
+Resultado: 59 sprites a 60 fps (0,98 s), agachado del juego al principio y
+espejado al final (enlaces exactos; magnus.gd voltea al acabar). Paso medio 0,31
+(el giro de pie, 1,04), sin saltos de cabeza de mas de 3 px de pantalla y los pies
+quietos (4 px). Grabado: 05_salida/giro_agachado_en_juego.mp4.

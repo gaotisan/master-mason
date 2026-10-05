@@ -1,0 +1,206 @@
+Parametros comunes de todas las animaciones de MAGNUS
+=====================================================
+Medidos sobre magnus_corriendo, magnus_respirando y magnus_saltando.
+
+  casilla        584 x 720 px
+  suelo          a 30 px del borde inferior  (fila 690 de la casilla)
+  alto personaje 628 de pie, 632 corriendo, 660 en el aire
+  eje del tronco centrado en la casilla (x 292)
+
+Para procesar CUALQUIER animacion nueva de Magnus, usar exactamente:
+
+  .\centrar.ps1 -Job magnus_<accion> -Ancho 584 -Alto 720 -MargenSuelo 30
+  .\fondo.ps1   -Job magnus_<accion> -Tolerancia 35 -Radio 4
+
+Por que estos numeros:
+
+  584 de ancho   semiancho maximo medido 262 px (el abrigo va por detras al
+                 correr) mas 30 de margen. La casilla es SIMETRICA a proposito:
+                 al voltearla con flip_h para ir hacia el otro lado, el
+                 personaje no se desplaza.
+  720 de alto    660 del salto (en el aire encoge las piernas, asi que sube
+                 poco sobre su altura de pie) mas 30 arriba y 30 abajo.
+                 Empezo siendo 688 con solo carrera y reposo; al entrar el
+                 salto hubo que subirlo y reprocesar las tres.
+  suelo a 30     cada video tiene el suelo en una fila distinta del original
+                 (685 corriendo y saltando, 677 respirando). Anclarlo a la
+                 casilla es lo que evita que el personaje pegue un salto en
+                 pantalla al cambiar de animacion.
+  tolerancia 35  el fondo verde de estos videos llega a distancia 19 y el
+                 pixel del personaje mas cercano esta a 65. 35 esta en medio.
+                 Con 10 quedaban entrantes de verde entre las piernas.
+  radio 4        con croma la banda de mezcla del borde es de unos 7 px; con
+                 radio 2 queda un ribete del color del fondo.
+
+Animaciones disponibles:
+
+  magnus_respirando       30 sprites  12 fps  bucle 2,46 s   video 115-173
+  magnus_arranque_andar   34 sprites  24 fps  una pasada     video  19-52
+  magnus_andando          34 sprites  24 fps  ciclo 1,42 s   video  53-86
+  magnus_parada_andar     21 sprites  24 fps  una pasada     video 146-166
+  magnus_arranque_correr  38 sprites  24 fps  una pasada     video  21-58
+  magnus_corriendo        24 sprites  24 fps  ciclo 1,00 s   ES EL BUENO
+  magnus_parada_correr    39 sprites  24 fps  una pasada     video 121-159
+  magnus_saltando         75 sprites  12 fps  una pasada     GIRA en el aire (ver aviso)
+
+  magnus_aterrizaje_correr 34 sprites  60 fps  una pasada     video 166-199 del salto de piedra (cola)
+  magnus_salto_parado     66 sprites  60 fps  una pasada     video 34-80 + 116-134; salto desde el reposo
+  magnus_agacharse       127 sprites  una hoja, tres animaciones: agacharse (49 f, 60 fps), agachado (bucle, 24 f, 12 fps), incorporarse (38 f, 60 fps)
+  magnus_arranque_agachado 27 sprites  20 fps  una pasada     video  20-46 (zoom corregido, ver magnus_andar_agachado/como_se_hizo.txt)
+  magnus_andar_agachado    42 sprites  20 fps  ciclo 2,1 s    video 143-184 (video en vertical, escala 0,50)
+  magnus_parada_agachado   31 sprites  20 fps  una pasada     video 185-215
+  magnus_giro_pie_rapido   47 sprites  30 fps  una pasada     video 70-112, todos, de espaldas, espejado; 1,6 s
+  magnus_giro_agachado_video 65 sprites 24 fps una pasada    video 103-162, todos, por detras; 2,8 s con arranque suave
+  (magnus_giro, 5 poses de IA; magnus_giro_pie_video, giro lento acelerado; magnus_giro_agachado, 5 vistas de Gemini; magnus_giro_agachado_frente, por delante: ya no se usan)
+
+  Caida (casilla propia 760x720 -> 380x360, ver magnus_caida/como_se_hizo.txt):
+  magnus_cayendo          14 sprites  24 fps  bucle 0,58 s   video 25-32 ping-pong
+  magnus_caida            21 sprites  24 fps  una pasada     video 33-53
+  magnus_tumbado           1 sprite    -      quieto         video 60
+  magnus_levantarse       63 sprites  20 fps  una pasada     video 82-206 pares
+  magnus_salto_andando    70 sprites  60 fps  una pasada     video  89-158  salto en parado y andando, no gira (ver su como_se_hizo.txt)
+
+Cadenas completas:
+
+  respirando -> arranque_andar  -> andando    -> parada_andar  -> respirando
+  respirando -> arranque_correr -> corriendo_v2 -> parada_correr -> respirando
+  (cualquiera) -> cayendo -> caida -> tumbado -> levantarse -> respirando   (enganche 0,13)
+
+Los arranques terminan en el fotograma **inmediatamente anterior** al que abre su
+ciclo en el video original (52->53 y 58->59), asi que ese enlace es perfecto por
+construccion, no una aproximacion.
+
+Para conseguirlo en el de correr hubo que mover el ciclo del 80-105 al 59-82: el
+cierre del bucle empeora (0,070 frente a 0,049) pero a cambio el arranque entrega
+al ciclo sin salto. Se prefirio eso porque el arranque se ve una vez por pulsacion
+y el salto se veria siempre.
+
+Enganche de las paradas con el reposo (0,013 es el ruido entre fotogramas seguidos):
+
+  parada_andar  -> respirando   0,046
+  parada_correr -> respirando   0,051
+
+CUAL DE LOS DOS CICLOS DE CORRER
+================================
+Se usa **magnus_corriendo** (v1). magnus_corriendo_v2 esta en _archivo/ por si
+algun dia se prefiere tener toda la cadena de correr del mismo video.
+
+Al principio se penso lo contrario, porque v2 sale del mismo video que el arranque
+y la parada y por tanto enlaza en fotogramas consecutivos. Medido, esa ventaja es
+marginal y la del bucle no:
+
+                        v1 (el bueno)   v2
+  cierre del ciclo         0,021        0,070
+  entrada desde arranque   0,172        0,109
+  salida hacia parada      0,274        0,263
+
+La clave es con que comparar. En una carrera a 24 fps, **el paso normal entre dos
+fotogramas seguidos ya vale ~0,19**. Asi que las dos entradas estan por debajo de
+un paso normal: ninguna se nota. En cambio el cierre del bucle se ve una vez por
+segundo, para siempre, y ahi v1 es tres veces mejor.
+
+Las paletas de los dos son identicas (color medio 93-101 / 74-81 / 68-75 en ambos
+y en las transiciones), asi que mezclar v1 con las transiciones no da salto de
+color aunque vengan de generaciones distintas.
+
+Si se quiere afinar: entrar al bucle por el fotograma 13 y salir por el 22 son los
+puntos de mejor encaje. En la practica da igual, estan dentro del ruido.
+
+VELOCIDAD DE DESPLAZAMIENTO
+===========================
+Los videos corren en el sitio, pero la zancada se puede medir en los sprites: es
+la separacion maxima entre los dos pies. Medido sobre el master y traducido a la
+escala 1/2 que va al juego:
+
+  andando       12,8 px master por fotograma  ->   6,4 px de hoja   (nativo 154 px/s)
+  corriendo     28,9 px master por fotograma  ->  14,5 px de hoja   (nativo 347 px/s)
+
+  Medido siguiendo el pie plantado respecto al eje del tronco, no la zancada:
+  la separacion maxima entre pies incluye un pie de mas y sobrestima el paso.
+  Con la zancada salian 9,5 y 17,3 y el personaje se deslizaba al andar.
+  En el juego las velocidades estan en 192 y 435, por encima de las nativas;
+  la animacion se acelera sola y no patina. Esos dos numeros no son libres:
+  velocidad / avance tiene que dividir a los 60 Hz de la fisica o unos
+  fotogramas duran un tick mas que otros y la cadencia tiembla. 192 y 435
+  dan 30 fotogramas por segundo, 2 ticks clavados por fotograma.
+
+Esos px son del sprite a escala 1/2. Si el nodo lleva scale distinto de 1, hay que
+multiplicar por ese factor.
+
+En correr el numero es un MINIMO: al haber fase aerea, el cuerpo avanza algo mas
+de lo que separan los pies. Hay que subirlo a ojo hasta que el pie de apoyo no
+resbale. En andar no hay fase aerea y la medida deberia ser buena.
+
+Lo mejor no es fijar la velocidad sino **mover la animacion con la distancia**:
+en vez de reproducirla a fps constante, avanzar el fotograma segun lo que se haya
+recorrido. Asi no patina a ninguna velocidad y la aceleracion sale gratis:
+
+  const AVANCE := 14.5          # px recorridos por fotograma de animacion
+  var recorrido := 0.0
+  func _physics_process(delta):
+      recorrido += absf(velocidad.x) * delta
+      var n = sprite.sprite_frames.get_frame_count("correr")
+      sprite.frame = int(recorrido / AVANCE) % n
+
+Alineacion del suelo (2026-09-24): el pie PLANTADO apoya en la fila 677 en todas
+las animaciones de suelo, que es donde apoya el reposo. centrar.ps1 ancla el pixel
+mas bajo de cada job a la 690, y ese pixel no es el mismo en todas (sombra, punta
+del pie que aplasta en cuclillas), asi que cada job quedaba a su altura: correr
+apoyaba en 683 (6 px por debajo del reposo), arranque_correr en 681, parada_correr
+en 679 y salto_andando en 686 (9 por debajo: en el juego el personaje se hundia 4,5
+px de pantalla al saltar y volvia a subir al acabar). Se corrigieron con
+magnus_caida/alinear.py --bajar -6/-4/-2/-9 sobre 04_limpios (copia previa en
+_sin_alinear/ de cada job). Para una animacion nueva: medir la moda de la fila
+del pie mas bajo en los sprites con el pie plantado y llevarla a 677.
+Eje del tronco entre x 292 y 296 (centro 292) en todas.
+
+Escala de exportacion: 1/2
+==========================
+Los sprites de 04_limpios se quedan a resolucion completa como MASTER. Las hojas
+de 05_salida se exportan reducidas a la mitad:
+
+  .\hoja.ps1 -Job magnus_respirando -Cols 8  -Fps 12 -Escala 2
+  .\hoja.ps1 -Job magnus_corriendo  -Cols 6  -Fps 24 -Escala 2
+  .\hoja.ps1 -Job magnus_saltando   -Cols 10 -Fps 12 -Escala 2
+
+  casilla exportada  292 x 360 px   (suelo a 15 px del borde inferior)
+  personaje          330 px de alto
+
+Por que 1/2 y no menos: manda el zoom maximo, no el tamano habitual. A una
+textura le sienta bien que la achiques y mal que la estires. Con 330 px, en plano
+abierto (personaje a ~200 px) se reduce y queda nitido, y en el acercamiento
+maximo (~440 px) se estira 1,3x y queda algo blando -- lo que ademas suaviza las
+facetas del modelo. Ademas 584 y 720 se dividen exactos entre 2; entre 3 no
+(584/3 = 194,67) y redondear desplazaria el eje del personaje.
+
+Coste: 54,5 MB de memoria de video las tres (5,9 MB en disco). Con mipmaps, 72.
+Si algun dia aprieta, activar compresion VRAM en la importacion antes que volver
+a reducir.
+
+En Godot, para que el cambio de tamano con la camara funcione bien:
+  - activar mipmaps en la importacion (si no, centellea al moverse)
+  - filtro lineal, no nearest: esto es pintado, no pixel art
+  - hacer el zoom en la Camera2D, no escalando el nodo del personaje
+
+Arranque de andar (medido 2026-09-23): avance real del pie plantado, master px por
+fotograma: 0 0.7 2.2 2.6 4.6 6.3 7.1 8.2 8.3 9.9 10.3 12.1 11.3 11.0 11.7 11.7
+13.5 12.6 12.6 | 14.0 15.8 15.3 14.4 14.8 14.0 10.2 8.6 8.7 12.8 12.2 9.6 6.0 1.3.
+Del 18 en adelante coincide con el ciclo fotograma a fotograma; la cola 26-33
+afloja. En el juego se corta en el 18, va a 30 fps y el ciclo entra por el 19.
+
+Parada de andar (medido 2026-09-23): cada fotograma de la parada casa con el
+ciclo en f26-f29 (y f3), a >= 1,1 pasos: esta grabada desde una sola fase de la
+zancada. Avance del pie plantado en la parada, master px/fotograma: ruido en
+0-6, luego 3.0 4.6 5.0 5.9 5.2 6.0 3.4 4.8 2.6 1.7 1.1 1.5 1.0. En el juego va a
+30 fps, se entra esperando a f2-f3 o f24-f30 del ciclo (max 10 fotogramas) por
+el fotograma mas parecido, y el nodo frena con ese perfil. Falta una segunda
+parada desde la otra fase para cubrir f4-f12.
+
+Arranque de correr (medido 2026-09-23): 6 fotogramas quieto, f6 5.4 px master,
+f7 16.0, y del f8 en adelante 32 31 26 25 29 33 = crucero (28.9). O sea que
+acelera en 2 fotogramas, no en 28. En el juego va a 30 fps, se corta en el 22 y
+el ciclo entra por f9.
+Parada de correr: casa con el ciclo solo en f22 (1,21 pasos); el resto 1,3-2,1.
+Entrar por el fotograma mas parecido NO sirve, el mejor es siempre el 0.
+Distancias por fotograma del ciclo: 1.7 1.7 1.7 1.5 1.5 1.4 1.4 1.6 1.6 1.7 1.6
+1.8 2.1 2.1 2.1 2.1 1.9 1.9 2.0 1.9 1.5 1.3 1.2 1.6.

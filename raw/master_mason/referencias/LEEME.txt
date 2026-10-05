@@ -1,0 +1,19 @@
+Referencias e imagenes del juego que estaban en Descargas (recogidas el 2026-10-05)
+==================================================================================
+Lo que no es de animacion de Magnus (eso va en anim/_fuentes). Agrupadas a ojo
+por tema; los nombres son los originales (las de Midjourney empiezan por
+gaotisan_, las de IA por Gemini_Generated_Image_ o ChatGPT Image).
+
+  escena_ataud/  sarcofago, cucaracha (entera, en piezas, aplastada), la mano que
+                 golpea, el pendulo y las cadenas de la intro
+  cocina/        cocina y carniceria del castillo, la cabeza de cerdo, corazones,
+                 pajaro, y dos de cajas con flores
+  titulo/        pantallas de titulo "The Master Mason" / "El Maestro Constructor",
+                 hojas y el humo suave
+  escenarios/    bosques, la piramide, el arbol con fuego y la figura del sabio
+  personaje/     Dominus y Magnus: piezas sueltas (cabeza, brazos, piernas, abrigo),
+                 la figura con baston, los bastones, y hojas de pruebas en verde
+  estilo/        GRIS (portada), referencia de estilo
+
+Las que ya estaban en el proyecto tal cual (assets/intro, dominus/dominus1 y
+anim/_fuentes) no se duplicaron: esas copias de Descargas fueron a la papelera.

@@ -1,0 +1,12 @@
+﻿animacion:  magnus_salto_corriendo
+origen:     04_limpios
+hoja:       magnus_salto_corriendo_sheet.png
+casilla:    340 x 400 px
+escala:     1/2   (master en 04_limpios: 680 x 800)
+hframes:    8
+vframes:    5
+fotogramas: 38   (las 2 casillas sobrantes van vacias)
+fps:        60
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 38.

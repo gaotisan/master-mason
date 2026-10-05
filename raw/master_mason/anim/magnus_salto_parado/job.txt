@@ -1,0 +1,11 @@
+﻿job:     magnus_salto_parado
+creado:  2026-09-24 13:30
+fuente:  salto_en_parado.mp4
+nota:    salto vertical desde parado, quieto antes y despues. El video trae dos saltos: se usa el primero. Polvo al caer que hay que quitar
+
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

@@ -1,0 +1,50 @@
+PROMPT PARA EL VIDEO DEL GIRO DE PIE (Google Flow / Veo, "Frames to Video")
+=========================================================================
+El giro de pie (magnus_giro) son 5 vistas a 45 grados de una hoja de IA: se ve
+brusco al lado del resto, que sale de video. Con un video del giro hay angulos
+de sobra para elegir y queda tan fluido como andar o correr.
+
+En Flow, modo de fotogramas a video:
+  - fotograma inicial: referencia_giro_pie_video_inicio.png  (el reposo del juego,
+    magnus_respirando c_08, mirando a la derecha, a su tamano de master: 628 px de
+    alto en 1920x1080, pies en la fila 880)
+  - fotograma final:   referencia_giro_pie_video_fin.png     (el mismo, espejado)
+  (las dos estan aqui en _fuentes/ y copiadas en Descargas)
+  - 16:9, 8 s, el modelo de mas calidad. Sacar 2-4 tomas y quedarse con la buena.
+
+Que mirar en cada toma, por orden (lo que no tiene arreglo despues):
+  1. la camara quieta: nada de zoom ni de paneo
+  2. que no cambie de tamano ni de postura (que no se encorve mas ni se estire), y
+     que la cabeza vaya siempre a la misma altura
+  3. que gire hacia la camara y nunca ensene la espalda
+  4. que los pies pisen siempre en la misma linea y no se desplace por la pantalla
+  5. que no haya nada encima (controles de reproductor, marcas de agua, texto)
+  6. que el giro vaya a velocidad constante, sin parones
+Si ensena la espalda, otra toma; si sigue, probar sin fotograma final.
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no ground, no floor line, no props, no text, no logos,
+no on-screen interface or player controls.
+
+The old hooded wizard from the first frame stands in exactly the same relaxed
+standing pose the whole time: slightly stooped, arms hanging relaxed at his
+sides, the long faceted cloak down to his ankles, thin dark legs and bare feet
+visible below it. His posture, his height and his size never change, and his
+head stays at the same height.
+
+He holds still for one second. Then he slowly turns around on the spot to face
+the other way, rotating towards the camera: from his side profile facing right,
+through a three-quarter view, to facing the camera directly, then on through a
+three-quarter view to his side profile facing left. The turn is smooth, slow and
+even, at a constant speed, taking about five seconds, with small, light steps of
+his bare feet in place; his feet stay on the same line and his position on
+screen does not move. He never turns his back to the camera. Then he holds still
+for one second in the final pose, identical to the last frame.
+
+Same low-poly flat-shaded hand-painted style, same colours and lighting as the
+first frame throughout, soft matte texture, no flicker. Sound: only the soft
+rustle of the cloak and his bare feet on the ground, no music, no voice.

@@ -1,0 +1,11 @@
+﻿job:     magnus_giro_agachado
+creado:  2026-10-05 16:30
+fuente:  giro_agachado_2.jpeg
+nota:    giro agachado: 5 vistas IA (Gemini) sobre croma verde, del perfil al frente; la otra mitad, espejo
+
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

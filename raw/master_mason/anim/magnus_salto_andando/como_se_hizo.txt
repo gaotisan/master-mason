@@ -1,0 +1,101 @@
+magnus_salto_andando: como se monto
+===================================
+Fuente: _fuentes/Elderly_mystic_character_walking.mp4 (240 fotogramas, 24 fps,
+1280x720, croma verde). El personaje esta quieto (1-36), anda (37-88), se
+agacha, salta y aterriza (89-160) y se queda quieto (161-240).
+
+Se usa SOLO el salto, fotogramas 89-158 (70 sprites), y sirve para dos cosas:
+salto en parado y salto andando. El salto corriendo es otro job
+(magnus_salto_corriendo), de otro video.
+
+Tramos, medidos por la fila del pie mas bajo (suelo del video en la fila 683):
+
+  tramo           video     sprites   que pasa
+  anticipacion    89-102    c_01-14   frena el paso, se agacha (cabeza baja 70 px),
+                                      brazos atras, extiende
+  vuelo          103-133    c_15-45   pie despega en el 103, apogeo 116-118
+                                      (pie a 154 px del suelo), toca en el 134
+  aterrizaje     134-150    c_46-62   amortigua en cuclillas
+  incorporacion  151-158    c_63-70   se endereza hasta la pose de reposo
+
+El personaje NO gira en el aire y mira siempre a la derecha (a diferencia de
+magnus_saltando, que es de otro video).
+
+POR QUE EMPIEZA EN EL 89 Y ACABA EN EL 158
+------------------------------------------
+Distancias entre sprites (misma metrica que magnus_comun.txt: 0,013 es el paso
+normal entre dos fotogramas seguidos de andar; las paradas enganchan con el
+reposo a 0,046-0,051):
+
+  respirando c_01 -> salto c_01 (video 89)   0,052   mejor que cualquier otro
+                                                     fotograma del salto
+  andando    c_05 -> salto c_01              0,037   ~3 pasos normales, como el
+                                                     salto corriendo (2,75-3,86)
+  salto c_70 (video 158) -> respirando c_01  0,024
+  salto c_82 (video 170) -> respirando c_01  0,017   12 sprites mas para ganar
+                                                     0,007: no compensa
+
+O sea: tanto en parado como andando se entra por el MISMO primer sprite, y al
+acabar se puede saltar directamente a respirando (o al ciclo de andar si sigue
+la tecla pulsada; ese enganche no esta medido).
+
+COSAS QUE ESTE VIDEO TRAE
+-------------------------
+1. NO CABE POR ARRIBA EN EL VIDEO, PERO SI EN LA CASILLA COMUN. En el apogeo la
+   cabeza llega a la fila 16 del video y el suelo esta en la 683-687: 671 px por
+   encima del suelo. En la casilla comun (720 alto, suelo a 30 del borde) caben
+   690, asi que quedan 19 px de margen arriba (hoja.ps1 avisa por debajo de 8;
+   a escala 1/2 son 9-10 px). Pero para recortar 720 de alto anclando el suelo
+   en la fila 690, centrar.ps1 tendria que empezar en la fila -3 del video, y lo
+   que hace es sujetar la ventana en 0 sin avisar: todos los sprites bajarian 3
+   px y se perderia la alineacion. Por eso se anaden 40 px de verde por arriba a
+   03_seleccion (copia sin padding en _sin_padding/), igual que en
+   magnus_salto_corriendo. Anchura: semiancho maximo 260 a la izquierda
+   (abrigo al aterrizar), 33 px de margen. Cabe.
+
+2. EL SUELO SE MIDE 4 PX BAJO. centrar.ps1 toma como suelo el fotograma que mas
+   baja, y aqui es la cuclilla previa al despegue (video 100, el pie aplasta
+   contra el suelo hasta la 687), no el pie plantado de pie (683). Resultado: el
+   personaje de pie apoya en la fila 686 de la casilla en vez de en la 690. Las
+   otras animaciones de Magnus apoyan entre 677 y 687, asi que esta dentro del
+   rango ya aceptado (2 px en el juego). Si un dia se afina, la solucion es
+   poder pasar el suelo a mano a centrar.ps1, no tocar los sprites.
+
+3. NADA DE SOMBRAS NI OBJETOS. El croma es limpio (fondo 34,206,50, sin sombra
+   proyectada), asi que valen los parametros comunes de Magnus (tolerancia 35,
+   radio 4). Con solo eso quedaban 0-52 px verdosos por sprite (522 en total),
+   un ribete en la pantorrilla al despegar (c_10-c_17). Con el despill afinado
+   del salto corriendo (-Derrame 12 -DerrameBorde 3 -DerrameObjetivo 2) bajan a
+   0 en los 70 y el interior no cambia (77 px de 92.000 en c_30, diferencia
+   media 0,00). La version sin despill esta en _sin_fondo_auto/v1_tol35_r4/.
+
+4. CAMARA LENTA, como el salto corriendo: 31 fotogramas de vuelo a 24 fps son
+   1,3 s. Se exporta con fps 60 en la ficha (1 tick de fisica por sprite):
+   0,52 s de vuelo, 1,17 s en total (anticipacion 0,23, aterrizaje +
+   incorporacion 0,42). Si en el juego la anticipacion se hace larga, recortar
+   el arranque al sprite c_05 (video 93, ya en cuclillas) es lo primero que
+   probar: el enganche desde reposo empeora de 0,052 a 0,076.
+
+Pasos:
+  nuevo.ps1   -Job magnus_salto_andando -Fuente Elderly_mystic_character_walking.mp4
+  frames.ps1  -Job magnus_salto_andando
+  contacto.ps1 -Job magnus_salto_andando -Cols 8 -Filas 6
+  elegir.ps1  -Job magnus_salto_andando -Frames "89-158" -Prefijo salto
+  (padding de 40 px verdes arriba en 03_seleccion, copia en _sin_padding/)
+  centrar.ps1 -Job magnus_salto_andando -Ancho 584 -Alto 720 -MargenSuelo 30
+  fondo.ps1   -Job magnus_salto_andando -Tolerancia 35 -Radio 4 -Derrame 12 -DerrameBorde 3 -DerrameObjetivo 2
+  hoja.ps1    -Job magnus_salto_andando -Cols 10 -Fps 60 -Escala 2
+  ciclo.ps1   -Job magnus_salto_andando -Desde 04_limpios -Fps 24 -Fondo 14100E
+
+Alineacion verificada en 04_limpios: eje del tronco entre x 291 y 296 (centro
+292), pie de pie en la fila 686, cuclilla en la 690.
+
+Pendiente: integrarlo en Godot (SpriteFrames en _spriteframes.py con la casilla
+comun, y decidir en magnus.gd si al aterrizar con la tecla pulsada se enlaza al
+ciclo de andar en vez de a respirando).
+
+COLOR DE LA COLA (2026-09-29). La cola del salto (desde el 55) salia unos 5
+niveles mas oscura que el reposo y que andar, (89, 65, 59) frente a (95, 70, 62):
+al acabar el salto habia un pequeno fogonazo. rampa_color.py lleva la tunica de
+los sprites 51-70 al color del reposo en rampa (del todo desde el 61). Copia en
+_sin_rampa/. tools/anim/revisar.py: enlace con el reposo de 4,7 a 0,7.

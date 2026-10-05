@@ -1,0 +1,3 @@
+﻿job:     magnus_giro_pie_video
+fuente:  Wizard_rotating_on_green_background_20261005182314.mp4
+nota:    GIRO DE PIE en video (Flow): perfil izquierdo -> frente (se queda) -> perfil derecho, siempre hacia la camara. YA NO SE USA: el giro de pie del juego es magnus_giro_pie_rapido (este video estaba pedido lento; acelerado, los pasitos se veian irreales).

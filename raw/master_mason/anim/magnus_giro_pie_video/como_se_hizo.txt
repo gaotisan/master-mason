@@ -1,0 +1,101 @@
+YA NO SE USA (2026-10-05): el usuario lo vio en el juego "rarisimo": se mueven los
+pies a pasitos cortos, muy irreal. El video se pidio LENTO, con pasitos cortos,
+y acelerado a 1 s es un arrastre de pies; ningun montaje lo arregla. El del juego
+es magnus_giro_pie_rapido, un video pedido ya rapido y usado a su ritmo.
+
+magnus_giro_pie_video: como se monto
+====================================
+El giro de pie del juego (giro): UNA mitad del video (perfil -> frente) y la misma
+espejada y al reves (frente -> el otro perfil), con los fotogramas elegidos para
+que cada uno cambie lo mismo. 59 sprites a 60 fps, 1 s.
+
+Historia (2026-10-05):
+  1. magnus_giro: 5 poses de una hoja de IA en 0,25 s. "A saltitos y a una
+     velocidad rara comparado con como anda".
+  2. este job, version 1 (montar_v1_dos_tramos.py): 22-69 + 88-150 del video, sin
+     el rato de frente, 118 sprites a 60 fps, 2 s. El usuario: "va a saltos, a
+     tirones y sin fluidez", "como en dos partes". Medido despues:
+       - la primera mitad del giro va en 45 fotogramas y la segunda en 25:
+         cambiaba de velocidad en el frente, justo en el empalme 69 -> 88 (0,37);
+       - y luego venian 40 fotogramas de recolocarse (113-150), otro movimiento;
+       - a 60 fps (2,5 veces el video) el temblor del video, que mueve la figura
+         2-3 px de lado a lado de un fotograma al siguiente, se veia como tirones.
+  3. version 2: una mitad y su espejo con TODOS los fotogramas, 95 a 30 fps, 3,2 s,
+     y el frente fundido con su espejo en 5 fotogramas. "No esta mal", pero
+     "tarda un monton, no es jugable" y "tiene un blur raro": el mosaico de la
+     tunica no es simetrico y la mezcla lo doblaba durante 0,17 s.
+  4. ESTA (version 3): lo mismo, pero en 1 s y sin la mezcla larga.
+
+Fuente: _fuentes/Wizard_rotating_on_green_background_20261005182314.mp4 (Google
+Flow, 1280x720, 24 fps, 240 fotogramas; el 20261005173721 es el mismo archivo),
+pedido con _fuentes/prompt_giro_pie_video.txt y el reposo del juego a tamano de
+master en 1920x1080 y espejado (_fuentes/referencia_giro_pie_video_inicio.png /
+_fin.png). Camara quieta, pies en la fila 585.
+
+Que hace el video:
+    1-18    quieto, de perfil IZQUIERDO (casi el reposo del juego, 0,19)
+   19-66    gira hacia la camara hasta el frente, a velocidad pareja
+   66-100   se queda de frente, moviendose un poco
+  100-113   sigue, mas deprisa, hasta el perfil derecho
+  113-151   se recoloca de perfil (no casa con el reposo hasta el 140: 0,38)
+  151-240   quieto
+
+Por que una mitad y su espejo: no hay en el video un giro de 180 grados seguido
+y a la misma velocidad. La primera mitad (20-65) empieza casi en el reposo (0,20)
+y va pareja; espejada y al reves da la segunda mitad a la misma velocidad, y acaba
+en el reposo espejado. Lo unico que no casa es el frente: la IA no lo hizo
+simetrico (0,42 contra su espejo; lo que cambia son las lineas del mosaico de la
+tunica y detalles de la cara).
+
+Pasos:
+  frames.ps1 / elegir.ps1 -Job magnus_giro_pie_video -Frames "10-165"
+  python escalar.py          recorte 360,160-920,620 del video, escala 1,5 justa
+                             (626 px de alto, el reposo 628), lienzo 1000x860,
+                             suelo a 100
+  centrar.ps1 -Job magnus_giro_pie_video -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job magnus_giro_pie_video -Tolerancia 35 -Radio 4 -Motas 300
+  (los 156 sprites, asi, a _todos/; el fotograma con fondo queda en _con_fondo/)
+  python montar.py           los 59 del juego, ver abajo
+  hoja.ps1    -Job magnus_giro_pie_video -Cols 10 -Fps 60 -Escala 2
+  tools/anim/_spriteframes.py  ('giro', 'magnus_giro_pie_video', 59, 10, 60.0, False)
+
+montar.py:
+  - cada fotograma del 20 al 65: sin las bolsas de croma (el verde encerrado entre
+    las piernas que fondo.ps1 no alcanza; se buscan en el fotograma con fondo,
+    como en el giro agachado), espejado, sin el temblor (se mueve a la media movil
+    de 7 fotogramas del centro de su silueta: -2 a +1 px de master), una rampa en
+    x de +2 (lo que mejor casa con el reposo) a -1 (lo que deja el frente centrado
+    en la casilla, para que el espejo case), 8 px arriba, y una ganancia por zonas
+    (tunica, capucha, pies) del primero contra el reposo.
+  - cuales: el reposo del juego (magnus_respirando c_01) y 28 del video, elegidos
+    con programacion dinamica para que el paso ENTRE ELLOS (medido directamente,
+    no sumando los de en medio, que el video tiembla) siga un perfil de velocidad:
+    empieza a 0,35 de la de crucero y llega a ella en el primer 30 % (ARRANQUE,
+    VEL_INICIAL), saltando como mucho 4 fotogramas. Sale: 20, 22, 24, 25, 27, 28,
+    29, 31, 32, 33, 35, 36, 37, 39, 41, 43, 45, 47, 50, 52, 54, 56, 57, 58, 60, 61,
+    63, 65. Asi sobran los que casi no cambian y en los tramos rapidos no se salta
+    ninguno. (Cogiendolos por la distancia sumada, los pasos alternaban 0,17 y
+    0,37 por el temblor.)
+  - el frente: un sprite mitad y mitad con su espejo entre el 65 y su espejo. Dura
+    un refresco (1/60 s): parte el salto de 0,45 en dos de 0,22 y no se ve como
+    mezcla.
+  - despues, todo eso espejado y al reves: 29 + 1 + 29 = 59. Empieza en el reposo
+    y acaba en el reposo espejado: enlaces exactos, y al acabar magnus.gd voltea.
+Pasos entre sprites: 0,13-0,17 al arrancar y frenar, 0,20-0,33 en crucero, media
+0,24; los pies como mucho 0,38; el centro, 2,2 px de master. revisar.py: paso
+medio 0,221, enlaces reposo <-> giro exactos.
+
+Para cambiar la duracion: SEGUNDOS en montar.py (y el numero de sprites en
+_spriteframes.py, que lo imprime montar.py). Siempre a 60 fps, un sprite por
+refresco: mas de 60 por segundo la pantalla no los ensena, y menos a mas fps
+alterna duraciones.
+
+Lo que cambia al jugar: girar dura 1 s (0,25 con las 5 poses). Desde el reposo,
+un toque hacia atras gira y se queda; mantenido, gira y echa a andar. Andando o
+corriendo primero frena (como antes) y despues gira.
+
+Comprobado grabando scenes/dev/piloto_giro_pie.tscn (05_salida/giro_pie_en_juego.mp4,
+aclarado): cambia en cada refresco, 60 en 1 s; la cabeza se mueve como mucho 2 px
+de un sprite al siguiente y el centro 1,1; cambio medio 0,94 y maximo 1,36 en
+unidades de la grabacion (la version 1, a 60 fps y a tirones: 1,47). Al voltear
+no cambia nada.

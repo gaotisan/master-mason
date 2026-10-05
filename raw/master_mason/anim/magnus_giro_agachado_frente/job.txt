@@ -1,0 +1,11 @@
+﻿job:     magnus_giro_agachado_frente
+creado:  2026-10-05 19:48
+fuente:  Wizard_turning_in_place_20261005171117.mp4
+nota:    giro agachado por delante: perfil -> frente del video y su espejo. YA NO SE USA: el del juego es magnus_giro_agachado_video (todos los fotogramas, por detras, 24 fps)
+
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

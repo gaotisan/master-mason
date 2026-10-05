@@ -1,0 +1,77 @@
+magnus_giro_pie_rapido: como se monto
+=====================================
+El giro de pie del juego (giro): un video pedido ya a la velocidad del juego, de
+espaldas a la camara como el giro agachado, usado entero y a su ritmo. 47 sprites
+a 30 fps, 1,6 s.
+
+Por que un video nuevo (2026-10-05): el anterior (magnus_giro_pie_video) se pidio
+lento, "unos cinco segundos con pasitos cortos de los pies". A su ritmo se veia
+bien pero duraba 3-4 s ("no es jugable"); acelerado a 1 s, los pasitos eran un
+arrastre de pies rapidisimo ("queda rarisimo", "muy irreal"). Ningun montaje lo
+arreglaba: el defecto estaba en el video. Lo que funciono en el giro agachado es
+usar el video a su ritmo, asi que se pidio el giro rapido (dos pasos, ~1 s) con
+_fuentes/prompt_giro_pie_rapido.txt y las referencias de siempre
+(referencia_giro_pie_video_inicio.png / _fin.png). Salio de espaldas y el usuario
+lo prefiere asi, por coherencia con el agachado.
+
+Fuente: _fuentes/Wizard_turning_around_green_screen_20261005230414.mp4 (Google
+Flow, 1280x720, 24 fps, 240 fotogramas, 10 s). Camara quieta, pies en la fila 585
+todo el video, mismo tamano.
+
+Que hace el video:
+    1-69    quieto de perfil mirando a la IZQUIERDA (respira un poco)
+   70-112   da la vuelta de espaldas a la camara con dos pasos: acelera (paso
+            0,12 -> 0,37), va parejo y frena el solo (0,13)
+  113-160   de perfil mirando a la derecha, recolocandose un poco
+  160-240   quieto
+Se espeja entero: en el juego va de mirar a la derecha a mirar a la izquierda.
+
+Por que 70 y 112: son los que mejor casan con el reposo del juego (0,24 el 70) y
+con el reposo espejado (0,29 el 112). El 124 casa algo mejor (0,21) pero son 12
+fotogramas mas de recolocarse, medio segundo.
+
+Pasos:
+  nuevo.ps1   -Job magnus_giro_pie_rapido -Fuente ...\Wizard_turning_around_green_screen_20261005230414.mp4
+  frames.ps1  -Job magnus_giro_pie_rapido
+  elegir.ps1  -Job magnus_giro_pie_rapido -Frames "56-160"
+  python escalar.py          el de magnus_giro_pie_video tal cual: recorte
+                             360,160-920,620, escala 1,5, lienzo 1000x860
+  centrar.ps1 -Job magnus_giro_pie_rapido -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job magnus_giro_pie_rapido -Tolerancia 35 -Radio 4 -Motas 300
+  (los 105 sprites, asi, a _todos/; el fotograma con fondo queda en _con_fondo/)
+  python montar.py           los 47 del juego, ver abajo
+  python tools/anim/motas.py raw/master_mason/anim/magnus_giro_pie_rapido/04_limpios
+                             (1145 motas sueltas; copia en _sin_motas/)
+  hoja.ps1    -Job magnus_giro_pie_rapido -Cols 8 -Fps 30 -Escala 2
+  tools/anim/_spriteframes.py  ('giro', 'magnus_giro_pie_rapido', 47, 8, 30.0, False)
+
+montar.py:
+  - el reposo del juego (magnus_respirando c_01), uno de fundido, TODOS los
+    fotogramas del 70 al 112 espejados, uno de fundido y el reposo espejado: 47.
+    Empieza y acaba en el reposo: enlaces exactos, y al acabar magnus.gd voltea.
+  - las bolsas de croma: aqui el verde entre las piernas toca el fondo por un
+    hueco de 1 px, asi que buscar el verde encerrado no las encontraba y se
+    quedaban, despintadas a verde azulado. Se quita todo lo que era croma puro
+    en el fotograma con fondo (g > r+50 y g > b+40) y fondo.ps1 dejo opaco, con su
+    orla de 2 px si es verdosa.
+  - movido -1 -> 0 px en x (rampa) y 12 arriba, lo que mejor encaja con el reposo
+    al principio y con el espejado al final; ganancia por zonas (tunica, capucha,
+    pies) de los dos extremos contra la media del reposo.
+Pasos entre sprites: 0,12 al arrancar, 0,25-0,40 en crucero, 0,14 al frenar;
+media 0,237.
+
+Por que 30 fps: el video va a 24 (1,9 s). A 30 cada sprite dura dos refrescos
+justos y se queda en 1,6 s; dos pasos un 25 % mas rapidos siguen siendo dos
+pasos. No subir mucho mas: a 60 seria la mitad de tiempo y volverian los pasos
+apresurados.
+
+revisar.py: paso medio 0,231, enlaces reposo <-> giro exactos. Avisa de dos
+saltos del eje del tronco (10->11 y 25->26, 3-4 px de hoja): es el cuerpo, que
+tiene que correrse 10 px a la izquierda en el giro (el reposo y su espejo no
+tienen el tronco en el mismo sitio: la capucha no esta centrada) y lo hace en los
+dos pasos. El cambio entre sprites ahi es el normal (0,29-0,35).
+
+Comprobado grabando scenes/dev/piloto_giro_pie.tscn (05_salida/giro_pie_en_juego.mp4,
+aclarado): los 47 sprites seguidos, dos refrescos cada uno (traza), 1,58 s; la
+cabeza se mueve como mucho 2 px de un sprite al siguiente y el centro 2,3 (el
+paso). Al voltear no cambia nada.

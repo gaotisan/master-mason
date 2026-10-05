@@ -1,0 +1,92 @@
+PROMPTS PARA LAS IMAGENES DEL BASTON (capa a la espalda)
+========================================================
+Las dos se hacen EDITANDO referencia_magnus_perfil.png (subirla como imagen
+de entrada), no generando de cero: asi Magnus sale a la misma escala y en el
+mismo sitio. Lienzo 1280x720, croma #24D732, pies en y=677, alto 627 px.
+
+La bola NO se pinta: va por codigo. El baston termina en una garra de raices
+vacia.
+
+
+1) baston_solo.png  -- el sprite del baston
+-------------------------------------------
+Edit this image. Keep the character exactly as he is: same pose, same size,
+same position, same colors, do not repaint him. Keep the flat pure chroma-key
+green background (#24D732). No shadows, no ground, no text.
+
+Add a long wooden walking staff standing perfectly vertical on its own to the
+right of the character, not touching him, with clear green space around it.
+Its bottom end is at the same height as his feet. It is slightly taller than
+him: the top reaches a bit above the tip of his hood.
+
+The staff: straight, slightly gnarled dark weathered wood, same low-poly
+faceted matte hand-painted style as the character, no outlines. At the top the
+wood splits into a few twisted roots that curl up and form an EMPTY round
+cradle, like a claw holding an invisible ball about as wide as his face. The
+cradle is empty: nothing inside it, just green background visible through the
+gap. No glow, no light, no magic, no orb, no gem.
+
+
+2) baston_espalda_perfil.png  -- donde va en reposo
+---------------------------------------------------
+Edit this image. Keep the character exactly as he is: same pose, same size,
+same position, same colors. Keep the flat pure chroma-key green background
+(#24D732). No shadows, no ground, no text.
+
+Add the same wooden staff (empty root cradle at the top, no orb, no glow)
+carried on his back, almost vertical, leaning very slightly backwards. It
+passes behind the hood, between the hood and the cloak, and slides into a
+long narrow sheath sewn flat onto the BACK of the cloak, made of the same
+faceted cloth, so the holder is part of the cloak itself and cannot be seen
+from the side. NO strap, NO belt, NO loops, NO rope crossing the front of
+his chest or his shoulder. Seen from the side,
+the staff is mostly hidden behind his body; only the top part with the empty
+cradle sticks out above and behind his hood, and the bottom end barely shows
+behind the back of his calves. Strict side profile facing right.
+
+
+SI SALE MAL
+-----------
+- Repinta al personaje (cambia caras, colores, capa): da igual en la 1, yo
+  solo recorto el baston y mido la escala por su altura. En la 2 avisar.
+- Pone bola o brillo dentro de la garra: repetir "empty cradle, no orb".
+- Sale la correa en la 2: repetir "NO strap across his chest".
+
+
+3) baston_lamina_poses.png  -- retocar la lamina de 4 poses
+-----------------------------------------------------------
+Se edita la lamina que ya existe (4 poses: de pie, agachado, corriendo,
+andando). Solo sirve de referencia para comprobar la colocacion, no se
+recorta para el juego. Si la IA lo hace en un paso y sale raro, hacer
+primero A y luego B sobre el resultado.
+
+A) Quitar la correa (el baston va en una funda cosida a la espalda):
+
+Edit this image. Keep all four characters exactly as they are: same poses,
+same sizes, same positions, same colors, same flat green background. Change
+only how the staff is attached to their backs: remove the strap that crosses
+the front of the chest and the shoulder completely, and paint the cloak
+underneath as if the strap was never there. Instead, the staff passes behind
+the hood and slides into a long narrow sheath sewn flat onto the BACK of the
+cloak, made of the same faceted cloth, so it cannot be seen from the side. Keep
+each staff in the same position and angle it has now.
+
+B) Quitar la bola y el brillo:
+
+Edit this image. Keep everything exactly the same, except the glowing orange
+orb at the top of each staff: remove the orb and its glow completely. The
+twisted roots at the top of each staff stay, forming an EMPTY round cradle
+like a claw holding nothing, with green background visible inside the gap.
+No light, no glow, no orange tint on the wood or on the hood.
+
+Variante con trabillas (para comparar): en A cambiar la frase de la funda
+por "the staff is held by two short leather loops sewn onto the back of the
+cloak, only visible at the back edge of each silhouette". Variante sin nada:
+ "The staff is simply tucked between the hood and the cloak, with nothing
+visible holding it."
+
+NOTA: la funda no se ve nunca en el juego. Los giros (de pie y agachado) se
+hicieron girando HACIA la camara, sin ensenar la espalda; en las vistas de
+frente y tres cuartos el baston va por detras y solo asoma la garra por
+encima del hombro. Si algun dia hay una vista de espaldas, hara falta una
+imagen de Magnus de espaldas con la funda.

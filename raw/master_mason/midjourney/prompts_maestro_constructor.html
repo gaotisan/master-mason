@@ -1,0 +1,662 @@
+<title>Prompts del Maestro Constructor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --ink:#141219; --panel:#1d1a24; --panel2:#262230; --line:#3a3446;
+  --text:#e9e1d2; --muted:#a59cad; --ember:#e0a067; --mist:#93a9c4; --moss:#9fb38a; --rose:#c98a9a;
+  --done:#6f8a62;
+  --f-disp:"IM Fell English", Georgia, "Times New Roman", serif;
+  --f-body:"Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"JetBrains Mono", Consolas, "Courier New", monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--ink);color:var(--text);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:1180px;margin:0 auto}
+header{padding-block:40px 20px;border-bottom:1px solid var(--line)}
+h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(30px,5vw,46px);line-height:1.1;margin:0;text-wrap:balance}
+h1 em{color:var(--ember);font-style:italic}
+.lede{color:var(--muted);max-width:68ch;margin:12px 0 0}
+.lede b{color:var(--text);font-weight:500}
+h2{font-family:var(--f-disp);font-weight:400;font-size:24px;margin:0 0 4px;text-wrap:balance}
+.label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+details.cfg{margin-top:24px;background:var(--panel);border:1px solid var(--line);border-radius:6px}
+details.cfg>summary{cursor:pointer;padding:14px 16px;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+details.cfg>summary::-webkit-details-marker{display:none}
+details.cfg>summary .hint{color:var(--muted);font-weight:400}
+.cfg-body{padding:0 16px 18px;display:grid;gap:18px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.field{display:grid;gap:4px}
+.field label{font-size:13px;color:var(--muted)}
+.field label b{color:var(--text);font-weight:500}
+input[type=text],input[type=search],input[type=number],textarea,select{width:100%;background:var(--ink);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:8px 10px;font:inherit;font-size:14px}
+textarea{font-family:var(--f-mono);font-size:12.5px;min-height:62px;resize:vertical}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.howto{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:22px}
+.howto div{border-top:1px solid var(--line);padding-top:10px;color:var(--muted);font-size:14px}
+.howto b{color:var(--text);font-weight:500;display:block;margin-bottom:2px}
+code{font-family:var(--f-mono);font-size:12.5px;color:var(--mist)}
+.toolbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ink);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.chip{flex:none;background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--ember);color:#1b130c;border-color:var(--ember)}
+.chip .n{opacity:.7;font-variant-numeric:tabular-nums;margin-left:4px}
+.tb2{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tb2 input[type=search]{flex:1 1 220px;width:auto}
+.btn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--ember);color:#1b130c;border-color:var(--ember);font-weight:500}
+.check{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer}
+.stat{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;margin-left:auto}
+section.cat{margin-top:34px}
+.cat-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.cat-desc{color:var(--muted);max-width:75ch;margin:0 0 14px;font-size:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px}
+@media (max-width:420px){.cards{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;gap:8px;align-content:start}
+.card.is-done{opacity:.5}
+.card h3{font-family:var(--f-body);font-size:15px;font-weight:700;margin:0;line-height:1.3}
+.card .note{font-family:var(--f-disp);font-style:italic;color:var(--muted);font-size:14.5px;margin:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;border:1px solid var(--line);color:var(--muted)}
+.tag.S{color:var(--mist);border-color:color-mix(in srgb,var(--mist) 40%,transparent)}
+.tag.R{color:var(--rose);border-color:color-mix(in srgb,var(--rose) 40%,transparent)}
+.tag.A{color:var(--moss);border-color:color-mix(in srgb,var(--moss) 40%,transparent)}
+.tag.M{color:var(--ember);border-color:color-mix(in srgb,var(--ember) 40%,transparent)}
+.tag.warn{color:#e7c56b;border-color:#e7c56b55}
+.tag.perm{color:var(--text)}
+pre.prompt{margin:0;white-space:pre-wrap;word-break:break-word;font-family:var(--f-mono);font-size:12px;line-height:1.55;background:var(--ink);border:1px solid var(--line);border-radius:4px;padding:10px;color:#d6d0c6;max-height:300px;overflow:auto}
+pre.prompt .p{color:var(--mist)}
+.card-foot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card .id{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.refs{margin-top:28px;border-top:1px solid var(--line);padding-top:22px}
+.refs-head{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:8px 28px}
+.steps{margin:0;padding-left:20px;color:var(--muted);font-size:14px;display:grid;gap:4px}
+.steps b{color:var(--text);font-weight:500}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px}
+.ref{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;display:grid;gap:6px;align-content:start}
+.ref.top{border-color:var(--ember)}
+.ref img{width:100%;aspect-ratio:2/3;object-fit:contain;background:#e8e4dc;border-radius:3px;display:block}
+.ref.wide img{aspect-ratio:3/2}
+.ref .nm{font-size:13px;font-weight:500;line-height:1.25}
+.ref .fn{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);word-break:break-all}
+.ref .btn{width:100%}
+.path{color:var(--muted);font-size:13px;margin:10px 0 0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ember);color:#1b130c;padding:8px 16px;border-radius:4px;font-weight:500;font-size:14px}
+.empty{color:var(--muted);padding:40px 0;text-align:center}
+@media (prefers-reduced-motion:no-preference){.card{transition:opacity .2s}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="label">Master Mason · Midjourney v7</div>
+  <h1>Prompts del <em>Maestro Constructor</em></h1>
+  <p class="lede">Todo el mundo del relato en prompts listos para pegar: el despertar, el bosque infinito, la casa imposible de Dóminus, los sótanos, las criaturas, las lecciones, los recuerdos del niño y el sarcófago. Pega arriba las URLs de tus referencias y <b>se meten solas en cada prompt</b> como <code>--sref</code> (estilo) y <code>--oref</code> (personaje).</p>
+
+  <details class="cfg" id="cfg" open>
+    <summary><span>Referencias y parámetros</span><span class="hint">se guardan en este navegador</span></summary>
+    <div class="cfg-body">
+      <div class="grid2">
+        <div class="field"><label for="sref_S"><b>Estilo Sueño</b> · bosque, casa, criaturas (--sref)</label><input type="text" id="sref_S" placeholder="https://s.mj.run/..."></div>
+        <div class="field"><label for="sref_R"><b>Estilo Real</b> · sarcófago, mazmorra, recuerdos (--sref)</label><input type="text" id="sref_R" placeholder="URL de sarcophagus_base o la cocina"></div>
+        <div class="field"><label for="sref_A"><b>Estilo Recurso</b> · capas, texturas, props (vacío = Sueño)</label><input type="text" id="sref_A" placeholder="vacío usa el del Sueño"></div>
+        <div class="field"><label for="sref_M"><b>Estilo Manuscrito</b> · legajos y tratados (vacío = Sueño)</label><input type="text" id="sref_M" placeholder="vacío usa el del Sueño"></div>
+        <div class="field"><label for="oref_I"><b>Iram</b> · el peregrino (--oref)</label><input type="text" id="oref_I" placeholder="URL de iram_tres_cuartos.png subida a Midjourney"></div>
+        <div class="field"><label for="oref_IB"><b>Iram con bastón</b> · prompts que mencionan el bastón (vacío = Iram)</label><input type="text" id="oref_IB" placeholder="URL de iram_baston_pie.png"></div>
+        <div class="field"><label for="oref_D"><b>Dóminus</b> · el anfitrión (--oref)</label><input type="text" id="oref_D" placeholder="aún no hay arte: genera uno y pégalo aquí"></div>
+        <div class="field"><label for="desc_I"><b>Descripción de Iram</b> · se añade a sus prompts</label><textarea id="desc_I"></textarea></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="suf_S">Coletilla Sueño</label><textarea id="suf_S"></textarea></div>
+        <div class="field"><label for="suf_R">Coletilla Real</label><textarea id="suf_R"></textarea></div>
+        <div class="field"><label for="suf_A">Coletilla Recurso</label><textarea id="suf_A"></textarea></div>
+        <div class="field"><label for="suf_M">Coletilla Manuscrito</label><textarea id="suf_M"></textarea></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="integ"><b>Integración</b> · se añade a todo prompt con personaje</label><textarea id="integ"></textarea></div>
+        <div class="field"><label for="mixI"><b>Mezclar el estilo de Iram en los fondos</b> · añade su imagen como segunda --sref en Sueño y Recurso (usa la URL del campo Iram)</label>
+          <select id="mixI">
+            <option value="0">No mezclar</option>
+            <option value="1">Poco · Sueño 3, Iram 1</option>
+            <option value="2">Medio · Sueño 3, Iram 2</option>
+            <option value="3">Mitad y mitad · Sueño 3, Iram 3</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field" style="width:110px"><label for="sw">--sw</label><input type="number" id="sw" min="0" max="1000" step="25"></div>
+        <div class="field" style="width:110px"><label for="ow">--ow</label><input type="number" id="ow" min="1" max="1000" step="25"></div>
+        <div class="field" style="width:110px"><label for="stylize">--stylize</label><input type="number" id="stylize" min="0" max="1000" step="25"></div>
+        <div class="field" style="width:110px"><label for="chaos">--chaos</label><input type="number" id="chaos" min="0" max="100" step="5"></div>
+        <div class="field" style="width:150px"><label for="extra">Extra global</label><input type="text" id="extra" placeholder="--raw, --exp 10…"></div>
+        <label class="check" style="margin-top:18px"><input type="checkbox" id="useSuf"> Añadir coletilla de estilo</label>
+        <button class="btn" id="reset" style="margin-top:18px">Restaurar valores</button>
+      </div>
+    </div>
+  </details>
+
+  <section class="refs" aria-labelledby="refs-h">
+    <div class="refs-head">
+      <div>
+        <h2 id="refs-h">Iram para <code>--oref</code></h2>
+        <p class="cat-desc">Tu Magnus sacado del croma verde y puesto sobre gris neutro, una figura por imagen y de cuerpo entero, que es como mejor lo lee Midjourney. Las de <b>tres cuartos</b> y <b>de pie con bastón</b> son las que más sirven; el <b>perfil</b> va mejor para escenas de vista lateral como el juego.</p>
+      </div>
+      <ol class="steps">
+        <li><b>Copiar imagen</b> en la que quieras (o arrástrala desde la carpeta de abajo).</li>
+        <li>En midjourney.com pulsa <b>Ctrl+V</b> en la barra de prompt y suéltala en la casilla <b>Omni Reference</b>.</li>
+        <li>Clic derecho sobre la miniatura en Midjourney → <b>Copiar dirección de imagen</b> y pégala en el campo <b>Iram</b> de arriba. Así entra sola en todos sus prompts.</li>
+      </ol>
+    </div>
+    <div class="gallery" id="gallery"></div>
+    <p class="path">En tu disco: <code>raw\master_mason\midjourney\referencias\</code> · regenerar con <code>preparar_refs.py</code></p>
+  </section>
+
+  <div class="howto">
+    <div><b>1 · Referencias de estilo</b>Arrastra la imagen a la barra de prompt de midjourney.com, copia su dirección y pégala en el campo de estilo. La del Sueño ya trae tu <code>6XAb0uAsa8M</code>.</div>
+    <div><b>2 · Ajustar el personaje</b><code>--oref</code> solo va en V7 y gasta el doble de GPU. Va a <code>--ow 75</code> para que la escena le ponga su luz; si lo sube mucho, lo pega tal cual con la luz plana de la referencia. Si pierde la capucha o la capa, súbelo a 100–150. Si el estilo se come al personaje, baja <code>--sw</code>. Usa el campo de aquí o la casilla de Midjourney, nunca las dos a la vez.</div>
+    <div><b>3 · Permutaciones</b>Los prompts marcados <span class="tag perm">×N</span> llevan <code>{a, b, c}</code>: un solo envío lanza N trabajos. Es la forma rápida de sacar cientos.</div>
+    <div><b>4 · Recursos de juego</b>Las capas para parallax van sobre fondo liso para recortarlas. Las texturas llevan <code>--tile</code>. El formato del juego es <code>--ar 91:51</code> (2912×1632).</div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="chips" id="chips" role="toolbar" aria-label="Capítulos"></div>
+  <div class="tb2">
+    <input type="search" id="q" placeholder="Buscar: péndulo, arpía, sótano, Euclides…" aria-label="Buscar prompts">
+    <label class="check"><input type="checkbox" id="hideDone"> Ocultar hechos</label>
+    <button class="btn pri" id="copyVisible">Copiar los visibles</button>
+    <span class="stat" id="stat"></span>
+  </div>
+</div>
+
+<main id="list"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const DEFAULTS = {
+  sref_S: "https://s.mj.run/6XAb0uAsa8M", sref_R: "", sref_A: "", sref_M: "", oref_I: "", oref_IB: "", oref_D: "",
+  desc_I: "the pilgrim wears a tall pointed grey hood, a long white beard hides most of his face, a long faceted patchwork cloak of rust, ochre, burgundy and slate panels reaching his ankles, thin dark legs, bare feet",
+  suf_S: "painterly storybook illustration, layered misty silhouettes, muted palette of slate blue, mauve and dusty peach, grainy paper texture, soft diffuse light, melancholic and dreamlike",
+  suf_R: "dark medieval horror, flickering candlelight, grimy aged textures, cobwebs, deep shadows, sepia and bruised violet tones, cinematic, worn vignette",
+  suf_A: "2D game asset, isolated on a flat plain off-white background, clean readable silhouette, painterly texture, muted slate blue, mauve and peach palette",
+  suf_M: "aged medieval manuscript page, iron gall ink and faded watercolor washes, Latin marginalia, foxing stains, crumbling vellum edges, scholarly illustration",
+  integ: "the character is fully integrated into the scene, lit by the same light as the environment, the scene's color grade and atmospheric haze over him, soft cast shadow on the ground, same paper grain and brush texture on him as on the background",
+  mixI: "1",
+  sw: 200, ow: 75, stylize: "", chaos: "", extra: "", useSuf: true, v: 2
+};
+
+const CATS = [
+ ["biblia","Biblia visual","Key art, pósters y estudios de color para fijar el tono antes de producir. Saca muchas de estas primero y quédate con las que definan el juego."],
+ ["despertar","El despertar","El anciano se levanta entre la hojarasca un atardecer de otoño y ve, lejos, los humos de una ciudad sin nombre."],
+ ["bosque","El bosque y el camino","Senderos sin tránsito, el calvero, el camino de estrellas, los riachuelos repetidos y el bosque que no se acaba."],
+ ["casa","La casa imposible","La ciudadela en miniatura que no debería sostenerse en pie, y el torreón cuerdo que Iram levanta al lado."],
+ ["sala","La sala de Dóminus","Mesa, caldera, alambique, órgano, potro y el péndulo-incensario que no empuja nadie."],
+ ["interior","Pasillos, alcoba y sótanos","La geometría que hace converger pasillos paralelos, el sótano de los juguetes y el baúl de los legajos."],
+ ["legajos","Legajos y tratados","Las páginas que Iram traduce de noche. Sirven como pantallas de lección, coleccionables o fondos de menú."],
+ ["criaturas","Criaturas del sueño","Las quimeras de Dóminus: «nada surge de la nada», todo son combinaciones torpes de lo que conoce."],
+ ["personajes","Personajes","Hojas de personaje y poses. Usa la referencia de Iram o Dóminus en el campo de arriba."],
+ ["puente","Puente de estilo","Fondos dibujados con el lenguaje de Iram: planos facetados, bordes duros, el ocre y el granate de su capa con sombras pizarra. Usan su imagen como referencia de estilo principal. Saca muchos, elige los 2 o 3 que casen con él y pon uno como estilo Sueño: todo lo demás saldrá ya en su idioma."],
+ ["escena","Iram en escena","El personaje metido en sitios, poses y luces para ver cómo queda y cómo jugar con la iluminación. Casi todos llevan permutaciones: un envío, varias luces."],
+ ["lecciones","Lecciones y visiones","El viaje de conocimiento: cada lección se materializa sobre el bosque y vuelve el mundo un poco más real."],
+ ["vacio","Capítulo 1 · El vacío","Lo de la maqueta: bastón clavado, nace el sol, losas de luz que se vuelven piedra y el arco reflejado en el abismo."],
+ ["carnaval","Carnaval de pesadillas","Cuando Dóminus tiene los libros, el bosque bulle cada mañana de creaciones maravillosas y espeluznantes."],
+ ["recuerdos","Recuerdos de Dóminus","El mundo real: la cabaña, el padre brujo, los soldados, la mazmorra. Usa el estilo Real."],
+ ["ataud","El sarcófago","El niño encerrado en bronce, la ventana, la cucaracha. Encaja con la intro que ya tienes."],
+ ["final","Derrumbe y despertar","La casa se viene abajo, Iram ve su propia cara y el sueño se deshace hasta el bronce."],
+ ["recursos","Recursos de juego","Capas de parallax, texturas repetibles, props sueltos, iconos, marcos de diálogo y partículas."]
+];
+
+// cat | ar | estilo (S sueño, R real, A recurso, M manuscrito) | oref (I, D o vacío) | título | prompt | nota | extra
+const RAW = `
+biblia|91:51|S|I|Key art principal|a lone hooded old pilgrim with a long white beard and a tall wooden staff stands at the edge of an endless autumn forest, far away an impossible miniature citadel house glows with trembling candlelight, a giant pendulum shadow sweeps across the misty sky|La imagen que resume el juego.|
+biblia|2:3|S|I|Póster vertical|tiny hooded old pilgrim at the bottom of the frame, above him an impossible tower of chaotic turrets and flying buttresses rises into a river of stars, autumn leaves drifting upward|Para portada de tienda o pantalla de carga.|
+biblia|91:51|S||El sueño dentro del bronce|a sleeping boy curled inside a dark bronze sarcophagus seen in cross-section, from his head grows a whole misty forest with a tiny lit house and a winding path, dream and prison in one image|El concepto del relato en una sola imagen.|
+biblia|91:51|S||Estudio de color por hora|misty forest valley with a distant smoking city, color key study at {golden autumn dusk, cold blue dawn, starry midnight, grey rainy noon}|Una paleta por hora del día.|
+biblia|91:51|S|I|Sueño contra realidad|split composition, left half a soft pastel dream forest with an old pilgrim walking, right half a dark candlelit dungeon with a bronze sarcophagus, the two halves bleed into each other along a crack of light||
+biblia|1:1|R||Placa del título|ornate weathered stone plaque engraved with the words "The Master Mason", mason square and compass carved above, golden autumn leaves and cobwebs framing it, faint smoke|Midjourney a veces trabuca letras; repite hasta que salga limpio.|
+biblia|1:1|R||Placa del título en castellano|ornate weathered stone plaque engraved with the words "El Maestro Constructor", mason square and compass carved above, golden autumn leaves and cobwebs framing it, faint smoke||
+biblia|91:51|S|I|Siluetas puras|layered flat silhouettes in five depths of mist, an old pilgrim with a staff walking along a forest ridge, birds crossing, minimal shapes, strong readable shapes for a side-scrolling game||
+biblia|91:51|S||Mundo en una sola vista|panoramic view of a dream world: endless identical forest, a smoking city smeared on the horizon like wet paint, a crooked citadel house in a clearing, a milky way shaped like a road, the edges of the world fading into unfinished pencil sketch||
+biblia|91:51|S|I|El mismo mundo, más real|the same forest path painted in {loose dreamy watercolor, firmer gouache with more detail, crisp solid realistic oil painting}, an old pilgrim on it|El conocimiento vuelve la física real: tres grados de realidad.|
+biblia|2:3|S|D|Dóminus, retrato de presentación|portrait of a tall gaunt old healer with long wavy grey hair over his shoulders, wrinkled thin face, dark toga, eyes too bright and childish for his age giving him a perverse air, framed by hanging alchemical junk||
+biblia|2:3|S|I|Iram, retrato de presentación|portrait of an old hooded pilgrim with a long white beard, patchwork cloak of muted rust and slate tones, mason's chisel at his belt, eyes lost and searching, autumn forest behind him dissolving in fog||
+despertar|91:51|S|I|Se pone en pie|an old man rising with effort from a bed of fallen autumn leaves, leaves stuck to his cloak, blinding low sunset behind trees, hand raised to shade his eyes|«El anciano se puso en pie con esfuerzo, sacudió la hojarasca…»|
+despertar|91:51|S|I|Mirando el valle|old hooded pilgrim seen from behind on a forest ridge shading his eyes, far below a lush valley where quiet smoke columns rise from a nameless city, autumn sunset|«Lejos, en medio del frondoso valle, se elevaban los tranquilos humos de una ciudad sin nombre.»|
+despertar|3:1|S||Panorama del valle|wide panorama of a lush autumn valley at sunset, distant nameless city with thin columns of smoke, layered hills fading into haze, no people|Fondo lejano para parallax.|
+despertar|91:51|S||La ciudad como mancha|a distant city on the horizon that is only a smear of paint, blurred towers like wet brushstrokes, the landscape around it sharp, the city itself unfinished and unreachable|«Esa ciudad no es más que una mancha en el paisaje.»|
+despertar|91:51|S||Atardecer como un cuadro|autumn sunset over a forest valley painted like a romantic landscape painting, the edges of the sky showing canvas texture and a hint of a gilded frame dissolving into the real landscape|«Igual que los de aquellas pinturas… ¿qué pinturas eran esas?»|
+despertar|91:51|S||El linde del bosque|the edge of a dense forest where an open hillside begins, a faint invisible line in the grass, the forest shadow ending sharply, unsettling stillness, sunset|La intuición de no ir más allá del bosque.|
+despertar|91:51|S||Hojarasca en primer plano|close-up of a bed of autumn leaves on the forest floor, a dent where a body lay, a dropped wooden staff among the leaves, warm low sunlight||
+despertar|91:51|S||Mar de niebla|sea of fog filling a valley at dawn, treetops emerging like islands, a city spire barely visible far away, cold blue light||
+despertar|91:51|S|I|Primeros pasos|old pilgrim stepping timidly into the forest from an open hillside, looking back over his shoulder at the valley, fearful and watchful|«Temeroso y vigilante, se internó en el bosque.»|
+despertar|91:51|S||Sombras huidizas|shadowy translucent figures walking away between trees like silent passers-by refusing to help, faceless, made of mist, forest at dusk|Los recuerdos que no acuden: «taciturnos viandantes».|
+bosque|91:51|S|I|Sendero estrecho|narrow path winding between tall trees with no sign of recent travel, undergrowth crunching, an old pilgrim small in the frame, late afternoon light||
+bosque|91:51|S|I|El calvero de noche|old pilgrim asleep in a small forest clearing, above him the milky way stretches like a road of stars across the night sky|«reconociendo en el cielo nocturno el camino de estrellas»|
+bosque|1:3|S||Camino de estrellas|tall vertical view of a forest canopy opening onto a dense milky way shaped like a pilgrim road, scallop shell constellation, deep blue night|El Camino de Santiago en el cielo.|
+bosque|91:51|S||Amanecer azulado|bluish dawn light seeping through a misty forest, stripping away the mystery of the night, long cold light shafts, dew|«una luz azulada alboreaba el bosque»|
+bosque|91:51|S||Luz temblorosa a lo lejos|deep forest at nightfall, a single trembling warm light far away between dark trunks, everything else blue and black||
+bosque|91:51|S||Bosque idéntico|forest where every tree is an exact copy of the next, identical bark down to the smallest flaw, perfectly regular rows, eerie monotony, fog|«Su regularidad mataría de aburrimiento a todo el que quisiera atravesarlos.»|
+bosque|1:1|S||Encrucijada simétrica|top-down view of a perfectly symmetrical forest crossroads, four identical paths, identical trees mirrored on every side|«las encrucijadas simétricas»|
+bosque|91:51|S||El riachuelo|small stream tumbling between trees, red raspberries on the bank, a heart-shaped stone in the middle of the current, soft afternoon light||
+bosque|91:51|S||El mismo riachuelo otra vez|{first, second, third} identical little forest stream with the same heart-shaped stone in the current and the same raspberry bush, subtle déjà vu|Tres versiones casi iguales para el bucle.|
+bosque|91:51|S|I|Llenando la cantimplora|old pilgrim kneeling at a forest stream filling a leather canteen, red raspberries in his other hand||
+bosque|91:51|S|I|Marcas en los troncos|old pilgrim carving symbols into tree trunks with a sharpened stone, a trail of marks behind him on bark, path dirt and leaves|«fue grabando distintas marcas en los troncos de los árboles»|
+bosque|1:1|S||Marca de cantero|close-up of a mason's mark carved into tree bark, fresh pale wood, compass-like geometric sign, moss around it||
+bosque|91:51|S||La ciénaga|dark forest swamp with reeds, still black water, mist, a small toad on a rotten log||
+bosque|91:51|S||La trampa del foso|forest path covered with a suspicious mat of branches and leaves hiding a pit, quiet menace, dappled light|El foso que Dóminus rodea sonriendo.|
+bosque|91:51|S||Setas venenosas|cluster of pale poisonous mushrooms at the base of an oak, a woven basket half full, dim forest light||
+bosque|91:51|S||Estaciones del bosque|the same forest path in {spring blossom, summer haze, autumn gold, winter snow}|
+bosque|1:4|S||Árbol coronado de fuego|a very tall bare tree crowned with fire under moonlight, misty nebula sky, small deer silhouette at its foot|Tu referencia vertical, como variación.|
+bosque|91:51|S||Roble viejo|ancient gnarled oak in a clearing, roots like stairs, hollow trunk, last light||
+bosque|91:51|S||Mojón jacobeo|overgrown stone milestone carved with a scallop shell beside a forest path, moss, forgotten|El camino que llevaba a Santiago.|
+bosque|1:1|S||Bosque infinito desde arriba|aerial view of an endless forest that is the same patch repeated like a tiled pattern, a tiny house in one tile only||
+bosque|91:51|S||Donde el mundo se acaba|forest path where the trees gradually turn into unfinished pencil sketch lines and blank paper, the world unpainted beyond|«fuera del bosque los detalles eran escasos y las formas borrosas»|
+bosque|91:51|S||Tormenta lejana|forest under a heavy storm sky, a distant lightning flash over the trees, rain curtains, wind bending branches||
+bosque|91:51|S||Ráfagas y hojas|gust of wind blowing a stream of autumn leaves through the forest on their own, branches swaying, nobody there|Las cosas que empiezan a tener albedrío.|
+bosque|91:51|S||Claro con luciérnagas|forest clearing at night full of slow glowing fireflies, tall grass, a fallen log, soft blue moonlight||
+bosque|3:1|S||Panorama nocturno|wide panorama of a forest at night under a starry sky, layered silhouettes of trees, faint fog bands, no people|
+bosque|91:51|S|I|Caminando de noche|old pilgrim walking a forest path at night guided by a small lantern, trees closing in, his shadow long||
+casa|91:51|S||La casa al anochecer|a house in the middle of the thicket shaped like a miniature citadel, tall turrets, dormer windows, bold flying buttresses crossing from one end to the other, chaotic shapes that defy balance, warm trembling light in the windows, dusk|«aquella casa no debía mantenerse en pie»|
+casa|91:51|S|I|Llegada del peregrino|old pilgrim small in the foreground stopping in awe before an impossible crooked citadel house in the forest, lit windows, dusk||
+casa|91:51|S||La casa a {dawn, noon, dusk, midnight}|an impossible miniature citadel house in a forest clearing, crooked turrets and flying buttresses, at {dawn, noon, dusk, midnight}|Para el ciclo de día del juego.|
+casa|91:51|S||Reflejo en el estanque|impossible crooked house beside a still pond in fog, bare trees, its reflection in the water showing a different, more normal house|Como tu referencia de la casa del lago.|
+casa|2:3|S||La puerta entornada|close-up of a heavy wooden door left ajar in a crooked stone wall, warm candlelight spilling out onto the leaves, a smell of soup||
+casa|1:1|M||Plano imposible|architect's elevation drawing of an impossible house, turrets and flying buttresses that cannot stand, compass construction lines, mason's annotations in Latin, ink on parchment||
+casa|2:3|S||Arbotantes imposibles|detail of flying buttresses arching from one turret to another and back into nothing, stairs that end in walls, gothic but wrong||
+casa|91:51|S||Torreones torcidos|cluster of leaning turrets on a forest house, each tilting a different way, dormer windows at odd angles, crows on the roofs||
+casa|91:51|S||Grietas tras la lección|the impossible house with fresh cracks running through its walls, dust falling from a buttress, a long groan in the wood, morning light|El crujido de la geometría euclidiana.|
+casa|91:51|S||El torreón de Iram|small sturdy stone tower built with perfect masonry next to a forest clearing, square, plumb, proportioned, honest|«levantado con sus propias manos según los cánones de la sabia construcción»|
+casa|91:51|S||Cuerdo junto a loco|side by side: a modest well-proportioned stone tower and a towering impossible crooked citadel house, both in the same forest clearing at dusk|Contraste para el último acto.|
+casa|91:51|S||Tormenta sobre la casa|impossible crooked house under a thunderstorm, lightning behind the turrets, one window lit||
+casa|91:51|S||Humo de chimeneas|impossible house with several chimneys releasing smoke in spirals that do not follow the wind, calm evening||
+casa|91:51|S||La casa nevada|impossible citadel house in a snowy forest at night, warm windows, snow resting on impossible ledges|
+casa|1:1|A||La casa como sprite|impossible miniature citadel house with turrets and flying buttresses, side view for a 2D game|
+sala|91:51|S||La sala entera|small cramped room crowded with museum-like contraptions: a wooden table in the center, a church organ, a torture rack, a large cauldron bubbling on a brazier, an old whistling alembic, doors, screens and trapdoors everywhere, a giant pendulum ending in a censer drawing an arc of white smoke|La escena principal de la casa.|
+sala|1:3|S||El péndulo-incensario|enormous pendulum hanging from the darkness ending in a brass censer that paints an arc of white smoke in the air, moved by no mechanism||
+sala|91:51|S||El péndulo en reposo|giant pendulum with a brass censer hanging perfectly still for the first time, smoke rising straight up, dust in the air|«ambos vieron cómo el péndulo encontraba por vez primera su punto de reposo»|
+sala|91:51|S|D|Dóminus sorbiendo sopa|tall gaunt old man with long grey hair in a dark toga leaning on a wooden table slurping soup loudly, watching the viewer with childish bright eyes, cluttered room behind|«acodado en ella le observaba un hombre alto…»|
+sala|2:3|S|D|Removiendo la caldera|old man with long grey hair stirring a big cauldron on a brazier with a huge ladle, steam, his back half turned||
+sala|1:1|S||La caldera|large iron cauldron bubbling on a brazier, glowing coals, steam curling, a ladle hooked on the rim||
+sala|2:3|S||El alambique|old copper alembic whistling in a dark corner, coiled tubes, drops falling into a flask||
+sala|2:3|S||El órgano de iglesia|church pipe organ squeezed among junk in a small room, dusty pipes, candle stubs on the keyboard||
+sala|91:51|S||El potro|wooden torture rack standing among curiosities like a museum piece, a stuffed bird on it, cobwebs||
+sala|2:3|S||El hacha junto a la chimenea|woodcutter's axe leaning beside a stone fireplace, small fire, logs|El detalle que engaña: parece casa de leñador.|
+sala|1:1|S||Trampilla con argolla|trapdoor in a wooden floor under a table, rusty iron ring, dust in the cracks, candlelight from above|
+sala|91:51|S||Puertas por todas partes|wall full of mismatched doors, screens and hatches at different heights, some tiny, some leading nowhere||
+sala|91:51|S|I|La lección a la mesa|an old pilgrim and a grey-haired healer sitting face to face at a cluttered wooden table, piles of manuscripts and a candle between them, pendulum smoke arc behind||
+sala|91:51|S|D|Puñetazo y trueno|grey-haired old man in a dark toga slamming his fist on a wooden table, lightning flashing in the window at the same instant, cups jumping||
+sala|91:51|S||La sala de noche|the cluttered room at night lit only by moonlight from a high window, contraptions as dark silhouettes, the pendulum moving its soft breeze|«acariciados por la suave brisa del péndulo imparable»|
+sala|91:51|S||Sacudida|the cluttered room shaking, dust falling from contraptions, the pendulum trembling, a long crack across the ceiling|
+sala|1:1|S||La sopa envenenada|bowl of soup on a wooden table with a few slices of pale mushroom floating, a spoon stopped halfway, candlelight||
+sala|91:51|S|D|Absorto en los escritos|old grey-haired healer absorbed in writing at his table, surrounded by translated pages, a satisfied smile||
+sala|91:51|S||Estantes de cachivaches|shelves crowded with jars, skulls of strange animals, astrolabes, puppets, bottles and instruments, warm candlelight||
+interior|91:51|S||Pasillos que convergen|two parallel corridors in an old house that converge and meet without reaching infinity, impossible perspective, candle sconces|«una geometría que hacía convergir pasillos paralelos»|
+interior|2:3|S||Escalera imposible|wooden staircase that turns back on itself, steps going up into the ceiling, doors on the risers, dim candlelight||
+interior|91:51|S||La alcoba de Iram|small attic bedroom under a sloping roof, narrow bed, extinguished candle smoking, small window with moonlight||
+interior|91:51|S|I|Insomnio|old pilgrim sitting awake on a narrow bed in the dark, staring at the ceiling, the name on his lips|«rumió el nombre mencionado por su anfitrión»|
+interior|91:51|S|I|Exploración nocturna|old pilgrim holding a small oil lamp exploring a dark winding corridor of an irrational house, shadows stretching||
+interior|91:51|S||Primer sótano|small dusty cellar full of heavy cobwebs, old shelves eaten by termites, wooden toy horses, marionettes, charcoal drawings pinned up, lamp light|«Para su asombro, no había allí más que un pequeño sótano polvoriento…»|
+interior|91:51|M||Dibujo de niño|childish charcoal drawing on yellowed paper of a small boy holding his parents' hands in front of mountains under an enormous sun|«inocentes dibujos a carboncillo»|
+interior|1:1|S||Caballito de madera|small worn wooden toy horse on a dusty shelf, paint chipped, a spider web from its ear||
+interior|2:3|S||Marioneta olvidada|old wooden marionette hanging from tangled strings in a cellar, cracked face, dust|
+interior|1:1|S||Segunda trampilla|a second trapdoor revealed under a footprint in thick dust, half-buried, a dark smell rising, lamp light on the floor||
+interior|91:51|S||Segundo sótano|very narrow cellar choked with dust and cobwebs, a single large chest in the corner, rubble on the floor, an oil lamp on the ground|«tan sólo un baúl grande en una esquina»|
+interior|91:51|S|I|Rompiendo el cierre|old pilgrim covering his mouth with his sleeve, hitting the lock of an old chest with a stone, lamp on the floor, dust clouds||
+interior|91:51|S||Túneles de la madriguera|collapsed forbidden tunnels beneath the house like an animal burrow, roots through the ceiling, earth and old beams|«la antigua madriguera que era la vivienda de Dóminus»|
+interior|91:51|R||La cocina|dark medieval kitchen inside the house, dirty wooden table, hanging knives and pots, leaded window, candles|Variación de tus referencias de cocina.|
+interior|91:51|S||Ventana desde dentro|interior view of a crooked dormer window at night, the endless forest outside under stars, candle on the sill||
+legajos|91:51|S||El baúl abierto|old chest broken open revealing a hundred ancient scrolls and bundles of papers, some crumbling like puff pastry, lamp light|«Reposaban allí un centenar de antiguos legajos y pergaminos»|
+legajos|2:3|M||Tratado de geometría|page of a Latin treatise on Euclidean geometry, circles and triangles constructed with compass, lettered diagrams|
+legajos|2:3|M||El quinto postulado|page about Euclid's fifth postulate, two parallel lines that never meet drawn with great care, a small drawing of a house cracking in the margin|La lección que derriba la casa.|
+legajos|2:3|M||Aritmética y augurios|page of arithmetic tables mixed with astrological signs, numbers used to predict the future|«su padre había usado los números para predecir el futuro»|
+legajos|2:3|M||Leyes del movimiento|page on the laws of motion by an English alchemist, pendulum and falling apple diagrams, arcs and arrows|
+legajos|2:3|M||Tratado de alquimia|alchemy treatise page, ouroboros, alembics, planetary metals, sun and moon symbols|
+legajos|2:3|M||Anatomía|anatomical treatise page with the circulation of the blood, veins like a tree, a heart drawn in section|
+legajos|2:3|M||Polinización|botany page on the pollination of flowers, a bee carrying pollen between blossoms, cutaway flower diagrams|La primera lección que deja a Dóminus con la boca abierta.|
+legajos|2:3|M||Planta carnívora|botanical plate of a tropical insect-eating plant with open toothed traps, a fly approaching|Antes de la planta-león.|
+legajos|2:3|M||Zoología|zoology plate with a salamander, a lizard and a frog drawn from life, measured and labeled|
+legajos|2:3|M||Physiologus|medieval bestiary page in the style of the Physiologus, a harpy with an old woman's face, gilded border|«una de las ilustraciones del Physiologus»|
+legajos|2:3|M||Bestiario: {basilisk, manticore, griffin, phoenix, unicorn, siren}|medieval bestiary page illustrating a {basilisk, manticore, griffin, phoenix, unicorn, siren}, gilded border, Latin captions|
+legajos|2:3|M||Manual de venenos|witchcraft manual page cataloguing poisonous mushrooms, with skulls and warnings in Latin|
+legajos|2:3|M||Cartas celestes|astronomy page with star charts, the milky way drawn as a road, planetary orbits, a scallop shell|
+legajos|91:51|M||Plano del templo|architectural plan of Solomon's temple, two great pillars at the entrance, measurements, mason's compass|
+legajos|91:51|S|I|Traduciendo de noche|old pilgrim translating ancient manuscripts by candlelight at night, quill, ink, piles of scrolls, tired eyes||
+legajos|1:1|S||Escondidos bajo la cama|bundles of old manuscripts hidden under a narrow bed, a blanket corner hanging over them, moonlight||
+legajos|1:1|A||Letra capitular {A, D, I, M, S}|illuminated medieval drop cap letter {A, D, I, M, S} with vines, a compass and autumn leaves|Para iniciales del diálogo o de los capítulos.|
+legajos|91:51|M||El mapa del bosque|map of the endless forest drawn by a twelve-year-old, the house in the center, a road to a city that ends in scribbles, sea monsters in the corners|
+legajos|2:3|M||Herbario del padre|herbal page of a healer with dried pressed plants glued in, notes on bitter ointments, stains|
+criaturas|91:51|S||La arpía-avestruz|on the far bank of a stream, the head of an old woman at knee height looking at the viewer with wide blank eyes, tilting her head like an animal, from the neck down the body of an ostrich-like bird|«nada aterroriza igual a la razón que el no poder nombrar lo que se observa»|
+criaturas|91:51|S||Intenta volar|creature with an old woman's face and the body of an ostrich running away between trees, flapping useless wings, trying in vain to take off||
+criaturas|2:3|A||La arpía, hoja de criatura|creature design sheet: an old woman's head on the body of an ostrich-like bird, front, side and back views|
+criaturas|91:51|S||El bufón-pavo real|a stealthy blurry creature half jester half peacock hiding behind a tree trunk, bells and tail feathers peeking out, watching|«alguna criatura a medio camino entre un bufón y un pavo real»|
+criaturas|2:3|S||La gárgola del roble|a stone gargoyle growing out of the trunk of an oak at nightfall, its eyes following the viewer, moss on its horns||
+criaturas|1:1|S||El sapo con antiparras|trembling black toad wearing tiny round goggles with dragonfly wings growing from its back, held in a pair of grubby child hands||
+criaturas|91:51|S||La planta-león|swollen pulpy plant creature halfway between a carnivorous plant and a lion, a mane of leaves, roaring with fury, trying to tear its roots out of the earth|«una suerte de vegetal inflamado y pulposo, a medio camino entre la planta y el león»|
+criaturas|1:1|A||Cabracerdo|hybrid creature that is half goat half pig, clumsy and sad, side view|«dando así lugar al cabracerdo o al buitrepez»|
+criaturas|1:1|A||Buitrepez|hybrid creature that is half vulture half fish, flopping on land with a bald neck and fins, side view|
+criaturas|91:51|S||Los Anitales|a new kingdom between plant and animal: ape-shaped shrubs walking slowly through the forest, leaves for fur|«una sencilla combinación entre el simio y el arbusto»|
+criaturas|91:51|S||Ranas aladas|small frogs with bird wings fluttering clumsily over a pond at dusk||
+criaturas|91:51|S||Perro tricéfalo|three-headed dog sleeping by a forest path, each head dreaming something different, harmless and odd||
+criaturas|2:3|S||El homúnculo|alchemical homunculus, a tiny human figure inside a glass flask on a shelf, pressing his hands to the glass|
+criaturas|1:1|S||La salamandra|common salamander on a wet stone, black and yellow, lovingly detailed like a naturalist painting|Lo que Iram describe con entusiasmo.|
+criaturas|91:51|S||Argos|a big shaggy loyal dog walking through misty monotonous landscapes, looking back as if waiting for someone|«Evoqué a mi perro Argos, y juntos dimos largos paseos…»|
+criaturas|2:3|A||Argos, hoja de personaje|character design sheet of a big shaggy old dog named Argos, side, front, sitting, running|
+criaturas|91:51|A||Bestiario de quimeras|creature lineup sheet of crude hybrid animals made by a boy's imagination: frog-bird, goat-pig, vulture-fish, deer-owl, snail-house, side views|
+criaturas|91:51|S||Peces en el aire|small fish swimming through the air between forest trees, catching light, a dream logic||
+criaturas|1:1|S||El búho de ojos humanos|owl on a branch with unsettlingly human eyes, night, moon||
+criaturas|91:51|S||Árbol con ojos|old tree with eyes opening in the knots of its bark, watching the path||
+criaturas|91:51|S||Ciervo de niebla|silhouette of a deer made of fog standing in a forest clearing under stars|
+criaturas|2:3|A||La cucaracha|front-facing cockroach creature, full body, detailed carapace|Ya tienes una; para variantes.|
+personajes|91:51|A|I|Iram, hoja de giro|character turnaround sheet of an old hooded pilgrim with long white beard, patchwork cloak, tall wooden staff, front, three-quarter, side and back views|
+personajes|91:51|A|I|Iram, expresiones|expression sheet of an old hooded pilgrim with a white beard: lost, fearful, curious, angry, proud, terrified, resigned|
+personajes|91:51|A|I|Iram, poses de juego|pose sheet of an old hooded pilgrim with a staff: walk, run, jump, kneel, climb, lean on staff, look up|Referencia para animar.|
+personajes|91:51|S|I|Iram vuela con el bastón|old hooded pilgrim floating above the forest holding a glowing wooden staff, cloak billowing, dream logic|Al principio el bastón es mágico.|
+personajes|2:3|S|I|Iram cansado|old hooded pilgrim leaning heavily on his staff, bent and tired, the world around him solid and heavy|Al final anda como un viejo.|
+personajes|2:3|S|I|Iram, el cantero|old pilgrim as a master mason with leather apron, square, compass and chisel, a block of stone|
+personajes|2:3|S|I|La misma cara|old pilgrim looking into a cracked mirror where the face of the grey-haired healer looks back|«no eres más que mi propia imagen reflejada en un espejo deformado»|
+personajes|91:51|A|D|Dóminus, hoja de giro|character turnaround of a tall burly old healer and inventor, long wavy grey hair over his shoulders, thin wrinkled face, dark toga, front, side, back|
+personajes|91:51|A|D|Dóminus, expresiones|expression sheet of an old grey-haired healer: childish tantrum, perfidious smile hidden behind a grimace, absorbed lip-biting, satisfied, furious|
+personajes|2:3|S|D|De espaldas murmurando|old grey-haired man in a dark toga standing with his back turned, murmuring to himself in agitated inner dialogue||
+personajes|2:3|S||El hijo inacabado|boy of about eight in rags, puppet-like stiff limbs, his face smooth and unfinished like an unfinished portrait, tuber-like bumps on his skin, roots hanging from his brown hair|«era como contemplar un retrato sin terminar»|
+personajes|91:51|A||El hijo, hoja de personaje|character sheet of a faceless boy in rags with roots in his hair and tuber-like skin, puppet-like poses, front, side, back|
+personajes|91:51|S||El hijo en la ciénaga|faceless boy in rags with his arms plunged into a swamp pulling out a trembling black toad||
+personajes|2:3|S||El dedo arrancado|faceless boy holding up a hand wrapped in a reddened cloth, standing in a doorway|
+personajes|2:3|S||La mujer de lino|slender woman wrapped in sinuous linen veils hiding her body and half her face, purple eyelids, a mysterious haze of perfume around her, standing at a door at night|La visitante que Dóminus echa a gritos.|
+personajes|2:3|R||El padre de Dóminus|forest healer and astronomer in a humble hut, herbs hanging, star charts, kind tired eyes, people called him a sorcerer|
+personajes|2:3|R||Dóminus niño|twelve-year-old boy with a lively curious face in a forest hut, wooden toys, candlelight|
+personajes|91:51|R||Los maestros constructores|travelling master masons arriving at a forest hut with exotic plants and forbidden books, cloaks, staffs, lanterns, dusk|«Los llamaba los maestros constructores.»|
+personajes|2:3|S||Hiram Abiff|legendary master builder of Solomon's temple holding a compass and a square between two great bronze pillars|El Iram original del que toma el nombre.|
+personajes|91:51|A||Escala de personajes|lineup size chart of characters: old hooded pilgrim, tall grey-haired healer in toga, faceless boy, harpy-ostrich, shaggy dog|
+puente|91:51|S||Bosque facetado|autumn forest built from faceted angular planes like a patchwork cloak, polygonal tree trunks, triangular leaf masses, flat color facets in rust, ochre, burgundy and slate, cool blue mist between the layers, {dusk, night, dawn}|El fondo hablando el idioma del muñeco.|
+puente|91:51|S||Valle de parches|valley at sunset made of large flat geometric patches like a quilted cloak, faceted hills, a distant smoking city as simple angular shapes, warm sky with slate shadows||
+puente|91:51|S||Casa imposible facetada|impossible crooked citadel house built from sharp faceted planes and triangles, turrets and flying buttresses as angular folded shapes, lit windows, forest of polygon trees, dusk||
+puente|91:51|S||Sala facetada|cluttered room of an old healer drawn with flat angular facets, cauldron, organ, giant pendulum with a censer, warm candlelight breaking into triangular light patches||
+puente|91:51|S||Niebla con facetas|misty forest where the fog itself is made of soft translucent angular shards, faceted tree silhouettes in five depths, muted blue with warm rust accents|Más cerca de tus fondos actuales, con un toque de facetas.|
+puente|91:51|S||Mitad y mitad|forest scene where the foreground is faceted and angular like a patchwork cloak and the far background melts into soft painterly mist, warm near, cool far|La mezcla que suele casar mejor: facetas delante, niebla al fondo.|
+puente|91:51|S||Noche de facetas|night forest clearing of faceted polygon trees under a starry sky, moonlight catching the edges of the facets, deep slate blue with a few warm ochre planes||
+puente|91:51|S||Río facetado|forest stream drawn in flat angular facets, faceted stones, a heart-shaped faceted stone in the current, raspberry bushes as clusters of red triangles||
+puente|91:51|S||Vacío facetado|vast dark void with floating faceted stone tiles and a faceted sun being born, warm light on angular edges||
+puente|3:1|S||Panorama para parallax|wide panorama of a faceted angular autumn forest in four clear depth layers, flat geometric facets, rust and ochre near, slate blue far, for 2D parallax||
+puente|91:51|S|I|Iram en el bosque facetado|the old hooded pilgrim walking through an autumn forest built from the same faceted angular planes as his cloak, his colors echoed in the trees, warm sunset light|La prueba de fuego: ¿se ve pegado aquí?|
+puente|91:51|S|I|Iram en la niebla facetada|the old hooded pilgrim in a misty forest of faceted tree silhouettes, cool mist partly veiling the bottom of his cloak, rim light on his hood||
+escena|91:51|S|I|Contraluz de atardecer|the old hooded pilgrim standing on a forest path, strong {low sunset backlight with a warm rim light on his hood and cloak edges, overcast flat light, cold blue dawn light, deep dusk with only the sky lit}|La misma pose con cuatro luces.|
+escena|91:51|S|I|Bajo la luna|the old hooded pilgrim walking through a clearing under a full moon, cold silver moonlight on the top of his hood and shoulders, long soft shadow on the grass, the rest of him in blue darkness||
+escena|91:51|S|I|Con farol|the old hooded pilgrim holding a small oil lantern low in a dark forest, warm light from below on his beard and cloak panels, everything around falling into black|Luz cálida de abajo arriba.|
+escena|91:51|S|I|Rayos entre los árboles|the old hooded pilgrim crossing shafts of god rays falling through the forest canopy, dust in the light, half his body lit and half in shadow||
+escena|91:51|S|I|Silueta en la niebla|the old hooded pilgrim as a dark silhouette in thick fog, only the shape of his pointed hood and staff readable, layered trees fading behind|Para ver si la silueta se lee sola.|
+escena|91:51|S|I|Luz de la caldera|the old hooded pilgrim inside a cluttered room lit by the red glow of a cauldron on a brazier, orange light on one side of his face and cloak, cool shadow on the other||
+escena|91:51|S|I|Vela en el pasillo|the old hooded pilgrim holding a candle in a dark narrow corridor of an old house, small pool of warm light, the corridor vanishing into black||
+escena|91:51|S|I|Relámpago|the old hooded pilgrim frozen on a forest path at night as a lightning flash lights everything in harsh white for an instant, rain||
+escena|91:51|S|I|Reflejo en el agua|the old hooded pilgrim standing at the edge of a still pond, his reflection in the water, {sunset, moonlight, morning fog}||
+escena|91:51|S|I|Sombra larga en el muro|the old hooded pilgrim walking past a stone wall, his long shadow cast huge on the wall by a low light source, the shadow slightly wrong||
+escena|91:51|S|I|Luciérnagas|the old hooded pilgrim standing still in a dark clearing surrounded by slow glowing fireflies that light the facets of his cloak||
+escena|91:51|S|I|Vitral|the old hooded pilgrim in a dim stone room, colored light from a stained glass window falling across his cloak in red, blue and gold patches||
+escena|91:51|S|I|El bastón como única luz|the old hooded pilgrim in a dark void lit only by the faint glow at the tip of his wooden staff||
+escena|91:51|S|I|Pequeño en el paisaje|the old hooded pilgrim very small in the lower third of a vast {autumn forest valley, starry night forest, foggy swamp, clearing with an impossible house}, side view, wide 2D game camera|Escala real de juego.|
+escena|91:51|S|I|Captura de juego|side-scrolling 2D game screenshot mockup, the old hooded pilgrim walking right along a forest path on the lower third, parallax layers of trees and fog behind, {dusk, night, dawn}, no UI|Para ver cómo encaja en la vista lateral.|
+escena|91:51|S|I|Plataformas de piedra|side view 2D game scene, the old hooded pilgrim jumping between mossy stone ledges over a misty ravine, his cloak flying||
+escena|91:51|S|I|Agachado|the old hooded pilgrim crouching low among ferns, hiding and watching something between the trees, tense||
+escena|91:51|S|I|Mirando arriba|the old hooded pilgrim looking up in awe at {an impossible crooked house, a giant pendulum, a sky full of stars, a vision of a shining temple}||
+escena|91:51|S|I|Arrodillado en el río|the old hooded pilgrim kneeling at a stream to drink, cupped hands, his beard nearly touching the water, dappled light||
+escena|91:51|S|I|Sentado junto al fuego|the old hooded pilgrim sitting by a small campfire at night in a clearing, firelight on his cloak, sparks rising, darkness all around||
+escena|91:51|S|I|Subiendo la escalera|the old hooded pilgrim climbing a crooked wooden staircase inside an impossible house, candlelight from above||
+escena|91:51|S|I|Corriendo asustado|the old hooded pilgrim running in terror along a forest path, cloak streaming behind, looking back over his shoulder, motion||
+escena|91:51|S|I|Apoyado en el bastón|the old hooded pilgrim resting both hands on his wooden staff on a hilltop at sunset, catching his breath, wind in his beard||
+escena|91:51|S|I|Ante la puerta|the old hooded pilgrim seen from behind before a heavy door left ajar, warm light spilling over him from inside, the night forest behind him||
+escena|91:51|S|I|Frente a la arpía|the old hooded pilgrim across a stream from a creature with an old woman's face and an ostrich body, both staring at each other, still||
+escena|91:51|S|I|Con Argos|the old hooded pilgrim walking a misty path beside a big shaggy dog, both seen from the side, soft morning light||
+escena|91:51|R|I|En el mundo real|the old hooded pilgrim standing in a dark medieval dungeon lit by a single torch, as if he had stepped out of a painting, his colors too soft for the place|El personaje del sueño en el estilo Real.|
+escena|91:51|S|I|Tres grados de realidad|the old hooded pilgrim painted in {loose dreamy watercolor, firm gouache, solid detailed oil painting}, same pose on the same path|El mundo y él se vuelven más reales.|
+escena|2:3|S|I|Retrato con luz dura|close portrait of the old hooded pilgrim, his face mostly hidden by the pointed hood and white beard, {hard side light from a window, warm candle light from below, cold moonlight from above, red fire glow}||
+escena|91:51|A|I|Hoja de luces|lighting study sheet of the same old hooded pilgrim standing in six panels: warm backlight, cold moonlight, lantern from below, firelight from the side, fog silhouette, flat daylight|Útil para decidir el shader de luz.|
+lecciones|91:51|S||Visión sobre el bosque|a vision materializing out of the mist above the forest: a shining ancient temple made of light hovering over the treetops|Plantilla: cambia el templo por cualquier lección.|
+lecciones|91:51|S|I|El templo de Salomón|the building of Solomon's temple, masons on scaffolds, two great bronze pillars at the entrance, golden light, cedar beams|
+lecciones|2:3|S||Jaquín y Boaz|two colossal bronze pillars named Jachin and Boaz rising out of fog in a forest, pomegranate capitals|
+lecciones|2:3|S||La torre de Babel|tower of Babel spiraling into the clouds, unfinished at the top, tiny builders|
+lecciones|91:51|S||Las pirámides|the pyramids of Giza at dawn emerging out of a forest mist, impossible yet calm|Tienes una referencia de pirámide.|
+lecciones|91:51|S||Stonehenge|stone circle on a misty plain at sunrise, sun aligned between the stones|
+lecciones|91:51|S|I|La catedral en obras|gothic cathedral under construction, wooden scaffolding, cranes with treadwheels, masons carving|
+lecciones|2:3|S||La catedral de Santiago|the cathedral of Santiago de Compostela seen blurry as in a childhood memory, few details, pilgrims, rain|«donde una vez más me maravilló su catedral»|
+lecciones|91:51|S||Pórtico de la Gloria|carved romanesque portal full of elders playing instruments, worn polychrome, soft light|
+lecciones|91:51|S||El zigurat|Mesopotamian ziggurat rising out of a dream desert at dusk, stairs of light|
+lecciones|91:51|S||Biblioteca de Alejandría|endless library of scrolls in pigeonholes under a dome, scholars, dust in sunbeams|
+lecciones|91:51|S||El laberinto de Dédalo|labyrinth seen from above in the forest, a winged figure flying over it|
+lecciones|1:3|S||Yggdrasil|immense world tree joining sky, earth and underworld, roots in mist, stars in the branches|
+lecciones|91:51|S||Euclides en la arena|an old geometer drawing circles and triangles in the sand with a stick, students watching, Mediterranean light|
+lecciones|91:51|S||Música de las esferas|planets as glowing spheres on concentric orbits making music, a monochord string vibrating in the foreground|Pitágoras.|
+lecciones|1:1|S||El astrolabio|brass astrolabe floating in the dark, its rings turning, stars aligning behind it|
+lecciones|91:51|S||Polinización|giant dreamy flowers in the forest, bees carrying glowing pollen between them, golden light|
+lecciones|91:51|S||La selva tropical|lush tropical jungle appearing inside the grey forest, huge carnivorous plants, colors far brighter than the forest|Lo exótico que Dóminus no conoce.|
+lecciones|91:51|S||El Edén|garden of Eden with the tree of knowledge and a serpent coiled on it, a single fruit glowing|La lección sobre Eva que enfada a Dóminus.|
+lecciones|1:1|S||Proporción áurea|nautilus shell cut in section beside a golden spiral drawn in light, sacred geometry|
+lecciones|91:51|S||Las órbitas de Kepler|ellipses of planets drawn in light across a night sky over the forest|
+lecciones|91:51|S||La circulación de la sangre|landscape where rivers branch like veins and arteries from a heart-shaped lake, red and blue streams|
+lecciones|91:51|S||El arca|wooden ark on a hill in the rain, animals in pairs walking up the ramp|
+lecciones|91:51|S|I|La lección se vuelve real|old pilgrim speaking while the forest behind him changes, the left half blurry and painterly, the right half solid and detailed|El mundo se afianza con cada lección.|
+vacio|91:51|S|I|El vacío|old hooded pilgrim standing on nothing in a vast dark void, faint mist, no ground, no horizon|
+vacio|91:51|S|I|El bastón clavado|old pilgrim's wooden staff planted upright in nothing, faint light gathering around its tip, the pilgrim reaching for it|
+vacio|91:51|S|I|Nace el sol|old pilgrim pulling his staff out of the void and a sun bursting into being above him, warm light flooding the darkness|
+vacio|91:51|S||La luna aparcada|a pale moon resting low at the edge of a void, waiting, dim and patient|
+vacio|91:51|S|I|Losas de luz|old pilgrim walking on floating tiles of light that turn into stone under his feet and crumble behind him into the abyss|
+vacio|1:1|A||Mosaico luz-piedra|floating floor tile transforming from glowing light to rough stone, three stages side by side|
+vacio|91:51|S||El arco y su reflejo|a luminous arch bridge over an abyss, its reflection in black water below completing a perfect circle|«trazar un círculo fija el primer camino»|
+vacio|91:51|S||El agua del abismo|black mirror-like water deep below, stars and light reflected on it, ripples|
+vacio|91:51|S|I|Primer camino a la casa|a stone path newly fixed across the void leading to a faint impossible house at the far end, the pilgrim at the beginning|
+carnaval|91:51|S||Carnaval de pesadillas|the forest teeming with new creations at morning, marvelous and frightening, hybrid creatures everywhere, ribbons, masks, lanterns|«asemejándose poco a poco a un delirante carnaval de pesadillas»|
+carnaval|91:51|S||Mañana maravillosa|the forest one morning full of strange beautiful new flowers and gentle creatures, bright and wonderful|
+carnaval|91:51|S||Mañana espeluznante|the forest one morning full of horrifying new creatures half-hidden in the fog, everything a little wrong|
+carnaval|91:51|S||Árboles con máscaras|forest trees wearing carnival masks on their trunks, ribbons hanging from branches, dusk|
+carnaval|91:51|S||Procesión de farolillos|procession of strange creatures carrying paper lanterns through the forest at night|
+carnaval|91:51|S||La tumba que canta|small mound grave in the forest, a crooked wooden marker, faint visible musical notes rising like smoke from the earth|«siguió sonando en el bosque varios días después de su entierro»|
+carnaval|91:51|S||Huerto del hijo|a ploughed plot in the forest where something shaped like a boy is sprouting out of the earth with roots and tubers|«De manera que aré una parcela y enterré mi semilla.»|
+carnaval|91:51|S|I|Iram en el carnaval|old pilgrim walking through a delirious forest full of creatures and masks, alone and unafraid now|
+recuerdos|91:51|R||La cabaña de la infancia|humble hut deep in a forest with flattened hills around, herbs drying at the door, smoke from the chimney, warm and safe|«Nací en un bosque no muy distinto de éste, en una cabaña similar a esta.»|
+recuerdos|91:51|R||Lección del padre|healer teaching a distracted boy arithmetic by candlelight, star charts and herbs on the table|«aquellas lecciones le recordaban a las de su padre»|
+recuerdos|91:51|R||La cama vacía|empty bed in a dark hut with a single candle and dried flowers, plague year, a child's shoe on the floor|La madre.|
+recuerdos|91:51|R||El arresto|soldiers with torches surrounding a forest hut at night, the door kicked open|
+recuerdos|91:51|R||La hoguera|distant bonfire at night seen from behind a row of soldiers, a small boy among them watching, no gore, only orange light on faces|Fuera de plano, sin mostrar al padre.|
+recuerdos|91:51|R||El castillo|grim castle on a hill above a city at dusk, crows, a prisoner cart arriving|
+recuerdos|91:51|R||La mazmorra|castle dungeon corridor lit by torches, iron doors, wet stone|
+recuerdos|91:51|R||Instrumentos de tortura|dungeon room with torture instruments displayed on the walls like a museum, a small boy standing unafraid in the middle|«el dolor, como la vida, es pasajero»|
+recuerdos|91:51|R||Encerrado entre risas|soldiers laughing as they leave a dungeon, a bronze sarcophagus closed in the middle, torches|«Luego se marcharon entre risas…»|
+recuerdos|91:51|R||Camino a Santiago|father and son walking towards a distant cathedral city, pilgrims with scallop shells, the road dusty|
+recuerdos|91:51|R||Los peregrinos sabios|travelling scholars by the fire inside a forest hut sharing exotic plants and forbidden books with the healer, a boy watching from the stairs|
+recuerdos|91:51|R||Telones del recuerdo|heavy theater curtains in the darkness parting slightly to reveal a glimpse of forest light|«descubrí las gruesas cortinas que ocultaban el escenario de mis recuerdos»|
+ataud|91:51|R||Dentro del sarcófago|inside a bronze sarcophagus in total darkness, a single beam of light entering through a small window, a child's breath visible|
+ataud|91:51|R||El sarcófago en la mazmorra|bronze sarcophagus on a stone slab in a dungeon, candles, cobwebs, a small window on its lid|Variación de tus fondos de la intro.|
+ataud|1:1|R||La cucaracha en el bronce|cockroach crawling on the inside wall of a bronze sarcophagus caught in the light from a small window|
+ataud|2:3|R||La mano en la tapa|a child's thin hand pressed against the inside of a bronze lid, verdigris, faint light|
+ataud|91:51|R||Péndulo y cadenas|great pendulum and chains swinging in a dark crypt above a sarcophagus|Para la intro.|
+ataud|1:1|R||Alguien se asoma|a shadowed face peering in through the small window of a sarcophagus, seen from inside|El final: alguien se asoma.|
+ataud|91:51|R||El niño soñando|close-up of a boy's face asleep in darkness, eyes moving under the lids, a faint forest reflected on his skin|
+ataud|1:1|A||Pátina de bronce|close-up of aged bronze with verdigris, scratches and dents|--tile
+final|91:51|S||La casa derruida|the impossible citadel house completely collapsed into rubble at dusk, dust still rising, a stone tower standing untouched nearby|«Salió al exterior y corrió hacia la casa, hallándola completamente derruida.»|
+final|91:51|S|I|Buscando entre escombros|old pilgrim searching among the rubble of a collapsed house, lifting stones, last light|
+final|91:51|S|D|El rostro entre las ruinas|the face of an old grey-haired man buried among rubble, lips still moving, a bloodied hand beside a geometry page|«cuyos labios aún se movían tratando de maldecir a su huésped»|
+final|2:3|S|I|Ver su propia cara|old pilgrim frozen with horror, looking down at a dying face that is his own, rubble around them|
+final|91:51|S|I|La huida|old pilgrim fleeing through the forest at night, a large bird of prey shadow above him|«huyendo despavorido de una certeza que le sobrevolaba como un ave de rapiña»|
+final|91:51|S|I|Desaparecen las estrellas|old pilgrim running as the stars go out one by one and the trees vanish around him into white|
+final|91:51|S|I|Se borra su sombra|old pilgrim whose shadow and arms are fading away, his body dissolving into paper and mist|
+final|91:51|S||El sueño se deshace|forest dissolving into blank paper and loose pencil lines, color draining out from the edges|
+final|91:51|R||Del blanco al bronce|white void slowly turning into the dark texture of the inside of a bronze sarcophagus|Transición al despertar.|
+final|91:51|S||El torreón solo|a lone sturdy stone tower standing in an empty white void after everything else has vanished|
+recursos|3:1|A||Capa lejana: colinas|far background layer of soft rolling hills and a distant city smear, single flat color silhouette with soft fog gradient, for parallax|
+recursos|3:1|A||Capa media: árboles|mid-ground layer of bare and leafy tree silhouettes in a row, flat dark color, for parallax|
+recursos|3:1|A||Capa cercana: maleza|foreground layer of grass, ferns, roots and mushrooms silhouettes, flat dark color, for parallax|
+recursos|3:1|A||Capa de niebla|horizontal band of soft white fog with wisps, on flat black background, for overlay|
+recursos|3:1|A||Capa de {autumn, winter, night, carnival} forest|layer of {autumn, winter, night, carnival} forest tree silhouettes for 2D parallax|
+recursos|1:1|A||Suelo de bosque|forest floor of fallen leaves, moss and twigs, top-down|--tile
+recursos|1:1|A||Muro de piedra|medieval stone masonry wall, well-cut blocks with mortar|--tile
+recursos|1:1|A||Pergamino|blank aged parchment with stains and foxing|--tile
+recursos|1:1|A||Madera vieja|old wooden planks with nails and wear|--tile
+recursos|1:1|A||Corteza idéntica|tree bark texture|--tile
+recursos|1:1|A||Props de alquimia|sheet of separate alchemy props: alembic, flasks, mortar, censer, candle, skull, astrolabe|
+recursos|1:1|A||Herramientas de cantero|sheet of separate mason's tools: chisel, mallet, square, compass, plumb line, level|
+recursos|1:1|A||Bastones del peregrino|sheet of {three, five} different wooden pilgrim staffs, gnarled, with a gourd and a scallop shell|Como tu hoja de 3 bastones.|
+recursos|1:1|A||Objetos del camino|sheet of inventory items: leather canteen, handful of red raspberries, heart-shaped stone, sharpened stone, oil lamp, key|
+recursos|1:1|A||Iconos de inventario|set of small game inventory icons in a grid: mushroom, scroll, feather, toad, coin, candle, book, shell|
+recursos|91:51|A||Marco de diálogo|ornamental dialogue frame of parchment and carved wood with a mason's compass at the corner, empty center|
+recursos|91:51|A||Tarjeta de capítulo|chapter title card ornament, empty space in the center, autumn leaves and geometric construction lines|
+recursos|91:51|S||Pantalla de carga|old pilgrim walking along a path at the bottom of the frame, a lot of empty misty sky above for text|
+recursos|1:1|A||Partículas: hojas|sprite sheet of falling autumn leaves in different rotations on flat black background|
+recursos|1:1|A||Partículas: humo|sprite sheet of soft white smoke puffs on flat black background|
+recursos|1:1|A||Partículas: brasas|sprite sheet of glowing embers and sparks on flat black background|
+recursos|91:51|A||Rayos de luz|soft volumetric light rays falling diagonally through darkness, on black, for overlay|
+recursos|91:51|M||Mapa del mundo|game world map on parchment: the valley, the endless forest, the house, the streams, the swamp, the city smear, compass rose|
+recursos|1:1|A||Ventanas iluminadas|sheet of separate lit windows from an impossible house: dormer, arched, round, crooked|
+`;
+const ITEMS = RAW.trim().split("\n").map((l,i)=>{
+  let [cat,ar,style,oref,title,prompt,note,extra] = l.split("|");
+  if (note && note.startsWith("--")){ extra = note; note = ""; }
+  return {id: cat+"-"+String(i+1).padStart(3,"0"), cat, ar, style, oref, title, prompt, note: note||"", extra: (extra||"").trim()};
+});
+
+const $ = s => document.querySelector(s);
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem("mmp_"+k); return v===null? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem("mmp_"+k, JSON.stringify(v)); }catch(e){} }
+};
+let cfg = Object.assign({}, DEFAULTS, store.get("cfg", {}));
+// v2: el --ow 150 de la primera version copiaba la luz plana de la referencia; bajar a 75
+if (cfg.v !== 2){ if (String(cfg.ow) === "150") cfg.ow = DEFAULTS.ow; cfg.v = 2; store.set("cfg", cfg); }
+let done = new Set(store.get("done", []));
+let activeCat = store.get("cat", "all");
+
+const FIELDS = ["sref_S","sref_R","sref_A","sref_M","oref_I","oref_IB","oref_D","desc_I","suf_S","suf_R","suf_A","suf_M","integ","mixI","sw","ow","stylize","chaos","extra"];
+function fillCfg(){ FIELDS.forEach(f=>{ $("#"+f).value = cfg[f]; }); $("#useSuf").checked = cfg.useSuf; }
+function readCfg(){ FIELDS.forEach(f=>{ cfg[f] = $("#"+f).value.trim(); }); cfg.useSuf = $("#useSuf").checked; store.set("cfg", cfg); render(); }
+
+const STYLE_NAME = {S:"Sueño", R:"Real", A:"Recurso", M:"Manuscrito"};
+const OREF_NAME = {I:"Iram", D:"Dóminus"};
+
+function permCount(t){ let n=1; (t.match(/\{[^}]*\}/g)||[]).forEach(m=>{ n *= m.split(",").length; }); return n; }
+
+function build(it){
+  let text = it.prompt;
+  if (it.oref==="I" && cfg.desc_I) text += ", " + cfg.desc_I;
+  if (it.oref && cfg.integ && it.style!=="A") text += ", " + cfg.integ;
+  if (cfg.useSuf && it.cat==="puente") text += ", faceted geometric illustration, flat angular color planes with hard edges, subtle paper grain, atmospheric depth, melancholic and dreamlike";
+  else if (cfg.useSuf && cfg["suf_"+it.style]) text += ", " + cfg["suf_"+it.style];
+  const p = ["--ar " + it.ar];
+  let sref = cfg["sref_"+it.style] || ((it.style==="A"||it.style==="M") ? cfg.sref_S : "");
+  const mix = Number(cfg.mixI) || 0;
+  if (mix && cfg.oref_I && (it.style==="S"||it.style==="A")) sref = sref ? `${sref}::3 ${cfg.oref_I}::${mix}` : cfg.oref_I;
+  // el puente lleva el estilo de Iram por delante del Sueño
+  if (it.cat==="puente" && cfg.oref_I) sref = (cfg.sref_S ? cfg.sref_S + "::1 " : "") + cfg.oref_I + "::3";
+  if (sref){ p.push("--sref " + sref); if (cfg.sw) p.push("--sw " + cfg.sw); }
+  let oref = it.oref ? cfg["oref_"+it.oref] : "";
+  if (it.oref==="I" && cfg.oref_IB && /staff/i.test(it.prompt)) oref = cfg.oref_IB;
+  if (oref){ p.push("--oref " + oref); if (cfg.ow) p.push("--ow " + cfg.ow); }
+  if (it.extra) p.push(it.extra);
+  if (cfg.stylize) p.push("--stylize " + cfg.stylize);
+  if (cfg.chaos) p.push("--chaos " + cfg.chaos);
+  if (cfg.extra) p.push(cfg.extra);
+  p.push("--v 7");
+  return {text, params: p.join(" "), full: text + " " + p.join(" "), missingOref: (it.oref && !oref) || (it.cat==="puente" && !cfg.oref_I)};
+}
+
+function esc(s){ return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function visibleItems(){
+  const q = $("#q").value.trim().toLowerCase();
+  const hide = $("#hideDone").checked;
+  return ITEMS.filter(it=>{
+    if (activeCat!=="all" && it.cat!==activeCat) return false;
+    if (hide && done.has(it.id)) return false;
+    if (q && !(it.title+" "+it.prompt+" "+it.note).toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function renderChips(){
+  const total = ITEMS.reduce((a,it)=>a+permCount(it.prompt),0);
+  const chips = [["all","Todo",ITEMS.length]].concat(CATS.map(c=>[c[0],c[1],ITEMS.filter(i=>i.cat===c[0]).length]));
+  $("#chips").innerHTML = chips.map(([id,name,n])=>`<button class="chip" data-cat="${id}" aria-pressed="${activeCat===id}">${name}<span class="n">${n}</span></button>`).join("");
+  $("#chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ activeCat=b.dataset.cat; store.set("cat",activeCat); renderChips(); render(); });
+  $("#stat").dataset.total = total;
+}
+
+function render(){
+  const vis = visibleItems();
+  const byCat = CATS.map(c=>[c, vis.filter(i=>i.cat===c[0])]).filter(x=>x[1].length);
+  const doneN = ITEMS.filter(i=>done.has(i.id)).length;
+  $("#stat").textContent = `${vis.length} prompts · ${vis.reduce((a,i)=>a+permCount(i.prompt),0)} trabajos · ${doneN}/${ITEMS.length} hechos`;
+  if (!vis.length){ $("#list").innerHTML = `<p class="empty">Nada coincide con la búsqueda.</p>`; return; }
+  $("#list").innerHTML = byCat.map(([c,items])=>`
+    <section class="cat" id="${c[0]}">
+      <div class="cat-head"><h2>${c[1]}</h2><span class="label">${items.length} prompts</span></div>
+      <p class="cat-desc">${c[2]}</p>
+      <div class="cards">${items.map(card).join("")}</div>
+    </section>`).join("");
+  $("#list").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{ const it=ITEMS.find(i=>i.id===b.dataset.copy); copy(build(it).full, b); });
+  $("#list").querySelectorAll("[data-done]").forEach(cb=>cb.onchange=()=>{ cb.checked? done.add(cb.dataset.done) : done.delete(cb.dataset.done); store.set("done",[...done]); render(); });
+}
+
+function card(it){
+  const b = build(it), n = permCount(it.prompt);
+  const tags = [`<span class="tag ${it.style}">${STYLE_NAME[it.style]}</span>`, `<span class="tag">${it.ar}</span>`];
+  if (it.cat==="puente" && !it.oref) tags.push(`<span class="tag ${b.missingOref?"warn":""}">${b.missingOref?"Falta ref de Iram para el estilo":"Estilo de Iram"}</span>`);
+  if (it.oref) tags.push(`<span class="tag ${b.missingOref?"warn":""}">${b.missingOref?"Falta ref de ":"Ref "}${OREF_NAME[it.oref]}</span>`);
+  if (n>1) tags.push(`<span class="tag perm">×${n}</span>`);
+  if (it.extra.includes("--tile")) tags.push(`<span class="tag">repetible</span>`);
+  return `<article class="card ${done.has(it.id)?"is-done":""}">
+    <h3>${esc(it.title)}</h3>
+    ${it.note?`<p class="note">${esc(it.note)}</p>`:""}
+    <div class="tags">${tags.join("")}</div>
+    <pre class="prompt">${esc(b.text)} <span class="p">${esc(b.params)}</span></pre>
+    <div class="card-foot">
+      <label class="check"><input type="checkbox" data-done="${it.id}" ${done.has(it.id)?"checked":""}> Hecho</label>
+      <span class="id">${it.id}</span>
+      <button class="btn pri" data-copy="${it.id}">Copiar</button>
+    </div>
+  </article>`;
+}
+
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,1600); }
+function copy(text, btn){
+  const ok = ()=>toast("Copiado");
+  const fallback = ()=>{ const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); let r=false; try{ r=document.execCommand("copy"); }catch(e){} ta.remove(); r? ok() : toast("No se pudo copiar: selecciona el texto a mano"); };
+  try{ navigator.clipboard.writeText(text).then(ok, fallback); }catch(e){ fallback(); }
+}
+
+FIELDS.forEach(f=>$("#"+f).addEventListener("input", readCfg));
+$("#useSuf").addEventListener("change", readCfg);
+$("#reset").onclick=()=>{ cfg = Object.assign({}, DEFAULTS); store.set("cfg",cfg); fillCfg(); render(); toast("Valores restaurados"); };
+$("#q").addEventListener("input", render);
+$("#hideDone").addEventListener("change", render);
+$("#copyVisible").onclick=()=>{ const v=visibleItems(); copy(v.map(i=>build(i).full).join("\n\n"), null); };
+
+const REFS = [
+  ["iram_tres_cuartos.png","Tres cuartos",true],
+  ["iram_baston_pie.png","De pie con bastón",true],
+  ["iram_perfil.png","Perfil",false],
+  ["iram_frente.png","De frente",false],
+  ["iram_casi_frente.png","Casi de frente",false],
+  ["iram_tres_cuartos_lado.png","Tres cuartos, girado",false],
+  ["iram_baston_andando.png","Andando con bastón",false],
+  ["iram_baston_paso.png","Paso con bastón",false],
+  ["iram_baston_agachado.png","Agachado con bastón",false],
+  ["iram_hoja_giro.png","Hoja de giro (para hojas de personaje)",false,true]
+];
+$("#gallery").innerHTML = REFS.map(([f,n,top,wide])=>`<figure class="ref ${top?"top":""} ${wide?"wide":""}" style="margin:0">
+  <img src="referencias/${f}" alt="Iram, ${n.toLowerCase()}" loading="lazy">
+  <figcaption class="nm">${n}${top?" · recomendada":""}</figcaption>
+  <span class="fn">${f}</span>
+  <button class="btn" data-img="referencias/${f}">Copiar imagen</button>
+</figure>`).join("");
+$("#gallery").querySelectorAll("[data-img]").forEach(b=>b.onclick=async()=>{
+  try{
+    const blob = await (await fetch(b.dataset.img)).blob();
+    await navigator.clipboard.write([new ClipboardItem({"image/png": blob})]);
+    toast("Imagen copiada: pégala en Midjourney con Ctrl+V");
+  }catch(e){
+    toast("Aquí no se puede copiar la imagen: arrástrala desde la carpeta");
+  }
+});
+
+fillCfg(); renderChips(); render();
+</script>

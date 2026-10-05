@@ -1,0 +1,73 @@
+magnus_salto_corriendo: como se monto
+=====================================
+Fuente: _fuentes/nuevo salto de piedra.mp4 (240 fotogramas, 24 fps, 1280x720).
+El personaje corre, salta una piedra, aterriza y se para. Se usa SOLO el salto:
+fotogramas 128-165 (despegue 128-135, vuelo 136-155, aterrizaje 156-165). La
+cola en la que se incorpora (166-180) se deja fuera a proposito: en el juego, si
+aterrizas con la tecla pulsada, sigues corriendo; si no, entra la parada de
+siempre.
+
+Cosas que este video trae y el flujo normal no resuelve solo:
+
+1. UNA PIEDRA en el decorado. Es una componente conexa de ~29.000 px separada
+   del personaje (~113.000) en todos los fotogramas menos tres (134-136), donde
+   el pie la toca. fondo.ps1 -Motas 45000 se la lleva donde esta separada (la
+   funcion conserva siempre el grupo mayor). Donde esta pegada se borra por
+   color -- gris neutro y claro, r>72 y |r-g|,|g-b|<18, en la mitad inferior; la
+   pierna es gris OSCURO (60) y no entra -- y despues una pasada que deja solo
+   la componente mayor de cada fotograma. Ver scratchpad/piedra_limpia.py.
+
+2. SOMBRAS PROYECTADAS en el croma, del personaje y de la piedra. En el original
+   son (30,150,40) sobre un fondo de (30,190,50): distancia 50. Con la
+   tolerancia habitual de 35 el relleno desde el borde se paraba ahi y las
+   trataba como personaje, dejando un residuo casi negro. Con -Tolerancia 70
+   entran (el personaje sigue a distancia >200, no hay riesgo).
+
+3. EL VIDEO RECORTA LA CAPUCHA por arriba en el apogeo (fotogramas 139-148):
+   la punta queda aplanada contra el borde, entre 6 y 28 px de ancho. Se
+   reconstruye prolongando las dos aristas del cono hasta cruzarse y rellenando
+   con el gris de la capucha (scratchpad/capucha.py, con la fila del corte como
+   argumento). Es la punta, no la cabeza; a tamano de juego son 3-4 px.
+
+4. NO CABE EN LA CASILLA COMUN. Respecto al eje del tronco el personaje llega a
+   313 px a la izquierda, 270 a la derecha y 691 por encima del suelo; la
+   casilla comun de 584x720 se queda corta por arriba y por la izquierda. Este
+   trabajo usa casilla propia, 680x800 (340x400 en la hoja), y magnus.gd ajusta
+   el offset del sprite al entrar y salir de la animacion (offset_salto_correr).
+   Para que centrar.ps1 pudiera recortar 800 de alto de un video de 720 se
+   anadieron 160 px de verde por arriba a 03_seleccion (copia sin padding en
+   _sin_padding/). El chequeo de margen de hoja.ps1 fue el que lo detecto: 0 px.
+
+5. CAMARA LENTA. 27 fotogramas de vuelo a 24 fps son 1,1 s; un salto corriendo
+   real son ~0,6 s. Se reproduce a 60 fps (1 tick de fisica por fotograma):
+   0,45 s de vuelo, 0,63 s en total.
+
+6. POLVO junto a los pies al despegar y aterrizar: gris claro semitransparente.
+   El suelto se lo lleva la pasada de componente mayor; el pegado a los pies se
+   borra por color (alfa 30-220, max(rgb)>110, neutro) en el 20% inferior.
+
+Coordinacion con la carrera (medido, ver docs/sprites_magnus.md): el primer
+fotograma del salto esta a 2,75-3,86 pasos normales del ciclo de correr SEA CUAL
+SEA el fotograma del ciclo. Esperar a la fase buena ahorraria un 30% a cambio de
+hasta 0,8 s de latencia; no compensa. El salto entra desde cualquier fotograma.
+
+Pasos:
+  elegir.ps1  -Job magnus_salto_corriendo -Frames "128-165"
+  (padding de 160 px verdes arriba en 03_seleccion)
+  centrar.ps1 -Job magnus_salto_corriendo -Desde 03_seleccion -Ancho 680 -Alto 800 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job magnus_salto_corriendo -Tolerancia 70 -Radio 4 -Motas 45000 -Derrame 12 -DerrameBorde 3 -DerrameObjetivo 2
+  piedra_limpia.py ; capucha.py 80 ; polvo
+  hoja.ps1    -Job magnus_salto_corriendo -Cols 8 -Fps 60 -Escala 2
+  _spriteframes.py (casilla propia CASILLA_SALTO_CORRER) -> magnus_frames.tres ; godot --import
+  y en el .import nuevo poner mipmaps/generate=true (Godot lo deja en false) ; reimportar
+
+EN EL JUEGO (2026-09-24). El salto se veia pequeno y el aterrizaje raro. Medido:
+la subida cocida son 94 px de hoja y el vuelo 0,47 s (204 px de avance), y al
+tocar suelo el impulso se apagaba y el personaje se clavaba 0,3 s antes de volver
+a acelerar por el arranque. Ahora magnus.gd le suma un arco de 80 px al sprite
+atado al fotograma (sprites 3-30), multiplica la velocidad en el aire x1,3 y
+frena la animacion a 0,75 durante el vuelo: sube 180 px y avanza 376 en 0,6 s.
+Con la direccion pulsada, al tocar suelo entra directo al ciclo de correr por
+el f17 (el que mas se parece a c_30, 2,5 pasos; todos los demas estan a 2,7-3,1).
+Soltandola sigue magnus_aterrizaje_correr (video 166-199) y luego reposo.
+Grabacion: 05_salida/salto_correr_en_juego.mp4 (piloto scenes/dev/piloto_salto_correr.tscn).

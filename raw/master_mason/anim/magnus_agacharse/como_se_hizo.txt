@@ -1,0 +1,113 @@
+magnus_agacharse: como se monto
+===============================
+Fuente: _fuentes/Pilgrim_squatting_animation_20260928195356.mp4 (240 fotogramas,
+24 fps, 1280x720, croma MAGENTA). De pie de perfil, se agacha, se queda y se
+levanta. El audio es musica de fondo (armonicos de 293 Hz a -35 dB), no efectos:
+no se usa. El roce de la ropa sale del video de la caida (construye.py, seccion
+AGACHARSE), comprobado sin musica.
+
+Que hay en el video:
+    1-31   de pie (se balancea algo: d(1,31) 0,118)
+   32-73   se agacha (la cabeza baja 134 px)
+   73-111  se asienta: el cuerpo rebota (cabeza 200 -> 190 -> 206) y se queda
+  112-139  agachado, casi quieto (0,004 por paso)
+  140-181  se levanta
+  182-240  de pie
+
+Seleccion (134 sprites, una sola hoja para las tres animaciones):
+  c_001-042  bajada        video 32-73
+  c_043-061  asentarse     video 75-111 de dos en dos
+  c_062-089  agachado      video 112-139
+  c_090-127  levantarse    video 140-177
+  (c_128-134, video 178-184, sobran: el levantarse acaba mejor en el 127, a
+   0,072 del reposo; apartados en _sobrantes/)
+
+  elegir.ps1  -Job magnus_agacharse -Frames "32-73,75,77,...,111,112-139,140-184"
+  (python: de la fila 692 para abajo se pinta de fondo en 03_seleccion; copia
+   en _sin_recortar_suelo/)
+  centrar.ps1 -Job magnus_agacharse -Ancho 584 -Alto 720 -MargenSuelo 30
+  fondo.ps1   -Job magnus_agacharse -Tolerancia 35 -Radio 4
+  (renombrado a 3 cifras, ver ORDEN)
+  python ..\magnus_caida\alinear.py 04_limpios --bajar -12
+  python igualar_color.py
+  (quitadas dos motas sueltas en c_053 y c_131)
+  hoja.ps1    -Job magnus_agacharse -Cols 12 -Fps 60 -Escala 2
+
+ORDEN. Es el primer job con mas de 99 fotogramas, y elegir.ps1 numeraba p_01..
+p_99 y luego p_100: por nombre, p_100 va antes que p_11, y centrar (y con el
+fondo y la hoja) leyo los fotogramas desordenados. Los sprites ya keyeados se
+renombraron a su orden real (c_001..c_134, los recortes eran buenos: cada
+fotograma se centra por su cuenta) y se arreglaron las herramientas: elegir.ps1
+y _centrar.py numeran ahora con tantas cifras como hagan falta.
+
+SUELO. Los pies apoyaban en la 689; se subieron 12 px a la 677 del reposo.
+COLOR. La tunica salio mas oscura y menos calida que el resto, (91,62,59) de
+pie frente a (95,70,62) del reposo. igualar_color.py aplica UNA ganancia comun a
+los 134 (sacada de los 10 de pie, (1,076, 1,158, 1,075)), para conservar como
+cambia la luz al agacharse. Copia previa en _sin_igualar_color/.
+
+POSE DE PIE. La de este video va mas encorvada que el reposo: su primer
+fotograma esta a 0,168 del reposo (paso normal de la bajada 0,049), y ninguno de
+la bajada baja de ahi. Pero el final de su levantarse (c_127) si casa con el
+reposo (0,072), y el c_123 casa con el principio de la bajada (0,063). Asi que
+"agacharse" empieza con un puente de cinco sprites, c_127..c_123 al reves:
+reposo -> 127 -> 126 -> 125 -> 124 -> 123 -> bajada c_001, todos a 0,03-0,07.
+La bajada y el levantarse del video NO son el mismo movimiento al reves (se
+separan hasta 0,23): se usan los dos.
+
+En el juego (SpriteFrames, casillas de la hoja desde 0):
+  agacharse     126..122 + 0..37 + 91, 90, 89 con cada una dos veces 49 f, 60 fps, 0,82 s
+                (hasta el 2026-09-29: 126..122 + 0..41 + 42..60 dos veces, 85 f,
+                1,42 s; ver ASENTARSE SIN REBOTE)
+  agachado      76..88 y vuelta 87..77 (ida y vuelta)               24 f, 12 fps, bucle 2 s
+                (hasta el 2026-09-29: 61..88 y vuelta, 54 f a 24 fps; ver CABEZA
+                QUIETA EN EL BUCLE)
+  incorporarse  89..126                                             38 f, 60 fps, 0,63 s
+El asentarse va duplicado para que vaya al ritmo de la bajada (2,5 veces el
+video); el agachado, a velocidad de video, porque es casi quieto y respira.
+
+Enganches (distancia media; el paso normal de la bajada es 0,049, del
+levantarse 0,055-0,061, del reposo 0,030):
+  reposo -> puente           0,072
+  bajada c_042 -> c_043      0,039
+  asentarse -> agachado      0,008
+  agachado c_089 -> c_090    0,022   (la vuelta del bucle es la ida y vuelta: 0,004)
+  agachado -> levantarse     0,03-0,06 desde cualquier fotograma del bucle
+  levantarse c_127 -> reposo 0,072
+  asentarse -> levantarse    0,10-0,21 (!): soltar la tecla asentandose deshace
+                             la animacion hacia atras; solo desde el c_059
+                             (fotograma 79 de "agacharse") entra al levantarse
+                             por su fotograma 1 (0,05-0,09).
+
+ASENTARSE SIN REBOTE (2026-09-29). El asentarse del video rebota: la cabeza baja
+a la 186 (c_039-c_043), sube a la 178 (c_047-c_051) y cae a la 194. En el juego
+se veia raro. Saltarse la subida no sirve: a la misma altura de cabeza la pose
+cambia (c_042 -> c_056, 0,59; paso normal de la bajada 0,09-0,19 medido a
+tamano completo). Pero el levantarse empieza en el agachado y sube por las
+mismas alturas: el c_038 (cabeza 184) casa con el c_092 (186) a 0,26, menos de
+dos pasos, y del c_092 al c_090 solo baja, y el c_090 va pegado al bucle (0,022).
+Asi que agacharse acaba en c_092, c_091, c_090 (cada uno dos veces) y entra al
+bucle por su fotograma 27 (el c_089). Medido en el juego: la cabeza baja de la
+882 a la 951 de pantalla sin subir nunca. Soltar asentandose (desde el fotograma
+43) sigue por el levantarse desde ese mismo sprite (sus fotogramas 2, 1, 0).
+
+magnus.gd: estados AGACHANDO, AGACHADO, INCORPORANDO. Grabacion del piloto
+(scenes/dev/piloto_agacharse.tscn): 05_salida/agacharse_en_juego.mp4.
+
+BUCLE SIN TIRONES (2026-09-29). En tres puntos del agachado (c_063->c_064,
+c_074->c_075, c_078->c_079) la figura entera se desplazaba 2 px de master (1 de
+pantalla) de lado: el eje que calcula centrar.ps1 cambia de redondeo. Movida la
+figura, esos pasos quedan como los demas (0,02). Referencia el tramo c_079-c_089,
+que enlaza con el levantarse y el asentarse: c_062-c_063 van 2 px a la izquierda
+y c_075-c_078 2 a la derecha. Originales en _sin_estabilizar/.
+
+CABEZA QUIETA EN EL BUCLE (2026-09-29). Aun sin tirones de lado, la cabeza del
+agachado no iba suave: medida en la hoja (centroide de la capucha), en c_062-c_066
+sube 1,5 px y vuelve en unos 8 fotogramas, y entre c_076 y c_077 hay un escalon
+de 1 px. Con el bucle de ida y vuelta eso salia como un "click" hacia arriba al
+poco de agacharse (lo vio el usuario; grabado: 3 fotogramas 1 px mas arriba en
+la vuelta del bucle). El bucle es ahora solo c_077-c_089, donde la cabeza esta
+en la misma fila (+-0,4 px de la hoja): 24 fotogramas a 12 fps, 2 s. Es el tramo
+que enlaza con el final del agacharse y el principio del levantarse, y el
+arranque del andar agachado casa mejor con el (0,6-0,8 pasos, antes 0,7-1,1).
+

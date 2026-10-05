@@ -1,0 +1,77 @@
+magnus_salto_parado: como se monto
+==================================
+Fuente: _fuentes/salto_en_parado.mp4 (192 fotogramas, 24 fps, 1280x720, croma
+verde, con audio). Quieto en la pose de reposo, se agacha, salta vertical, cae y
+se queda quieto. Sustituye a "saltar" (magnus_salto_andando) cuando se salta
+desde el reposo: aquel sale de un video andando y su primer sprite estaba a 0,38
+del reposo, asi que saltar quieto arrancaba una zancada de la nada.
+
+Que hay en el video:
+    1-33   quieto (pose de reposo, pies en la fila 685, alto 622-624 como respirando)
+   34-53   se agacha (anticipacion)
+   54-79   vuelo 1 (apogeo 64-66: los pies suben 130 px, la cabeza 50)
+   80-91   toca suelo y, SIN incorporarse, vuelve a agacharse
+   92-115  vuelo 2
+  116-134  toca suelo y se incorpora hasta la pose de reposo
+  135-192  quieto
+
+El video no tiene una recuperacion tras el primer salto, asi que la animacion
+son el primer salto (34-80) y la recuperacion del segundo (116-134): las dos
+tomas de suelo son casi la misma imagen con 35 fotogramas de desfase
+(77->112 0,075, 80->115 0,078; paso normal 0,04), y el empalme 80 -> 116 queda
+a 0,097 en el video y 0,131 en los sprites (paso normal de los sprites 0,082).
+
+  elegir.ps1  -Job magnus_salto_parado -Frames "34-80,116-134"
+  (python: de la fila 689 para abajo se pinta de fondo en 03_seleccion, ver abajo)
+  centrar.ps1 -Job magnus_salto_parado -Ancho 584 -Alto 720 -MargenSuelo 30
+  fondo.ps1   -Job magnus_salto_parado -Tolerancia 70 -Radio 4
+  python limpia_polvo.py
+  python ..\magnus_caida\alinear.py 04_limpios --bajar -8
+  python igualar_pies.py        (2026-09-28, ver PIES)
+  hoja.ps1    -Job magnus_salto_parado -Cols 9 -Fps 60 -Escala 2
+
+POLVO. Al caer levanta una nube gris que llega 30 px por debajo de la linea de
+suelo (hasta la fila 719 del video). Si se deja, centrar.ps1 ancla el suelo al
+polvo. Antes de centrar se pinta de fondo todo lo que hay bajo la fila 689 en
+03_seleccion (copia original en _sin_recortar_suelo/): por debajo del suelo solo
+hay sombra y polvo. Lo que queda por encima, alrededor de los pies en los
+sprites 46-58, lo quita limpia_polvo.py por color: gris de verdad (|r-g| <= 10,
+|g-b| <= 16, max 100-200) de la fila 600 para abajo. Ojo: un criterio mas ancho
+("neutro", |r-g| < 25) se comia el panel beige del abrigo (110,92,87) y los
+zapatos. El polvo que cae encima del zapato no se toca. Quedan motas de 1-2 px
+en 46-50 (0,08 s) que a media escala no se ven.
+
+SUELO. centrar dejo los pies en la 685 (moda); se bajaron -8 a la 677 del
+reposo. La cabeza en el apogeo queda en la fila 6 del master: 3 px de margen en
+la hoja, hoja.ps1 avisa. El atlas solo mezclaria casillas por debajo de 1/3 de
+escala y el juego no baja de 1/2.
+
+Enganches (distancia media; paso normal de esta animacion 0,082, del reposo 0,030):
+  respirando c_01 -> c_01   0,092
+  c_66 -> respirando c_01   0,074
+  (el "saltar" antiguo: 0,38 y 0,19)
+
+SONIDO. construye.py, seccion SALTO DESDE PARADO: despegue en 2,130 s (fotograma
+52 -> sprite 18; es un impulso que crece 0,22 s, no un golpe) y caida del
+segundo salto en 4,788 s (mas limpia que la del primero, -17 frente a -28 dB),
+colocada en el sprite 47, un fotograma despues de tocar suelo (46).
+
+EN EL JUEGO: animacion "salto_parado", 66 sprites a 60 fps (1,10 s: 0,33 de
+anticipacion, 0,43 de vuelo). magnus.gd la elige al saltar quieto
+(_saltaba_parado); toca suelo en 0,71 (aterrizaje_parado) y se puede cortar
+desde 0,92 (salto_parado_interrumpible), cuando ya esta casi de pie.
+Grabacion: 05_salida/salto_parado_en_juego.mp4.
+
+PIES (2026-09-28). Al aterrizar los pies destellaban: su luminancia pasaba de 65
+(sprite 45) a 99-123 (46-51) y tardaba hasta el 62 en volver a 73, con el resto
+del cuerpo quieto (capucha 127-128, abrigo 86-89). Ademas quedaban restos de
+polvo gris verdoso alrededor de los pies en 46-52, los que limpia_polvo.py no
+quitaba porque caian encima del zapato. igualar_pies.py (parte de
+_pies_sin_igualar/, copia de 04_limpios de antes): borra el polvo que da a
+fuera, repinta el que cae encima, y lleva la piel del pie de 46-61 a una rampa
+entre el 45 y el 62 con ganancia por canal. En la hoja (media escala) el pie
+queda en 71-73 en todo el tramo, antes 96-122. Solo cambian las casillas 46-61.
+Comparacion a 60 fps: 05_salida/pies_antes_despues.mp4.
+
+MOTAS (2026-09-29). Las motas de 1-2 px que quedaban (sprites 20, 46-54, 60) se
+quitaron con tools/anim/motas.py (13 manchas sueltas, copia en _sin_motas/).

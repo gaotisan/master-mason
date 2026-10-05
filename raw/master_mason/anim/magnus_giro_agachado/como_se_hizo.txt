@@ -1,0 +1,58 @@
+YA NO SE USA (2026-10-05): el giro agachado del juego sale ahora de un video,
+magnus_giro_agachado_video. Este se queda como referencia.
+
+magnus_giro_agachado: como se monto
+===================================
+Como el giro de pie (magnus_giro), no sale de un video sino de una hoja de
+vistas generada con IA. Fuente: _fuentes/giro_agachado_2.jpeg (Gemini, 3168x1344,
+croma verde), pedida con _fuentes/prompt_giro_agachado.txt adjuntando
+_fuentes/referencia_magnus_agachado.png (el agachado del juego, c_089 de
+magnus_agacharse, sobre verde) y referencia_magnus_perfil.png.
+
+Una primera hoja (_fuentes/giro_agachado.jpeg) no valio: en las vistas que giran
+estaba en cuclillas con las piernas a la vista, cada pose media distinto (+-8 %)
+y el fondo era gris claro, casi como la barba. Con la pose del juego de
+referencia salio bien a la primera.
+
+Que trae la hoja: cinco vistas del agachado, del perfil (mirando a la derecha)
+al frente. Las cinco miden lo mismo (1100-1103 px) y pisan en la misma fila
+(1250). A ojo y por distancia entre ellas: v1 perfil, v3 y v2 unos 30-35 grados
+(casi iguales, 0,36), v4 unos 68 y v5 de frente.
+
+Pasos:
+  python separar.py        recorta cada vista a su caja, escala 0,440 y la pega en
+                           un lienzo de 1000x860 verde con el suelo a 100 px.
+                           La escala sale de encajar la v1 contra el agachado del
+                           juego: 96,4 % de la silueta, mismo alto (485 px)
+  elegir.ps1  -Job magnus_giro_agachado -Frames "1-5"
+  centrar.ps1 -Job magnus_giro_agachado -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job magnus_giro_agachado -Tolerancia 35 -Radio 4
+  python igualar_color.py  capucha, tunica y pies, cada uno a la media del agachado
+                           del juego (c_077-c_089). La IA los pinto mas claros y
+                           cada vista distinta: la capucha del perfil 137 frente a
+                           156, el frente con los pies a 95 frente a 76
+  python ..\magnus_caida\alinear.py 04_limpios --bajar -13   (pies en la 677)
+  (las cinco vistas, asi, a _vistas/)
+  python montar.py         los 5 sprites del juego, ver abajo
+  hoja.ps1    -Job magnus_giro_agachado -Cols 5 -Fps 20 -Escala 2
+
+EL GIRO: 5 sprites a 20 fps (0,25 s), como el de pie:
+  c_01 agachado del juego (c_089), c_02 v2, c_03 v5 (frente), c_04 v2 espejada,
+  c_05 agachado espejado. El espejo, contra el centro de la casilla (flip_h).
+  Empieza y acaba en el propio sprite del bucle: los enlaces son exactos, y al
+  terminar magnus.gd voltea y el bucle sigue por el c_089 volteado, el mismo
+  dibujo que el c_05.
+  Pasos (distancia entre sprites seguidos): 0,62 1,28 1,27 0,62; el de pie,
+  1,17 0,94 0,88 1,17. Mas corto al empezar y al acabar: arranca y frena suave.
+  La v4 (68 grados) no entra: la IA le puso las manos y la tunica de otra manera
+  y se sale del camino entre la v2 y el frente (con ella, 0,62 1,47 0,95 0,95
+  1,47 0,62). La v3 casi repite la v2.
+  La cabeza, que agachado va muy adelantada, barre de un lado al otro al girar
+  (13-16 px por fotograma en el centro): es el giro, no un salto.
+
+Comprobado grabando el piloto scenes/dev/piloto_giro_agachado.tscn: la cabeza
+en la misma fila y los pies en la misma linea en los cinco, y al voltear al
+final no cambia ni un pixel.
+
+Pendiente, si se quiere mas suave: pedir las vistas de 22 y 45 grados de
+verdad (las que hay son 30-35) y la de 67 con la misma postura de manos.

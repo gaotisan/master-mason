@@ -1,0 +1,269 @@
+{
+ "taburete": {
+  "archivo": "taburete.png",
+  "x0": -33,
+  "y0": -109,
+  "w": 103,
+  "h": 111,
+  "pivote": [
+   0,
+   0
+  ]
+ },
+ "piernas": {
+  "archivo": "piernas.png",
+  "x0": -115,
+  "y0": -121,
+  "w": 166,
+  "h": 123,
+  "pivote": [
+   0,
+   0
+  ]
+ },
+ "pelo_espalda": {
+  "archivo": "pelo_espalda.png",
+  "x0": -5,
+  "y0": -275,
+  "w": 42,
+  "h": 91,
+  "pivote": [
+   -8.0,
+   -222.0
+  ]
+ },
+ "brazo_lejano": {
+  "archivo": "brazo_lejano.png",
+  "x0": -143,
+  "y0": -221,
+  "w": 124,
+  "h": 68,
+  "pivote": [
+   -32.0,
+   -207.0
+  ]
+ },
+ "torso_toga": {
+  "archivo": "torso_toga.png",
+  "x0": -52,
+  "y0": -229,
+  "w": 119,
+  "h": 143,
+  "pivote": [
+   10.0,
+   -100.0
+  ]
+ },
+ "brazo_sup": {
+  "archivo": "brazo_sup.png",
+  "x0": -28,
+  "y0": -228,
+  "w": 55,
+  "h": 82,
+  "pivote": [
+   6.0,
+   -207.0
+  ]
+ },
+ "cabeza": {
+  "archivo": "cabeza.png",
+  "x0": -53,
+  "y0": -297,
+  "w": 82,
+  "h": 111,
+  "pivote": [
+   -8.0,
+   -222.0
+  ]
+ },
+ "mandibula": {
+  "archivo": "mandibula.png",
+  "x0": -45,
+  "y0": -245,
+  "w": 39,
+  "h": 24,
+  "pivote": [
+   -9.0,
+   -247.0
+  ]
+ },
+ "parpado": {
+  "archivo": "parpado.png",
+  "x0": -38,
+  "y0": -260,
+  "w": 11,
+  "h": 8,
+  "pivote": [
+   -8.0,
+   -222.0
+  ]
+ },
+ "mesa": {
+  "archivo": "mesa.png",
+  "x0": -410,
+  "y0": -169,
+  "w": 578,
+  "h": 171,
+  "pivote": [
+   0,
+   0
+  ]
+ },
+ "vela": {
+  "archivo": "vela.png",
+  "x0": -225,
+  "y0": -200,
+  "w": 40,
+  "h": 49,
+  "pivote": [
+   -205.0,
+   -157.0
+  ]
+ },
+ "llama": {
+  "archivo": "llama.png",
+  "x0": -210,
+  "y0": -217,
+  "w": 11,
+  "h": 21,
+  "pivote": [
+   -204.7,
+   -198.5
+  ]
+ },
+ "cuenco": {
+  "archivo": "cuenco.png",
+  "x0": -124,
+  "y0": -191,
+  "w": 64,
+  "h": 37,
+  "pivote": [
+   -92.0,
+   -157.0
+  ]
+ },
+ "antebrazo": {
+  "archivo": "antebrazo.png",
+  "x0": -67,
+  "y0": -193,
+  "w": 71,
+  "h": 48,
+  "pivote": [
+   -13.0,
+   -160.0
+  ]
+ },
+ "mano": {
+  "archivo": "mano.png",
+  "x0": -77,
+  "y0": -192,
+  "w": 26,
+  "h": 25,
+  "pivote": [
+   -57.0,
+   -177.0
+  ]
+ },
+ "cuchara": {
+  "archivo": "cuchara.png",
+  "x0": -98,
+  "y0": -192,
+  "w": 50,
+  "h": 33,
+  "pivote": [
+   -65.0,
+   -180.0
+  ]
+ },
+ "cuenco_frente": {
+  "archivo": "cuenco_frente.png",
+  "x0": -123,
+  "y0": -185,
+  "w": 62,
+  "h": 31,
+  "pivote": [
+   -92.0,
+   -157.0
+  ]
+ },
+ "brillo_ojo": {
+  "archivo": "brillo_ojo.png",
+  "centro": [
+   -32.6,
+   -255.8
+  ],
+  "w": 7,
+  "h": 7
+ },
+ "halo_vela": {
+  "archivo": "halo_vela.png",
+  "w": 256,
+  "h": 256
+ },
+ "_puntos": {
+  "mano_lejana": [
+   -124.0,
+   -168.0
+  ],
+  "cadera": [
+   10.0,
+   -100.0
+  ],
+  "cuello": [
+   -8.0,
+   -222.0
+  ],
+  "mandibula": [
+   -9.0,
+   -247.0
+  ],
+  "hombro": [
+   6.0,
+   -207.0
+  ],
+  "codo": [
+   -13.0,
+   -160.0
+  ],
+  "muneca": [
+   -57.0,
+   -177.0
+  ],
+  "agarre": [
+   -65.0,
+   -180.0
+  ],
+  "punta_cuchara": [
+   -92.0,
+   -165.5
+  ],
+  "hombro_lejano": [
+   -32.0,
+   -207.0
+  ],
+  "cuenco": [
+   -92.0,
+   -157.0
+  ],
+  "labios": [
+   -41.5,
+   -238.3
+  ],
+  "ojo": [
+   -32.6,
+   -255.8
+  ],
+  "coronilla": [
+   -4.0,
+   -291.5
+  ],
+  "llama": [
+   -205.0,
+   -207.0
+  ],
+  "vela": [
+   -205.0,
+   -157.0
+  ]
+ }
+}

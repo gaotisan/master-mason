@@ -1,0 +1,12 @@
+﻿animacion:  magnus_salto_parado
+origen:     04_limpios
+hoja:       magnus_salto_parado_sheet.png
+casilla:    292 x 360 px
+escala:     1/2   (master en 04_limpios: 584 x 720)
+hframes:    9
+vframes:    8
+fotogramas: 66   (las 6 casillas sobrantes van vacias)
+fps:        60
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 66.

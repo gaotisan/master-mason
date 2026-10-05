@@ -29,3 +29,27 @@ desktop.ini
 # Backups
 *.bak
 *.tmp
+
+# raw/ y tools/ viven aqui desde el 2026-10-05 (Godot no los ve: llevan .gdignore).
+# Va a git lo que no se puede rehacer: videos e imagenes fuente, scripts, notas,
+# los sprites master (04_limpios) y las rejillas (05_salida). No va lo que los
+# scripts de cada job regeneran solos desde el video, ni ffmpeg (se descarga).
+__pycache__/
+*.pyc
+tools/ffmpeg/
+raw/master_mason/anim/*/01_frames/
+raw/master_mason/anim/*/02_contacto/
+raw/master_mason/anim/*/03_seleccion/
+raw/master_mason/anim/*/_con_fondo/
+raw/master_mason/anim/*/_sin_escalar/
+raw/master_mason/anim/*/_todos/
+# Tampoco las copias de antes de cada paso ni las versiones descartadas (siguen
+# en el disco; si hacen falta, se suben aparte).
+raw/master_mason/anim/_archivo/
+raw/master_mason/anim/*/_sin_*/
+raw/master_mason/anim/*/_con_sombra/
+raw/master_mason/anim/*/_sobrantes/
+raw/master_mason/anim/*/_vistas/
+raw/master_mason/anim/*/04_limpios_original/
+raw/master_mason/anim/*/hojas_antes/
+raw/master_mason/anim/*/_*/

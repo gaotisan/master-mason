@@ -1,0 +1,29 @@
+Efectos de Magnus. Generado por construye.py a partir de los videos de anim\_fuentes.
+Al repo (assets\audio\) van: los 4 magnus_paso_*.wav y magnus_respirar_ciclo.ogg.
+magnus_respirar_ciclo.ogg es el del video de respiracion aislada; _v1 es el antiguo, de referencia.
+Cinematica de entrada: magnus_caida_golpe.wav, magnus_caida_aire.ogg y magnus_levantarse.ogg.
+Saltos: magnus_salto_despegue.wav, magnus_salto_caida.wav, magnus_salto_correr_despegue.wav, magnus_salto_correr_caida.wav, magnus_salto_parado_despegue.wav, magnus_salto_parado_caida.wav.
+Agacharse: magnus_agacharse.wav y magnus_incorporarse.wav.
+Los bucles de pasos son de referencia: en el juego cada golpe se dispara desde el sprite
+de contacto (andar 1 y 17, correr 5 y 17), porque el ciclo va con la distancia y no con el reloj.
+
+magnus_paso_a.wav               0.506 s  pico  -6.0 dBFS  golpe suelto, pie que planta en el sprite 1 de andar
+magnus_paso_b.wav               0.556 s  pico -12.2 dBFS  golpe suelto, pie que planta en el sprite 17 de andar
+magnus_andar_ciclo.ogg          1.417 s  pico  -6.0 dBFS  bucle 34 sprites; pasos en t=0 y t=0.686
+magnus_paso_correr_a.wav        0.440 s  pico  -3.1 dBFS  paso_a x1,15 +3 dB; pie que planta en el sprite 5 de correr
+magnus_paso_correr_b.wav        0.483 s  pico  -9.3 dBFS  paso_b x1,15 +3 dB; pie que planta en el sprite 17 de correr
+magnus_correr_ciclo.ogg         1.000 s  pico  -3.1 dBFS  bucle 24 sprites; pasos en t=0.188 y t=0.688
+magnus_correr_ciclo_video.ogg   1.000 s  pico  -6.0 dBFS  alternativa: corte literal del video de correr; ataques en sprite 3.4 y 15.7
+magnus_respirar_ciclo_v1.ogg    2.500 s  pico  -6.0 dBFS  ANTIGUO, del video de respirando: bucle 2,5 s; inhala ~0,85-1,35 s, exhala ~1,55-2,15 s
+magnus_respirar_ciclo.ogg       2.500 s  pico  -6.0 dBFS  bucle 2,5 s del video de respiracion aislada (ciclo A estirado x1.087); inspira pico 1.20 s, espira pico 2.02 s
+magnus_caida_golpe.wav          1.043 s  pico  -3.1 dBFS  se estampa; disparar en el sprite 7 de caida (ataque en el video: 1.613s)
+magnus_caida_aire.ogg           1.357 s  pico  -6.0 dBFS  aire de la caida, 1.36 s; magnus.gd lo arranca para que acabe en el impacto
+magnus_levantarse.ogg           3.138 s  pico  -6.0 dBFS  roce de la ropa al levantarse, video 82-206 acelerado x1.65 (atempo) a 3.15 s
+magnus_salto_despegue.wav       0.306 s  pico  -6.0 dBFS  empujon al despegar; sprite 13 de saltar (ataque en el video: 4.194s)
+magnus_salto_caida.wav          0.456 s  pico  -6.0 dBFS  golpe al caer; sprite 48 de saltar (ataque en el video: 5.652s)
+magnus_salto_correr_despegue.wav  0.306 s  pico  -6.0 dBFS  empujon al despegar; sprite 4 de salto_correr (ataque en el video: 5.459s)
+magnus_salto_correr_caida.wav   0.456 s  pico  -6.0 dBFS  golpe al caer; sprite 33 de salto_correr, o al cortar al ciclo (ataque en el video: 6.680s)
+magnus_salto_parado_despegue.wav  0.406 s  pico  -6.0 dBFS  impulso al despegar; sprite 18 de salto_parado (ataque en el video: 2.130s)
+magnus_salto_parado_caida.wav   0.456 s  pico  -6.0 dBFS  golpe al caer; sprite 47 de salto_parado (ataque en el video: 4.787s)
+magnus_agacharse.wav            0.800 s  pico  -6.0 dBFS  roce de la ropa al agacharse (caida 3,60-4,40 s)
+magnus_incorporarse.wav         0.800 s  pico  -6.0 dBFS  roce de la ropa al levantarse de agachado (caida 7,55-8,35 s)

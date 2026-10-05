@@ -1,0 +1,12 @@
+﻿animacion:  aracnobat_andando
+origen:     04_limpios
+hoja:       aracnobat_andando_sheet.png
+casilla:    292 x 176 px
+escala:     1/4   (master en 04_limpios: 1168 x 704)
+hframes:    6
+vframes:    4
+fotogramas: 23   (las 1 casillas sobrantes van vacias)
+fps:        24
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 23.

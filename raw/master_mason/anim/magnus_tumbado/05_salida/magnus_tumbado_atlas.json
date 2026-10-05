@@ -1,0 +1,24 @@
+{
+ "hoja": "magnus_tumbado_sheet.png",
+ "casilla": [
+  380,
+  360
+ ],
+ "atlas": [
+  384,
+  88
+ ],
+ "separacion": 8,
+ "fotogramas": {
+  "0": [
+   0,
+   0,
+   344,
+   88,
+   16,
+   252
+  ]
+ },
+ "superficie_rejilla": 136800,
+ "relleno": 1.0
+}

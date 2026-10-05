@@ -1,0 +1,66 @@
+PROMPT PARA EL VIDEO DE MAGNUS RECOGIENDO EL BASTON
+===================================================
+Primer fotograma: primer_fotograma_recoger_baston.png (1280x720). Es
+referencia_magnus_perfil.png sin tocar, sobre el mismo croma #24D732, con el
+personaje a la izquierda (eje en x=300, pies en y=677) para que tenga sitio de
+andar hacia la derecha. Mismo alto que en los otros videos (627 px).
+
+Mismo formato que el resto: 16:9, 720p, 24 fps, 8 s, con audio.
+
+EL PROMPT
+---------
+
+2D side-view game animation. Static locked camera, flat pure chroma-key green
+background (#24D732) for the whole video. No ground, no floor texture, no
+shadows, no cast shadow under the feet, no horizon, no scenery, no text.
+Orthographic feel, camera at chest height, no pan, no zoom, no cuts. The
+character is full-body in frame at all times, nothing cropped.
+
+Character: exactly the character in the first frame, unchanged. An old master
+builder, wizard-like. Tall pointed grey-blue hood covering the head, long white
+beard to mid-chest. Full-length heavy cloak to the ankles with a pointed hem,
+built from flat geometric triangular facets in dark maroon, brick red, ochre,
+warm brown and muted grey. Thin dark grey legs and bare skin-toned feet.
+Low-poly flat-shaded hand-painted look, soft matte texture, no outlines, no rim
+light. He stays in strict side profile facing RIGHT for the whole video: he
+never turns toward the camera and never shows his back.
+
+Prop: a long wooden walking staff lies on the floor ahead of him, to the right,
+lengthwise along his path, fully visible. Straight, slightly gnarled, dark
+weathered wood, a small knot at the top end, roughly as long as he is tall.
+Same low-poly faceted matte style as the character.
+
+Action, one continuous take:
+- 0 to 0.5 s: he stands still in the exact pose of the first frame.
+- 0.5 to 3 s: he walks slowly to the right, three calm steps of an old man,
+  arms relaxed with a small natural swing, one swing per stride.
+- 3 to 3.5 s: he stops where the staff begins, feet together, a brief pause.
+- 3.5 to 5 s: he bends down slowly and carefully, knees bending, back curving,
+  the near hand reaching down and grabbing the staff near its middle.
+- 5 to 6 s: he straightens up with the staff in his hand.
+- 6 to 7.5 s: he lifts it and slides it diagonally behind his back, tucking it
+  under the hood and the collar of the cloak so it stays there by itself: the
+  top end sticks out above and behind his head, the bottom end reaches the
+  back of his calves.
+- 7.5 to 8 s: he lets go and stands still in the same neutral pose as the
+  first frame, arms relaxed at his sides, the staff resting diagonally across
+  his back.
+
+Motion: slow, weighty, deliberate, an old man careful with his back. The hood
+and beard stay on and unchanged. The cloak moves only a little.
+
+Audio: only soft footsteps of bare feet, cloth rustling, a dry wooden knock
+when he picks up the staff, one faint effort breath when he bends down. No
+music, no voice, no ambience.
+
+SI SALE MAL
+-----------
+- Se gira hacia la camara al agacharse: suele pasar. Repetir la frase de
+  "strict side profile facing RIGHT" al final del prompt.
+- No le da tiempo en 8 s o se lia con el baston: partirlo en dos videos.
+  A) andar + recoger, acabando de pie con el baston en la mano.
+  B) primer fotograma = ultimo fotograma de A, y solo el gesto de ponerselo a
+     la espalda y quedarse quieto.
+- La camara le sigue (como en los videos de andar): da igual para sacar
+  sprites, centrar.ps1 le centra por silueta; lo malo seria que el baston del
+  suelo se deslizase.

@@ -1,0 +1,110 @@
+magnus_andar_agachado (+ magnus_arranque_agachado, magnus_parada_agachado): como se monto
+======================================================================================
+Fuente: _fuentes/Hooded_figure_crouching_and_walking_20260928232811.mp4 (240
+fotogramas, 24 fps, EN VERTICAL 720x1280, croma MAGENTA con motas sueltas).
+Agachado, arranca a andar agachado y se para. El audio no se usa: las pisadas
+son las de andar, mas flojas (pasos_agachado_db).
+
+(Hubo un primer video, Wizard_crouch-walking_across_frame, con el control de un
+reproductor pintado encima de los pies en todos los fotogramas. Se llego a
+reconstruir la zona, pero el usuario genero este otro limpio. El job de aquel
+esta en _archivo/magnus_andar_agachado_con_control/.)
+
+Que hay en el video:
+    1-24    agachado quieto (1-17 identicos)
+   20-46    arranca: los dos pies apoyados, el cercano se levanta y llega delante
+   47-196   anda agachado SIN AVANZAR en pantalla (la camara le sigue), un paso
+            cada ~21 fotogramas
+  185-200   se para: el pie de atras se junta y se asienta
+  200-240   agachado quieto: LA MISMA pose que el agachado del juego
+            (magnus_agacharse c_062), mismo alto (482 frente a 485 px) y silueta
+  ZOOM: la camara se aleja hasta el ~150: el agachado quieto del principio mide
+  1,182 veces el del final. A partir del 150 casi no cambia (1,5 % por ciclo).
+  El pie de atras roza el borde izquierdo del video al estirarse (1-2 px de la
+  punta en 163-165 y 185-186; mas en 121-122 y 143-144).
+
+ESCALA. 0,50 justa (360x640) para el ciclo y la parada: el agachado quieto del
+final queda como el del juego. Luego se pega en un lienzo de 1000x860 del color
+del fondo (escalar.py): centrar.ps1 necesita margen para mover la ventana de 584.
+El arranque cae en pleno zoom: su escalar.py corrige fotograma a fotograma con
+    log z(f) = L                      hasta el fotograma 24
+    log z(f) = L * exp(-(f - 24)/82)  despues,  L = log 1,182
+ajustado comparando cada fotograma con el mismo punto del paso 42, 84 y 126
+fotogramas despues (el paso se repite): error mediano 0,65 %. El suelo sigue al
+zoom (centro en la fila 941 del video) y se pega siempre en la misma fila.
+
+CICLO. Buscado en el tramo estable, del final hacia atras: el mejor cierre es
+143-184 (42 fotogramas), d(185, 143) = 0,85 pasos normales.
+
+Pasos (en cada job; los fotogramas del video estan solo en el 01_frames de
+magnus_andar_agachado: los de arranque y parada se vaciaron, eran copias, y
+frames.ps1 los vuelve a sacar):
+  elegir.ps1  -Job magnus_andar_agachado    -Frames "143-184,225,235"
+              -Job magnus_arranque_agachado -Frames "20-46"
+              -Job magnus_parada_agachado   -Frames "185-215"
+  python escalar.py                (el del arranque: python escalar.py 20 164)
+  centrar.ps1 -Job <job> -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job <job> -Tolerancia 35 -Radio 4 -Motas 300
+  python ..\magnus_caida\alinear.py 04_limpios --bajar -11    (parada: -12; el
+              centrar de la parada deja el suelo 1 px mas abajo que el del ciclo)
+  python igualar_color.py          (ganancia comun sacada de una pose agachada
+              quieta: el ciclo de c_43-c_44 (video 225, 235), que luego van a
+              _sobrantes/; la parada de sus dos ultimos; el arranque de sus dos
+              primeros)
+  python mover.py 04_limpios 2 -3  (ciclo y parada; arranque 0 -8: ver ENLACES)
+  (arranque) python rampa_color.py
+  (arranque) python ajustar_tamano.py  (ver TAMANO DEL ARRANQUE)
+  hoja.ps1    -Job <job> -Cols 7 (parada 8) -Fps 20 -Escala 2
+  python tablas.py                 (en magnus_andar_agachado: enlaces y tablas
+                                    de magnus.gd)
+
+SUELO. El pie cercano apoya en la 688 tras centrar; -11 lo lleva a la 677 de
+siempre, y el ajuste final (-3) a la 674. El lejano apoya 10 px mas arriba
+(perspectiva), como en el andar del otro video.
+
+ENLACES (distancia de siempre: 10 x media de |A - B| premultiplicado; el paso
+normal del ciclo es 0,170, aqui "pasos"). Andando agachado va mas erguido y con
+la zancada abierta: ningun fotograma del ciclo casa con el agachado quieto (4,7-
+5,6 pasos). Por eso hay arranque y parada, del mismo video:
+  agachado del juego -> arranque c_01   1,0-1,5 pasos segun el fotograma del bucle
+  arranque c_27 (video 46) ~ ciclo c_21 1,14 pasos: se entra al ciclo por el c_22
+  ciclo -> parada                       solo desde c_41, c_42, c_01-c_04 (0,8-1,3
+                                        pasos; c_42 -> p_01 es el video seguido,
+                                        0,145 frente a 0,124 de paso). Desde la
+                                        otra media zancada salta 3 pasos: la
+                                        parada empieza con un pie concreto
+  parada c_31 -> agachado del juego     0,6 pasos, por su fotograma 20
+Para que casen los tres a la vez se mueven en bloque (mover.py): ciclo y parada
++2, -3 (lo que lleva el final de la parada al agachado del juego) y el arranque
+0, -8 (el mejor compromiso entre su principio, que va al agachado, y su final,
+que va al ciclo).
+
+TAMANO DEL ARRANQUE (2026-09-29). La escala por el zoom dejaba el primer sprite
+del arranque un 2 % mas grande que el agachado del juego (494 px de alto frente
+a 485) y con los pies 5 px mas abajo: al arrancar la cabeza subia y los pies
+bajaban de golpe (lo vio el usuario). ajustar_tamano.py lo lleva en rampa: el
+primero escalado a 0,985 y movido (+1, -3) casa con el agachado a 0,107 (antes
+0,173); el ultimo, sin escalar y movido (+1, 0), con el ciclo a 0,174 (antes
+0,194). Ahora empieza con 487 de alto y la cabeza en la 192, como el agachado.
+
+COLOR. Una ganancia comun por job hacia el agachado del juego (igualar_color.py,
+copiado del de magnus_agacharse): ciclo (1,020, 1,058, 1,023), parada (1,018,
+1,063, 1,022), arranque (1,043, 1,088, 1,052). Con la camara cambia la luz: el
+final del arranque salia un 2 % mas claro que el ciclo por el que entra;
+rampa_color.py lo corrige en rampa a lo largo del arranque.
+
+AVANCE (avance.py y medidas de ventana): el pie apoyado retrocede en el ciclo
+9,8 px de master por fotograma el cercano y 8,8 el lejano (perspectiva). En el
+juego se usa la media, 9,3 / 2 = 4,65 px por fotograma, 93 px/s a 20 fps. El
+arranque acelera de 0 a 4,4 px por fotograma (65 px en 27) y la parada frena de
+4,7 a 0 en 16 fotogramas (53 px) y se asienta: magnus.gd lleva al nodo por esas
+dos tablas (AVANCE_ARRANQUE_AGACHADO, AVANCE_PARADA_AGACHADO).
+Pisadas (talon al suelo): ciclo 17 y 38, arranque 22, parada 12.
+
+En el juego (SpriteFrames, _spriteframes.py):
+  arranque_agachado  27 f, 20 fps, una pasada, 1,35 s
+  andar_agachado     42 f, 20 fps, bucle por distancia, 2,1 s por ciclo
+  parada_agachado    31 f, 20 fps, una pasada, 1,55 s
+magnus.gd: estados ARRANQUE_AGACHADO, ANDAR_AGACHADO, PARADA_AGACHADO.
+Grabacion del piloto (scenes/dev/piloto_andar_agachado.tscn):
+05_salida/andar_agachado_en_juego.mp4.

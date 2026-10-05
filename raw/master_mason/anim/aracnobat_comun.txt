@@ -1,0 +1,292 @@
+Parametros comunes de todas las animaciones del ARACNOBAT
+=========================================================
+Araña-murcielago. Sacado entero de un solo video:
+
+  _fuentes\Arachno-Bat_skittering_and_flying_20260924134951.mp4
+  1280x720, 24 fps, 10 s = 240 fotogramas, croma verde (24,182,50), camara QUIETA.
+
+EN EL JUEGO van LAS CUATRO, encadenadas, como el aracnobat de las telaranas de
+la pantalla de titulo (scenes/intro/web_spider.tscn). Ver "Donde se usa".
+
+Que hay en el video (numeros de fotograma, contando desde 0)
+===========================================================
+
+    0 - 93   la araña anda en el sitio, vista cenital
+   94 -102   se agacha, se le hincha el abdomen y saca las alas de golpe
+  103 -151   vuela de frente, aleteo limpio, subiendo
+  152 -183   GIRA y se ladea: silueta asimetrica y alas cortadas por arriba. NO SIRVE
+  184 -211   vuelve a vuelo frontal, ya bajando
+  212 -227   aterriza y pliega las alas
+  228 -239   araña posada, recolocando las patas
+
+La perspectiva CAMBIA sola dentro del video: andando se la ve desde arriba y
+volando de frente. No es un fallo del recorte, es como esta grabado. Para andar
+resulto no importar (ver "Donde se usa"); para las alas sigue siendo el problema.
+
+Ventana y comandos
+==================
+La camara no se mueve, asi que las cuatro animaciones salen del MISMO recorte
+exacto del video. No hace falta anclar suelo ni medir el eje: con la misma
+ventana ya quedan registradas entre si, fotograma a fotograma.
+
+  .\sombra.ps1  -Job aracnobat_<accion>
+  .\centrar.ps1 -Job aracnobat_<accion> -Ancho 1168 -Alto 704 -Eje 640 -Techo 16
+  .\fondo.ps1   -Job aracnobat_<accion> -Tolerancia 35 -Radio 4 -Derrame 12 -DerrameBorde 6
+  .\hoja.ps1    -Job aracnobat_<accion> -Cols <n> -Fps 24 -Escala 2
+
+  casilla     1168 x 704 px master  ->  584 x 352 exportada a 1/2
+  eje         x 640 del original (el bicho esta centrado en el cuadro)
+  techo       y 16 del original
+
+Por que estos numeros:
+
+  1168 de ancho  la envergadura maxima medida es 1104 px (fotograma 103, alas
+                 del todo abiertas) mas 32 de margen por lado. La casilla es
+                 SIMETRICA: al voltearla con flip_h para ir al otro lado, el
+                 bicho no se desplaza.
+                 Primer intento: 1088. Se quedaba corto y hoja.ps1 aviso de que
+                 las alas tocaban el borde. Hubo que reprocesar las cuatro.
+  704 de alto    el bicho ocupa de la fila 54 a la 697 del original (644 px).
+                 Con techo 16 la ventana va de la 16 a la 719: 38 px de margen
+                 arriba y 22 abajo, y 704 se divide exacto entre 2 y entre 4.
+  -Eje 640       con camara quieta, medir el eje en cada fotograma solo mete
+                 temblor: el centro del bicho oscilaba +-6 px de puro ruido de
+                 medida. Peor aun al abrir las alas, porque el "tronco" que mide
+                 centrar.ps1 pasa de ser las patas a ser las alas y el cuerpo
+                 pegaria un salto lateral.
+  tolerancia 35  la misma que en Magnus, y por lo mismo.
+  radio 4        croma: la banda de mezcla del borde son ~7 px.
+  derrame 12     con el 25 de fabrica, el exceso de verde se quedaba CLAVADO en
+                 25 en todos los fotogramas -- justo la trampa que avisa el
+                 README de tools\anim. Bajandolo a 12 el maximo cae a 12 y solo
+                 en unos 50-270 px por fotograma. Aqui se puede apretar sin
+                 miedo porque el bicho es gris azulado y no tiene verde propio.
+
+LA SOMBRA: por que hizo falta una herramienta nueva
+===================================================
+Este video trae una sombra DURA sobre el croma, y eso rompe fondo.ps1. Medido:
+
+                              distancia al color de fondo
+  sombra sola (lejos del bicho)          hasta 122
+  pixel del bicho mas cercano al fondo          46
+
+O sea que se solapan enteras: no hay tolerancia que se coma la sombra sin
+comerse tambien al bicho. En Magnus esto no pasaba y por eso no habia salido
+antes.
+
+Lo que si las separa es el TONO: una sombra es el croma con menos luz,
+(r,g,b) = k*(Rf,Gf,Bf), y el bicho gris azulado no cae en esa recta. Con
+k = g/Gf y residuo = max(|r-k*Rf|, |b-k*Bf|):
+
+  fondo + sombra    residuo <= 24 (percentil 99,9)
+  bicho macizo      residuo 58-74 de mediana
+
+De ahi sale sombra.ps1, que aplana la sombra a color de fondo ANTES de centrar,
+y deja el croma plano para que centrar.ps1 y fondo.ps1 trabajen como siempre.
+
+El umbral solo no bastaba: el negro esta cerca de todas las rectas, asi que las
+patas oscuras y finas de la araña dan residuo 17-19 y el aplanado se colaba por
+ellas y las partia. Por eso sombra.ps1 tiene -Radio: solo se cuela por conductos
+mas anchos que 2*radio. Con radio 3 (el de fabrica) la sombra, que es una mancha
+ancha, entra entera y una pata no. Medido en and_03: sin radio el bicho quedaba
+en 58.462 px partido en 344 trozos; con radio 3, 79.015 px de una pieza.
+
+Se pierden los pelos de las patas, de 1-2 px. A escala de juego no se veian.
+
+Animaciones
+===========
+
+  aracnobat_andando      23 sprites  24 fps  bucle 0,96 s   video  13-35
+  aracnobat_abrir_alas   22 sprites  24 fps  una pasada     video  86-107
+  aracnobat_volando      11 sprites  24 fps  bucle 0,46 s   video 108-118
+  aracnobat_cerrar_alas  16 sprites  24 fps  una pasada     video 212-227
+
+  Cadena:  andando -> abrir_alas -> volando -> cerrar_alas -> andando
+  Vista entera en aracnobat_cadena_sobre14100E.gif (2 andando + abrir + 3 vuelos
+  + cerrar + 2 andando).
+
+Los ciclos se buscaron midiendo, no a ojo: distancia entre siluetas centradas en
+su centroide, para todos los pares (inicio, periodo) del tramo.
+
+CUIDADO CON ESA BUSQUEDA: premia la QUIETUD. El primer ciclo de andar que salio
+fue el 76-85, con un cierre de bucle buenisimo (126 frente a los ~1400 de media)
+-- y era buenisimo porque en ese tramo la araña no se mueve. Medido despues:
+la punta de la pata recorria 0,9 px del master (0,2 en pantalla) y la silueta
+cambiaba un 0,5-1,9 % entre fotogramas. En el juego parecia una calcomania.
+
+El tramo de andar por bloques de diez, en cambio de silueta por fotograma:
+
+   0-9  267    10-19 561    20-29 572    30-39 588    40-49 627
+  50-59 516    60-69 416    70-79  89    80-89 148   <- el 70-89 esta muerto
+
+Asi que hay que buscar con TRES criterios a la vez, no uno:
+  vida    cambio medio de silueta por fotograma dentro del ciclo
+  cierre  distancia del bucle, medida EN PASOS de ese mismo ciclo (no en
+          absoluto: un ciclo vivo tiene pasos grandes y aguanta mas)
+  alto    lo que ocupa de alto, que tiene que caber en la casilla comun
+
+El elegido es 13-35 (23 fotogramas). Comparado con el 76-85:
+
+                              76-85      13-35
+  paso normal entre fotogramas    24        862    (36 veces mas)
+  cierre del bucle           5,2 pasos  1,6 pasos  (y ademas mejor)
+  recorrido de punta de pata    0,0 px    16,6 px  en pantalla a 140 px
+  enganche con abrir_alas    1,0-5,2 p  1,6-2,2 p
+
+El del aleteo es 108->119 con periodo 11.
+
+EL ALTO ES EL QUE APRIETA. En el tramo vivo la araña estira las patas y ocupa de
+la fila 18 a la 709 de las 720 del video: la casilla de 704 se queda con 2 px de
+margen arriba y 0 abajo, y hoja.ps1 avisa. Da igual aqui (sin mipmaps y pintada a
+~0,9 de escala no hay nivel que pueda mezclar casillas), pero por eso no se puede
+coger cualquier tramo: los de 12-15 y 39-42 se salen del cuadro directamente.
+
+abrir_alas empieza en el 86, que es el fotograma siguiente al ultimo del ciclo de
+andar, y termina en el 107, el anterior al que abre el ciclo de vuelo. Esos dos
+enlaces son perfectos por construccion, igual que los arranques de Magnus.
+Sus 9 primeros sprites son todavia araña andando: si se quiere el despliegue
+seco, empezar en c_10.
+
+Enganches (misma medida que en Magnus: diferencia media de color premultiplicado
+x100; lo que hay que comparar es el "paso normal" de cada animacion)
+
+  paso normal entre fotogramas seguidos
+    andando       0,093      abrir_alas    1,909
+    volando       3,192      cerrar_alas   1,719
+
+  cierre del bucle
+    andando       0,419      4,5 pasos suyos, pero en absoluto es minusculo:
+                             el skitter es tan uniforme que cualquier cosa
+                             parece mucho comparada con su paso
+    volando       4,366      1,4 pasos suyos: no se ve
+
+  cadena
+    andando     -> abrir_alas    0,121   = un paso normal (consecutivos)
+    abrir_alas  -> volando       2,237   por debajo de un paso de vuelo
+    volando     -> cerrar_alas   5,343   1,7 pasos de vuelo
+    cerrar_alas -> andando       2,158   el unico salto de verdad
+
+El de aterrizar a andar no se arregla rotando el ciclo: los diez fotogramas del
+skitter estan todos a 2,12-2,16 del final del cierre, asi que no es cuestion de
+fase sino de pose -- al acabar de plegar, al bicho todavia se le ven restos de
+ala y no ha vuelto del todo a la vista cenital. Aun asi 2,158 es menos que un
+paso normal de cualquier animacion con alas. Si molesta, la salida es alargar
+cerrar_alas hasta el fotograma 239 del video (12 sprites mas de bicho posado
+recolocandose) o hacerle una animacion de reposo aparte.
+
+Escala de exportacion: 1/2
+==========================
+Los sprites de 04_limpios se quedan a resolucion completa como MASTER
+(1168x704). Las hojas van a la mitad, como en Magnus:
+
+  casilla exportada  584 x 352 px
+  envergadura        552 px con las alas del todo abiertas
+  memoria de video   48,5 MB las cuatro (5,0 MB en disco)
+
+Ese tamaño es el que conserva calidad, no el que va a hacer falta. 552 px de
+envergadura es casi el doble de ancho que Magnus de alto (330). Si al final es
+un enemigo normal y no un jefe, lo suyo es 1/4:
+
+  .\hoja.ps1 -Job aracnobat_<accion> -Cols <n> -Fps 24 -Escala 4
+  -> casilla 292 x 176, envergadura 276 px, 12,1 MB de memoria de video
+
+1168 y 704 se dividen exactos entre 2 y entre 4, asi que las dos escalas salen
+sin redondeos y sin perder la alineacion entre animaciones.
+
+Margen dentro de la casilla a 1/2 (lo mide hoja.ps1 al terminar): el mas justo
+son 11 px, en abrir_alas c_18. Aguanta el atlas hasta 1/11 de escala en pantalla
+sin que una casilla se mezcle con la vecina.
+
+Donde se usa
+============
+En DOS sitios, con la misma escena (scenes/intro/web_spider.tscn) y sin tocar
+nada mas que sus @export:
+
+  1. EN EL ATAUD (sarcophagus_intro), esquina de arriba a la derecha, en
+     penumbra, a 220 px de envergadura -- algo mas de la mitad de la cucaracha,
+     que mide 395x343, porque esta al fondo y no en el suelo. Ahi NO se le llama
+     nunca a volar(): solo vive en su trozo de telarana. Al dar el puñetazo
+     (grupo "asustadizo" en punch_effect) sale disparada al rincon de arriba,
+     donde el fondo pasa de luminancia 57 a 33 y casi se pierde, y vuelve a
+     rastras a 12 px/s, o sea unos 15 s. El contraste entre el tiron y el
+     regreso es todo el efecto. La cucaracha tiene esa esquina vetada.
+  2. EN EL TITULO, abajo a la derecha del panel, a 140 px.
+
+El resto de esta ficha es del titulo.
+
+En la pantalla de titulo. El bicho vive en la esquina de abajo a la DERECHA del
+panel: dentro de su trozo de telarana pivota sobre el cuerpo y da paseos cortos,
+con paradas largas entre medias, y nunca se sale de esa mancha. Antes de que
+empiece la salida abre las alas y se va despacio, en diagonal, a la telarana de
+la esquina de arriba a la izquierda, donde se posa. Cuando aterriza la camara ya
+esta entrando por el cristal, asi que normalmente no se le ve posarse.
+
+  projects\master_mason\assets\intro\aracnobat_*.png        (las 4 hojas, a 1/4)
+  projects\master_mason\scripts\intro\web_spider.gd        (como se mueve)
+  projects\master_mason\scenes\dev\piloto_titulo_arana.tscn (capturas para revisar)
+
+LA MEZCLA DE VISTAS NO DA PROBLEMA, y esto fue la sorpresa. El cambio de cenital
+a frontal esta DENTRO de abrir_alas: sus nueve primeros sprites son todavia la
+araña vista desde arriba y ahi mismo se yergue y se pone de cara. O sea que la
+animacion ya trae el gesto de despegar de una pared. En el codigo solo hay que
+acompanarlo: durante esos nueve sprites se deshace el giro que la tenia tumbada
+en la telarana, y en cerrar_alas se vuelve a poner. Las cuatro comparten casilla,
+asi que encadenarlas es cambiar de textura y nada mas.
+
+LO QUE NO FUNCIONO: MANDARLA AL FONDO. Hubo una version en la que en vez de ir a
+la otra esquina se metia por el cristal, encogiendo hacia el punto por el que
+entra despues la camara. Sobre el papel es mejor idea; en pantalla queda mal, y
+la razon es que detras hay un cuadro PLANO. Sin nada que se mueva en paralaje, un
+sprite que se reduce no lee como que se aleja, lee como que le estan bajando el
+tamano. Se probo con las dos curvas separadas y juntas y con varios finales
+(0,10 y 0,16 del tamano): el problema no era el ajuste. Ahora el vuelo va por el
+plano del panel y no finge ninguna profundidad.
+
+LO QUE SI HACE QUE VUELE en vez de deslizarse es el bamboleo: sube y baja
+enganchado al fotograma del aleteo (no a un seno suelto), asi que gana altura
+justo cuando el ala baja, y se apaga en los dos extremos, que es donde despega y
+donde se posa.
+
+EL VUELO VA ARQUEADO POR ABAJO a proposito. La diagonal recta de esquina a
+esquina cruza de lleno el bloque de letras, y ahi el shader del titulo esta
+aplanando todo lo que cae en su rectangulo (x 990-1733, y 545-995): al bicho le
+apagaria las alas justo al pasar. Con el punto de control en (1250, 1100) solo lo
+roza por debajo del renglon de MASON.
+
+ESCALA 1/4, NO 1/2. A 140 px de envergadura posada (que es como va), la hoja de
+1/2 tiene el doble de resolucion de la que se ve, y las cuatro juntas se comian
+51 MB de memoria de video en una pantalla de titulo. A 1/4 el sprite sigue yendo
+a 155 px de origen para 140 de destino, o sea reduciendo.
+
+  .\hoja.ps1 -Job aracnobat_<accion> -Cols <n> -Fps 24 -Escala 4
+  casilla 292 x 176 px    araña posada 155 px    envergadura en vuelo 276 px
+
+A 1/4 hoja.ps1 avisa de que el margen de la casilla baja a 5-7 px en tres de las
+cuatro. No importa aqui: esas hojas se importan SIN MIPMAPS (que es el valor por
+defecto de Godot en este proyecto) y se pintan a ~0,9 de escala, o sea casi 1:1,
+asi que no hay nivel de mipmap que pueda mezclar casillas vecinas. Si alguna vez
+se usan mas pequenas, volver a 1/2 o dejar mas margen en centrar.ps1.
+
+Lo que falta
+============
+1. EN UN ESCENARIO DE VISTA LATERAL seguiria sin encajar. Lo del titulo funciona
+   porque es un panel visto de frente: el bicho esta pegado a una pared que mira
+   a camara. Si algun dia es un enemigo del juego, habria que regenerar el video
+   en vista lateral.
+2. No hay animacion de reposo, ni de ataque, ni de muerte.
+3. En el titulo la quietud se hace por codigo: no reproduce el ciclo de andar a
+   fps fijo, sino que gasta un fotograma por cada 1,5 px recorridos o 1,6 grados
+   girados, asi que las patas solo se mueven cuando el cuerpo se mueve. Esos dos
+   numeros NO salen de medir el paso: en el video la araña anda en el sitio y no
+   hay paso que medir (la punta de la pata recorre 16,6 px en pantalla por ciclo,
+   y usar eso daria 86 fotogramas por segundo al andar). Estan puestos para que
+   un paseo tipico gaste ciclo y medio de patas. Si el bicho llega a ser un
+   enemigo de verdad, querra su propia animacion de reposo.
+4. Con el ciclo vivo las patas van estiradas, o sea mas finas, y a tamano de
+   juego contrastan menos que con el ciclo muerto (donde iban recogidas y
+   gruesas). La cobertura es la misma (74.499 px frente a 74.693). Si se quiere
+   que se lean mas, el unico numero es alto_px en web_spider.gd.
+4. La membrana del ala es palida y azulada de origen. El tinte la acerca al tono
+   de la sala (queda en 1 / 0,605 / 0,280 frente al 1 / 0,546 / 0,216 del panel)
+   pero no la iguala: modulate solo multiplica, no satura. Si alguna vez molesta,
+   hace falta un shader, no otro color.

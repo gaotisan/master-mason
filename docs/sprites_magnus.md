@@ -132,12 +132,12 @@ El `.tres` se genera por script, no a mano: son 658 `AtlasTexture`, uno por
 casilla usada de cada hoja. Una hoja puede dar varias animaciones y una
 animacion puede repetir casillas (lista de indices: la ida y vuelta del
 agachado). El generador es
-`godot/tools/anim/_spriteframes.py`, y ahi estan tambien los **fps de cada
+`tools/anim/_spriteframes.py`, y ahi estan tambien los **fps de cada
 animacion**, que no tienen por que ser los del video:
 
 ```powershell
-cd C:\Users\santiago.ochoa\godot\tools\anim
-python _spriteframes.py "..\..\projects\master_mason\resources\characters\magnus_frames.tres"
+cd C:\Users\santiago.ochoa\godot\projects\master_mason\tools\anim
+python _spriteframes.py "..\..\resources\characters\magnus_frames.tres"
 ```
 
 Los saltos son el caso claro: los videos vienen a camara lenta (31 fotogramas de
@@ -271,7 +271,7 @@ Las hojas y los sprites **no estan en el repo**. Viven fuera, igual que las
 fuentes de audio:
 
 ```
-godot\raw\master_mason\anim\magnus_<accion>\   una carpeta por animacion
+raw\master_mason\anim\magnus_<accion>\   una carpeta por animacion
     04_limpios\   sprites sueltos a 584x720  <- MASTER, no se importa
     05_salida\    magnus_<accion>_sheet.png  <- la rejilla, fuente del atlas
                   magnus_<accion>_atlas.json <- donde quedo cada fotograma
@@ -282,7 +282,7 @@ Al repo sube el **atlas** que `_spriteframes.py` saca de esa rejilla (ver
 nombre de la hoja. La rejilla no se copia a mano.
 
 Los parametros del personaje y el porque de cada numero estan en
-`godot\raw\master_mason\anim\magnus_comun.txt`.
+`raw\master_mason\anim\magnus_comun.txt`.
 
 ## Las animaciones
 
@@ -1092,11 +1092,11 @@ empaqueta la hoja, la deja en `assets/characters/magnus/`, le pone al `.import`
 compresion y mipmaps (Godot, por su cuenta, crea las hojas nuevas sin mipmaps) y
 escribe el `.tres`. Despues, `godot --headless --import`.
 
-Las herramientas estan en `godot\tools\anim\` (ver su README). Para una accion
+Las herramientas estan en `tools\anim\` (ver su README). Para una accion
 nueva de Magnus, con los mismos numeros:
 
 ```powershell
-cd C:\Users\santiago.ochoa\godot\tools\anim
+cd C:\Users\santiago.ochoa\godot\projects\master_mason\tools\anim
 .\nuevo.ps1    -Job magnus_<accion> -Fuente <video.mp4>
 .\frames.ps1   -Job magnus_<accion>
 .\contacto.ps1 -Job magnus_<accion>
@@ -1104,8 +1104,7 @@ cd C:\Users\santiago.ochoa\godot\tools\anim
 .\centrar.ps1  -Job magnus_<accion> -Ancho 584 -Alto 720 -MargenSuelo 30
 .\fondo.ps1    -Job magnus_<accion> -Tolerancia 35 -Radio 4
 .\hoja.ps1     -Job magnus_<accion> -Cols <n> -Fps <n> -Escala 2
-python _spriteframes.py "..\..\projects\master_mason
-esources\characters\magnus_frames.tres"
+python _spriteframes.py "..\..\resources\characters\magnus_frames.tres"
 ```
 
 Con mas de 99 fotogramas no pasa nada: `elegir.ps1` y `centrar.ps1` numeran con

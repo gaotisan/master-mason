@@ -1,0 +1,143 @@
+Caida de Magnus: como se monto (cuatro estados de un solo video)
+================================================================
+Fuente: _fuentes/Character_falling_and_standing_up.mp4 (240 fotogramas, 24 fps,
+1280x720, croma verde con sombras). El personaje aparece en el aire de frente,
+cae, choca contra el suelo, queda tumbado, se incorpora y acaba de pie de perfil
+mirando a la DERECHA, igual que el resto de sprites de Magnus.
+
+Los fotogramas en bruto y las hojas de contacto estan SOLO en este job
+(magnus_caida/01_frames y 02_contacto). Los otros tres jobs eligen de aqui con
+elegir.ps1 -Desde "..\magnus_caida\01_frames" (su seleccion.txt lo apunta).
+
+Que hay en el video (numeros de 02_contacto):
+
+    1-16   flota con los brazos en cruz, sin bajar (se descarta)
+   17-33   desciende, brazos arriba, piernas encogidas
+   34-38   toca suelo agachado y se desploma de bruces
+   39-53   se asienta tumbado
+   54-81   quieto, tumbado (identicos: el area opaca varia < 0,2 %)
+   82-145  se incorpora de frente, empujando con los brazos, hasta rodillas
+  146-180  de rodillas, sube una pierna
+  181-206  se pone de pie y gira a perfil
+  207-240  quieto de perfil (identicos)
+
+Estados y fotogramas:
+
+  magnus_cayendo     bucle       25-32 y vuelta 31-26 (ping-pong, 14 sprites)
+  magnus_caida       una pasada  33-53 (21 sprites): impacto y desplome
+  magnus_tumbado     quieto      60 (1 sprite)
+  magnus_levantarse  una pasada  82-206 de dos en dos (63 sprites, a 20 fps = 3,15 s)
+
+Cadena:  (cualquiera) -> cayendo -> caida -> tumbado -> levantarse -> reposo
+
+Enganches, medidos como distancia media entre sprites (misma idea que en
+magnus_comun.txt; aqui el paso normal entre dos sprites seguidos de levantarse
+vale 0,06-0,11 y el de respirando 0,02-0,05):
+
+  cayendo c_08 -> caida c_01          0,34   son fotogramas seguidos del video
+                                             (el paso propio de caida ahi es 0,37)
+  caida c_21    -> tumbado            0,017  ruido
+  tumbado       -> levantarse c_01    0,025  ruido
+  levantarse c_63 -> respirando c_01  0,13   un paso normal: no se nota.
+                                             Superpuestas las siluetas coinciden.
+
+Cosas de este video que el flujo normal no resuelve solo:
+
+1. NO CABE EN LA CASILLA COMUN. Tumbado mide 678 px de ancho (la comun es
+   584). Los cuatro estados llevan casilla propia de 760x720 (380x360 en la
+   hoja), compartida entre ellos, con el suelo en la misma fila que el resto
+   de Magnus. En el juego habra que compensar el offset al entrar y salir de
+   estas animaciones, como ya hace magnus.gd con el salto corriendo
+   (offset_salto_correr): la casilla es 176 px mas ancha que la comun en el
+   master (88 en la hoja), centrada en el mismo eje, y de la misma altura.
+
+2. CADA ESTADO MIDE SU SUELO EN FOTOGRAMAS DISTINTOS. centrar.ps1 ancla el
+   pixel mas bajo de cada job a -MargenSuelo, pero el mas bajo de cayendo esta
+   en el aire y el de tumbado es la barriga. Para que los cuatro compartan
+   fila se paso a cada uno un -MargenSuelo distinto, calculado para que el
+   recorte vertical fuera el mismo (el video no panea):
+
+     suelo de referencia 673 (pies de pie, ultimo fotograma de levantarse)
+     levantarse 673 -> 47     caida 671 -> 49
+     tumbado    672 -> 48     cayendo (sombra) 655 -> 65
+
+   El video mide 720 de alto y la casilla tambien, asi que en vertical el
+   recorte es el video entero (y=0).
+
+3. EL SUELO DEL VIDEO NO ES EL DEL REPOSO. Como en magnus_giro: respirando
+   apoya los pies en la fila 677 y aqui salian en 673. Se bajaron los cuatro
+   estados 4 px (alinear.py --bajar 4). Comprobado: levantarse c_63 pies en 677,
+   cabeza en 54 (respirando 50: el personaje mide 624 aqui y 628 alli, 0,6 %).
+   Eje del tronco en x 377 de 760 (centro 380); respirando en 293,5 de 584
+   (centro 292). 4,5 px de master de diferencia, 2 en la hoja.
+
+4. EL BUCLE EN EL AIRE DESCIENDE. En los fotogramas 25-32 la cabeza baja de la
+   fila 76 a la 217. Un bucle no puede llevar ese desplazamiento (lo pone la
+   fisica), asi que se fija la cabeza de todos en la fila del 32 (alinear.py
+   --cabeza 221, ya con los 4 px). El 32 es el que enlaza con caida c_01, que
+   conserva su posicion real: el paso de uno a otro es el del video.
+   El ping-pong 25-32-25 es porque la pose no es ciclica: ida y vuelta evita
+   el salto al cerrar el bucle y se lee como bracear en el aire.
+
+5. SOMBRAS EN EL CROMA, como en el salto de piedra: -Tolerancia 70 -Radio 4.
+   Con eso no quedo ninguna. Motas 1-31 por fotograma, todas se fueron.
+
+6. LA CASILLA SE ENSANCHO DESPUES. Se centro a 720 y hoja.ps1 aviso de 7 px
+   de margen en caida c_17 (el brazo estirado). Se anadieron 20 px
+   transparentes por lado (alinear.py --ensanchar 20), que es lo mismo que
+   haber centrado a 760 porque esas columnas son fondo en todos los
+   fotogramas. Ojo: _con_fondo/ y _sin_alinear/ siguen a 720; si hay que
+   rehacer desde ahi, centrar directamente con -Ancho 760.
+
+7. VOLTEO: NO HACE FALTA. En la hoja de contactos pequena parecia que acababa
+   mirando a la izquierda y se voltearon todos; comparado a tamano real con
+   respirando c_01, mira a la derecha. Se deshizo el volteo sobre los sprites
+   ya recortados (el recorte es simetrico al eje del tronco, asi que es lo
+   mismo que no haber volteado). Los PNG de 03_seleccion vuelven a ser los
+   originales.
+
+8. VELOCIDAD. Levantarse son 125 fotogramas a 24 fps (5,2 s): largo para el
+   juego. Se cogen los pares (63). A 24 fps (2,6 s) se vio un pelin rapido y se
+   dejo en 20 fps (3,15 s); 12 fps devuelve la duracion original. La caida (21 a 24 fps, 0,9 s)
+   y el bucle en el aire (14 a 24 fps, 0,58 s) van a velocidad de video.
+
+Sin arreglar a proposito: en levantarse 11-14 y 41-47 hay tiras verde oscuro
+dentro del abrigo (12: 32 px, 41: 44, 43: 52, 45: 32). Son forro del propio
+abrigo en el render, no croma (el croma es 33,211,52 y esto es verde apagado),
+y a tamano de juego son 1-2 px.
+
+Pasos (desde tools\anim):
+  nuevo.ps1  -Job magnus_caida -Fuente "$HOME\Downloads\Character_falling_and_standing_up.mp4"
+  frames.ps1 -Job magnus_caida ; contacto.ps1 -Job magnus_caida -Cols 8 -Filas 6 -AnchoCasilla 200
+  nuevo.ps1  -Job magnus_cayendo / magnus_tumbado / magnus_levantarse  (misma -Fuente)
+  elegir.ps1 -Job magnus_caida      -Frames "33-53"
+  elegir.ps1 -Job magnus_cayendo    -Desde "..\magnus_caida\01_frames" -Frames "25-32,31,30,29,28,27,26"
+  elegir.ps1 -Job magnus_tumbado    -Desde "..\magnus_caida\01_frames" -Frames "60"
+  elegir.ps1 -Job magnus_levantarse -Desde "..\magnus_caida\01_frames" -Frames "82,84,...,206"
+  centrar.ps1 -Job <job> -Ancho 720 -Alto 720 -MargenSuelo <47|49|48|65>   (mejor: -Ancho 760)
+  fondo.ps1   -Job <job> -Tolerancia 70 -Radio 4
+  python magnus_caida\alinear.py <job>\04_limpios --bajar 4        (cayendo: --cabeza 221)
+  python magnus_caida\alinear.py <job>\04_limpios --ensanchar 20   (sobra si se centro a 760)
+  hoja.ps1 -Job magnus_cayendo    -Cols 7 -Fps 24 -Escala 2
+  hoja.ps1 -Job magnus_caida      -Cols 7 -Fps 24 -Escala 2
+  hoja.ps1 -Job magnus_tumbado    -Cols 1 -Fps 1  -Escala 2
+  hoja.ps1 -Job magnus_levantarse -Cols 8 -Fps 24 -Escala 2
+
+Pendiente (integracion en el juego, NO hecha): linea en _spriteframes.py con
+casilla propia (380, 360) para los cuatro, offset al entrar y salir en
+magnus.gd, godot --import y mipmaps/generate=true en los .import nuevos.
+
+SONIDO. El video trae audio y se usa entero: aire del descenso, golpe y roce al
+levantarse. Se sacan con raw/master_mason/audio/magnus/construye.py (seccion
+CAIDA): el golpe cae en el video en 1,613 s = sprite 6,7 de caida, asi que
+magnus.gd lo dispara al entrar el sprite 7 (golpe_sprite); el aire se recorta
+para acabar en el golpe y se arranca caida_duracion antes del impacto; el roce
+de levantarse va acelerado x1,65 con atempo para durar los 3,15 s de la
+animacion. Comprobado en la grabacion del juego: tween acaba en 1,383 s, el
+golpe suena en 1,690 s (sprite 7 = 1,675 + 15 ms de latencia de frame_changed),
+tumbado 2,27-4,12 s, levantarse hasta 7,12 s, pies en 1192 (reposo 1193).
+
+INTEGRADO EN EL JUEGO (ya no es pendiente): _spriteframes.py con CASILLA_CAIDA,
+magnus.gd (estados CAYENDO..LEVANTARSE, caer_desde_arriba, sonidos) y
+dark_stage.gd (caida_al_empezar). Ver docs/sprites_magnus.md, "Como encadenan".
+

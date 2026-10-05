@@ -1,0 +1,12 @@
+﻿animacion:  magnus_arranque_agachado
+origen:     04_limpios
+hoja:       magnus_arranque_agachado_sheet.png
+casilla:    292 x 360 px
+escala:     1/2   (master en 04_limpios: 584 x 720)
+hframes:    7
+vframes:    4
+fotogramas: 27   (las 1 casillas sobrantes van vacias)
+fps:        20
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 27.

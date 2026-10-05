@@ -1,0 +1,11 @@
+﻿job:     magnus_andar_agachado
+creado:  2026-09-28 23:30
+fuente:  Hooded_figure_crouching_and_walking_20260928232811.mp4
+nota:    agachado, anda agachado (video sin el control del reproductor). Solo un ciclo. Motas en el fondo; no usar el audio
+
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

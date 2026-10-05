@@ -1,0 +1,11 @@
+﻿job:     magnus_giro_agachado_video
+creado:  2026-10-05 17:14
+fuente:  Wizard_turning_in_place_20261005171117.mp4
+nota:    giro agachado en video (Flow), para sustituir al de 5 vistas; no usar el audio si trae musica
+
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

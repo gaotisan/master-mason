@@ -1,0 +1,40 @@
+magnus_aterrizaje_correr: como se monto
+=======================================
+Cola del salto corriendo. Mismo video que magnus_salto_corriendo (_fuentes/nuevo
+salto de piedra.mp4), fotogramas 166-199: sigue al 165, que es el ultimo de la
+animacion del salto, y va de la zancada de la toma de suelo a quedarse de pie
+(del 200 en adelante esta quieto, con las manos caidas). Se eligen desde
+..\magnus_salto_corriendo\01_frames, aqui no hay fotogramas en bruto.
+
+Solo se ve si se SUELTA la direccion en el aire: con ella pulsada, al tocar
+suelo magnus.gd pasa directo al ciclo de correr (ver docs/sprites_magnus.md).
+
+  elegir.ps1  -Job magnus_aterrizaje_correr -Desde "..\magnus_salto_corriendo\01_frames" -Frames "166-199"
+  centrar.ps1 -Job magnus_aterrizaje_correr -Ancho 584 -Alto 720 -MargenSuelo 30
+  fondo.ps1   -Job magnus_aterrizaje_correr -Tolerancia 70 -Radio 4
+  python limpia_pies.py
+  hoja.ps1    -Job magnus_aterrizaje_correr -Cols 7 -Fps 60 -Escala 2
+
+Casilla comun (de pie cabe de sobra; el fotograma mas ancho, c_01, deja 18 px de
+margen en la hoja). El suelo salio solo en la fila buena: pies en 677 en c_01,
+igual que respirando y que el ultimo sprite del salto (15 px sobre su linea de
+770), asi que no hubo que bajar nada.
+
+Restos que dejo el keyeado y quita limpia_pies.py (medidos en _sin_limpiar/):
+  - la sombra del polvo al aterrizar, c_01-05: un reguero OPACO verde muy oscuro
+    (24,41,37) en las filas 660-720 junto al pie delantero
+  - una bolsa de croma entre las piernas, c_16-17, filas 540-660: opaca y
+    oscurecida por el despill, (39,60,57), unos 1000 px, que fondo.ps1 no
+    reconocio como bolsa
+  Se borra de la fila 520 hacia abajo todo pixel verdoso y oscuro (g > r+12 y
+  max(rgb) < 110): el abrigo es marron, las piernas gris neutro. Los brillos
+  gris-verdosos de la capucha quedan por encima de la fila 240 y no entran.
+
+Enganches (distancia media entre sprites, misma medida que en las otras notas):
+  salto c_38 -> c_01          0,133   igual que el paso propio de esta cola (0,13)
+  c_34 -> respirando c_01     0,096   (el mejor de respirando es el f4, 0,069)
+  paso normal de la cola      0,064 mediana, 0,13 al principio
+
+MOTAS (2026-09-29). Quedaban trocitos sueltos de la sombra verde del polvo junto
+a los pies (c_01-05, c_16-17, c_20), de 1 a 57 px: quitados con
+tools/anim/motas.py (20 manchas, copia en _sin_motas/).

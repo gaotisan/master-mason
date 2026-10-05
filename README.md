@@ -76,9 +76,10 @@ y sale. Las imágenes quedan en `%APPDATA%\Godot\app_userdata\Master Mason\`.
 
 ## Sprites de personajes
 
-Igual que el audio: el material en bruto (vídeos, fotogramas, sprites sueltos a
-resolución completa) está fuera del repo, en `godot\raw\master_mason\anim\`.
-Aquí solo entran las hojas finales, en `assets/characters/`.
+El material en bruto (vídeos, fotogramas, sprites sueltos a resolución completa)
+está en `raw/master_mason/anim/`, una carpeta por animación, y las herramientas en
+`tools/anim/`. Las dos carpetas llevan `.gdignore`: Godot no las ve, no las importa
+ni las exporta. El juego solo usa las hojas finales, en `assets/characters/`.
 
 Antes de montar una animación en Godot, leer **[docs/sprites_magnus.md](docs/sprites_magnus.md)**:
 casilla, línea de suelo, `offset` del nodo, ajustes de importación y los dos avisos
@@ -86,5 +87,5 @@ que hay sobre el material actual.
 
 ## Fuentes de audio
 
-Los mp3 originales, wav intermedios y grabaciones están fuera del repo, en
-`godot\raw\master_mason\audio\`. Aquí solo van los ogg/wav finales de `assets/audio/`.
+Los mp3 originales, wav intermedios y grabaciones están en `raw/master_mason/audio/`
+(fuera de lo que ve Godot). El juego usa los ogg/wav finales de `assets/audio/`.

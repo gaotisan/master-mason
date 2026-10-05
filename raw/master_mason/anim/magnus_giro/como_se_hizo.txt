@@ -1,0 +1,90 @@
+YA NO SE USA (2026-10-05): el usuario lo veia "a saltitos y a una velocidad rara
+comparado con como anda". El giro de pie del juego es magnus_giro_pie_video.
+
+magnus_giro: como se monto
+==========================
+No sale de un video. Sale de _fuentes/giro360.jpeg, una hoja de rotacion de 5
+poses generada por IA con el prompt de _fuentes/prompt_giro.txt, adjuntando
+referencia_magnus_perfil.png.
+
+Pasos, por si hay que rehacerlo:
+
+1. Separar las 5 poses de la hoja. Al recortar cada una hay que LIMITAR el
+   muestreo al recorte de esa pose: si no, al colocarlas en un lienzo mas ancho
+   se cuela la pose vecina por los lados.
+
+2. Reducirlas para que el personaje mida 628 px de alto, que es lo que mide en
+   magnus_respirando (sus 30 fotogramas miden 628 exactos). centrar.ps1 alinea
+   pero NO reescala, asi que esto va antes y a mano.
+
+3. Dejarlas en un lienzo holgado (1000x860, suelo a 100). Si el lienzo mide justo
+   584, centrar.ps1 no tiene margen para desplazar y avisa de que toca el borde.
+
+4. centrar.ps1 -Job magnus_giro -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+   fondo.ps1   -Job magnus_giro -Tolerancia 35 -Radio 4
+
+5. COMPROBAR EL ORDEN. La hoja no vino ordenada: se pidieron 0, 22, 45, 67 y 90
+   grados y llegaron 0, 22, 45, 135 y 90. Se detecta midiendo la simetria de
+   cada pose (distancia consigo misma volteada, tiene que bajar hasta el frontal
+   y subir) y cruzando cada pose con el espejo de las demas (un valor bajo fuera
+   de la diagonal delata que una es el espejo de otra).
+
+6. Quedarse con los pasos de 45 grados: 0, 45, 90, 135 y el de 0 espejado como
+   180. El espejo va contra el CENTRO DE LA CASILLA, no contra el eje propio de
+   la pose, porque es lo que hace flip_h. Las de 22 grados se descartan: sin la
+   de 67, meterlas deja los pasos en 15, 8, 17, 17, 10, 15 y se ve acelerar al
+   pasar por delante. Con solo las de 45: 17, 17, 17, 18.
+
+7. hoja.ps1 -Job magnus_giro -Cols 5 -Fps 20 -Escala 2
+
+8. En tools/anim/_spriteframes.py esta la linea de la animacion, y se regenera
+   el .tres. El PNG nuevo hay que importarlo en Godot: godot --headless --import
+
+Pendiente: si se consigue la pose de 67 grados que falta, con ella y su espejo
+salen 9 fotogramas a 22,5 grados de paso, igual de uniformes y mas suaves.
+
+
+DOS AJUSTES QUE HAY QUE HACER SIEMPRE, Y QUE NO SON OBVIOS
+==========================================================
+Los dos se notaron como "los pies centellean" al reproducir el giro.
+
+A) EL COLOR DE LOS PIES ALTERNABA
+   La IA ilumino los pies distinto en cada pose. Medido sobre la banda inferior,
+   solo pixeles opacos y calidos (r-g > 15, que separa el pie de la pierna, que
+   es gris neutro con r=g):
+
+      0 grados  lum 70,0     45  89,4     90  68,1     135  91,6     180  70,0
+
+   O sea 34% de variacion alternando oscuro-dorado-oscuro-dorado. El cuerpo
+   entero, en cambio, solo variaba un 3%: era cosa de los pies.
+
+   Se corrige con una ganancia por canal sobre la piel del pie (de la pantorrilla
+   para abajo), llevando cada pose a la media de los pies del reposo, que es la
+   referencia porque el giro empieza y acaba en esa pose. Los dominantes eran
+   (120,75,75) en las claras contra (90,60,60) del reposo. Tras corregir, 0,4%.
+
+B) LA LINEA DE SUELO NO COINCIDIA CON EL RESTO
+   centrar.ps1 ancla el suelo MEDIDO a -MargenSuelo del borde, y en un video ese
+   suelo lo marca el pie de apoyo, que queda por debajo del pixel mas bajo de un
+   fotograma de pie. Con cinco poses quietas, el suelo medido ES el pixel mas
+   bajo. Resultado: el giro quedaba en y=690 y el reposo en y=677, clavado en sus
+   30 fotogramas. El personaje bajaba 13 px al entrar en el giro y subia al
+   salir.
+
+   Se corrige desplazando los cinco fotogramas 13 px hacia arriba, hasta 677.
+   Si se rehace el trabajo hay que volver a medirlo: el numero sale de comparar
+   el pixel mas bajo del giro con la moda del de magnus_respirando.
+
+C) LA TUNICA ESTABA MAS CLARA Y MAS ROJA (2026-09-24)
+   Se notaba al girar: el abrigo se encendia y se apagaba. Medido sobre los
+   pixeles calidos del abrigo (media RGB): reposo (95,70,62), andar (96,70,63);
+   giro c_01 (100,70,65), c_02 (103,71,66), c_03 (105,72,66), c_04 (106,72,67),
+   c_05 (100,70,65). Hasta un 11 % mas de valor y un 19 % mas de rojo sobre azul
+   en el frontal. Capucha y barba no estaban desviadas.
+   Se corrige con igualar_color.py: ganancia por canal que lleva la media de la
+   tunica de cada sprite a la del reposo, aplicada en proporcion a la saturacion
+   (solo lo calido, sin borde entre paneles) y solo por encima de la fila 640
+   (los pies ya se habian igualado en A). Copia previa en _sin_igualar_color/.
+   Tras corregir, las cinco quedan en (92-93, 67-68, 60-61), a 2 del reposo (la
+   mascara de "tunica" cambia un poco al corregir, por eso no clava); el enganche
+   con el reposo pasa de 0,077 a 0,073. Si se rehace el job hay que volver a pasarlo.
