@@ -98,9 +98,10 @@ extends Node2D
 @export var corte_arranque_correr: int = 22
 ## Girar con la animacion de giro en vez de voltear el sprite de golpe.
 ##
-## La animacion son 5 fotogramas a 20 fps (0,25 s): perfil, 45, 90 (frontal),
-## 135 y el perfil del otro lado. Salen de una hoja de rotacion dibujada aparte,
-## no de un video. El volteo del sprite se hace al TERMINAR, no al empezar: durante el
+## La animacion sale de un video: un giro de espaldas a la camara, con dos
+## pasos, entero y a su ritmo (47 fotogramas a 30 fps, 1,6 s; antes eran 5
+## vistas de IA en 0,25 s y se veia brusco). Empieza y acaba en el
+## reposo. El volteo del sprite se hace al TERMINAR, no al empezar: durante el
 ## giro se conserva el flip_h que hubiera, y por eso la misma animacion sirve
 ## para los dos sentidos -- volteada se lee de izquierda a derecha.
 ##
@@ -375,7 +376,9 @@ var _esperando_llegada := false
 ## (arranque_agachado), anda (andar_agachado) y, soltando la direccion o la tecla
 ## abajo, sigue hasta un punto del paso desde el que la parada casa y se para
 ## (parada_agachado), que acaba en el agachado; sin la tecla abajo, ahi se
-## levanta. Hacia atras no hace nada: agachado no se gira, hay que levantarse.
+## levanta. Quieto y agachado, la direccion contraria lo gira sin levantarse
+## (giro_agachado, de un video: 65 fotogramas a 24 fps, 2,8 s, por detras, todos
+## a su ritmo; voltea al terminar); andando agachado no, primero se para.
 ## El ciclo va movido por la distancia, como andar y correr, para que los pies no
 ## patinen: velocidad y avance no son libres, velocidad = 20 * avance da 3 ticks
 ## de fisica justos por fotograma (20 fotogramas por segundo, algo mas lento que
@@ -455,13 +458,14 @@ enum Estado { REPOSO, ARRANQUE_ANDAR, ANDAR, PARADA_ANDAR,
 			  ARRANQUE_CORRER, CORRER, PARADA_CORRER, SALTAR, GIRO,
 			  CAYENDO, CAIDA, TUMBADO, LEVANTARSE, ATERRIZAJE_CORRER,
 			  AGACHANDO, AGACHADO, INCORPORANDO, ARRANQUE_AGACHADO, ANDAR_AGACHADO,
-			  PARADA_AGACHADO }
+			  PARADA_AGACHADO, GIRO_AGACHADO }
 
 ## Estados de la cinematica de entrada: sin control del jugador.
 const CINEMATICA := [Estado.CAYENDO, Estado.CAIDA, Estado.TUMBADO, Estado.LEVANTARSE]
 ## Agacharse: bajando, agachado (bucle) y levantandose.
 const AGACHADO := [Estado.AGACHANDO, Estado.AGACHADO, Estado.INCORPORANDO,
-					Estado.ARRANQUE_AGACHADO, Estado.ANDAR_AGACHADO, Estado.PARADA_AGACHADO]
+					Estado.ARRANQUE_AGACHADO, Estado.ANDAR_AGACHADO, Estado.PARADA_AGACHADO,
+					Estado.GIRO_AGACHADO]
 ## "agacharse" es un puente de 5 sprites (el final del levantarse al reves: la
 ## pose de pie de este video va mas encorvada que el reposo, 0,168, y el final
 ## de su levantarse no, 0,072), la bajada real hasta el c_038 y, para asentarse,
@@ -474,9 +478,11 @@ const AGACHADO := [Estado.AGACHANDO, Estado.AGACHADO, Estado.INCORPORANDO,
 const AGACHARSE_SUBE_DESDE := 43
 const AGACHARSE_A_INCORPORARSE := [2, 2, 1, 1, 0, 0]
 ## Fotograma del bucle "agachado" que va justo antes del primero de
-## "incorporarse" (el 139 del video): por ahi se vuelve al bucle si se deshace
-## el levantarse hasta el final.
-const AGACHADO_ANTES_DE_SUBIR := 27
+## "incorporarse" (el c_089, 139 del video): por ahi entra al bucle al acabar de
+## agacharse y se vuelve a el si se deshace el levantarse hasta el final. El
+## bucle es la ida y vuelta c_077..c_089 (24 fotogramas, 12 fps): en el tramo
+## entero del video la cabeza daba saltitos de 1 px.
+const AGACHADO_ANTES_DE_SUBIR := 12
 ## Andar agachado. Andando agachado va mas erguido y con la zancada abierta:
 ## ningun fotograma del ciclo (42) casa con el agachado quieto (a 4,7-5,6 pasos), por
 ## eso hay arranque y parada, sacados del mismo video. Medidos sobre los sprites
@@ -491,7 +497,7 @@ const AGACHADO_ANTES_DE_SUBIR := 27
 const ENTRADA_AGACHADO := 21
 ## fotograma del ciclo -> fotograma de parada_agachado por el que se entra.
 const PARADA_AGACHADO_DESDE := {40: 0, 41: 0, 0: 0, 1: 1, 2: 2, 3: 4}
-const PARADA_AGACHADO_A_AGACHADO := 20
+const PARADA_AGACHADO_A_AGACHADO := 5
 ## Hasta este fotograma del arranque aun no ha movido los pies: soltar lo deja
 ## agachado sin mas. Luego el paso ya esta dado y se termina.
 const ARRANQUE_AGACHADO_QUIETO := 3
@@ -633,7 +639,7 @@ func _physics_process(delta: float) -> void:
 		_cambiar(Estado.AGACHANDO)
 		return
 
-	# Girando no se acepta nada: son 0,25 s, y cortarlo a medias deja al
+	# Girando no se acepta nada: cortarlo a medias deja al
 	# personaje mirando a un sitio con el sprite de otro. Un salto pedido
 	# mientras tanto se guarda vivo y sale al terminar el giro (_al_terminar).
 	if _estado == Estado.GIRO:
@@ -641,8 +647,8 @@ func _physics_process(delta: float) -> void:
 			_salto_pedido = _reloj
 		return
 
-	# Soltar la tecla lanza la frenada. Tambien durante el arranque: si no, un
-	# toque corto dejaria al personaje 1,4 s andando solo antes de hacer caso.
+	# Soltar la tecla lanza la frenada. En los arranques, pasada la zona muerta,
+	# se termina el arranque y se para desde el ciclo (ver abajo).
 	if is_zero_approx(direccion):
 		_giro_pendiente = 0.0   # soltar cancela el cambio de sentido
 		var arrancando := _estado == Estado.ARRANQUE_ANDAR or _estado == Estado.ARRANQUE_CORRER
@@ -659,11 +665,23 @@ func _physics_process(delta: float) -> void:
 		elif _estado == Estado.ANDAR:
 			_pedir_parada_andar()
 		elif _estado == Estado.ARRANQUE_ANDAR:
-			_cambiar(Estado.PARADA_ANDAR)
+			# Pasada la zona muerta el paso ya esta dado, y se termina. Ningun
+			# fotograma del primer paso del arranque casa con la parada (1,9-2,6
+			# pasos; el tope es tolerancia_parada_andar, 1,3): cortar aqui era un
+			# salto de pose, "hace el movimiento, se corta y reinicia". Sigue el
+			# arranque, entra al ciclo por su corte y ahi _pedir_parada_andar
+			# espera el primer apoyo que case (el 24-25 del ciclo): un toque
+			# corto da un paso entero, unos 0,7 s, y se para con su animacion.
+			pass
 		elif _estado == Estado.CORRER:
 			_pedir_parada_correr()
 		elif _estado == Estado.ARRANQUE_CORRER:
-			_cambiar(Estado.PARADA_CORRER)
+			# Lo mismo corriendo: ningun fotograma del arranque casa con la
+			# parada (1,6-2,4 pasos), y entrar en ella aqui era el mismo salto de
+			# pose. Sigue el arranque hasta el ciclo (corte_arranque_correr) y
+			# ahi _pedir_parada_correr espera a la fase que casa: soltar a medio
+			# arranque son 0,5-1 s mas de carrera y la parada entera.
+			pass
 	elif _en_movimiento():
 		_parada_espera = 0   # volver a pulsar cancela la parada que estaba esperando
 		# Cambiar de sentido no puede ser un volteo en seco a toda velocidad:
@@ -1362,6 +1380,8 @@ func _cambiar(nuevo: Estado) -> void:
 		Estado.PARADA_AGACHADO:
 			_poner("parada_agachado")
 			_x_tabla = position.x
+		Estado.GIRO_AGACHADO:
+			_poner("giro_agachado")
 
 func _en_cinematica() -> bool:
 	return _estado in CINEMATICA
@@ -1398,6 +1418,14 @@ func _actualizar_agachado(abajo: bool, direccion: float = 0.0) -> void:
 			elif adelante:
 				_agachado_desde = _sprite.frame
 				_cambiar(Estado.ARRANQUE_AGACHADO)
+			elif not is_zero_approx(direccion):
+				# Hacia atras: se gira sin levantarse. Como el de pie, voltea al
+				# terminar (_al_terminar); sin giro_activo, volteo en seco.
+				if giro_activo:
+					_giro_destino = signf(direccion)
+					_cambiar(Estado.GIRO_AGACHADO)
+				else:
+					_mirar(direccion)
 		Estado.ARRANQUE_AGACHADO:
 			# Soltar antes de mover los pies lo deja como estaba; despues, el paso
 			# ya esta dado: se termina el arranque y la parada sale del ciclo.
@@ -1756,7 +1784,8 @@ func _poner(nombre: String) -> void:
 	_sprite.offset = offset_salto_correr if nombre == "salto_correr" else offset_comun
 	# Agachandose la respiracion ni se arranca ni se corta: sigue la que hubiera
 	# (tras correr, jadea tambien agachado) y _actualizar_esfuerzo la va apagando.
-	if not nombre in ["agacharse", "agachado", "incorporarse", "arranque_agachado", "andar_agachado", "parada_agachado"]:
+	if not nombre in ["agacharse", "agachado", "incorporarse", "arranque_agachado", "andar_agachado", "parada_agachado",
+			"giro_agachado"]:
 		_respirar(nombre == "reposo")
 
 ## Suena la pisada si entre el ultimo fotograma puesto y este se ha pasado por un
@@ -1793,7 +1822,7 @@ func _actualizar_esfuerzo(delta: float) -> void:
 			_esfuerzo = minf(_esfuerzo + delta / maxf(esfuerzo_correr, 0.1), 1.0)
 		Estado.ANDAR, Estado.ARRANQUE_ANDAR, Estado.ARRANQUE_AGACHADO, Estado.ANDAR_AGACHADO:
 			_esfuerzo = minf(_esfuerzo + delta / maxf(esfuerzo_andar, 0.1), 1.0)
-		Estado.REPOSO, Estado.AGACHANDO, Estado.AGACHADO, Estado.INCORPORANDO, Estado.PARADA_AGACHADO:
+		Estado.REPOSO, Estado.AGACHANDO, Estado.AGACHADO, Estado.INCORPORANDO, Estado.PARADA_AGACHADO, Estado.GIRO_AGACHADO:
 			_esfuerzo = maxf(_esfuerzo - delta / maxf(respiracion_recuperacion, 0.1), 0.0)
 	if not (_estado == Estado.REPOSO or _en_agachado()) or not _respiracion.playing \
 			or (_fundido and _fundido.is_running()):
@@ -1881,6 +1910,13 @@ func _al_terminar() -> void:
 			position.x = _x_tabla + _mirando * AVANCE_PARADA_AGACHADO[AVANCE_PARADA_AGACHADO.size() - 1]
 			_cambiar(Estado.AGACHADO)
 			_sprite.frame = PARADA_AGACHADO_A_AGACHADO
+		Estado.GIRO_AGACHADO:
+			# El ultimo del giro es el agachado espejado: volteado, el bucle sigue
+			# por ese mismo dibujo. Si se mantiene la direccion, AGACHADO arranca
+			# a andar hacia el lado nuevo; sin la tecla abajo, se levanta.
+			_mirar(_giro_destino)
+			_cambiar(Estado.AGACHADO)
+			_sprite.frame = AGACHADO_ANTES_DE_SUBIR
 		Estado.INCORPORANDO:
 			if _agachar_atras:
 				# Deshecho hasta el principio: vuelta al bucle por el fotograma

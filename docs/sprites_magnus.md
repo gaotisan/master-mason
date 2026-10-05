@@ -79,14 +79,23 @@ escucharlo.
 Controles (definidos en `project.godot`): flechas izquierda/derecha o A/D para
 andar, **doble pulsacion** de la misma flecha para correr, flecha arriba o espacio
 para saltar, flecha abajo o S para agacharse (mantenida; al soltarla se levanta)
-y, agachado, la direccion hacia donde mira para andar agachado.
-Al soltar la direccion, entra la frenada y vuelve a reposo.
+y, agachado, la direccion hacia donde mira para andar agachado; la contraria lo
+gira sin levantarse.
+Al soltar la direccion, entra la frenada y vuelve a reposo. Un toque corto
+andando no corta el paso: si suelta antes de mover los pies (arranque f0-f3)
+vuelve al reposo; si ya habia empezado el paso, lo termina y se para en el
+primer apoyo que casa con la parada (ningun fotograma del primer paso del
+arranque casa con ella: cortar ahi era un salto de pose). Corriendo, igual: si
+el segundo toque del doble se suelta con los pies aun quietos (arranque de correr
+hasta el f5) vuelve al reposo; si no, termina el arranque, entra al ciclo y se
+para en la fase que casa (el arranque esta a 1,6-2,4 pasos de la parada). Medido
+con `piloto_toques`: soltar a los 0,23-0,37 s son unos 2,2 s hasta el reposo.
 
 **Cambiar de sentido** no voltea en seco: pasa por la frenada, voltea cuando ya
 ha frenado (por debajo del 30 % de la velocidad con que entro en la parada de
 andar, pasado `frenada_correr` en la de correr, 30 % de la de andar en la cola
 del salto) y arranca al otro lado. Desde que existe la animacion de
-`giro` (5 poses, 0,25 s), el volteo lo hace ella y el `flip_h` se aplica al
+`giro` (de un video, 47 fotogramas, 1,6 s), el volteo lo hace ella y el `flip_h` se aplica al
 terminar; con `giro_activo = false` vuelve al volteo instantaneo de antes.
 
 El salto conserva el impulso que llevaba: saltar corriendo avanza en el aire, y al
@@ -290,23 +299,24 @@ Los parametros del personaje y el porque de cada numero estan en
 | `salto_parado` | 66 | 9 | 8 | 60 | una pasada (saltar desde el reposo) |
 | `salto_corriendo` | 38 | 8 | 5 | 60 | una pasada, casilla 340x400 |
 | `aterrizaje_correr` | 34 | 7 | 5 | 60 | una pasada, solo si se suelta la direccion en el aire |
-| `giro` | 5 | 5 | 1 | 20 | una pasada |
+| `giro` | 47 | 8 | 6 | 30 | una pasada, 1,6 s, de un video, de espaldas; hoja `magnus_giro_pie_rapido`; voltea al terminar |
 | `cayendo` | 14 | 7 | 2 | 24 | bucle, casilla 380x360 |
 | `caida` | 21 | 7 | 3 | 24 | una pasada, casilla 380x360 |
 | `tumbado` | 1 | 1 | 1 | - | quieto, casilla 380x360 |
 | `levantarse` | 63 | 8 | 8 | 20 | una pasada, casilla 380x360 (a 24 se veia rapido) |
 | `agacharse` | 49 | 12 | 11 | 60 | una pasada; hoja `magnus_agacharse`, 127 casillas para las tres |
-| `agachado` | 54 | 12 | 11 | 24 | bucle de ida y vuelta, misma hoja |
+| `agachado` | 24 | 12 | 11 | 12 | bucle de ida y vuelta sobre c_077-c_089 (la cabeza quieta), misma hoja |
 | `incorporarse` | 38 | 12 | 11 | 60 | una pasada, misma hoja |
 | `arranque_agachado` | 27 | 7 | 4 | 20 | una pasada; el nodo va por su tabla de avance |
 | `andar_agachado` | 42 | 7 | 6 | 20 | bucle movido por la distancia (4,65 px por fotograma, 93 px/s) |
 | `parada_agachado` | 31 | 8 | 4 | 20 | una pasada; el nodo va por su tabla de avance |
+| `giro_agachado` | 65 | 10 | 7 | 24 | una pasada, 2,8 s, de un video, por detras; los primeros fotogramas duran mas (arranque suave); voltea al terminar |
 
 
 Todas comparten **casilla de 292 x 360 px** salvo el salto corriendo y las cuatro
 de la caida. Ojo: algunas hojas tienen casillas de sobra al final (2 en andando y
 arranque_andar, 4 en arranque_correr, 3 en parada_correr, 2 en salto_corriendo,
-1 en levantarse). Al crear el `SpriteFrames` hay que quedarse solo con los
+1 en levantarse, 1 en giro, 5 en giro_agachado). Al crear el `SpriteFrames` hay que quedarse solo con los
 primeros N.
 
 Las cuatro de la caida salen de un solo video y comparten casilla propia porque
@@ -327,6 +337,7 @@ corriendo  -> salto_corriendo -> corriendo            (direccion pulsada al toca
 corriendo  -> salto_corriendo -> aterrizaje_correr -> respirando   (soltada)
 respirando -> agacharse -> agachado (mientras abajo) -> incorporarse -> respirando
 agachado   -> arranque_agachado -> andar_agachado -> parada_agachado -> agachado
+agachado   -> giro_agachado -> agachado (mirando al otro lado)
 ```
 
 **Agacharse.** Mantener abajo (flecha o S) lo agacha; soltar, lo levanta.
@@ -349,8 +360,12 @@ puente de cinco sprites, en `magnus_agacharse/como_se_hizo.txt`.
 agachado: `arranque_agachado` (1,35 s, del agachado a la zancada), el ciclo
 `andar_agachado` y, al soltar la direccion o la tecla abajo, sigue hasta un
 punto del paso desde el que la parada casa y `parada_agachado` (1,55 s) lo deja
-en el agachado; sin la tecla abajo, ahi se levanta. Agachado no se gira: la
-direccion contraria no hace nada, hay que levantarse. Andando agachado va mas
+en el agachado; sin la tecla abajo, ahi se levanta. Quieto y agachado, la
+direccion contraria lo gira sin levantarse (`giro_agachado`, 2,8 s, por detras:
+el giro entero de un video de Flow hecho con el propio agachado como primer y
+ultimo fotograma, con todos sus fotogramas a su ritmo, 24 fps,
+`magnus_giro_agachado_video/como_se_hizo.txt`); si se mantiene,
+al acabar de girar echa a andar agachado hacia alli. Andando agachado no gira: se para antes. Andando agachado va mas
 erguido y con la zancada abierta, y ningun fotograma del ciclo casa con el
 agachado quieto: de ahi el arranque y la parada. La parada solo casa desde seis
 fotogramas del ciclo (empieza con un pie concreto), asi que tras soltar anda
@@ -521,7 +536,7 @@ colocarlo sobre el terreno y para la fisica.
 Los sprites miran a la **derecha**. Para ir a la izquierda, `flip_h = true`.
 
 Un fallo que habia: el **doble toque hacia el otro lado** cortaba el giro. El
-primer toque lanza el giro (0,25 s) y el segundo llegaba con el giro a medias;
+primer toque lanza el giro (entonces de 0,25 s; hoy 1,6 s) y el segundo llegaba con el giro a medias;
 como el doble toque arrancaba a correr sin mirar el estado, volteaba en seco con
 el sprite de otro angulo. Ahora, si el segundo toque llega girando, solo deja
 dicho que al terminar salga corriendo (`_giro_corriendo`), que es lo que ya hace
@@ -565,6 +580,29 @@ ocupa como mucho 262 hacia un lado): al voltearla, el personaje **no se
 desplaza**. Si algun dia se recorta la casilla para ahorrar, esto se rompe.
 
 ### La animacion de giro
+
+**Hoy sale de un video** (`magnus_giro_pie_rapido`, 2026-10-05): un giro de
+espaldas a la camara, como el agachado, pedido ya a la velocidad del juego (dos
+pasos, `_fuentes/prompt_giro_pie_rapido.txt`) y usado entero y a su ritmo: 47
+fotogramas a 30 fps (el video va a 24), 1,6 s, empezando y acabando en el reposo
+(enlaces exactos). Arranca y frena solo, sin saltarse ningun fotograma.
+
+Las cinco poses de abajo el usuario las veia "a saltitos y a una velocidad rara
+comparado con como anda". Una primera version del video (los dos tramos de giro
+del video empalmados, sin el rato de frente, a 60 fps) tampoco: "a tirones, como
+en dos partes". El video gira la primera mitad en 45 fotogramas y la segunda en
+25, y a 2,5 veces su velocidad su temblor se veia. Con todos los fotogramas a 30
+fps (3,2 s) se veia bien pero "tarda un monton, no es jugable", y fundir el frente
+con su espejo en cinco fotogramas dejaba "un blur raro" (el mosaico de la tunica
+doblado). Elegir fotogramas a paso parejo para dejarlo en 1 s tampoco: el video
+estaba pedido lento, "en unos cinco segundos con pasitos cortos", y acelerado
+los pasitos eran un arrastre de pies "rarisimo". La regla: **pedir el movimiento
+a la velocidad del juego y usarlo a su ritmo, entero y seguido**. Detalle en
+`magnus_giro_pie_rapido/como_se_hizo.txt` (y lo probado, en
+`magnus_giro_pie_video/como_se_hizo.txt`).
+
+Lo que sigue es como se hizo **el de antes**, de cinco poses (`magnus_giro`, ya
+no se usa); queda por las medidas, que sirven para cualquier hoja de IA.
 
 Las ocho animaciones de movimiento son **perfil puro**, asi que cambiar de
 sentido saltaba de un perfil al otro sin nada en medio y cantaba. Disimularlo
@@ -840,7 +878,7 @@ Y la linea de suelo tiene que caer donde el `offset` del sprite la espera.
 | **andar** | 30 | **2** | 292x360 |
 | arranque_correr, parada_correr | 30 | (de reloj) | 292x360 |
 | **correr** | 30 | **2** | 292x360 |
-| giro | 20 | (de reloj) | 292x360 |
+| giro | 30 | (de reloj) | 292x360 |
 | saltar | 60 | (de reloj) | 292x360 |
 | salto_correr | 60 | (de reloj) | **340x400** |
 | cayendo, caida | 24 | (de reloj) | **380x360** |
@@ -1024,14 +1062,14 @@ salta vertical y vuelve a quedarse quieto. Entra a 0,092 del reposo y sale a
 al caer; como se monto esta en `magnus_salto_parado/como_se_hizo.txt`. `saltar`
 sigue siendo el salto andando.
 
-**El giro venia con la tunica mas clara y mas roja** que los videos: hasta un
+**El giro de cinco poses venia con la tunica mas clara y mas roja** que los videos: hasta un
 11 % mas de valor y un 19 % mas de rojo sobre azul en el frontal, y al girar el
 abrigo se encendia y se apagaba. Se igualo al reposo con una ganancia por canal
 sobre lo calido (`magnus_giro/igualar_color.py`); capucha, barba y pies no
 estaban desviados y no se tocan. Detalle y numeros en su `como_se_hizo.txt`.
 
 **Los bordes no son iguales en los dos lotes.** Las hojas antiguas (reposo,
-andar, correr y sus transiciones, giro, salto de parado) llevan un borde suave de
+andar, correr y sus transiciones, salto de parado) llevan un borde suave de
 1-2 px con 1200-2300 px semitransparentes por sprite y un ribete magenta tenue en
 la barba, herencia del croma magenta de aquellos videos; las nuevas (salto
 corriendo, aterrizaje, las cuatro de la caida) salen del croma verde con
@@ -1043,7 +1081,6 @@ silueta pese igual en todas.
 **Lo que queda por pedir fuera:**
 
 - video de **carrera con el brazo bien** (ver el aviso del brazo);
-- un **giro completo** con la pose de 67 grados (ver `magnus_giro/como_se_hizo.txt`);
 - **respirar de perfil mas largo** o con dos ciclos, para que el bucle de 2,5 s no
   se note al minuto de estar quieto: ahora es una sola respiracion repetida.
 

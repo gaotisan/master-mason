@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/game/dark_stage.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/dev/piloto_traza.gd" id="2"]
+
+[node name="PilotoGiroAgachado" type="Node"]
+
+[node name="DarkStage" parent="." instance=ExtResource("1")]
+caida_al_empezar = false
+
+[node name="Piloto" type="Node" parent="."]
+script = ExtResource("2")
+desde = 0.0
+hasta = 12.0
+guion = [[1.0, "agacharse", true], [2.5, "mover_izquierda", true], [4.2, "mover_izquierda", false], [7.0, "mover_derecha", true], [7.1, "mover_derecha", false], [7.8, "mover_izquierda", true], [7.9, "mover_izquierda", false], [8.5, "mover_derecha", true], [8.6, "agacharse", false], [8.8, "mover_derecha", false]]
+x_inicial = 1400.0
+personaje = NodePath("../DarkStage/Magnus")
