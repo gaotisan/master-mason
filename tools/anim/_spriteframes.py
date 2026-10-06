@@ -101,7 +101,8 @@ ANIMACIONES = [
     # cada fotograma cambia como andar a 30 fps. magnus.gd voltea al terminar.
     # (Antes: 5 vistas de una hoja de IA a 20 fps, 0,25 s: se veia brusco.) Ver
     # raw/master_mason/anim/magnus_giro_pie_video/como_se_hizo.txt.
-    ('giro',            'magnus_giro_pie_rapido',  47,  8, 30.0, False),
+    ('giro',            'magnus_giro_pie_rapido',  47,  8, 30.0, False, None, None,
+     [1.0, 0.5] + [1.0] * 43 + [0.5, 1.0]),             # fundidos de un refresco
     # Salto corriendo: sale de un video en el que corre, salta una piedra y se
     # para. Se usan solo los fotogramas 128-165: despegue, vuelo y aterrizaje.
     # El video viene a camara lenta, como el del salto de parado: 27 fotogramas
@@ -143,15 +144,15 @@ ANIMACIONES = [
     # de dos en dos: el cuerpo rebota 16 px y se queda), el agachado (61-88,
     # video 112-139) y el levantarse (89-126, video 140-177). Ver
     # raw/master_mason/anim/magnus_agacharse/como_se_hizo.txt.
-    #   agacharse     puente (126-122: el final del levantarse al reves) + bajada
-    #                 hasta la 37 + para asentarse el principio del levantarse
-    #                 al reves (91, 90, 89), cada uno dos veces. La pose de pie
-    #                 del video va mas encorvada que el reposo (0,168); el final
-    #                 de su levantarse no (0,072) y casa con el principio de la
-    #                 bajada (0,063): por eso el puente. El asentarse del video
-    #                 (42-60) rebotaba: la cabeza bajaba, subia 8 px y caia 16;
-    #                 de la 37 a la 91 hay menos de dos pasos y desde ahi solo
-    #                 baja. 49 fotogramas, 0,82 s; entra al bucle por su 27.
+    #   agacharse     de OTRO video (magnus_agacharse_flow, 2026-10-06), pedido de
+    #                 nuestro reposo a nuestro agachado: reposo, fundido, video
+    #                 44-110 enteros, fundido y el c_089 de esta hoja. Baja de un
+    #                 tiron, se pasa un poco y sube despacio (un sentido, sin el
+    #                 baja-sube-cae del video viejo). La bajada a 60 fps y el
+    #                 asentarse (desde el sprite 43, el punto mas bajo) a 1,5
+    #                 refrescos por sprite: 1,4 s. Antes era puente + bajada +
+    #                 levantarse al reves de esta hoja, y los empalmes se notaban
+    #                 ("un click de la cabeza al final de agacharse").
     #   agachado      ida y vuelta sobre 76-88 (c_077-c_089), a 12 fps: 2 s.
     #                 Casi quieto, respira. Antes era 61-88 a 24 fps, y la
     #                 cabeza daba saltitos de 1 px (en 62-66 subia 1,5 px y
@@ -159,8 +160,8 @@ ANIMACIONES = [
     #                 76-88 esta a la misma altura (+-0,4 px de la hoja), y es
     #                 el tramo que enlaza con el agacharse y el levantarse.
     #   incorporarse  89-126 a 60 fps, 0,63 s. Acaba a 0,072 del reposo.
-    ('agacharse',       'magnus_agacharse',       49, 12, 60.0, False, None,
-     [126, 125, 124, 123, 122] + list(range(0, 38)) + [k for k in (91, 90, 89) for _ in (0, 1)]),
+    ('agacharse',       'magnus_agacharse_flow',  71,  9, 60.0, False, None, None,
+     [1.0] * 43 + [1.5] * 27 + [1.0]),
     ('agachado',        'magnus_agacharse',       24, 12, 12.0, True,  None,
      list(range(76, 89)) + list(range(87, 76, -1))),
     ('incorporarse',    'magnus_agacharse',       38, 12, 60.0, False, None,
@@ -178,12 +179,24 @@ ANIMACIONES = [
     # primer y ultimo fotograma: el giro entero por detras, con TODOS sus
     # fotogramas y a su ritmo (24 fps), entre el agachado y el agachado
     # espejado, con fundidos en los enlaces. Arranca suave: en el video ya viene
-    # girando, asi que los primeros fotogramas duran algo mas. 2,8 s; magnus.gd
+    # girando, asi que los primeros fotogramas duran algo mas. 2,7 s; magnus.gd
     # voltea al terminar. (Antes: 5 vistas de Gemini; el mismo giro de dos en dos
-    # a 60 fps; y por delante con espejo. Las tres se veian a saltitos.) Ver
+    # a 60 fps; y por delante con espejo. Las tres se veian a saltitos.) Los
+    # fundidos duran un refresco cada uno (0,4 a 24 fps): mas largos (antes 1,6 y
+    # 1,4) se veian como "un mini blur al principio". Ver
     # raw/master_mason/anim/magnus_giro_agachado_video/como_se_hizo.txt.
     ('giro_agachado',     'magnus_giro_agachado_video', 65, 10, 24.0, False, None, None,
-     [1.0, 1.6, 1.4, 1.25, 1.15, 1.05] + [1.0] * 59),
+     [1.0, 0.4, 0.4, 1.6, 1.4, 1.25, 1.15, 1.05] + [1.0] * 55 + [0.4, 1.0]),
+    # Andar en diagonal (tres cuartos, de cara a la derecha y hacia la camara), de
+    # Cloaked_figure_walking_diagonally (job magnus_andar_diagonal): el ciclo de dos
+    # pasos del video, 81-122, en bucle. A 30 fps (el video va a 24 y anda mas
+    # despacio que el andar de perfil). PRUEBA: magnus.gd aun no la usa.
+    ('andar_diagonal',    'magnus_andar_diagonal',    42, 7, 30.0, True),
+    # Un paso agachado (de agachado a agachado, 39 px mas alla): dos videos de
+    # Flow seguidos (el pie de delante sale; el cuerpo avanza y el de atras se
+    # junta), con el nodo por AVANCE_PASO_AGACHADO. Un toque agachado lo da;
+    # ver raw/master_mason/anim/magnus_paso_agachado/como_se_hizo.txt.
+    ('paso_agachado',     'magnus_paso_agachado',     95, 10, 60.0, False),   # apagado en magnus.gd
 ]
 
 

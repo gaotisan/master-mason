@@ -1,0 +1,40 @@
+magnus_andar_diagonal: como se monto
+====================================
+Andar en diagonal: tres cuartos, de cara hacia la derecha y hacia la camara. Un
+ciclo de dos pasos en bucle (andar_diagonal, 42 fotogramas a 30 fps, 1,4 s). DE
+PRUEBA (2026-10-06): esta en magnus_frames.tres pero magnus.gd no lo usa; falta
+decidir como se usa la diagonal (momentos concretos, 2,5D con teclas, o escenas
+enteras en ese angulo con todas las animaciones).
+
+Fuente: _fuentes/Cloaked_figure_walking_diagonally_20261006172813.mp4 (Google
+Flow, 720x1280 EN VERTICAL, 24 fps, 240 fotogramas, fondo BEIS liso 230,226,218).
+Anda en el sitio con la camara siguiendole del 1 al 160 (unos 1065 px de alto,
+sin cambiar de tamano); despues se va por la derecha y sale cortado.
+
+Ciclo: comparando cada fotograma con los que vienen despues, el periodo es de 42
+(dos pasos) y el mejor cierre es 81 -> 123 (1,54 de diferencia media en gris,
+menos que el paso medio entre fotogramas, 2,28). Bucle: 81-122.
+
+Pasos:
+  nuevo.ps1   -Job magnus_andar_diagonal -Fuente ...\Cloaked_figure_walking_diagonally_20261006172813.mp4
+  frames.ps1  -Job magnus_andar_diagonal
+  elegir.ps1  -Job magnus_andar_diagonal -Frames "81-123"
+  python escalar.py          recorte 60,40-700,1240, escala 628/1065 = 0,59 (la
+                             altura del reposo), lienzo 1000x860, suelo a 100
+  centrar.ps1 -Job magnus_andar_diagonal -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job magnus_andar_diagonal -Tolerancia 10 -Radio 2 -Motas 300
+              (a tolerancia 22, la del croma verde, se comia trozos de la barba:
+              sus brillos estan a 14-17 del beis. El fondo es liso del todo, ruido
+              de 6 como mucho, y la barba es gris neutro o azulado (r-b -5..-2)
+              frente al beis calido (r-b 12). 10 es la de fondo.ps1 por defecto,
+              pensada para fondo claro con barba blanca.)
+  (los 43, asi, a _todos/)
+  python montar.py           los 42 del bucle: pies a la 677 del juego (dy -4) y
+                             ganancia por zonas contra el reposo (tunica 0,94/0,98/
+                             0,92, capucha +4-6 %, pies -21-26 %)
+  python tools/anim/motas.py raw/master_mason/anim/magnus_andar_diagonal/04_limpios
+  hoja.ps1    -Job magnus_andar_diagonal -Cols 7 -Fps 30 -Escala 2
+  tools/anim/_spriteframes.py  ('andar_diagonal', 'magnus_andar_diagonal', 42, 7, 30.0, True)
+
+revisar.py: paso medio 0,159, bien.
+Para otros videos de este angulo: pedirlos en VERDE (#24D732) como los demas.

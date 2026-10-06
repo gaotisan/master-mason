@@ -75,3 +75,14 @@ Comprobado grabando scenes/dev/piloto_giro_pie.tscn (05_salida/giro_pie_en_juego
 aclarado): los 47 sprites seguidos, dos refrescos cada uno (traza), 1,58 s; la
 cabeza se mueve como mucho 2 px de un sprite al siguiente y el centro 2,3 (el
 paso). Al voltear no cambia nada.
+
+ARREGLOS (2026-10-06):
+  - Bolsas de croma: el criterio de antes (todo lo que era croma con cualquier
+    alfa, mas una orla de 2 px de g > r) se comia el borde de toda la silueta y,
+    en la capucha gris azulada (g > r), hasta 5 px: el giro salia unos 2.900 px de
+    master mas delgado que el reposo. Ahora solo lo opaco del todo. (OJO: motas.py
+    parte siempre de _sin_motas/; despues de rehacer montar.py hay que borrar
+    _sin_motas/ o vuelve la version vieja.)
+  - Nitidez: con el borde recuperado el video sale algo mas blando que el reposo
+    (31-33 frente a 36 en la hoja); se enfoca en rampa calibrado contra el reposo
+    (0,20 -> 0,10). Fundidos de un refresco (0,5 a 30 fps).

@@ -86,3 +86,16 @@ tras un toque corto; 05_salida/giro_agachado_en_juego.mp4, aclarado): salen los
 65 sprites seguidos, 2,75 s, la cabeza se mueve como mucho 3 px de un sprite al
 siguiente (pantalla), el centro 2 px, y el cambio por sprite es parejo (media
 1,7, maximo 2,7 en unidades de la grabacion). Al voltear no cambia nada.
+
+SIN BLUR AL EMPEZAR (2026-10-06). El usuario veia "un mini blur al principio".
+Medido (laplaciano medio a tamano de hoja): el agachado del juego 38, los dos
+fundidos 28 y 25, y el primero del video 27 (el video de Flow, 720p ampliado
+1,5, es mas blando que los sprites del juego; de espaldas baja a 17). Arreglo:
+  - montar.py enfoca cada fotograma (mascara de desenfoque, sigma 2 de master,
+    ponderada por el alfa) con una fuerza en rampa calibrada a tamano de hoja:
+    la del primero contra el agachado y la del ultimo contra el agachado
+    espejado (0,55 -> 0,20). Ahora: agachado 38, video 37 al empezar y al acabar.
+  - los fundidos duran un refresco cada uno (0,4 a 24 fps; antes 1,6 y 1,4, unos
+    125 ms de doble imagen). Duraciones en _spriteframes.py.
+  - la criba de bolsas de croma solo quita lo opaco del todo (antes tambien el
+    borde suave de la silueta).

@@ -296,6 +296,9 @@ const GOLPES := {
 	# del arranque; en la parada, el de atras se junta en el 12.
 	"arranque_agachado": {22: preload("res://assets/audio/magnus_paso_a.wav")},
 	"parada_agachado":   {12: preload("res://assets/audio/magnus_paso_b.wav")},
+	# El paso agachado: apoya el pie de delante y despues junta el de atras.
+	"paso_agachado":     {18: preload("res://assets/audio/magnus_paso_a.wav"),
+						  77: preload("res://assets/audio/magnus_paso_b.wav")},
 	"parada_correr":   {5:  preload("res://assets/audio/magnus_paso_correr_b.wav")},
 	"aterrizaje_correr": {19: preload("res://assets/audio/magnus_paso_b.wav")},
 	"saltar": {
@@ -372,6 +375,10 @@ var _esperando_llegada := false
 @export var agacharse_activo: bool = true
 ## Volumen del roce de la ropa al bajar y al levantarse.
 @export var agacharse_db: float = -16.0
+## Un toque agachado da un solo paso (paso_agachado). Apagado (2026-10-06): con
+## los dos videos se veian dos movimientos y el usuario prefirio lo de antes
+## (arranque, ciclo y parada: dos pasos).
+@export var paso_agachado_activo: bool = false
 ## Andar agachado: agachado, con la direccion hacia donde mira, arranca
 ## (arranque_agachado), anda (andar_agachado) y, soltando la direccion o la tecla
 ## abajo, sigue hasta un punto del paso desde el que la parada casa y se para
@@ -458,25 +465,20 @@ enum Estado { REPOSO, ARRANQUE_ANDAR, ANDAR, PARADA_ANDAR,
 			  ARRANQUE_CORRER, CORRER, PARADA_CORRER, SALTAR, GIRO,
 			  CAYENDO, CAIDA, TUMBADO, LEVANTARSE, ATERRIZAJE_CORRER,
 			  AGACHANDO, AGACHADO, INCORPORANDO, ARRANQUE_AGACHADO, ANDAR_AGACHADO,
-			  PARADA_AGACHADO, GIRO_AGACHADO }
+			  PARADA_AGACHADO, GIRO_AGACHADO, PASO_AGACHADO }
 
 ## Estados de la cinematica de entrada: sin control del jugador.
 const CINEMATICA := [Estado.CAYENDO, Estado.CAIDA, Estado.TUMBADO, Estado.LEVANTARSE]
 ## Agacharse: bajando, agachado (bucle) y levantandose.
 const AGACHADO := [Estado.AGACHANDO, Estado.AGACHADO, Estado.INCORPORANDO,
 					Estado.ARRANQUE_AGACHADO, Estado.ANDAR_AGACHADO, Estado.PARADA_AGACHADO,
-					Estado.GIRO_AGACHADO]
-## "agacharse" es un puente de 5 sprites (el final del levantarse al reves: la
-## pose de pie de este video va mas encorvada que el reposo, 0,168, y el final
-## de su levantarse no, 0,072), la bajada real hasta el c_038 y, para asentarse,
-## el principio del levantarse al reves (c_092, c_091, c_090, cada uno dos veces),
-## que entra en el bucle por el AGACHADO_ANTES_DE_SUBIR. El asentarse del video
-## rebotaba (la cabeza bajaba a la 186, subia a la 178 y caia a la 194) y se
-## veia raro; asi la cabeza solo baja. Soltar la tecla antes de este fotograma
-## deshace la bajada hacia atras; desde aqui, asentandose, los sprites ya son
-## los del levantarse y sigue por el mismo (AGACHARSE_A_INCORPORARSE).
-const AGACHARSE_SUBE_DESDE := 43
-const AGACHARSE_A_INCORPORARSE := [2, 2, 1, 1, 0, 0]
+					Estado.GIRO_AGACHADO, Estado.PASO_AGACHADO]
+## "agacharse" sale de un video pedido para el (magnus_agacharse_flow): empieza en
+## el reposo del juego, baja de un tiron, se pasa un poco y sube despacio hasta el
+## agachado del juego (c_089), y entra en el bucle por el AGACHADO_ANTES_DE_SUBIR.
+## Antes estaba hecho a trozos del video viejo (puente, bajada y el levantarse al
+## reves) para esquivar su rebote, y los empalmes se notaban. Soltar la tecla en
+## cualquier punto lo deshace hacia atras desde ese fotograma.
 ## Fotograma del bucle "agachado" que va justo antes del primero de
 ## "incorporarse" (el c_089, 139 del video): por ahi entra al bucle al acabar de
 ## agacharse y se vuelve a el si se deshace el levantarse hasta el final. El
@@ -489,18 +491,41 @@ const AGACHADO_ANTES_DE_SUBIR := 12
 ## (distancia en pasos del ciclo, 0,170), ver
 ## raw/master_mason/anim/magnus_andar_agachado/como_se_hizo.txt y tablas.py:
 ##   agachado -> arranque        1,0-1,5 pasos, desde cualquier fotograma del bucle
-##   arranque -> ciclo           por el ENTRADA_AGACHADO, 1,1 pasos
+##   arranque -> ciclo           por el ENTRADA_AGACHADO, 1,0 pasos (un paso normal;
+##                               por el 21, que era antes, 1,45: un tiron)
 ##   ciclo -> parada             solo desde los fotogramas de PARADA_AGACHADO_DESDE
 ##                               (0,8-1,3 pasos); la parada empieza con un pie
 ##                               concreto y desde la otra media zancada salta 3
 ##   parada -> agachado          por el PARADA_AGACHADO_A_AGACHADO, 0,6 pasos
-const ENTRADA_AGACHADO := 21
+const ENTRADA_AGACHADO := 20
 ## fotograma del ciclo -> fotograma de parada_agachado por el que se entra.
 const PARADA_AGACHADO_DESDE := {40: 0, 41: 0, 0: 0, 1: 1, 2: 2, 3: 4}
 const PARADA_AGACHADO_A_AGACHADO := 5
 ## Hasta este fotograma del arranque aun no ha movido los pies: soltar lo deja
 ## agachado sin mas. Luego el paso ya esta dado y se termina.
 const ARRANQUE_AGACHADO_QUIETO := 3
+## Un solo paso agachado (paso_agachado, magnus_paso_agachado): el pie de delante
+## sale, el cuerpo avanza sobre el y el de atras se junta; de agachado a agachado,
+## 39 px mas alla. Si se suelta la direccion (sin soltar abajo) en los primeros
+## fotogramas del arranque, que todavia son el agachado (los pies no se han
+## movido), se pasa a el: un toque da un paso. Antes daba dos, porque la parada
+## solo cierra con el otro pie y habia que pasar por medio ciclo. Mantenida, sigue
+## el arranque y el ciclo. Fotograma del arranque -> fotograma del paso por el que
+## se entra (0,08-0,18 de distancia; desde el 5 ya no casa).
+const ARRANQUE_A_PASO := [0, 1, 1, 1, 1]
+## Lo que se espera agachado, con la direccion pulsada, antes de arrancar a andar:
+## si se suelta antes, es un toque y da un paso (paso_agachado) sin pasar por el
+## arranque. Pasado esto, arranca; soltar en sus fotogramas 0-4 aun da el paso.
+const TOQUE_AGACHADO := 0.2
+## Avance del nodo (px del juego) en cada fotograma del paso: lo que avanza el
+## cuerpo en el video (montar.py lo imprime); los sprites van retrasados eso
+## mismo, asi que los pies apoyados no se mueven.
+const AVANCE_PASO_AGACHADO := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+		1.5, 3.0, 4.0, 6.0, 8.0, 9.5, 11.5, 13.5, 15.5, 17.5, 19.5, 21.0, 22.5, 24.0, 25.5, 26.0, 27.0,
+		27.5, 28.0, 29.0, 30.0, 30.5, 31.0, 32.0, 33.5, 34.5, 35.0, 35.0, 36.0, 36.0, 36.5, 37.0, 37.0,
+		37.5, 37.5, 38.0, 38.5, 38.5, 38.5, 39.0, 39.0, 39.0, 39.0, 39.0]
 ## Cuanto ha avanzado el nodo (px del juego) en cada fotograma del arranque y de
 ## la parada: lo que retrocede el pie apoyado en los sprites (magnus_andar_agachado/
 ## avance.py y como_se_hizo.txt), suavizado. El arranque acaba a 4,4 px por
@@ -551,6 +576,7 @@ var _agachar_atras := false  # la animacion de agacharse/levantarse va hacia atr
 var _parando_agachado := -1  # andando agachado: fotogramas esperando un apoyo para pararse (-1 = no para)
 var _x_tabla := 0.0          # arranque y parada agachado: x del nodo en el fotograma 0 de su tabla de avance
 var _agachado_desde := 0     # fotograma del bucle agachado en que arranco (para volver si se suelta)
+var _toque_agachado := -1.0  # _reloj al pulsar hacia delante agachado (-1: nada pendiente)
 
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _pasos: AudioStreamPlayer = $Pasos
@@ -1382,6 +1408,9 @@ func _cambiar(nuevo: Estado) -> void:
 			_x_tabla = position.x
 		Estado.GIRO_AGACHADO:
 			_poner("giro_agachado")
+		Estado.PASO_AGACHADO:
+			_poner("paso_agachado")
+			_x_tabla = position.x
 
 func _en_cinematica() -> bool:
 	return _estado in CINEMATICA
@@ -1402,23 +1431,30 @@ func _actualizar_agachado(abajo: bool, direccion: float = 0.0) -> void:
 	match _estado:
 		Estado.AGACHANDO:
 			if not abajo and not _agachar_atras:
-				if _sprite.frame >= AGACHARSE_SUBE_DESDE:
-					# Asentandose: son sprites del levantarse, sigue por ahi.
-					_cambiar(Estado.INCORPORANDO)
-					_sprite.frame = AGACHARSE_A_INCORPORARSE[clampi(_sprite.frame - AGACHARSE_SUBE_DESDE, 0, AGACHARSE_A_INCORPORARSE.size() - 1)]
-				else:
-					_agachar_atras = true
-					_sprite.play_backwards(&"agacharse")
+				_agachar_atras = true
+				_sprite.play_backwards(&"agacharse")
 			elif abajo and _agachar_atras:
 				_agachar_atras = false
 				_sprite.play(&"agacharse")
 		Estado.AGACHADO:
 			if not abajo:
+				_toque_agachado = -1.0
 				_cambiar(Estado.INCORPORANDO)
 			elif adelante:
-				_agachado_desde = _sprite.frame
-				_cambiar(Estado.ARRANQUE_AGACHADO)
+				# Se espera TOQUE_AGACHADO a ver si es un toque (un paso) o se
+				# mantiene (andar): arrancar enseguida y cambiar al paso al
+				# soltar se veia como un primer meneo (el arranque va mas erguido).
+				if _toque_agachado < 0.0 and paso_agachado_activo:
+					_toque_agachado = _reloj
+				elif not paso_agachado_activo or _reloj - _toque_agachado >= TOQUE_AGACHADO:
+					_toque_agachado = -1.0
+					_agachado_desde = _sprite.frame
+					_cambiar(Estado.ARRANQUE_AGACHADO)
+			elif _toque_agachado >= 0.0 and is_zero_approx(direccion):
+				_toque_agachado = -1.0
+				_cambiar(Estado.PASO_AGACHADO)
 			elif not is_zero_approx(direccion):
+				_toque_agachado = -1.0
 				# Hacia atras: se gira sin levantarse. Como el de pie, voltea al
 				# terminar (_al_terminar); sin giro_activo, volteo en seco.
 				if giro_activo:
@@ -1427,9 +1463,16 @@ func _actualizar_agachado(abajo: bool, direccion: float = 0.0) -> void:
 				else:
 					_mirar(direccion)
 		Estado.ARRANQUE_AGACHADO:
-			# Soltar antes de mover los pies lo deja como estaba; despues, el paso
-			# ya esta dado: se termina el arranque y la parada sale del ciclo.
-			if not (abajo and adelante) and _sprite.frame <= ARRANQUE_AGACHADO_QUIETO:
+			# Soltar la direccion antes de mover los pies da un solo paso
+			# (paso_agachado); soltar abajo ahi lo deja como estaba. Despues, el
+			# paso del arranque ya esta dado: se termina y la parada sale del ciclo.
+			if paso_agachado_activo and not (abajo and adelante) and _sprite.frame < ARRANQUE_A_PASO.size() and abajo:
+				var k: int = ARRANQUE_A_PASO[_sprite.frame]
+				var x := position.x
+				_cambiar(Estado.PASO_AGACHADO)
+				_sprite.frame = k
+				_x_tabla = x - _mirando * AVANCE_PASO_AGACHADO[k]
+			elif not (abajo and adelante) and _sprite.frame <= ARRANQUE_AGACHADO_QUIETO:
 				_cambiar(Estado.AGACHADO)
 				_sprite.frame = _agachado_desde
 				position.x = _x_tabla
@@ -1447,7 +1490,8 @@ func _actualizar_agachado(abajo: bool, direccion: float = 0.0) -> void:
 					var k: int = PARADA_AGACHADO_DESDE.get(f, 0)
 					_cambiar(Estado.PARADA_AGACHADO)
 					_sprite.frame = k
-					_x_tabla = position.x - _mirando * AVANCE_PARADA_AGACHADO[k]
+					# El tick del cambio tambien avanza (sin esto, un tick parado).
+					_x_tabla = position.x + _mirando * (velocidad_agachado * get_physics_process_delta_time() - AVANCE_PARADA_AGACHADO[k])
 		Estado.INCORPORANDO:
 			if abajo and not _agachar_atras:
 				_agachar_atras = true
@@ -1461,12 +1505,20 @@ func _actualizar_agachado(abajo: bool, direccion: float = 0.0) -> void:
 ## apoyo para pararse sigue andando: los pies no pueden quedarse clavados a
 ## media zancada.
 func _avanzar_agachado(delta: float) -> void:
-	if _estado == Estado.ARRANQUE_AGACHADO or _estado == Estado.PARADA_AGACHADO:
+	if _estado == Estado.ARRANQUE_AGACHADO or _estado == Estado.PARADA_AGACHADO or _estado == Estado.PASO_AGACHADO:
 		# El nodo va por la tabla del fotograma (con la fraccion del fotograma,
 		# para que no vaya a escalones): el pie apoyado se queda clavado.
-		var tabla: Array = AVANCE_ARRANQUE_AGACHADO if _estado == Estado.ARRANQUE_AGACHADO else AVANCE_PARADA_AGACHADO
+		var tabla: Array = AVANCE_PARADA_AGACHADO
+		if _estado == Estado.ARRANQUE_AGACHADO:
+			tabla = AVANCE_ARRANQUE_AGACHADO
+		elif _estado == Estado.PASO_AGACHADO:
+			tabla = AVANCE_PASO_AGACHADO
 		var f := clampi(_sprite.frame, 0, tabla.size() - 1)
-		var x := lerpf(tabla[f], tabla[mini(f + 1, tabla.size() - 1)], _sprite.frame_progress)
+		# En el ultimo fotograma no hay siguiente: se sigue al ritmo del anterior.
+		# (Sin esto el nodo se paraba el ultimo fotograma del arranque, 3 ticks,
+		# y arrancaba otra vez en el ciclo: un tiron.)
+		var siguiente: float = tabla[f + 1] if f + 1 < tabla.size() else tabla[f] + (tabla[f] - tabla[maxi(f - 1, 0)])
+		var x := lerpf(tabla[f], siguiente, _sprite.frame_progress)
 		position.x = _x_tabla + _mirando * x
 		return
 	if _estado != Estado.ANDAR_AGACHADO:
@@ -1610,7 +1662,7 @@ func _al_cambiar_fotograma() -> void:
 			return
 	var golpes: Dictionary = GOLPES.get(String(_sprite.animation), {})
 	if golpes.has(_sprite.frame):
-		var agachado := _sprite.animation == &"arranque_agachado" or _sprite.animation == &"parada_agachado"
+		var agachado := _sprite.animation in [&"arranque_agachado", &"parada_agachado", &"paso_agachado"]
 		_sonar(golpes[_sprite.frame], pasos_db + (pasos_agachado_db if agachado else 0.0), 0.0, true)
 
 ## Cinematica de entrada. Coloca al personaje caida_altura px por encima de
@@ -1785,7 +1837,7 @@ func _poner(nombre: String) -> void:
 	# Agachandose la respiracion ni se arranca ni se corta: sigue la que hubiera
 	# (tras correr, jadea tambien agachado) y _actualizar_esfuerzo la va apagando.
 	if not nombre in ["agacharse", "agachado", "incorporarse", "arranque_agachado", "andar_agachado", "parada_agachado",
-			"giro_agachado"]:
+			"giro_agachado", "paso_agachado"]:
 		_respirar(nombre == "reposo")
 
 ## Suena la pisada si entre el ultimo fotograma puesto y este se ha pasado por un
@@ -1820,7 +1872,7 @@ func _actualizar_esfuerzo(delta: float) -> void:
 	match _estado:
 		Estado.CORRER, Estado.ARRANQUE_CORRER:
 			_esfuerzo = minf(_esfuerzo + delta / maxf(esfuerzo_correr, 0.1), 1.0)
-		Estado.ANDAR, Estado.ARRANQUE_ANDAR, Estado.ARRANQUE_AGACHADO, Estado.ANDAR_AGACHADO:
+		Estado.ANDAR, Estado.ARRANQUE_ANDAR, Estado.ARRANQUE_AGACHADO, Estado.ANDAR_AGACHADO, Estado.PASO_AGACHADO:
 			_esfuerzo = minf(_esfuerzo + delta / maxf(esfuerzo_andar, 0.1), 1.0)
 		Estado.REPOSO, Estado.AGACHANDO, Estado.AGACHADO, Estado.INCORPORANDO, Estado.PARADA_AGACHADO, Estado.GIRO_AGACHADO:
 			_esfuerzo = maxf(_esfuerzo - delta / maxf(respiracion_recuperacion, 0.1), 0.0)
@@ -1904,8 +1956,12 @@ func _al_terminar() -> void:
 		Estado.ARRANQUE_AGACHADO:
 			# El arranque acaba ya lanzado: el cuerpo va casi a la velocidad del
 			# ciclo, que sigue desde ahi.
-			position.x = _x_tabla + _mirando * AVANCE_ARRANQUE_AGACHADO[AVANCE_ARRANQUE_AGACHADO.size() - 1]
 			_cambiar(Estado.ANDAR_AGACHADO)
+		Estado.PASO_AGACHADO:
+			# Acaba en el agachado del bucle (el mismo sprite), un paso mas alla.
+			position.x = _x_tabla + _mirando * AVANCE_PASO_AGACHADO[AVANCE_PASO_AGACHADO.size() - 1]
+			_cambiar(Estado.AGACHADO)
+			_sprite.frame = AGACHADO_ANTES_DE_SUBIR
 		Estado.PARADA_AGACHADO:
 			position.x = _x_tabla + _mirando * AVANCE_PARADA_AGACHADO[AVANCE_PARADA_AGACHADO.size() - 1]
 			_cambiar(Estado.AGACHADO)

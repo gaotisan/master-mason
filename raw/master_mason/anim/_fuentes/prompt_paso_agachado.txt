@@ -1,0 +1,50 @@
+PROMPT PARA EL VIDEO DE UN PASO AGACHADO (Google Flow, "Fotogramas a video")
+==========================================================================
+Por que (2026-10-06): agachado, un toque corto hacia delante da DOS pasos (unos
+200 px y casi 4 s): el arranque da el primer paso con un pie y la parada que hay
+solo cierra con el otro, asi que tiene que pasar por medio ciclo. Empalmar el
+arranque con la parada (arranque 16 -> parada 8, lo mejor que hay) son 2 pasos
+de pose y el pie de atras saltaria 17 px. Con un video de un solo paso, un toque
+corto lo da y mantener la tecla sigue con arranque, ciclo y parada.
+
+Fotogramas (en _fuentes/paso_agachado_claves/ y en Descargas/paso_agachado_claves/):
+  - inicial: 01_agachado.png          el agachado del juego (c_089), casilla en (671, 202)
+  - final:   02_agachado_un_paso.png  el mismo, 120 px de master mas a la derecha
+             (60 px de juego, un paso corto; el arranque solo ya avanza 65)
+Modo "Fotogramas a video", 16:9, 8 s, 2-4 tomas. Mirar: un solo paso (un pie
+adelante y el otro que se junta), sin levantarse, camara quieta, acaba en la
+pose del ultimo fotograma y se queda.
+
+Static locked-off camera: the framing stays exactly as in the first frame for the
+whole clip, with no zoom, no pan, no tilt, no camera movement and no cuts. Keep
+the plain green background and the character exactly as they are in the frames.
+The pilgrim stays crouched the whole time. He holds still for two seconds. Then,
+still crouching low, he takes one single small step forward: his front foot
+steps forward, his weight shifts onto it, and his back foot comes forward to join
+it, so he ends exactly in the pose and position of the last frame. One smooth,
+continuous movement of about one and a half seconds, without standing up, with
+no extra steps and no bounce. He holds that pose, still, until the end. No music.
+
+
+SEGUNDO CLIP (2026-10-06): el primer video (Crouching_pilgrim_stepping_forward_
+20261006205235.mp4, job magnus_paso_agachado) da medio paso: el pie de delante
+sale unos 77 px de master (39 del juego) y se queda con los pies abiertos; Flow
+no uso la imagen final que adelantaba al personaje. Para que acabe en nuestro
+agachado (pies juntos) y enlace con el bucle, falta juntar el pie de atras:
+  - inicial: 03_pie_delante.png  el ultimo fotograma de ese video, a 1080p
+  - final:   04_pies_juntos.png  nuestro agachado (c_089) con la punta del pie de
+             delante donde la deja el video (casilla en x=748: 77 px por delante
+             de donde empezo el paso, 671)
+Modo "Fotogramas a video", 16:9, 8 s, 2-4 tomas. Mirar: el pie de delante no se
+mueve, el de atras viene a juntarse, sin levantarse ni dar otro paso.
+
+Static locked-off camera: the framing stays exactly as in the first frame for the
+whole clip, with no zoom, no pan, no tilt, no camera movement and no cuts. Keep
+the plain green background and the character exactly as they are in the frames.
+The pilgrim starts in the pose of the first frame, crouching low with one foot
+forward. He holds still for two seconds. Then, staying crouched, he shifts his
+weight forward over his front foot, which stays planted on the same spot without
+moving, and brings his back foot forward to join it, ending exactly in the pose
+and position of the last frame with his feet together. One smooth movement of
+about one second, without standing up, with no extra steps and no bounce. He
+holds that pose, still, until the end. No music.

@@ -1,0 +1,10 @@
+﻿job:     magnus_paso_agachado
+creado:  2026-10-06 20:54
+fuente:  Crouching_pilgrim_stepping_forward_20261006205235.mp4
+nota:    UN PASO AGACHADO (con magnus_paso_agachado_2). Ver como_se_hizo.txt
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

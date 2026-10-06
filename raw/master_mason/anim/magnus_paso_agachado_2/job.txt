@@ -1,0 +1,10 @@
+﻿job:     magnus_paso_agachado_2
+creado:  2026-10-06 23:04
+fuente:  Pilgrim_shifting_weight_forward_20261006230324.mp4
+nota:    segunda mitad del paso agachado (juntar el pie de atras); se monta desde magnus_paso_agachado/montar.py
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

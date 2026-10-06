@@ -1,0 +1,73 @@
+magnus_agacharse_flow: como se monto
+====================================
+El agacharse del juego (agacharse) desde el 2026-10-06: un video pedido a Flow
+de nuestro reposo a nuestro agachado, usado entero. 71 sprites, 1,4 s. El bucle
+(agachado) y el levantarse (incorporarse) siguen saliendo de magnus_agacharse.
+
+Por que: el agacharse de magnus_agacharse estaba hecho a trozos para esquivar el
+rebote de su video (baja, sube 8 px y vuelve a caer 16): un puente de 5 sprites
+(su pose de pie va mas encorvada que el reposo) y el levantarse al reves para
+asentarse. Los empalmes se notaban ("un click de la cabeza al final de agacharse",
+y luego un microparon a media bajada). Asi que se pidio un video nuevo con
+_fuentes/prompt_agacharse_video.txt (plan A, version 3): modo "Fotogramas a video"
+de Flow con _fuentes/agacharse_claves/01_reposo.png (el reposo del juego, c_08)
+de fotograma inicial y 04_agachado.png (el c_089, el del bucle) de final, en el
+mismo lienzo verde 1920x1080 con la casilla del juego en (671, 202).
+
+Fuente: _fuentes/Pilgrim_crouching_down_20261006163053.mp4 (Flow, 1280x720, 24
+fps, 240 fotogramas). Camara quieta, pies en la fila 587 (689 en master), mismo
+tamano que el juego (419 px a 720p = 628 de master).
+
+Que hace el video (cabeza, fila de master):
+    1-46    de pie quieto (63), casi el reposo (0,25)
+   46-88    baja de un tiron (63 -> 219)
+   88-110   se pasa y sube despacio a la pose final (219 -> 204), en un sentido:
+            no baja-sube-cae como el viejo
+  110-240   quieto en nuestro agachado (0,15 del c_089)
+El rebote no se puede quitar: a media bajada el cuerpo aun no tiene la pose
+final (0,40-0,59 de ella, tres pasos), y cortar ahi seria un golpe.
+
+Pasos:
+  nuevo.ps1   -Job magnus_agacharse_flow -Fuente ...\Pilgrim_crouching_down_20261006163053.mp4
+  frames.ps1  -Job magnus_agacharse_flow
+  elegir.ps1  -Job magnus_agacharse_flow -Frames "30-140"
+  python escalar.py          el de magnus_giro_pie_rapido: recorte 360,160-920,620,
+                             escala 1,5, lienzo 1000x860
+  centrar.ps1 -Job magnus_agacharse_flow -Ancho 584 -Alto 720 -MargenSuelo 30 -Sobrescribir
+  fondo.ps1   -Job magnus_agacharse_flow -Tolerancia 35 -Radio 4 -Motas 300
+  (los 111 sprites, asi, a _todos/; con fondo en _con_fondo/)
+  python montar.py           los 71 del juego, ver abajo
+  python tools/anim/motas.py raw/master_mason/anim/magnus_agacharse_flow/04_limpios
+  hoja.ps1    -Job magnus_agacharse_flow -Cols 9 -Fps 60 -Escala 2
+  tools/anim/_spriteframes.py  ('agacharse', 'magnus_agacharse_flow', 71, 9, 60.0, ...,
+                               duraciones [1]*43 + [1,5]*27 + [1])
+
+montar.py:
+  - el reposo del juego (magnus_respirando c_01), uno de fundido, TODOS los
+    fotogramas del video del 44 al 110, uno de fundido y el c_089 de
+    magnus_agacharse (el sprite del bucle): enlaces exactos con el reposo, con el
+    bucle y con lo que sale de el (andar agachado, giro agachado).
+  - en vertical manda el suelo: los pies no se mueven en todo el video, asi que
+    un solo desplazamiento (-12) los deja en la 677 del juego. En x, rampa de lo
+    que mejor casa con el reposo (-3) a lo que mejor casa con el agachado (0).
+  - ganancia por zonas (tunica, capucha, pies) en rampa: al principio contra el
+    reposo, al final contra el bucle del agachado (c_077-c_089).
+  - bolsas de croma: solo lo que era croma en el fotograma con fondo y quedo
+    OPACO del todo. Con el criterio de antes (cualquier alfa) se iba el borde
+    suave de toda la silueta y, con la orla verdosa, 2-5 px de la capucha gris
+    azulada: la cabeza salia 5 px mas baja que el agachado. Corregido tambien en
+    magnus_giro_pie_rapido/montar.py (alli no se comia nada: mismo resultado).
+Duraciones: la bajada a 60 fps (un refresco por sprite) y desde el punto mas bajo
+(sprite 43) a 1,5 refrescos, para que el subir despacio se lea como asentarse.
+
+En el juego (scenes/dev/piloto_agacharse.tscn, 05_salida/agacharse_en_juego.mp4):
+la cabeza baja de la 879 a la 957 de pantalla acelerando y frenando, sube
+despacio 7 px a la 950 y se queda (el bucle esta en la 950). Soltar la tecla a
+medias lo deshace hacia atras (ya no hay atajo por el levantarse: estos sprites
+no son los suyos). Agachandose con la direccion pulsada, al acabar arranca a
+andar agachado.
+
+NITIDEZ (2026-10-06): el video sale algo mas blando (30-33 en la hoja frente a
+36-38 del reposo y el agachado). montar.py enfoca en rampa calibrado a tamano de
+hoja (0,15 contra el reposo al principio, 0,35 contra el agachado al final). OJO:
+motas.py parte de _sin_motas/; tras rehacer montar.py, borrar _sin_motas/ antes.

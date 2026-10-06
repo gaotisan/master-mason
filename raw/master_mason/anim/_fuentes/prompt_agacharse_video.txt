@@ -1,0 +1,147 @@
+PROMPT PARA EL VIDEO DE AGACHARSE (Google Flow / Veo, "Frames to Video")
+=======================================================================
+Por que (2026-10-06): el agacharse sale de Pilgrim_squatting_animation (job
+magnus_agacharse), que al bajar REBOTA (la cabeza baja, sube 8 px y cae 16) y
+empieza en una pose de pie mas encorvada que el reposo del juego. Para esquivarlo
+el agacharse del juego esta hecho a trozos: un puente de 5 sprites al principio
+y, a media bajada, un empalme con el levantarse al reves. Se nota un poco
+(microparon de la cabeza y un paso de mas en el empalme).
+
+Lo que se pide aqui es SOLO LA BAJADA, de nuestro reposo a nuestro agachado:
+  - empieza y acaba exactamente en las poses del juego (sin puente ni empalmes);
+  - acaba en el agachado de siempre (c_089), asi que el bucle, andar agachado y
+    el giro agachado siguen casando;
+  - a la velocidad del juego (~1 s), para usarla entera y a su ritmo;
+  - el levantarse actual (incorporarse) esta bien y se queda.
+
+En Flow, modo de fotogramas a video:
+  - fotograma inicial: referencia_agacharse_inicio.png  (el reposo del juego,
+    magnus_respirando c_08, mirando a la derecha, a tamano de master en
+    1920x1080, pies en la fila 879, fondo verde #24D732)
+  - fotograma final:   referencia_agacharse_fin.png     (el agachado del juego,
+    magnus_agacharse c_089, mismo lienzo y misma fila de pies)
+  (las dos estan aqui en _fuentes/ y copiadas en Descargas)
+  - 16:9, 8 s, el modelo de mas calidad. Sacar 2-4 tomas.
+  - Fondo VERDE y no magenta: el magenta de las hojas antiguas dejo un ribete en
+    la barba, y el fondo lo marcan las dos imagenes de referencia, que son verdes.
+
+Que mirar en cada toma, por orden (lo que no tiene arreglo despues):
+  1. SIN REBOTE: la cabeza solo baja y se para; nada de pasarse, subir y volver
+  2. la bajada en ~1 s, seguida, sin parones a mitad
+  3. los pies quietos en el sitio; las manos acaban en las rodillas
+  4. camara quieta, mismo tamano, que no se desplace por la pantalla
+  5. acaba en la pose del ultimo fotograma y se queda quieto
+  6. nada encima (controles de reproductor, marcas, texto)
+Si rebota, otra toma; si sigue, probar quitando "about one second" (mas lento
+suele rebotar menos) y lo acelero un poco al montarlo.
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no ground, no floor line, no props, no text, no logos,
+no on-screen interface or player controls.
+
+Digital illustration animation of the ancient pilgrim from the first frame (long
+white beard, rounded slate-blue hood, patchwork brown geometric robe), seen in
+side profile facing right. He holds completely still in his hunched standing
+pose for one second. Then, in one single smooth and continuous motion that takes
+about one second, he lowers himself into a deep squat: his knees bend, his bare
+feet stay planted flat on the same spot without moving, and his hands slide down
+his thighs to rest on his knees. He slows down gently as he reaches the bottom
+and comes to rest exactly in the pose of the last frame, softly, with no bounce,
+no rebound, no dipping below the final pose and no swaying or settling movements
+afterwards. Then he holds that squatting pose with his hands on his knees,
+completely still apart from a very subtle breath, until the end of the video. He
+does not stand up again.
+
+His size never changes and his position on screen does not move. The character
+design, colours and textures of the reference frames are strictly maintained
+throughout: same low-poly flat-shaded hand-painted style, soft matte texture,
+crisp frames with no motion blur, no flicker. Sound: only the soft rustle of the
+robe, no music, no voice.
+
+
+VERSION 2 (2026-10-06): con la primera, Flow no respetaba el encuadre y sacaba
+los pies descalzos y marcados.
+  - El encuadre solo queda clavado en el modo "Fotogramas a video" (Frames to
+    Video) con las DOS imagenes puestas como fotograma inicial y final. Si la pose
+    se sube como "ingrediente" (Ingredients to Video) es solo una referencia de
+    aspecto y el modelo encuadra a su manera.
+  - Con las imagenes ya definiendo personaje, fondo y encuadre, las guias de Veo
+    3.1 recomiendan que el prompt describa SOLO el movimiento y la camara: volver
+    a describir al personaje (y "bare feet") le hace redibujarlo.
+  - Cuanto mas lejos estan las dos imagenes, mas deforma o funde; si sigue mal,
+    partirlo en dos clips con un fotograma intermedio.
+
+Static locked-off camera: the framing stays exactly as in the first frame for the
+whole clip, with no zoom, no pan, no tilt, no camera movement and no cuts. Keep
+the plain green background and the character exactly as they are in the frames.
+The pilgrim holds still for two seconds. Then he crouches down in one slow,
+smooth, continuous movement, bending his knees, with his feet planted and not
+moving and his hands sliding down his thighs onto his knees. He decelerates
+gently and comes to rest exactly in the pose of the last frame, with no bounce
+and no rebound. He holds that pose, still, until the end. No music.
+
+SI FLOW NO LO SACA
+  - Kling Motion Control (Kling 3.0): una imagen del personaje (referencia_
+    agacharse_inicio.png) y un video de referencia con el movimiento; copia el
+    movimiento del video y mantiene la posicion y el tamano de la imagen. El video
+    de referencia mejor es uno grabado a proposito: una persona de perfil, cuerpo
+    entero, movil quieto, que se agacha despacio hasta las manos en las rodillas,
+    sin rebote, y se queda 3 s (el video tiene que durar 3-30 s, sin cortes ni
+    movimiento de camara). Modo "orientacion como la imagen" para que siga de
+    perfil.
+  - Kling 4.0 (sale en octubre de 2026): hasta 10 fotogramas clave en la linea de
+    tiempo. Se le pasarian fotogramas de la bajada que ya tenemos (reposo, c_010,
+    c_020, c_027) y el agachado c_089 y rellena entre ellos.
+
+
+VERSION 3 (2026-10-06): con fotogramas clave. En _fuentes/agacharse_claves/ (y en
+Descargas/agacharse_claves/), todas en el mismo lienzo 1920x1080 verde, con la
+casilla del juego en (671, 202): los pies en la fila 879 y en el mismo sitio, como
+en el juego (las referencias de antes centraban cada figura y el agachado quedaba
+10 px a la derecha).
+  01_reposo.png      el reposo del juego (magnus_respirando c_08)
+  02_bajando.png     la bajada a media altura (magnus_agacharse c_018)
+  03_casi_abajo.png  el ultimo bueno antes del rebote (c_027)
+  04_agachado.png    el agachado del bucle (c_089)
+  00_secuencia.png   las cuatro en fila, solo como referencia visual
+Flow solo admite fotograma inicial y final, asi que los intermedios sirven para
+partir el movimiento en clips (que se empalman en el mismo fotograma). Modo
+"Fotogramas a video" siempre.
+
+PLAN A, un clip: 01_reposo -> 04_agachado
+Static locked-off camera: the framing stays exactly as in the first frame for the
+whole clip, with no zoom, no pan, no tilt, no camera movement and no cuts. Keep
+the plain green background and the character exactly as they are in the frames.
+The pilgrim holds still for two seconds. Then he crouches down in one slow,
+smooth, continuous movement of about two seconds: his knees bend, his feet stay
+planted on the same spot, and his hands slide down his thighs onto his knees. He
+slows down gently and comes to rest exactly in the pose of the last frame, with
+no bounce and no rebound. He holds that pose, still, until the end. No music.
+
+PLAN B, dos clips (si el A deforma o rebota): 01 -> 03 y 03 -> 04
+Clip 1, 01_reposo -> 03_casi_abajo:
+Static locked-off camera: the framing stays exactly as in the first frame for the
+whole clip, with no zoom, no pan, no tilt, no camera movement and no cuts. Keep
+the plain green background and the character exactly as they are in the frames.
+The pilgrim holds still for two seconds. Then he starts to crouch down in one
+slow, smooth, continuous movement of about two seconds, his knees bending, his
+feet planted on the same spot and his hands sliding down his thighs, until he
+reaches the pose of the last frame, partway down, and holds it until the end.
+No music.
+Clip 2, 03_casi_abajo -> 04_agachado:
+Static locked-off camera: the framing stays exactly as in the first frame for the
+whole clip, with no zoom, no pan, no tilt, no camera movement and no cuts. Keep
+the plain green background and the character exactly as they are in the frames.
+The pilgrim starts from the pose of the first frame, partway down into a crouch.
+He holds still for two seconds, then lowers himself the rest of the way in one
+slow, smooth movement of about one second, his hands settling on his knees, and
+comes to rest exactly in the pose of the last frame, softly, with no bounce, no
+rebound and no dipping below it. He holds that pose, still, until the end.
+No music.
+Al montarlo: de cada clip se quitan los ratos quietos y se empalman en el 03; a
+cada clip el modelo le pone su arranque y su frenada, y el empalme se suaviza
+quitando los fotogramas lentos de alrededor.

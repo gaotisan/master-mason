@@ -101,9 +101,50 @@ for n in FOTOGRAMAS:
     t = (n - INICIO) / float(FIN - INICIO)
     dx = int(round(DX0 + t * (DX1 - DX0)))
     del_video.append(mover(z['aplicar'](video(n), gan), dx, DY))
+# Nitidez (2026-10-06): el video de Flow (720p ampliado 1,5) es mas blando que
+# los sprites del juego (laplaciano medio en la hoja: 27 al empezar frente a 38
+# del agachado), y el usuario veia "un mini blur al principio" del giro. Se
+# enfoca cada fotograma con una mascara de desenfoque (sigma 2 de master, que
+# aguanta la reduccion a la hoja; el fondo no entra: se pondera por el alfa),
+# midiendo a tamano de hoja.
+from scipy import ndimage as _nd
+
+
+def nitidez(im):
+    """Laplaciano medio a tamano de hoja (la mitad), que es lo que se ve."""
+    pre = im[..., :3] * im[..., 3:]
+    h, w = (im.shape[0] // 2) * 2, (im.shape[1] // 2) * 2
+    g = pre[:h, :w].mean(2).reshape(h // 2, 2, w // 2, 2).mean((1, 3))
+    a = im[:h, :w, 3].reshape(h // 2, 2, w // 2, 2).mean((1, 3))
+    return float(np.abs(_nd.laplace(g)[a > 0.78]).mean() * 1000)
+
+
+def enfocar(im, k, sigma=2.0):
+    """Mascara de desenfoque ponderada por el alfa (el fondo no entra)."""
+    a = im[..., 3]
+    if k <= 0:
+        return im
+    rgb = im[..., :3]
+    peso = _nd.gaussian_filter(a, sigma)
+    borroso = np.stack([_nd.gaussian_filter(rgb[..., c] * a, sigma) for c in range(3)], -1) / np.maximum(peso, 1e-6)[..., None]
+    out = np.clip(rgb + k * (rgb - borroso), 0, 1)
+    return np.concatenate([np.where(a[..., None] > 0, out, 0), a[..., None]], 2)
+
+
+def calibrar(im, objetivo):
+    return min(np.arange(0, 3.01, 0.05), key=lambda k: abs(nitidez(enfocar(im, k)) - objetivo))
+
+
+# La fuerza va en rampa: la del primero contra el agachado y la del ultimo contra
+# el agachado espejado (el video acaba mas nitido de lo que empieza).
+K0, K1 = calibrar(del_video[0], nitidez(ag)), calibrar(del_video[-1], nitidez(ag))
+del_video = [enfocar(s, K0 + (K1 - K0) * i / (len(del_video) - 1.0)) for i, s in enumerate(del_video)]
+print('enfoque %.2f -> %.2f: agachado %.1f, primero %.1f, ultimo %.1f' % (
+    K0, K1, nitidez(ag), nitidez(del_video[0]), nitidez(del_video[-1])))
 # Enlaces fundidos: el mosaico de la tunica del video no es el del agachado del
 # juego (0,43 al empezar, 0,22 al acabar); dos fotogramas de fundido a la entrada
-# y uno a la salida, con la silueta ya encajada, lo pasan sin salto.
+# y uno a la salida, con la silueta ya encajada, lo pasan sin salto. Duran un
+# refresco cada uno (ver _spriteframes.py): mas largos se veian como un borroso.
 sprites = ([ag, fundir(ag, del_video[0], 1 / 3.0), fundir(ag, del_video[0], 2 / 3.0)]
            + del_video + [fundir(del_video[-1], ag[:, ::-1], 0.5), ag[:, ::-1]])
 for f in glob.glob(os.path.join(SALIDA, '*.png')):

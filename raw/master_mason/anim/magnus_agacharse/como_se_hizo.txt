@@ -56,9 +56,10 @@ La bajada y el levantarse del video NO son el mismo movimiento al reves (se
 separan hasta 0,23): se usan los dos.
 
 En el juego (SpriteFrames, casillas de la hoja desde 0):
-  agacharse     126..122 + 0..37 + 91, 90, 89 con cada una dos veces 49 f, 60 fps, 0,82 s
+  agacharse     126..122 + 0..26 + 98..89 (levantarse al reves)     42 f, 60 fps, 0,7 s
                 (hasta el 2026-09-29: 126..122 + 0..41 + 42..60 dos veces, 85 f,
-                1,42 s; ver ASENTARSE SIN REBOTE)
+                1,42 s; ver ASENTARSE SIN REBOTE. Hasta el 2026-10-06: 126..122 +
+                0..37 + 91, 90, 89 dos veces, 49 f; ver SIN CLICK DE CABEZA)
   agachado      76..88 y vuelta 87..77 (ida y vuelta)               24 f, 12 fps, bucle 2 s
                 (hasta el 2026-09-29: 61..88 y vuelta, 54 f a 24 fps; ver CABEZA
                 QUIETA EN EL BUCLE)
@@ -111,3 +112,29 @@ en la misma fila (+-0,4 px de la hoja): 24 fotogramas a 12 fps, 2 s. Es el tramo
 que enlaza con el final del agacharse y el principio del levantarse, y el
 arranque del andar agachado casa mejor con el (0,6-0,8 pasos, antes 0,7-1,1).
 
+
+SIN CLICK DE CABEZA (2026-10-06). Con el asentarse de ASENTARSE SIN REBOTE el
+usuario veia "un click de la cabeza al final de agacharse: esta fija en una
+posicion y al final hace click y se levanta". La altura no saltaba (bajaba sin
+subir); lo que cambiaba era la POSTURA: en la bajada la cabeza va inclinada (la
+barba en diagonal) y en el levantarse erguida, y el empalme c_038 -> c_092
+cambiaba la cabeza 0,44 (zona de la cabeza, en la hoja) cuando los pasos de
+antes eran de 0,14: tres pasos de golpe con el cuerpo ya casi parado.
+Buscando todos los pares bajada/levantarse a la misma altura de cabeza, el mejor
+es c_027 -> c_099 (cabeza 158 las dos): cambia la cabeza 0,34 con pasos de 0,33
+alrededor (uno normal) y el cuerpo 1,6 pasos, a media bajada, con el cuerpo en
+marcha. Desde el c_099 el levantarse al reves sigue bajando, ya con la cabeza
+erguida, y frena solo hasta el c_090, que va pegado al bucle. agacharse queda en
+42 fotogramas (0,7 s); AGACHARSE_SUBE_DESDE pasa a 32 y AGACHARSE_A_INCORPORARSE a
+9..0. Medido en el juego (grabacion del piloto, 05_salida/agacharse_en_juego.mp4):
+la cabeza baja de la 879 a la 950 de pantalla sin subir nunca y frenando, y la
+cabeza cambia parejo hasta el final (0,28-0,33 y frenando a 0,17-0,23).
+Arreglado de paso: soltar asentandose leia el fotograma DESPUES de _cambiar (que
+lo pone a 0) y entraba siempre por el mismo del levantarse; ahora sigue desde el
+sprite que habia en pantalla.
+
+DESDE EL 2026-10-06 el agacharse del juego ya no sale de aqui sino de
+magnus_agacharse_flow (un video nuevo de nuestro reposo a nuestro c_089, sin
+empalmes). De esta hoja siguen saliendo el bucle (agachado) y el levantarse
+(incorporarse), y el c_089 es el ultimo sprite de aquel agacharse. Lo de arriba
+(puente, ASENTARSE SIN REBOTE, SIN CLICK DE CABEZA) queda como historia.

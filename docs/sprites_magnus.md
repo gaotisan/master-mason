@@ -304,12 +304,13 @@ Los parametros del personaje y el porque de cada numero estan en
 | `caida` | 21 | 7 | 3 | 24 | una pasada, casilla 380x360 |
 | `tumbado` | 1 | 1 | 1 | - | quieto, casilla 380x360 |
 | `levantarse` | 63 | 8 | 8 | 20 | una pasada, casilla 380x360 (a 24 se veia rapido) |
-| `agacharse` | 49 | 12 | 11 | 60 | una pasada; hoja `magnus_agacharse`, 127 casillas para las tres |
-| `agachado` | 24 | 12 | 11 | 12 | bucle de ida y vuelta sobre c_077-c_089 (la cabeza quieta), misma hoja |
-| `incorporarse` | 38 | 12 | 11 | 60 | una pasada, misma hoja |
+| `agacharse` | 71 | 9 | 8 | 60 | una pasada, 1,4 s (el asentarse a 1,5 refrescos por sprite); hoja `magnus_agacharse_flow` |
+| `agachado` | 24 | 12 | 11 | 12 | bucle de ida y vuelta sobre c_077-c_089 (la cabeza quieta); hoja `magnus_agacharse` |
+| `incorporarse` | 38 | 12 | 11 | 60 | una pasada; hoja `magnus_agacharse` |
 | `arranque_agachado` | 27 | 7 | 4 | 20 | una pasada; el nodo va por su tabla de avance |
 | `andar_agachado` | 42 | 7 | 6 | 20 | bucle movido por la distancia (4,65 px por fotograma, 93 px/s) |
 | `parada_agachado` | 31 | 8 | 4 | 20 | una pasada; el nodo va por su tabla de avance |
+| `paso_agachado` | 95 | 10 | 10 | 60 | una pasada, 1,6 s: un solo paso de agachado a agachado (+39 px); el nodo va por su tabla de avance |
 | `giro_agachado` | 65 | 10 | 7 | 24 | una pasada, 2,8 s, de un video, por detras; los primeros fotogramas duran mas (arranque suave); voltea al terminar |
 
 
@@ -347,10 +348,16 @@ al quedar quieto; en el aire, al caer. Cualquier cambio de idea a medias se
 deshace por el mismo camino, la animacion hacia atras desde el fotograma en que
 iba: soltar mientras baja lo sube, volver a pulsar mientras se levanta lo baja y
 vuelve al bucle por el fotograma que va justo antes del levantarse. Asi nunca
-salta de pose. Para asentarse no usa el del video, que rebotaba (la cabeza
-bajaba, subia 8 px y caia 16), sino el principio del levantarse al reves: la
-cabeza solo baja. Por eso soltar ya asentandose (desde el fotograma 43 de
-`agacharse`) sigue por el levantarse desde ese mismo sprite. La respiracion no
+salta de pose. El agacharse sale de un video pedido para el
+(`magnus_agacharse_flow`, 2026-10-06): de nuestro reposo a nuestro agachado
+(el c_089 del bucle), entero, con enlaces exactos en los dos lados. Baja de un
+tiron, se pasa un poco y sube despacio 7 px de pantalla hasta quedarse (en un
+solo sentido; el video viejo bajaba, subia y volvia a caer). La bajada va a 60
+fps y el asentarse a 1,5 refrescos por sprite: 1,4 s. Antes estaba hecho a
+trozos del video viejo para esquivar su rebote y los empalmes se notaban ("un
+click de la cabeza al final de agacharse"); detalle en
+`magnus_agacharse_flow/como_se_hizo.txt`. Soltar en cualquier punto lo deshace
+hacia atras. La respiracion no
 se corta al agacharse: si venia jadeando, sigue y se va apagando (el agachado
 cuenta como descanso). Suenan dos roces de ropa (`agacharse_db`). Se apaga entera
 con `agacharse_activo`. Como se monto la animacion, y por que empieza con un
@@ -369,8 +376,11 @@ al acabar de girar echa a andar agachado hacia alli. Andando agachado no gira: s
 erguido y con la zancada abierta, y ningun fotograma del ciclo casa con el
 agachado quieto: de ahi el arranque y la parada. La parada solo casa desde seis
 fotogramas del ciclo (empieza con un pie concreto), asi que tras soltar anda
-hasta 1,8 s mas (0,9 de media). Soltar en los tres primeros fotogramas del
-arranque lo deja agachado sin mas. El ciclo va por la distancia, como andar; el
+hasta 1,8 s mas (0,9 de media). Por eso un toque corto da UN paso con su propia
+animacion (`paso_agachado`, 2026-10-06): soltar la direccion en los fotogramas
+0-4 del arranque, que aun son el agachado, pasa a ella (un pie sale, el cuerpo
+avanza y el otro se junta; +39 px, 1,7 s, y acaba en el agachado). Soltar abajo
+en los tres primeros lo deja agachado sin mas. El ciclo va por la distancia, como andar; el
 arranque y la parada mueven el nodo por sus tablas de avance, medidas en el pie
 apoyado. Pisadas flojas (`pasos_agachado_db`), sin respiracion propia: cuenta como
 andar para el esfuerzo. Todo sale de un solo video, con el zoom de la camara

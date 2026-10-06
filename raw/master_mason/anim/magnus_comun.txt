@@ -45,10 +45,13 @@ Animaciones disponibles:
 
   magnus_aterrizaje_correr 34 sprites  60 fps  una pasada     video 166-199 del salto de piedra (cola)
   magnus_salto_parado     66 sprites  60 fps  una pasada     video 34-80 + 116-134; salto desde el reposo
-  magnus_agacharse       127 sprites  una hoja, tres animaciones: agacharse (49 f, 60 fps), agachado (bucle, 24 f, 12 fps), incorporarse (38 f, 60 fps)
+  magnus_agacharse       127 sprites  una hoja, tres animaciones: agachado (bucle, 24 f, 12 fps) e incorporarse (38 f, 60 fps); el agacharse ya no sale de aqui
+  magnus_agacharse_flow    71 sprites  60 fps  una pasada     video 44-110 (Flow, de nuestro reposo a nuestro agachado); 1,4 s con el asentarse a 40 fps
+  magnus_andar_diagonal    42 sprites  30 fps  bucle 1,4 s    video 81-122 (tres cuartos, fondo beis); DE PRUEBA, magnus.gd no lo usa
   magnus_arranque_agachado 27 sprites  20 fps  una pasada     video  20-46 (zoom corregido, ver magnus_andar_agachado/como_se_hizo.txt)
   magnus_andar_agachado    42 sprites  20 fps  ciclo 2,1 s    video 143-184 (video en vertical, escala 0,50)
   magnus_parada_agachado   31 sprites  20 fps  una pasada     video 185-215
+  magnus_paso_agachado     95 sprites  60 fps  una pasada     un paso agachado (dos videos de Flow, con magnus_paso_agachado_2); 1,6 s, +39 px
   magnus_giro_pie_rapido   47 sprites  30 fps  una pasada     video 70-112, todos, de espaldas, espejado; 1,6 s
   magnus_giro_agachado_video 65 sprites 24 fps una pasada    video 103-162, todos, por detras; 2,8 s con arranque suave
   (magnus_giro, 5 poses de IA; magnus_giro_pie_video, giro lento acelerado; magnus_giro_agachado, 5 vistas de Gemini; magnus_giro_agachado_frente, por delante: ya no se usan)

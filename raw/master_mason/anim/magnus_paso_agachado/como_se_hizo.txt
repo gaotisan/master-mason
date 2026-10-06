@@ -1,0 +1,71 @@
+magnus_paso_agachado: como se monto
+===================================
+Un solo paso agachado (paso_agachado): de agachado a agachado, 39 px del juego
+mas alla. 100 sprites a 60 fps, 1,7 s. En el juego, un toque hacia delante
+agachado lo da (antes daba dos pasos: el arranque da el primero con un pie y la
+unica parada cierra con el otro, asi que tenia que pasar por medio ciclo).
+
+Dos videos de Flow seguidos (camara quieta, fondo verde):
+  1. _fuentes/Crouching_pilgrim_stepping_forward_20261006205235.mp4 (este job),
+     pedido con _fuentes/prompt_paso_agachado.txt: de nuestro agachado, el pie de
+     delante sale y se planta 77 px de master mas adelante; el cuerpo casi no se
+     mueve. Flow no respeto la imagen final (que adelantaba al personaje entero),
+     asi que acaba con los pies abiertos. Se mueve del 45 al 92.
+  2. _fuentes/Pilgrim_shifting_weight_forward_20261006230324.mp4 (job
+     magnus_paso_agachado_2): pedido con el ultimo fotograma del 1 de inicial y
+     nuestro agachado con la punta del pie de delante donde la deja el 1 de final
+     (paso_agachado_claves/03_pie_delante.png y 04_pies_juntos.png). El cuerpo
+     avanza sobre el pie de delante, que no se mueve, y el de atras se junta.
+     Se mueve del 47 al 90 y acaba en nuestro agachado 78 px mas adelante (0,22).
+OJO al medir: el centro de la silueta casi no se mueve en el 1 y lo que va hacia
+atras en los primeros fotogramas es el faldon de la tunica, no un pie. Se mide en
+el contacto con el suelo (filas 576-596 a 720p).
+
+Pasos (en los dos jobs):
+  elegir.ps1  (30-130 en el 1, 40-100 en el 2)
+  python escalar.py          el de magnus_giro_pie_rapido (1,5)
+  centrar.ps1 -Job <job> -Ancho 584 -Alto 720 -MargenSuelo 30 -Eje 501 -Sobrescribir
+              EJE FIJO: la camara no se mueve y asi las coordenadas son las del
+              mundo (centrado por su cuenta, cada fotograma se recoloca y los pies
+              apoyados se moverian). 501 deja el primer fotograma donde el c_089.
+  fondo.ps1   -Job <job> -Tolerancia 35 -Radio 4 -Motas 300
+  (a _todos/ cada uno)
+  python montar.py           (este job) los 100, ver abajo; imprime la tabla
+  python tools/anim/motas.py raw/master_mason/anim/magnus_paso_agachado/04_limpios
+  hoja.ps1    -Job magnus_paso_agachado -Cols 10 -Fps 60 -Escala 2
+  tools/anim/_spriteframes.py  ('paso_agachado', 'magnus_paso_agachado', 100, 10, 60.0, False)
+
+montar.py: el agachado del juego, dos de fundido, el 1 (45-92), dos de fundido
+(Flow redibujo la textura al hacer el 2: 0,34 entre el ultimo del 1 y el primero
+del 2 con la misma pose), el 2 (47-90), dos de fundido y el agachado del juego.
+Cada sprite va retrasado lo que ha avanzado el cuerpo (0 en el 1; el tronco en el
+2, de 0 a 78 px de master) y el nodo avanza eso mismo (AVANCE_PASO_AGACHADO en
+magnus.gd, en px del juego): lo que se ve queda en las coordenadas del video, con
+los pies clavados, y la camara sigue al nodo sin saltos. Ademas: bolsas de croma
+(solo lo opaco), ganancia por zonas en rampa contra el bucle del agachado y
+enfoque calibrado a tamano de hoja en los extremos de cada video.
+Pasos entre sprites: media 0,167, maximo 0,30; la union entre videos queda en
+0,11-0,12. revisar.py: paso medio 0,132, bien; enlaces agachado <-> paso
+exactos, arranque 1 -> paso 1 a 0,8 pasos.
+
+magnus.gd: estado PASO_AGACHADO. Al pulsar hacia delante agachado arranca como
+siempre (arranque_agachado); si se suelta la direccion (sin soltar abajo) en los
+fotogramas 0-4 del arranque, que aun son el agachado, pasa al paso por
+ARRANQUE_A_PASO (desde el 5 ya no casa). Mantenida, sigue el arranque y el ciclo.
+Probado: toques de 0,1 y 0,2 s dan un paso cada uno (+39 px, 1,7 s); mantener 2,5 s
+anda agachado como antes. Suenan el pie de delante (18) y el de atras (82).
+
+SEGUNDA VERSION (2026-10-06): el usuario veia "dos avances pequenos" y "parecen
+distintas animaciones":
+  - al pulsar arrancaba el arranque_agachado (mas erguido) y al soltar volvia al
+    paso: un primer meneo. Ahora magnus.gd espera TOQUE_AGACHADO (0,2 s) en el
+    agachado: si se suelta antes, va derecho al paso; si no, arranca (y soltar en
+    sus fotogramas 0-4 aun da el paso).
+  - entre los dos videos se quedaba quieto: el 1 se usaba hasta el 92 y el 2
+    desde el 47. Ahora el 1 hasta el 86 y el 2 desde el 46 (casan a 0,265 y no
+    hay rato quieto). 95 sprites.
+  - lo que queda: en el video 1 el cuerpo se inclina hacia delante sobre el pie
+    (8 px del juego) y vuelve antes de que el 2 lo lleve adelante. Viene del video:
+    a media inclinacion los dos videos no casan (0,7-0,9). Si molesta, la salida
+    es un solo video con el paso entero.
+Sonidos: pie de delante en el 18, el de atras en el 77.

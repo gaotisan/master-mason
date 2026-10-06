@@ -131,11 +131,14 @@ ENLACES = [
     ('agachado', 12, 'incorporarse', 0, False),
     ('incorporarse', -1, 'reposo', 0, False),
     ('agachado', None, 'arranque_agachado', 0, False),
-    ('arranque_agachado', -1, 'andar_agachado', 21, False),
+    ('arranque_agachado', -1, 'andar_agachado', 20, False),
     ('andar_agachado', 41, 'parada_agachado', 0, False),
     ('parada_agachado', -1, 'agachado', 5, False),
     ('agachado', None, 'giro_agachado', 0, False),
     ('giro_agachado', -1, 'agachado', 12, True),
+    ('agachado', None, 'paso_agachado', 0, False),
+    ('arranque_agachado', 1, 'paso_agachado', 1, False),
+    ('paso_agachado', -1, 'agachado', 12, False),
 ]
 
 
