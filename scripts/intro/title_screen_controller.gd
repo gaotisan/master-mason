@@ -75,7 +75,7 @@ extends Node2D
 ## El tema se apaga mientras la camara entra por el cristal, y llega a silencio
 ## antes del cambio de escena. Es mas corto que zoom_in_time para que quede un
 ## momento de solo viento y negro antes de que entre el fondo del juego, que lo
-## pone dark_stage por su cuenta.
+## pone la escena siguiente (caida_hojarasca) por su cuenta.
 @export var music_fade_out: float = 4.0
 
 @export_group("Salida")
@@ -134,11 +134,12 @@ extends Node2D
 ## camara arranca (zoom_in_start), porque lo que lo asusta es justamente que algo
 ## se mueva. Este numero es solo el tiempo de reaccion, y por eso es pequeno.
 @export var spider_reaccion: float = 0.15
-## A donde se pasa tras el negro: dark_stage, donde cae Magnus.
+## A donde se pasa tras el negro: la caida en la hojarasca, donde cae Magnus.
+## (dark_stage, el escenario negro, queda para pruebas de animaciones.)
 ## Se empieza a cargar en segundo plano cuando la pantalla ya esta en negro
 ## (ver _pedir_carga), para no tocar la fluidez de nada de lo que se ve.
 ## En la web sin hilos se sigue cargando al final, en _leave.
-@export var next_scene: String = "res://scenes/game/dark_stage.tscn"
+@export var next_scene: String = "res://scenes/game/caida_hojarasca.tscn"
 
 const CANDLE_A := Vector2(868, 830)
 const CANDLE_B := Vector2(1852, 842)

@@ -327,6 +327,10 @@ signal impacto
 ## Se emite cuando andar_hasta() ha llevado al personaje a su sitio y ya esta
 ## en reposo.
 signal llegado
+## Se emite en cada contacto con el suelo que suena: pisadas (PISADAS) y golpes
+## de arranques, paradas y saltos (GOLPES); anim y sprite dicen cual. El nivel
+## lo usa para que el suelo reaccione al pie (la hojarasca de caida_hojarasca).
+signal pisada(anim: StringName, sprite: int)
 
 ## CONTROL DESDE FUERA. Los niveles y los dialogos necesitan quitarle las teclas
 ## al jugador sin romper la maquina de estados: con control_bloqueado las
@@ -1315,6 +1319,7 @@ func _resolver_giro() -> void:
 	# se leia como un patinazo.
 	if _estado == Estado.PARADA_CORRER and _sprite.frame < 5:
 		_sonar(GOLPES["parada_correr"][5], pasos_db, 0.0, true)
+		pisada.emit(&"parada_correr", 5)
 	if giro_activo:
 		_empezar_giro(hacia, corriendo)
 		return
@@ -1550,6 +1555,7 @@ func _seguir_corriendo_tras_salto() -> void:
 	# El golpe de la caida esta en el sprite 33 del salto, que por aqui no se
 	# llega a ver: suena en el propio corte, que es el momento del impacto.
 	_sonar(GOLPES["salto_correr"][SALTO_CORRER_CAIDA_SPRITE], pasos_db, 0.0, true)
+	pisada.emit(&"salto_correr", SALTO_CORRER_CAIDA_SPRITE)
 
 ## Arco y ritmo de los saltos. El sprite trae el salto cocido; el arco del nodo
 ## se le suma durante el vuelo, atado al fotograma (con la fraccion de
@@ -1664,6 +1670,7 @@ func _al_cambiar_fotograma() -> void:
 	if golpes.has(_sprite.frame):
 		var agachado := _sprite.animation in [&"arranque_agachado", &"parada_agachado", &"paso_agachado"]
 		_sonar(golpes[_sprite.frame], pasos_db + (pasos_agachado_db if agachado else 0.0), 0.0, true)
+		pisada.emit(_sprite.animation, _sprite.frame)
 
 ## Cinematica de entrada. Coloca al personaje caida_altura px por encima de
 ## donde esta (la marca de suelo de la escena) y lo deja caer con aceleracion
@@ -1857,6 +1864,7 @@ func _pisar(fotograma: int, n: int) -> void:
 			_pasos.volume_db = pasos_db + (pasos_agachado_db if _sprite.animation == &"andar_agachado" else 0.0)
 			_pasos.pitch_scale = randf_range(1.0 - pasos_variacion, 1.0 + pasos_variacion)
 			_pasos.play()
+			pisada.emit(_sprite.animation, i)
 	_ultimo_fotograma = fotograma
 
 ## Sube y baja la cuenta de esfuerzo y, en reposo, lleva el volumen de la
