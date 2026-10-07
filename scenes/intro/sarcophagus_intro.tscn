@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/intro/sarcophagus_base_16_9.png" id="1"]
 [ext_resource type="Script" path="res://scripts/flicker_light.gd" id="2"]
@@ -14,6 +14,7 @@
 [ext_resource type="Resource" path="res://resources/tutorial/punch_hint.tres" id="15_hint"]
 [ext_resource type="PackedScene" path="res://scenes/intro/web_spider.tscn" id="16_spider"]
 [ext_resource type="Script" path="res://scripts/fondo_parches_luz.gd" id="17_parches"]
+[ext_resource type="Texture2D" path="res://assets/intro/tunica_mesa.png" id="18_tunica"]
 
 [sub_resource type="Gradient" id="Gradient_radial"]
 offsets = PackedFloat32Array(0, 0.7)
@@ -54,6 +55,11 @@ color = Color(0.15, 0.01, 0.01, 0.6)
 position = Vector2(1456, 816)
 texture = ExtResource("1")
 script = ExtResource("17_parches")
+
+[node name="Tunica" type="Sprite2D" parent="."]
+position = Vector2(1170, 826)
+texture = ExtResource("18_tunica")
+centered = false
 
 [node name="CornerSpider" parent="." instance=ExtResource("16_spider") groups=["asustadizo"]]
 light_mask = 0
