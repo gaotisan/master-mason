@@ -141,6 +141,18 @@ extends Node2D
 ## En la web sin hilos se sigue cargando al final, en _leave.
 @export var next_scene: String = "res://scenes/game/caida_hojarasca.tscn"
 
+## Esquinas del cristal donde puede vivir la araña: donde se posa, adonde vuela
+## al asustarse (la otra esquina del mismo lado), por donde arquea el vuelo y como
+## esta tumbada en cada sitio. Las de la derecha son las de siempre; las de la
+## izquierda, su espejo, corridas hacia el marco a lo mas tupido de la telarana
+## (medido: densidad 11-12 alli, 8,8 en la de arriba a la derecha, 15 abajo).
+const ESQUINAS_ARANA := [
+	[Vector2(2030, 1035), Vector2(2040, 655), Vector2(2090, 840), 24.0, 18.0],    # abajo dcha
+	[Vector2(2040, 655), Vector2(2030, 1035), Vector2(2090, 840), 18.0, 24.0],    # arriba dcha
+	[Vector2(790, 1000), Vector2(780, 640), Vector2(735, 820), -24.0, -18.0],     # abajo izda
+	[Vector2(780, 640), Vector2(790, 1000), Vector2(735, 820), -18.0, -24.0],     # arriba izda
+]
+
 const CANDLE_A := Vector2(868, 830)
 const CANDLE_B := Vector2(1852, 842)
 const SUN := Vector2(1474, 0)
@@ -154,6 +166,9 @@ var _mat: ShaderMaterial
 ## La mascara, y su version barata para los creditos (ver title_mask_creditos).
 var _mask: ColorRect
 var _mat_creditos: ShaderMaterial
+## Viento en los arbustos del fondo y hojas sueltas (viento_titulo.gd, con el
+## shader title_hojas_viento.gdshader en el fondo).
+var _viento: Node2D
 var _time_a := 0.0
 var _time_b := 0.0
 var _candle_on := 0.0   # 0..1, cuanto han encendido ya las velas
@@ -200,6 +215,17 @@ func _ready() -> void:
 	# pantalla obliga a copiarla entera cada fotograma, y debajo solo hay este
 	# fondo (y la araña, que no pisa ni las letras ni el foco).
 	_mat.set_shader_parameter("bg_tex", ($Background as Sprite2D).texture)
+	# Los arbustos del fondo se mueven con el viento que suena, y cada racha
+	# suelta unas hojas, que van por delante de todo lo del cuadro. La mascara
+	# de luz sigue leyendo el fondo quieto: solo mira el brillo de las letras y
+	# del foco, y ahi no hay hojas.
+	var mat_hojas := ShaderMaterial.new()
+	mat_hojas.shader = load("res://scripts/intro/title_hojas_viento.gdshader")
+	mat_hojas.set_shader_parameter("leaf_mask", load("res://assets/intro/title_hojas_mascara.png"))
+	($Background as Sprite2D).material = mat_hojas
+	_viento = load("res://scripts/intro/viento_titulo.gd").new()
+	_viento.material_fondo = mat_hojas
+	add_child(_viento)
 	# De repuesto: un fundido global de toda la oscuridad. Se deja en 1 a proposito.
 	_mat.set_shader_parameter("darkness", 1.0)
 	_mat.set_shader_parameter("candle_radius", 0.0)
@@ -233,6 +259,11 @@ func _ready() -> void:
 	# Las hojas del vuelo del aracnobat, que si no se cargarian en pleno zoom.
 	if _spider and _spider.has_method("precargar_vuelo"):
 		_spider.precargar_vuelo()
+	# Cada vez sale en una esquina del cristal, y al asustarse vuela a la otra
+	# esquina del mismo lado.
+	if _spider and _spider.has_method("colocar"):
+		var e: Array = ESQUINAS_ARANA[randi() % ESQUINAS_ARANA.size()]
+		_spider.colocar(e[0], e[1], e[2], e[3], e[4])
 
 	if _camera:
 		_camera.zoom = Vector2.ONE * zoom_start
@@ -510,9 +541,13 @@ func _process(delta: float) -> void:
 	var pulse := 0.78 + 0.22 * sin(_breath * 1.15)
 	_mat.set_shader_parameter("fog_amount", _fog_level * pulse)
 
-	# Rachas de viento: solo suben el volumen, no tocan la imagen.
+	# Rachas de viento: suben el volumen y mueven las hojas, las dos con la misma
+	# racha. La brisa de fondo sigue al volumen base (de -14 dB a 0 dB).
+	var racha := _gust_strength()
 	WindAmbience.base_db = _wind_db
-	WindAmbience.gust_db = _gust_strength() * 2.0
+	WindAmbience.gust_db = racha * 2.0
+	_viento.racha = racha
+	_viento.brisa = clampf(remap(_wind_db, -14.0, 0.0, 0.15, 1.0), 0.0, 1.0)
 
 ## La mascara de luz esta medida sobre la imagen: hay que decirle que trozo de la
 ## imagen tiene la camara en pantalla para que la siga en el zoom. Va enganchado

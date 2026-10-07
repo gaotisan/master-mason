@@ -406,7 +406,21 @@ func volar() -> float:
 func duracion_vuelo() -> float:
 	return (_n("abrir") + _n("cerrar")) / fps + vuelo_tiempo
 
-## Bezier cuadratica de la telarana de abajo a la de arriba.
+## La cambia de rincon antes de empezar (el titulo sortea una de las cuatro
+## esquinas del cristal): donde vive, adonde vuela al asustarse, por donde
+## arquea el vuelo y como esta tumbada en cada sitio. Lo demas no cambia.
+func colocar(nueva_posada: Vector2, nuevo_destino: Vector2, nuevo_control: Vector2,
+		ang_posada: float, ang_destino: float) -> void:
+	posada = nueva_posada
+	destino = nuevo_destino
+	vuelo_control = nuevo_control
+	angulo_posada = ang_posada
+	angulo_destino = ang_destino
+	position = posada
+	_sprite.rotation_degrees = angulo_posada
+	_dist_refugio = posada.distance_to(refugio)
+
+## Bezier cuadratica de la telarana de donde vive a la de destino.
 func _punto(t: float) -> Vector2:
 	var u := 1.0 - t
 	return u * u * _salida + 2.0 * u * t * vuelo_control + t * t * destino
