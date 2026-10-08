@@ -1,0 +1,13 @@
+{
+	"_nota": "Pensamientos del peregrino, en primera persona. Cada clave es un pensamiento; la lista, sus partes, que salen una tras otra en el mismo sitio. La clave es tambien el nombre de la voz si algun dia la hay: res://assets/voz/<clave>_<n>.ogg (n desde 1). Pocos, cortos y contenidos: literario sin pasarse.",
+
+	"despertar": ["Hojas secas. Esta luz…", "Antes de ella, nada."],
+
+	"vuelta": ["He caminado sin desviarme… ¿cómo he vuelto al mismo sitio? ¿Es la luz de antes?"],
+
+	"asombro": ["Algo baja por la luz… despacio, como si no pesara."],
+
+	"explorar": ["No puedo quedarme aquí.", "Algo habrá más allá de la luz."],
+
+	"baculo": ["Lo conozco. ¿Ha venido a buscarme?"]
+}

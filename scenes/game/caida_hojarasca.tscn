@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=35 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/caida_hojarasca.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="2"]
@@ -23,6 +23,9 @@
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_golpe.wav" id="s_golpe"]
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_levantarse.wav" id="s_levantarse"]
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_arrastre.wav" id="s_arrastre"]
+[ext_resource type="Script" path="res://scripts/game/baculo.gd" id="baculo"]
+[ext_resource type="Script" path="res://scripts/game/presas.gd" id="presas"]
+[ext_resource type="Script" path="res://scripts/ui/pensamientos.gd" id="pensamientos"]
 
 [sub_resource type="AudioStreamRandomizer" id="pasos"]
 random_pitch = 1.08
@@ -122,6 +125,12 @@ position = Vector2(1456, 1196)
 scale = Vector2(3.4, 0.75)
 texture = ExtResource("9")
 
+[node name="Baculo" type="Node2D" parent="."]
+script = ExtResource("baculo")
+
+[node name="Presas" type="Node2D" parent="."]
+script = ExtResource("presas")
+
 [node name="HojasDetras" type="Node2D" parent="."]
 script = ExtResource("10")
 y_base = 1196.0
@@ -192,6 +201,9 @@ material = SubResource("gradacion")
 offset_right = 2912.0
 offset_bottom = 1632.0
 mouse_filter = 2
+
+[node name="Pensamientos" type="CanvasLayer" parent="."]
+script = ExtResource("pensamientos")
 
 [node name="Entrada" type="CanvasLayer" parent="."]
 layer = 20

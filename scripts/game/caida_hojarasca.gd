@@ -39,6 +39,27 @@ extends Node2D
 @export var racha_cada_max: float = 16.0
 @export var racha_db: float = 4.5
 @export var racha_empuje: float = 90.0
+
+@export_group("Historia")
+## Lo que pasa, en orden: cae y se levanta (pensamiento "despertar"); anda y,
+## al salir por un lado y entrar por el otro la primera vez, se pregunta como ha
+## vuelto al mismo sitio y si es la luz de antes ("vuelta"); al acabar, baja el
+## baculo por el haz y se asombra ("asombro": algo baja por la luz, como si no
+## pesara); al quedarse flotando bajan de el las hojas-presa y lo reconoce
+## ("baculo"). Desconcierto, asombro, reconocimiento.
+## El baculo SOLO baja tras la vuelta: es cuando se da cuenta de que no va a
+## ninguna parte (asi lo quiere el usuario, sin atajo por tiempo; si en un
+## minuto no ha salido por ningun borde, solo el empujon de "explorar"). Los textos
+## estan en textos/pensamientos_es.json.
+## Espera tras levantarse antes del primer pensamiento (s).
+@export var espera_despertar: float = 1.0
+## Si a los tantos segundos de levantarse aun no ha salido por ningun borde, se
+## dice que no puede quedarse ahi ("explorar"), una sola vez: el empujon para
+## que salga a explorar en vez de quedarse dando vueltas en la luz.
+@export var explorar_tras: float = 60.0
+## Desde que acaba el pensamiento de la vuelta, cuanto hasta que empieza a bajar
+## (s). El asombro sale enseguida, justo cuando el baculo asoma por arriba.
+@export var espera_baculo: float = 0.0
 ## Las dos capas de hojas: cuantas por columna de media (mas el monton de donde
 ## cae, en px de altura).
 @export var hojas_por_columna_delante: float = 7.0
@@ -138,6 +159,12 @@ var _racha := 0.0                      # 0..1, la racha de viento que sopla ahor
 var _racha_espera := 5.0
 var _racha_dir := 1.0
 var _fantasma: AnimatedSprite2D        # Magnus al otro lado mientras cruza un borde
+var _vueltas := 0                      # veces que ha salido por un borde con el mando
+var _con_mando := -1.0                 # 0 desde que se levanta (-1: aun no tiene el mando)
+var _baculo_bajando := false
+@onready var _pensar: CanvasLayer = $Pensamientos
+@onready var _baculo: Node2D = $Baculo
+@onready var _presas: Node2D = $Presas
 
 func _ready() -> void:
 	_a_baja_resolucion($Fondo, 4)
@@ -158,6 +185,10 @@ func _ready() -> void:
 	_delante.sembrar(hojas_por_columna_delante, _monton.bind(0.6))
 	_detras.sembrar(hojas_por_columna_detras, _monton.bind(0.4))
 	_entrar_desde_negro()
+	_pensar.x_de = func() -> float: return _magnus.position.x
+	_magnus.cinematica_terminada.connect(_al_levantarse)
+	_pensar.terminado.connect(_al_terminar_pensamiento)
+	_baculo.posado.connect(_al_posar_baculo)
 	# Que ya haya alguna hoja cayendo al abrir.
 	for i in 3:
 		_hoja_de_arriba(randf_range(200.0, 900.0))
@@ -202,6 +233,7 @@ func _soplar(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	_soplar(delta)
+	_animar_a_explorar(delta)
 	# Con racha caen mas hojas de arriba.
 	_arbol_espera -= delta * (1.0 + 3.0 * _racha)
 	if _arbol_espera <= 0.0:
@@ -438,6 +470,10 @@ func _envolver() -> void:
 	var x := _magnus.position.x
 	if x < 0.0 or x >= ANCHO:
 		_magnus.position.x = fposmod(x, ANCHO)
+		if _con_mando >= 0.0:
+			_vueltas += 1
+			if _vueltas == 1:
+				_pensar.decir("vuelta", true)
 	x = _magnus.position.x
 	var lado := ANCHO if x < 260.0 else (-ANCHO if x > ANCHO - 260.0 else 0.0)
 	_fantasma.visible = lado != 0.0
@@ -448,3 +484,37 @@ func _envolver() -> void:
 	_fantasma.frame = _sprite.frame
 	_fantasma.flip_h = _sprite.flip_h
 	_fantasma.global_position = _sprite.global_position + Vector2(lado, 0.0)
+
+# --- Historia ----------------------------------------------------------------
+
+## Si en un minuto no ha salido por ningun borde, una vez: "No puedo quedarme
+## aqui..."
+func _animar_a_explorar(delta: float) -> void:
+	if _con_mando < 0.0 or _vueltas > 0 or _pensar.dicho("explorar"):
+		return
+	_con_mando += delta
+	if _con_mando > explorar_tras and not _pensar.hablando():
+		_pensar.decir("explorar")
+
+func _al_levantarse() -> void:
+	_con_mando = 0.0
+	get_tree().create_timer(espera_despertar).timeout.connect(_pensar.decir.bind("despertar"))
+
+## Acabada la vuelta ("¿Es la luz de antes?"), la luz contesta: baja el baculo
+## y el se asombra. La vuelta es una sola frase (~6 s desde que cruza el
+## borde): con tres eran ~15 s y el jugador ya no miraba.
+func _al_terminar_pensamiento(clave: String) -> void:
+	if clave == "vuelta":
+		get_tree().create_timer(espera_baculo).timeout.connect(_bajar_baculo)
+
+func _bajar_baculo() -> void:
+	if _baculo_bajando:
+		return
+	_baculo_bajando = true
+	_baculo.bajar()
+	_pensar.decir("asombro")
+
+## Ya flotando: bajan de el las hojas-presa y lo reconoce.
+func _al_posar_baculo() -> void:
+	_presas.aparecer(_baculo.position)
+	get_tree().create_timer(1.2).timeout.connect(_pensar.decir.bind("baculo"))
