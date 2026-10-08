@@ -192,6 +192,24 @@ ANIMACIONES = [
     # pasos del video, 81-122, en bucle. A 30 fps (el video va a 24 y anda mas
     # despacio que el andar de perfil). PRUEBA: magnus.gd aun no la usa.
     ('andar_diagonal',    'magnus_andar_diagonal',    42, 7, 30.0, True),
+    # Andar de frente (hacia la camara) y de espaldas (alejandose), con el baston
+    # en la mano. Los videos se acercan y se alejan de verdad: cada fotograma va
+    # con el tamano normalizado (normalizar.py en magnus_andar_frente) y el
+    # tamano lo pone la profundidad en la escena. Ciclos de dos pasos: frente
+    # 88-128 (41), espaldas 136-164 (29, Hooded_figure_walking_forward: anda mas
+    # deprisa). Parejos: los dos ciclos duran 1,37 s (30 y 21,2 fps). PRUEBA:
+    # solo los usa scenes/dev/prueba_frontal.tscn.
+    ('andar_frente',      'magnus_andar_frente',      41, 7, 30.0, True),
+    ('andar_espalda',     'magnus_andar_espalda',     29, 6, 21.2, True),
+    # La vuelta de frente a espaldas con el baston (Old_pilgrim_turning_around,
+    # video 42-90, todos): hecha con un fotograma de cada andar de inicio y fin;
+    # registrada contra andar_frente c_005 y andar_espalda c_005, por los que se
+    # entra y se sale. Casilla propia mas alta (la garra sube por encima de la
+    # comun al empezar), mismo suelo. Hacia atras, de espaldas a frente.
+    ('vuelta_frontal',    'magnus_vuelta_frontal',    49, 7, 30.0, False, (292, 400)),
+    # Sin baston: los mismos andares, parejos (ciclo de 1,37 s, 34 y 29 f).
+    ('andar_frente_sin',  'magnus_andar_frente_sin',  34, 6, 24.8, True),
+    ('andar_espalda_sin', 'magnus_andar_espalda_sin', 29, 6, 21.2, True),
     # Un paso agachado (de agachado a agachado, 39 px mas alla): dos videos de
     # Flow seguidos (el pie de delante sale; el cuerpo avanza y el de atras se
     # junta), con el nodo por AVANCE_PASO_AGACHADO. Un toque agachado lo da;

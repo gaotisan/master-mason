@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/dev/prueba_frontal.gd" id="1"]
+
+[node name="PruebaFrontalGrabar" type="Node2D"]
+script = ExtResource("1")
+guion = [[0.0, "abajo", 1.6, true], [2.5, "arriba", 1.6, true], [6.5, "abajo", 1.6, true], [10.0, "", 1.6, true], [10.5, "abajo", 1.6, false], [12.5, "arriba", 1.6, false], [15.0, "", 1.6, false]]

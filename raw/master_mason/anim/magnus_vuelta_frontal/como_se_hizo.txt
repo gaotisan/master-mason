@@ -1,0 +1,38 @@
+magnus_vuelta_frontal: como se monto (2026-10-08)
+=================================================
+La vuelta de frente a espaldas con el baston en la mano (vuelta_frontal, 49
+sprites a 30 fps, 1,63 s, una pasada; casilla propia 584x800 -> 292x400).
+
+Fuente: _fuentes/Old_pilgrim_turning_around_20261007230523.mp4 (Flow, 1280x720,
+24 fps, 240 f), pedida con prompt_vuelta_frontal.txt (capucha "de tela, no
+gorro de mago") y de fotogramas inicial y final referencia_vuelta_frente.png
+(andar_frente c_018 con la garra puesta) y referencia_vuelta_espalda.png
+(andar_espalda c_005). OJO: el Master_builder_turning_with_staff_2026100722
+5703.mp4 de _fuentes NO es esta vuelta: es el giro de perfil con baston de la
+otra sesion (prompt_baston_giro.txt).
+
+Video: 1-47 "quieto" (pero da un pasito hacia la camara: crece 8 %), 48-90 la
+vuelta (por la izquierda de la pantalla; a mitad, 59-68, la capucha sale mas
+blanda y redondeada que en el perfil y los giros de pie: incoherencia leve, ~0,5
+s), 90-240 quieto de espaldas. Tramo usado: 42-90, todos.
+
+Pasos:
+  elegir.ps1 "30-120" ; python ../magnus_andar_frente/croma.py magnus_vuelta_frontal
+  python montar.py 42 90    registro en rejilla (media resolucion) del 42 contra
+                            andar_frente (sale c_005, 0,185) y del 90 contra
+                            andar_espalda (c_005, 0,191), escala y desplazamiento
+                            interpolados entre medias. Medir el tamano por el
+                            area o el suelo por el pixel mas bajo fallaba (el
+                            brazo y la contera del baston). enganches.txt.
+  hoja.ps1 -Cols 7 -Fps 30 -Escala 2 ; _spriteframes.py
+  raw/.../baston/frontal.py: la bola en la garra (seguida por color: lo saturado
+  y calido mas alto) -> frontal.json "vuelta_frontal".
+
+Escena (scripts/dev/prueba_frontal.gd): al cambiar de sentido con el baston,
+la vuelta (hacia atras de espaldas a frente) y el otro andar por su c_005; en
+cada enganche un fundido de 0,18 s del sprite, la garra pegada del andar de
+frente se desvanece/aparece y la bola se desliza. La tunica de cada video es
+distinta (parches redibujados): el fundido lo tapa. Saltos medidos en la
+grabacion (cambio medio por fotograma, lo normal 0,4-0,9): entrada 1,4,
+salida 0,8, vuelta atras 0,9 (sin fundidos eran 1,9 / 1,1 / 1,2).
+Grabacion: 05_salida/vuelta_en_juego.mp4.

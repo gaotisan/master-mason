@@ -1,0 +1,2 @@
+magnus_andar_espalda: ver ../magnus_andar_frente/como_se_hizo.txt (los dos se montaron juntos,
+con croma.py y normalizar.py de alli). Fuente: Hooded_figure_walking_forward_20261007175300.mp4, bucle 136-164.

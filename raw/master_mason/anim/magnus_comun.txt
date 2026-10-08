@@ -48,6 +48,11 @@ Animaciones disponibles:
   magnus_agacharse       127 sprites  una hoja, tres animaciones: agachado (bucle, 24 f, 12 fps) e incorporarse (38 f, 60 fps); el agacharse ya no sale de aqui
   magnus_agacharse_flow    71 sprites  60 fps  una pasada     video 44-110 (Flow, de nuestro reposo a nuestro agachado); 1,4 s con el asentarse a 40 fps
   magnus_andar_diagonal    42 sprites  30 fps  bucle 1,4 s    video 81-122 (tres cuartos, fondo beis); DE PRUEBA, magnus.gd no lo usa
+  magnus_andar_frente      41 sprites  30 fps  bucle 1,37 s   video 88-128, hacia la camara, tamano normalizado; DE PRUEBA (prueba_frontal)
+  magnus_andar_espalda     29 sprites  21,2 fps bucle 1,37 s  video 136-164 (Hooded_figure_walking_forward), alejandose, idem; parejo con el de frente
+  magnus_vuelta_frontal    49 sprites  30 fps  una pasada     video 42-90, de frente a espaldas con baston; casilla 584x800; registrada contra los andares (c_005)
+  magnus_andar_frente_sin  34 sprites  24,8 fps bucle 1,37 s  video 98-131, sin baston; parejo con los de baston
+  magnus_andar_espalda_sin 29 sprites  21,2 fps bucle 1,37 s  video 112-140, sin baston; idem
   magnus_arranque_agachado 27 sprites  20 fps  una pasada     video  20-46 (zoom corregido, ver magnus_andar_agachado/como_se_hizo.txt)
   magnus_andar_agachado    42 sprites  20 fps  ciclo 2,1 s    video 143-184 (video en vertical, escala 0,50)
   magnus_parada_agachado   31 sprites  20 fps  una pasada     video 185-215

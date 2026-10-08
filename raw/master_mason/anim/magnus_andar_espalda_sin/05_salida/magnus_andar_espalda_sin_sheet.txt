@@ -1,0 +1,12 @@
+﻿animacion:  magnus_andar_espalda_sin
+origen:     04_limpios
+hoja:       magnus_andar_espalda_sin_sheet.png
+casilla:    292 x 360 px
+escala:     1/2   (master en 04_limpios: 584 x 720)
+hframes:    6
+vframes:    5
+fotogramas: 29   (las 1 casillas sobrantes van vacias)
+fps:        21.2
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 29.

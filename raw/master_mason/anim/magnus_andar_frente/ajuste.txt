@@ -1,0 +1,7 @@
+video 1-176, tramo 88-128, OBJ 328.5
+1/raiz = 0.00469389 + -9.38421e-06*t   (paso por fotograma de 1/escala = -0.00308271)
+raiz ajustada 213.5 -> 328.7; residuo desv 0.71 %, max 1.71 %
+suelo = 412.75 + 0.8755*raiz (horizonte en la fila 413 del video); en la casilla K = 0.8755*OBJ = 287.6 px por unidad de escala
+en el juego (escala 1 = el tamano del video a mitad del tramo, raiz 272.1): 1/escala cambia -0.00255304 por fotograma; suelo baja 143.8 px de pantalla por unidad de escala (hoja a 1/2)
+residuo del pie: 5.9 px de video
+eje x = 633.65 + -0.0437*t; desvio eje-centro 0.0217 raices

@@ -1,0 +1,120 @@
+magnus_andar_frente y magnus_andar_espalda: como se montaron
+=============================================================
+ACTUALIZADO 2026-10-07 tarde (lo de abajo es la primera version y vale para el
+metodo; donde choque, manda esto):
+  - El de espaldas es OTRO video: _fuentes/Hooded_figure_walking_forward_
+    20261007175300.mp4 (Flow, 1280x720, 24 fps, 192 fotogramas, sin sombra,
+    nuestro peregrino de espaldas con chevron y garra de cuernos, sacado de
+    referencia_magnus_espaldas.png). El anterior (tunica de mosaico) esta en
+    _archivo/magnus_andar_espalda_mosaico.
+    Se aleja (raiz 224 -> 171, residuo 0,7 %). Ciclo de dos pasos de 29 (pie
+    izquierdo apoyado en 100-104, 122-133, 151-161): mejor cierre 136 -> 165
+    (3,13; paso medio 3,51): bucle 136-164. Capucha-pies/raiz 1,823 -> OBJ 344,5.
+  - Recorte: croma.py (alfa suave por dominancia del verde, color de borde del
+    pixel solido mas cercano, sin tinte verde; en tonos calidos g <= 0,8 r) en
+    vez de fondo.ps1, que en este video (personaje pequeno, baston de 4 px)
+    dejaba piernas translucidas y ribete verde. El de frente tambien se rehizo
+    con croma.py (sobre su 03_seleccion ya sin sombra), sin motas.py (hacia
+    agujeros); el de espaldas no lleva huecos.py.
+        python croma.py magnus_andar_frente 88 128
+        python normalizar.py magnus_andar_frente 176 88 328.5 ; python huecos.py magnus_andar_frente
+        python croma.py magnus_andar_espalda          (03_seleccion = 136-164)
+        python normalizar.py magnus_andar_espalda 192 136 344.5
+    normalizar.py escala con alfa premultiplicado y pega sin mascara (antes el
+    alfa salia al cuadrado y los transparentes con basura roja ribeteaban).
+  - Parejos: mismo alto (capucha-pies 628), ciclos de 1,37 s (30 y 21,2 fps; el
+    de espaldas anda mas deprisa en su video) y misma zancada en la escena
+    (1/escala cambia 0,077 por ciclo en los dos).
+  - Bola del baston: raw/master_mason/anim/baston/frontal.py ->
+    assets/characters/baston/frontal.json; la escena usa la bola de
+    scenes/dev/baston.tscn sin su script. De espaldas en el hueco de la garra
+    (0,43 anchos bajo las puntas, como en mano_andar; garra 38 px frente a 36);
+    M gasta magia, C cambia el color.
+  - GARRA DE FRENTE (2026-10-07 noche): el baston de este video NO tiene
+    garra, acaba en pincho, y la bola posada encima se veia rara. frontal.py
+    borra el pincho en 04_limpios (lo de encima de la punta+94, a la izquierda
+    de x 205; copia con pincho en _con_pincho/, marca 04_limpios/.sin_pincho) y
+    hace assets/characters/baston/garra_frente.png con la garra del baston
+    original de Gemini (escala 0,38, a 2x master, suavizada 1,6 px; puntas al
+    color de la garra de espaldas y tallo al del baston de frente, por ganancia
+    por canal). La escena la pone encima del sprite, pivotando en el eje del
+    baston a punta+100 con su inclinacion (-2,2..1,4 grados), y la bola detras,
+    en el hueco. Si se rehace normalizar.py, volver a correr frontal.py (la
+    marca se borra con los png) y luego hoja.ps1 y _spriteframes.py.
+
+Andar de frente (hacia la camara) y de espaldas (alejandose), con el baston en
+la mano derecha (en los dos videos la misma mano: coherentes). Ciclos de dos
+pasos en bucle, 30 fps. DE PRUEBA (2026-10-07): estan en magnus_frames.tres
+(andar_frente, andar_espalda) pero solo los usa scenes/dev/prueba_frontal.tscn.
+
+Fuentes (Google Flow, 1280x720, 24 fps, 240 fotogramas, croma verde 52,195,66,
+camara FIJA, sombra proyectada dura hacia la izquierda):
+  frente   _fuentes/Wizard_walking_toward_camera_20261007145436.mp4
+           se ACERCA: de ~430 a ~690 px de alto; los pies se salen del cuadro
+           a partir del 178. Util 1-176.
+  espalda  _fuentes/Wizard_walking_away_from_camera_20261007144842.mp4
+           se ALEJA: de ~620 a ~440 px. Util entero.
+
+EL PUNTO CLAVE: no andan en el sitio. Con camara fija y paso constante, el
+tamano en pantalla es h = f*H/(Z0 - v*t): 1/h es una recta en el tiempo. Se
+mide el tamano con la raiz del area de la silueta (mascara de croma sencilla
+sobre 01_frames; la sombra queda fuera porque sigue siendo verde) y se ajusta
+esa recta sobre TODO el video: residuo 0,7 % (desv.), 1,7 % como mucho. Cada
+fotograma se escala por OBJ/raiz(t) y se ancla por el suelo ajustado (recta
+contra el tamano: suelo - horizonte es proporcional a h) y el eje x (recta en
+t, mas el desvio fijo del tronco respecto al centro de masas, que el baston
+desplaza). Ver normalizar.py y ajuste.txt de cada job.
+
+OBJ (raiz del area en la casilla): capucha-pies / raiz = 1,91 (frente) y 1,93
+(espalda), medido quitando el baston con una apertura horizontal de 25 px;
+para que capucha-pies mida 628 como el reposo: OBJ 328,5 y 325,4. Ojo: eso es
+ampliar el video x1,2-1,5 (la raiz del video en el tramo va de 255 a 290):
+el master es algo blando. En la hoja (1/2) no se nota.
+
+Ciclo: tras normalizar, comparando cada fotograma con los de despues (gris,
+recorte 220x310 a raiz 200). Periodo ~42 en los dos.
+  frente   88 -> 129 cierra a 3,24 (paso medio entre fotogramas 3,40): bucle 88-128, 41
+  espalda 140 -> 183 cierra a 3,31 (paso medio 3,13):                 bucle 140-182, 43
+
+Pasos (los dos jobs igual, cambiando numeros):
+  nuevo.ps1 / frames.ps1 / contacto.ps1
+  elegir.ps1   frente "1-176" ; espalda "138-185" (solo el tramo: sombra.ps1
+               tarda ~7 s por fotograma a 1280x720)
+  sombra.ps1   (por defecto: tolerancia 25, radio 3)
+  (el tramo a 04_limpios, sin centrar.ps1: el encuadre lo hace normalizar.py)
+  fondo.ps1    -Tolerancia 35 -Radio 4 (los comunes del croma)
+  (el bucle a _sin_normalizar/, el resto a _sobrantes/)
+  python normalizar.py magnus_andar_frente 176 88 328.5
+  python normalizar.py magnus_andar_espalda 240 140 325.4   (el mismo script)
+  python huecos.py <job>     croma encerrado entre las piernas (la sombra que
+               se cuela por ahi; fondo.ps1 rellena desde el borde y no llega).
+               Verde dominante fuera; gris verdoso (g >= b, g - r > 8) solo en
+               la franja de los pies (22 % de abajo): mas arriba agujereaba la
+               barba. Despues le quita el tinte verde a todo.
+  python tools/anim/motas.py raw/master_mason/anim/<job>/04_limpios
+  hoja.ps1     -Cols 7 -Fps 30 -Escala 2
+  tools/anim/_spriteframes.py  ('andar_frente', ..., 41, 7, 30.0, True)
+                               ('andar_espalda', ..., 43, 7, 30.0, True)
+
+EN LA ESCENA (scripts/dev/prueba_frontal.gd): el avance va atado al fotograma.
+Cada fotograma de animacion, 1/escala cambia lo mismo que en el video
+(pendiente de la recta x 260, la raiz de video que se toma como escala 1, la
+misma para los dos) y el suelo baja BAJA x (cambio de escala): 143,8 px de
+pantalla de frente y 186,3 de espaldas (K del video x OBJ / 2). Asi la escena
+reproduce la perspectiva de cada video y los pies no patinan. Los dos videos
+tienen la camara a media altura del personaje (horizonte a 0,88 y 1,15 raices
+por encima del suelo): el suelo se ve muy plano y acercarse casi no baja los
+pies, sobre todo crece.
+
+Velocidad: 41 fotogramas a 30 fps = 1,37 s por ciclo de dos pasos (x1,25 sobre
+el video, el limite antes de que los pies parezcan falsos). El andar de perfil
+son 1,13 s.
+
+Estilo: el de frente es algo mas "realista" que los de perfil (sombreado mas
+redondeado en capucha y tunica, manos detalladas); el de espaldas casa mejor.
+Visto en primer plano (escala ~1,8 con camara x2,5, unas 2,3 veces el master)
+aguanta, aunque blando: para un primer plano de verdad haria falta un video
+mas grande (el personaje ocupa solo ~270 px de raiz en 720p).
+
+Grabacion: 05_salida/andar_frente_espalda_en_juego.mp4
+(scenes/dev/prueba_frontal_grabar.tscn).

@@ -1,0 +1,47 @@
+PROMPT PARA LA VUELTA SIN BASTON (de frente a de espaldas)
+==========================================================
+(Google Flow / Veo, "Frames to Video", 2026-10-08)
+
+La primera (Pilgrim_walking_and_turning_around_20261007232159.mp4, sin
+referencias) salia de espaldas con otra tunica (parches, sin el chevron gris)
+y la capucha chata: no enganchaba con andar_espalda_sin. Se pide como la vuelta
+con baston, que enganchaba bien: con un fotograma de cada andar.
+
+  - fotograma inicial: referencia_vuelta_sin_frente.png  (andar_frente_sin c_016)
+  - fotograma final:   referencia_vuelta_sin_espalda.png (andar_espalda_sin c_001)
+  Misma escala y sitio que las demas referencias. Copiados en Descargas.
+  - 16:9, 8 s, el modelo de mas calidad. 2-4 tomas.
+
+Que mirar: que acabe de espaldas con el chevron gris y la capucha como la del
+fotograma final; la vuelta en 1-1,5 s con dos pasos; camara quieta, mismo
+tamano; sin sombra en el suelo; manos vacias (nada de baston).
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no cast shadow on the ground, no floor line, no props,
+no text, no logos, no on-screen interface or player controls.
+
+The old pilgrim from the first frame faces the camera, his arms relaxed at his
+sides, empty hands, carrying nothing. He stands still for two seconds. Then, in
+one single quick and natural movement, he turns around in place to face away
+from the camera, the way an old man turns back to walk the way he came: the
+whole turn takes only about one second, a pivot with just two short, clear
+steps of his bare feet, without stopping halfway and without extra small steps.
+His position on screen and his size do not change, his head stays at the same
+height. He ends seen exactly from behind, identical to the last frame, and holds
+completely still until the end of the video.
+
+His head is covered by the soft grey cloth hood of his cloak: low and rounded,
+draped loosely over his head and falling onto his shoulders, exactly the shape
+of the first and last frames. It is part of the cloak, not a hat: no tall
+point, no cone, no wizard hat, the hood never grows or stands up.
+
+Same character throughout: the soft grey cloth hood, white beard (seen from the
+front), brown faceted patchwork cloak, and on the back of the cloak the large
+grey chevron patch exactly as in the last frame, thin dark legs and bare feet.
+Same low-poly flat-shaded hand-painted style, same colours and lighting as the
+first frame, crisp frames with no motion blur, soft matte texture, no flicker.
+Sound: only the rustle of the cloak and two light footsteps, no music, no voice.
