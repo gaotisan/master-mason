@@ -169,6 +169,7 @@ var _mat_creditos: ShaderMaterial
 ## Viento en los arbustos del fondo y hojas sueltas (viento_titulo.gd, con el
 ## shader title_hojas_viento.gdshader en el fondo).
 var _viento: Node2D
+var _mat_hojas: ShaderMaterial
 var _time_a := 0.0
 var _time_b := 0.0
 var _candle_on := 0.0   # 0..1, cuanto han encendido ya las velas
@@ -222,7 +223,14 @@ func _ready() -> void:
 	var mat_hojas := ShaderMaterial.new()
 	mat_hojas.shader = load("res://scripts/intro/title_hojas_viento.gdshader")
 	mat_hojas.set_shader_parameter("leaf_mask", load("res://assets/intro/title_hojas_mascara.png"))
-	($Background as Sprite2D).material = mat_hojas
+	var placa: Texture2D = load("res://assets/intro/title_placa_sin_letras.png")
+	mat_hojas.set_shader_parameter("placa", placa)
+	_mat.set_shader_parameter("placa", placa)
+	# Durante los creditos la pantalla es negro liso: el viento no se pinta
+	# hasta que empiezan las luces (ver _start_lights).
+	_mat_hojas = mat_hojas
+	if not show_credits:
+		($Background as Sprite2D).material = mat_hojas
 	_viento = load("res://scripts/intro/viento_titulo.gd").new()
 	_viento.material_fondo = mat_hojas
 	add_child(_viento)
@@ -307,6 +315,7 @@ func _start_lights() -> void:
 	# mismo negro que la de los creditos.
 	if _mask and _mask.material != _mat:
 		_mask.material = _mat
+	($Background as Sprite2D).material = _mat_hojas
 	_elapsed = 0.0
 	_run_sequence()
 	_run_exit()
@@ -365,7 +374,10 @@ func _run_exit() -> void:
 
 	# Y con el cristal se van las letras del titulo, un poco antes: para cuando la
 	# camara empieza a meterse por el hueco, dentro ya no hay letras que leer.
-	tw.tween_method(_set_shader.bind("title_fade"), 0.0, 1.0, title_fade_time).set_delay(t0 + title_fade_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	# Se funden con una placa del mismo panel sin letras, en el fondo. Antes las
+	# aplanaba la mascara contra el panel con cuentas de brillo, y a medio camino
+	# quedaba un fantasma oliva en negativo y se veia el rectangulo del efecto.
+	tw.tween_method(_set_placa, 0.0, 1.0, title_fade_time).set_delay(t0 + title_fade_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 	# Ya entrando, el resto de la sala acompana: el rebote se va y el foco se
 	# recoge hacia arriba. Es el arranque al reves.
@@ -501,6 +513,10 @@ func _set_candle_on(v: float) -> void:
 
 func _set_fog(v: float) -> void:
 	_fog_level = v
+
+func _set_placa(v: float) -> void:
+	_mat_hojas.set_shader_parameter("placa_fundido", v)
+	_mat.set_shader_parameter("placa_fundido", v)
 
 func _set_wind_db(v: float) -> void:
 	_wind_db = v

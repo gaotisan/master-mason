@@ -27,6 +27,14 @@ uniform float darkness : hint_range(0.0, 1.0) = 1.0;
 // cuando la camara hace zoom la mascara se mueve con ella y no se queda pegada al
 // cristal de la pantalla.
 uniform vec4 view_rect = vec4(0.0, 0.0, 1.0, 1.0);
+// La placa del panel sin letras con la que se funden las letras en la salida
+// (la pinta el fondo, title_hojas_viento). Aqui se lee igual que el fondo:
+// todo lo que mira el brillo (el calor del foco, sobre todo) tiene que ver lo
+// mismo que hay en pantalla, o las letras quedaban marcadas por el calor que
+// no recibian.
+uniform sampler2D placa : filter_linear;
+uniform float placa_fundido = 0.0;
+uniform vec4 placa_rect = vec4(0.3434, 0.3309, 0.5975, 0.6495);
 
 // Velas (UV de la imagen)
 uniform vec2 candle_a = vec2(0.2981, 0.5086);
@@ -88,13 +96,22 @@ uniform float title_fill : hint_range(0.0, 1.0) = 0.9;
 // Vaho / humo ambiental dentro de la ventana del ataud.
 // window_rect = (x_min, y_min, x_max, y_max) del panel interior del marco.
 uniform float fog_amount : hint_range(0.0, 1.0) = 0.0;
+// Enfoque: con la sala encendida, lo de fuera del cristal se queda algo por
+// debajo de el. Sin esto la pared de arriba (luminancia 128) y la niebla de
+// abajo (110) brillaban mas que el titulo (78) y la vista se iba a ellas. Va
+// por room_light, asi que ni en el arranque ni en la salida cambia nada.
+uniform float enfoque : hint_range(0.0, 1.0) = 0.32;
+// Distancia al cristal (en alto de pantalla) a la que el enfoque ya es entero.
+uniform float enfoque_ancho = 0.32;
 uniform vec4 window_rect = vec4(0.2215, 0.320, 0.755, 0.702);
 
 const vec3 LUMW = vec3(0.3, 0.59, 0.11);
 const vec3 CANDLE_COLOR = vec3(1.0, 0.62, 0.25);
 const vec3 SUN_COLOR = vec3(1.0, 0.80, 0.48);
 const vec3 GLINT_COLOR = vec3(1.0, 0.92, 0.7);
-const vec3 FOG_COLOR = vec3(0.66, 0.60, 0.50);
+// Calido, como el resto de la sala: con (0.66, 0.60, 0.50) el vaho lejos de las
+// velas se leia gris caqui, lo unico frio de toda la pantalla.
+const vec3 FOG_COLOR = vec3(0.70, 0.56, 0.40);
 
 float dist_uv(vec2 uv, vec2 p) {
 	return length((uv - p) * vec2(aspect, 1.0));
@@ -178,6 +195,12 @@ void fragment() {
 	// uv en el espacio de la imagen; el brillo del fondo se lee en ese mismo uv.
 	vec2 uv = mix(view_rect.xy, view_rect.zw, SCREEN_UV);
 	vec4 scr = texture(bg_tex, uv);
+	if (placa_fundido > 0.0) {
+		vec2 q = (uv - placa_rect.xy) / (placa_rect.zw - placa_rect.xy);
+		if (q.x >= 0.0 && q.y >= 0.0 && q.x <= 1.0 && q.y <= 1.0) {
+			scr.rgb = mix(scr.rgb, texture(placa, q).rgb, placa_fundido);
+		}
+	}
 	float lum = dot(scr.rgb, LUMW);
 
 	// Velas: el hueco respira con el parpadeo.
@@ -201,6 +224,8 @@ void fragment() {
 
 	float light = max(max(la, lb), max(max(ls, lf), room_light));
 	float dark = clamp(1.0 - light, 0.0, 1.0) * darkness;
+	float fuera = smoothstep(0.0, enfoque_ancho, bd);
+	dark = max(dark, fuera * enfoque * room_light * darkness);
 
 	// Vela apagada: se tapa la llama pintada con una sombra suave donde estaba.
 	// No llega a negro: asi, cuando el cristal ya esta apagado, la sombra se

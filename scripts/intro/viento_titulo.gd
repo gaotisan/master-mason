@@ -28,9 +28,13 @@ const COLS_ATLAS := 8
 const FILAS_ATLAS := 4
 const CELDA := Vector2(32, 64)
 const IMAGEN := Vector2(2912, 1632)
+## Velocidad a la que sube la onda por la rama (px/s): el retraso de la punta
+## tiene que quedar en 0,1-0,3 s; con un segundo el movimiento iba al reves.
+const ONDA_PX_S := 4500.0
 
 ## Arbustos del fondo (px de la imagen): raiz, centro y radio de su zona, largo
-## de rama, frecuencia propia del muelle (Hz) y cuantas hojas suelta por racha
+## de rama (los cuatro, iguales en raw/master_mason/titulo_hojas/pesos_viento.py,
+## que hornea los pesos del shader), frecuencia propia del muelle (Hz) y cuantas hojas suelta por racha
 ## (min, max). Los de la izquierda sueltan mas: sus hojas cruzan por las paredes
 ## de arriba y de abajo; las de los lados cruzarian el cristal y no sueltan.
 const ARBUSTOS := [
@@ -101,19 +105,8 @@ func _ready() -> void:
 		_fase.append(_rng.randf() * TAU)
 	_hasta_suelta = _siguiente_suelta()
 	if material_fondo:
-		var raiz := PackedVector2Array()
-		var centro := PackedVector2Array()
-		var radio := PackedFloat32Array()
-		var largo := PackedFloat32Array()
-		for a in ARBUSTOS:
-			raiz.append(a[0])
-			centro.append(a[1])
-			radio.append(a[2])
-			largo.append(a[3])
-		material_fondo.set_shader_parameter("raiz", raiz)
-		material_fondo.set_shader_parameter("centro", centro)
-		material_fondo.set_shader_parameter("radio", radio)
-		material_fondo.set_shader_parameter("largo", largo)
+		material_fondo.set_shader_parameter("pesos_a", load("res://assets/intro/title_viento_pesos_a.png"))
+		material_fondo.set_shader_parameter("pesos_b", load("res://assets/intro/title_viento_pesos_b.png"))
 
 func _process(delta: float) -> void:
 	_t += delta
@@ -168,8 +161,12 @@ func _mover_arbustos(delta: float) -> void:
 		elif g < 0.05:
 			_soltadas[i] = false
 	if material_fondo:
-		material_fondo.set_shader_parameter("empuje", PackedVector2Array(_empuje))
-		material_fondo.set_shader_parameter("empuje_vel", PackedVector2Array(_empuje_vel))
+		# La punta va un pelin por detras de la base: lo que tenia el muelle hace
+		# el tiempo que tarda la onda en subir por la rama (fijo por arbusto).
+		var emp := PackedVector2Array()
+		for i in ARBUSTOS.size():
+			emp.append(_empuje[i] - _empuje_vel[i] * (float(ARBUSTOS[i][3]) * 0.7 / ONDA_PX_S))
+		material_fondo.set_shader_parameter("empuje", emp)
 		material_fondo.set_shader_parameter("agitacion", _agitacion)
 		material_fondo.set_shader_parameter("brisa", brisa)
 
