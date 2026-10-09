@@ -1,0 +1,99 @@
+PROMPTS PARA SACAR Y GUARDAR EL BASTON (Google Flow, Frames to Video)
+=====================================================================
+Dos videos, cada uno con fotograma inicial Y final (Flow los admite los dos):
+
+  SACAR   inicio = baston_ref_guardado.png   fin = baston_ref_en_mano.png
+  GUARDAR inicio = baston_ref_en_mano.png    fin = baston_ref_guardado.png
+
+Las dos imagenes salen del juego (2026-10-07), asi que el video empieza y
+acaba en poses que ya encajan:
+  - baston_ref_guardado.png: el reposo de Magnus (magnus_respirando c_01) con
+    el baston colocado a la espalda igual que lo pone el juego.
+  - baston_ref_en_mano.png: el reposo con el baston en la mano que usa el
+    piloto (magnus_andar_baston c_180).
+  Las dos en 1280x720, croma #24D732, misma escala (627 px de alto, pies en
+  y=677) y alineadas por el borde de la espalda.
+
+16:9, 720p, 8 s, con audio. El gesto a la velocidad real del juego, sin
+camara lenta (los videos acelerados o diezmados se ven a saltitos). La garra
+va VACIA: la bola la pone el juego por codigo.
+
+
+OJO (2026-10-07, primera toma de SACAR): a 720p el baston, al levantarlo por
+encima de la cabeza, se sale por arriba del video en 35 fotogramas (82-116) y
+queda cortado. Rehacer con las referencias de 1080p, que tienen el mismo
+personaje al mismo tamano pero con 412 px de aire encima de la cabeza:
+  SACAR   inicio = baston_ref_guardado_1080.png   fin = baston_ref_en_mano_1080.png
+  GUARDAR inicio = baston_ref_en_mano_1080.png    fin = baston_ref_guardado_1080.png
+y pedir 1080p en Flow. Anadir al prompt: "The whole staff stays inside the
+frame at all times, even when he lifts it above his head."
+(GUARDAR, la primera toma, no se sale: vale la que hay.)
+
+
+SACAR
+-----
+2D side-view game animation. Static locked camera for the whole video: no
+pan, no zoom, no dolly, no cuts. Flat pure chroma-key green background
+(#24D732), no ground, no floor texture, no shadows, no scenery, no text. The
+character stays full-body in frame, same size and same place on screen.
+
+Character: exactly the character in the first frame, unchanged: an old master
+builder, wizard-like, tall pointed grey hood, long white beard, full-length
+cloak of flat geometric triangular facets in dark maroon, brick red, ochre,
+warm brown and muted grey, thin dark legs, bare feet. Low-poly flat-shaded
+hand-painted look, no outlines. Strict side profile facing RIGHT the whole
+video: he never turns toward the camera and never shows his back.
+
+He carries a long wooden staff on his back, tucked under the collar of his
+cloak; only its top, an open claw of curled root fingers, sticks out behind
+his hood. The claw is EMPTY: no orb, no ball, no gem, no glow, no light.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he raises his hand over his shoulder, grabs the staff just
+  below the claw and pulls it straight up out of the back of his cloak.
+- 2.5 to 4 s: he brings the staff over his shoulder and down in front of
+  him, and plants its bottom tip on the floor ahead of his feet.
+- 4 to 8 s: he stands still exactly as in the last frame, holding the staff
+  upright in front of him with one hand at chest height.
+
+The cloak moves only a little. No strap, no belt, no sheath visible. Audio:
+cloth rustle, the dry wooden knock of the staff tip on the floor, soft bare
+footsteps if he shifts his weight. No music, no voice, no ambience.
+
+
+GUARDAR
+-------
+(mismo encabezado que SACAR: camara, fondo y personaje; copiar los dos
+primeros parrafos tal cual, cambiando solo esto:)
+
+He holds a long wooden staff upright in front of him with one hand, its tip
+on the floor. At the top it opens into an open claw of curled root fingers.
+The claw is EMPTY: no orb, no ball, no gem, no glow, no light.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he lifts the staff off the floor and raises it over his
+  shoulder.
+- 2.5 to 4 s: he slides it down behind his back, under the collar of his
+  cloak, until only the claw sticks out above and behind his hood, and lets
+  go; his arm comes back to rest at his side.
+- 4 to 8 s: he stands still exactly as in the last frame.
+
+The cloak moves only a little. No strap, no belt, no sheath visible. Audio:
+cloth rustle and a soft wooden scrape as the staff slides into the cloak. No
+music, no voice, no ambience.
+
+
+SI SALE MAL
+-----------
+- Se gira hacia la camara o ensena la espalda: repetir al final
+  "Strict side profile facing RIGHT, he never turns".
+- Pinta bola o brillo en la garra: repetir "the claw is EMPTY, no orb".
+- La camara le sigue o hace zoom: da igual para recortar (centrar.ps1), lo
+  malo es que se deslice respecto al suelo; si pasa, otra toma.
+- Si no le da tiempo o se lia: dejar el gesto en 1-5 s y la espera final
+  mas corta, o quitar el fotograma final y pedir solo el inicial.
+- Si sale algo encima del personaje (texto, marcas), pedir otra toma pronto.

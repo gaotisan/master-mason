@@ -1,0 +1,2 @@
+origen: 01_frames escalados x1.5108 (alto 415 -> 627, como el resto de Magnus)
+frames: 20-104 (perfil derecho -> de frente -> perfil izquierdo, todos seguidos)

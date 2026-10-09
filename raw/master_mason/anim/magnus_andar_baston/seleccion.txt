@@ -1,0 +1,3 @@
+origen: 01_frames (escalados x0.5643 para que mida 628 de alto como el resto, y en lienzo de 1000 de ancho)
+frames: 12-240 (12-20 anadidos el 2026-10-07: el arranque de verdad, con el baston ya cogido)
+nota:   el video es vertical (720x1280) y el personaje mide 1113 px; 1-20 coge el baston

@@ -340,6 +340,9 @@ signal pisada(anim: StringName, sprite: int)
 var control_bloqueado := false
 ## Deja andar pero no saltar: junto a una puerta, arriba es "empujar".
 var salto_bloqueado := false
+## Deja andar pero no correr: el doble toque (y andar_hasta corriendo, y el
+## giro corriendo) sale andando. Con el baston en la mano solo se anda.
+var correr_bloqueado := false
 ## Limites del mundo en x. Mas alla, la tecla hacia ese lado no cuenta: se para
 ## terminando el paso, igual que al soltar. La frenada recorre hasta ~340 px
 ## corriendo, asi que el limite no es una pared exacta: dejar ese margen.
@@ -629,7 +632,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 			# que el giro termine y salga corriendo, que es lo que hace
 			# _al_terminar con _giro_corriendo.
 			if _estado == Estado.GIRO:
-				_giro_corriendo = true
+				_giro_corriendo = not correr_bloqueado
 			else:
 				var desde_reposo := _estado == Estado.REPOSO
 				_arrancar(accion, true)
@@ -683,7 +686,7 @@ func _physics_process(delta: float) -> void:
 		_giro_pendiente = 0.0   # soltar cancela el cambio de sentido
 		var arrancando := _estado == Estado.ARRANQUE_ANDAR or _estado == Estado.ARRANQUE_CORRER
 		if arrancando and (_velocidad() <= 0.0 \
-				or (_estado == Estado.ARRANQUE_ANDAR and _sprite.frame <= ARRANQUE_ANDAR_DE_PIE)):
+				or (_estado == Estado.ARRANQUE_ANDAR and _sprite.frame <= arranque_andar_de_pie)):
 			# Soltar en la zona muerta del arranque: los pies casi no se han
 			# movido y no hay nada que frenar. La parada empieza a media zancada
 			# -- esta hecha para venir del ciclo -- y metida aqui es un fotograma
@@ -724,7 +727,7 @@ func _physics_process(delta: float) -> void:
 				# La misma entrada por pose que al soltar (_pedir_parada_andar),
 				# pero sin esperar al apoyo: cambiar de sentido no espera. Entrar
 				# siempre por el f0 era un salto de pose de 1,1 a 3,8 pasos.
-				var entrada: int = POSE_ANDAR_A_PARADA[clampi(_sprite.frame, 0, POSE_ANDAR_A_PARADA.size() - 1)]
+				var entrada: int = pose_andar_a_parada[clampi(_sprite.frame, 0, pose_andar_a_parada.size() - 1)]
 				_cambiar(Estado.PARADA_ANDAR)
 				_sprite.frame = entrada
 				_parada_entrada = entrada
@@ -793,6 +796,8 @@ func _physics_process(delta: float) -> void:
 			# menos. Correr no lo sufre porque 435/60 = 7,25 y 14,5 si son
 			# exactos. Medido: 4 fotogramas descuadrados de cada 107 al andar.
 			var fotograma := int(_recorrido / avance + 1e-6) % n
+			if _estado == Estado.ANDAR and not avance_ciclo_andar.is_empty():
+				fotograma = _fotograma_andar(_recorrido)
 			_sprite.frame = fotograma
 			_pisar(fotograma, n)
 
@@ -808,6 +813,10 @@ func _physics_process(delta: float) -> void:
 func _velocidad() -> float:
 	match _estado:
 		Estado.ANDAR:
+			if not avance_ciclo_andar.is_empty():
+				# con un 0 en la tabla la distancia no llegaria nunca al siguiente
+				# fotograma y se quedaria clavado andando en el sitio
+				return maxf(avance_ciclo_andar[clampi(_sprite.frame, 0, avance_ciclo_andar.size() - 1)], 0.5) * ritmo_ciclo_andar
 			return velocidad_andar
 		Estado.ANDAR_AGACHADO:
 			return velocidad_agachado
@@ -821,8 +830,8 @@ func _velocidad() -> float:
 			return velocidad_correr + _sobrante
 		Estado.ARRANQUE_ANDAR:
 			if corte_arranque_andar > 0:
-				var k := clampi(_sprite.frame, 0, AVANCE_ARRANQUE_ANDAR.size() - 1)
-				return maxf(AVANCE_ARRANQUE_ANDAR[k], _velocidad_suelo)
+				var k := clampi(_sprite.frame, 0, avance_arranque_andar.size() - 1)
+				return maxf(avance_arranque_andar[k], _velocidad_suelo)
 			return maxf(velocidad_andar * _rampa_subida(quieto_al_arrancar_andar), _velocidad_suelo)
 		Estado.ARRANQUE_CORRER:
 			if corte_arranque_correr > 0:
@@ -830,9 +839,11 @@ func _velocidad() -> float:
 				return maxf(AVANCE_ARRANQUE_CORRER[kc], _velocidad_suelo)
 			return maxf(velocidad_correr * _rampa_subida(quieto_al_arrancar_correr), _velocidad_suelo)
 		Estado.PARADA_ANDAR:
-			var k := clampi(_sprite.frame, 0, FRENADA_ANDAR_PERFIL.size() - 1)
-			var base: float = FRENADA_ANDAR_PERFIL[clampi(_parada_entrada, 0, FRENADA_ANDAR_PERFIL.size() - 1)]
-			return _frenando_desde * FRENADA_ANDAR_PERFIL[k] / maxf(base, 0.05)
+			if not velocidad_parada_andar.is_empty():
+				return velocidad_parada_andar[clampi(_sprite.frame, 0, velocidad_parada_andar.size() - 1)]
+			var k := clampi(_sprite.frame, 0, frenada_andar_perfil.size() - 1)
+			var base: float = frenada_andar_perfil[clampi(_parada_entrada, 0, frenada_andar_perfil.size() - 1)]
+			return _frenando_desde * frenada_andar_perfil[k] / maxf(base, 0.05)
 		Estado.PARADA_CORRER:
 			return _frenando_desde * _rampa_bajada(frenada_correr)
 		Estado.SALTAR:
@@ -897,10 +908,10 @@ func _rampa_bajada(tramo: float) -> float:
 ## entrar por el fotograma de la parada mas parecido a la pose actual.
 func _pedir_parada_andar() -> void:
 	var f := _sprite.frame
-	var casa: bool = DIST_PARADA_ANDAR[clampi(f, 0, DIST_PARADA_ANDAR.size() - 1)] <= tolerancia_parada_andar
+	var casa: bool = dist_parada_andar[clampi(f, 0, dist_parada_andar.size() - 1)] <= tolerancia_parada_andar
 	if casa or _parada_espera >= espera_parada_andar * 2 or espera_parada_andar <= 0:
 		_parada_espera = 0
-		var entrada: int = POSE_ANDAR_A_PARADA[clampi(f, 0, POSE_ANDAR_A_PARADA.size() - 1)]
+		var entrada: int = pose_andar_a_parada[clampi(f, 0, pose_andar_a_parada.size() - 1)]
 		_cambiar(Estado.PARADA_ANDAR)
 		_sprite.frame = entrada
 		_parada_entrada = entrada
@@ -918,6 +929,7 @@ func _pedir_parada_correr() -> void:
 		_parada_espera += 1
 
 func _arrancar(accion: String, corriendo: bool) -> void:
+	corriendo = corriendo and not correr_bloqueado
 	var hacia := -1.0 if accion == "mover_izquierda" else 1.0
 	# Arrancar hacia el otro lado no es arrancar: primero hay que darse la vuelta.
 	# Parado, en el acto. Si aun lleva velocidad (una parada a medio frenar, la
@@ -982,7 +994,7 @@ func _enganchar_arranque(llevaba: float, desde_anim: String = "", desde_frame: i
 			if corte_arranque_andar > 0 and k >= corte_arranque_andar:
 				_cambiar(Estado.ANDAR)
 				_sprite.frame = k
-				_recorrido = float(k) * avance_andar
+				_recorrido = _recorrido_andar(k)
 				_ultimo_fotograma = k
 			else:
 				_sprite.frame = k
@@ -998,11 +1010,11 @@ func _enganchar_arranque(llevaba: float, desde_anim: String = "", desde_frame: i
 		_sprite.frame = AVANCE_ARRANQUE_CORRER.size() - 1
 		return
 	if not corriendo and corte_arranque_andar > 0:
-		for k in range(AVANCE_ARRANQUE_ANDAR.size()):
-			if AVANCE_ARRANQUE_ANDAR[k] >= llevaba:
+		for k in range(avance_arranque_andar.size()):
+			if avance_arranque_andar[k] >= llevaba:
 				_sprite.frame = k
 				return
-		_sprite.frame = AVANCE_ARRANQUE_ANDAR.size() - 1
+		_sprite.frame = avance_arranque_andar.size() - 1
 		return
 	# Viniendo de andar, manda la POSE: ver las tablas arriba. La velocidad que
 	# se traia se sostiene aparte para que no haya bajon.
@@ -1216,7 +1228,7 @@ func _saltar() -> void:
 	# vez. Los 0-39 px/s de esa zona muerta no se llevan al aire. (Los
 	# fotogramas quietos del arranque de correr ni llegan aqui: el salto se
 	# guarda hasta que corre, ver _arrancando_a_correr_quieto.)
-	var de_pie := _estado == Estado.ARRANQUE_ANDAR and _sprite.frame <= ARRANQUE_ANDAR_DE_PIE
+	var de_pie := _estado == Estado.ARRANQUE_ANDAR and _sprite.frame <= arranque_andar_de_pie
 	if de_pie:
 		_impulso = 0.0
 	_saltaba_parado = not _corria_al_saltar and _impulso <= 0.0 \
@@ -1666,7 +1678,7 @@ func _al_cambiar_fotograma() -> void:
 			_sonar(SONIDOS_CAIDA["golpe"], golpe_db)
 			impacto.emit()
 			return
-	var golpes: Dictionary = GOLPES.get(String(_sprite.animation), {})
+	var golpes: Dictionary = golpes_anim.get(String(_sprite.animation), {})
 	if golpes.has(_sprite.frame):
 		var agachado := _sprite.animation in [&"arranque_agachado", &"parada_agachado", &"paso_agachado"]
 		_sonar(golpes[_sprite.frame], pasos_db + (pasos_agachado_db if agachado else 0.0), 0.0, true)
@@ -1812,6 +1824,45 @@ const POSE_DESDE_ANDAR := [5, 5, 6, 5, 6, 4, 6, 6, 6, 6, 4, 6, 4, 8, 8, 8, 8, 8,
 ## arranque: del sprite 60 al 64 aun esta medio agachado y lo mas parecido es
 ## un paso ya lanzado (f20-24, 0,043-0,048); del 65 al 70 esta de pie y lo mas
 ## parecido es el arranque recien empezado (f4-5, 0,025-0,035).
+## Las tablas del andar, como variables: el baston en la mano (scripts/dev/baston)
+## pone las suyas, medidas sobre su video, y al guardarlo devuelve estas.
+var avance_arranque_andar: Array = AVANCE_ARRANQUE_ANDAR
+var arranque_andar_de_pie: int = ARRANQUE_ANDAR_DE_PIE
+var dist_parada_andar: Array = DIST_PARADA_ANDAR
+var pose_andar_a_parada: Array = POSE_ANDAR_A_PARADA
+var frenada_andar_perfil: Array = FRENADA_ANDAR_PERFIL
+var pisadas: Dictionary = PISADAS
+var golpes_anim: Dictionary = GOLPES
+## Andar con un paso que no es parejo (el baston: un paso corto y otro largo).
+## Px de hoja que avanza el pie plantado de cada fotograma del ciclo al
+## siguiente, medidos; vacio = avance_andar en todos. Con tabla, el nodo va en
+## cada fotograma a avance * ritmo_ciclo_andar px/s y el fotograma sale de la
+## distancia acumulada, asi que cada uno sigue durando 2 ticks justos a 30 y
+## los pies no patinan aunque la velocidad cambie de un paso al otro.
+var avance_ciclo_andar: Array = []:
+	set(v):
+		avance_ciclo_andar = v
+		_acum_andar = [0.0]
+		for a in v:
+			_acum_andar.append(_acum_andar[-1] + float(a))
+var ritmo_ciclo_andar := 30.0
+var _acum_andar: Array = [0.0]
+## Velocidad del nodo (px/s) en cada fotograma de la parada de andar, medida;
+## vacio = frenada_andar_perfil escalada a la que traia.
+var velocidad_parada_andar: Array = []
+
+## Distancia del ciclo de andar en la que empieza el fotograma k.
+func _recorrido_andar(k: int) -> float:
+	if avance_ciclo_andar.is_empty():
+		return float(k) * avance_andar
+	return _acum_andar[clampi(k, 0, _acum_andar.size() - 1)]
+
+## Fotograma del ciclo de andar (con tabla) para una distancia recorrida.
+func _fotograma_andar(recorrido: float) -> int:
+	var total: float = _acum_andar[-1]
+	var r := fposmod(recorrido + 1e-4, total)
+	return clampi(_acum_andar.bsearch(r, false) - 1, 0, avance_ciclo_andar.size() - 1)
+
 const SALTO_CORTE_DESDE := 59
 const POSE_DESDE_SALTO := [21, 20, 21, 23, 24, 5, 5, 5, 5, 4, 4]
 
@@ -1832,6 +1883,8 @@ func _poner(nombre: String) -> void:
 		# El recorrido arranca ya colocado en esa entrada, no a cero: es lo que
 		# mantiene la cuenta de distancia y el fotograma diciendo lo mismo.
 		_recorrido = float(entrada) * avance
+		if nombre == "andar":
+			_recorrido = _recorrido_andar(entrada)
 		_sprite.animation = nombre
 		_sprite.stop()
 		_sprite.frame = entrada
@@ -1855,7 +1908,7 @@ func _poner(nombre: String) -> void:
 func _pisar(fotograma: int, n: int) -> void:
 	if fotograma == _ultimo_fotograma:
 		return
-	var golpes: Dictionary = PISADAS.get(String(_sprite.animation), {})
+	var golpes: Dictionary = pisadas.get(String(_sprite.animation), {})
 	var avanzados := (fotograma - _ultimo_fotograma + n) % n
 	for k in range(1, avanzados + 1):
 		var i := (_ultimo_fotograma + k) % n

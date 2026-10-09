@@ -8,24 +8,30 @@ La bola NO se pinta: va por codigo. El baston termina en una garra de raices
 vacia.
 
 
-1) baston_solo.png  -- el sprite del baston
--------------------------------------------
-Edit this image. Keep the character exactly as he is: same pose, same size,
-same position, same colors, do not repaint him. Keep the flat pure chroma-key
-green background (#24D732). No shadows, no ground, no text.
+1) baston_solo.png  -- el sprite del baston  (Gemini, 2026-10-07)
+-----------------------------------------------------------------
+Referencias, en este orden:
+  imagen 1 = referencia_magnus_perfil.png   (escala y estilo; se edita esta)
+  imagen 2 = baston_lamina_poses.png         (como es el baston y la garra)
 
-Add a long wooden walking staff standing perfectly vertical on its own to the
-right of the character, not touching him, with clear green space around it.
-Its bottom end is at the same height as his feet. It is slightly taller than
-him: the top reaches a bit above the tip of his hood.
+Edit image 1. Keep the old man exactly as he is: same pose, same size, same
+position, do not repaint him. Keep the flat solid chroma-key green background
+(#24D732) everywhere, no gradient, no vignette. No shadows, no ground line,
+no text, no extra objects.
 
-The staff: straight, slightly gnarled dark weathered wood, same low-poly
-faceted matte hand-painted style as the character, no outlines. At the top the
-wood splits into a few twisted roots that curl up and form an EMPTY round
-cradle, like a claw holding an invisible ball about as wide as his face. The
-cradle is empty: nothing inside it, just green background visible through the
-gap. No glow, no light, no magic, no orb, no gem.
+Add ONE wooden staff standing perfectly upright on its own to the right of
+him, not touching him, with plenty of empty green space all around it, fully
+in frame. The staff is the same one he carries on his back in image 2: dark
+weathered brown wood shaft, straight and slightly gnarled, a little twisted
+near the top, and at the top it opens into an open claw of four curled
+ochre-brown root fingers pointing up, exactly like in image 2. The claw is
+EMPTY: no orb, no ball, no gem, no glow, no magic light, green background
+visible between the fingers. No strap, no sheath, no ring, no cloth on it.
 
+Size: its bottom tip is level with the soles of his feet, and the top of the
+claw reaches the height of his eyes. Same low-poly faceted, matte,
+hand-painted style and the same soft lighting as the character, no outlines,
+no rim light.
 
 2) baston_espalda_perfil.png  -- donde va en reposo
 ---------------------------------------------------

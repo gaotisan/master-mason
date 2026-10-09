@@ -1,0 +1,11 @@
+﻿job:     magnus_reposo_baston
+creado:  2026-10-08 12:21
+fuente:  Pilgrim_standing_breathing_calmly_20261008122010.mp4
+nota:    
+
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

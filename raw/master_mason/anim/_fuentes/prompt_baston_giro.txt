@@ -1,0 +1,73 @@
+PROMPT PARA EL GIRO CON EL BASTON EN LA MANO (Google Flow, Frames to Video)
+==========================================================================
+Rehecho el 2026-10-07 con lo aprendido en el giro de pie sin baston
+(prompt_giro_pie_rapido.txt) y en sacar/guardar:
+  - a la velocidad del juego (~1,5 s) y con DOS pasos claros: un giro pedido
+    lento con pasitos no se puede acelerar (se ve "a saltitos" / pies que
+    se arrastran);
+  - por la ESPALDA, como el giro sin baston del juego, que asi se ven igual;
+  - referencias en 1080p: tienen aire encima de la cabeza y el baston no se
+    sale por arriba si lo levanta.
+
+Basta MEDIA vuelta (180 grados): de perfil derecho a perfil izquierdo. La
+vuelta hacia el otro lado es la misma espejada (flip_h).
+
+En Flow, modo fotogramas a video:
+  inicio = baston_ref_en_mano_1080.png            (reposo con el baston, mirando a la derecha)
+  fin    = baston_ref_en_mano_izquierda_1080.png  (el mismo, espejado)
+  (las dos en _fuentes/ y en Descargas)
+  16:9, 1080p, 8 s, con audio. Sacar 2-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. que el giro dure poco (1-1,5 s), seguido, sin pararse a medias
+  2. los pies: dos pasos claros que pivotan, no muchos pasitos; en el sitio
+  3. el baston: sigue en la mano, la punta vuelve al suelo al acabar, no se
+     sale del video ni se cruza delante de la cara; garra vacia
+  4. camara quieta, mismo tamano, cabeza a la misma altura
+  5. la tunica no cambia de dibujo; nada encima (controles, marcas)
+Si pasa por delante en vez de por la espalda, vale igual si el resto esta bien.
+
+EL PROMPT
+---------
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no ground, no floor line, no props, no text, no logos,
+no on-screen interface or player controls.
+
+Character: exactly the character in the first frame, unchanged: an old master
+builder, wizard-like, tall pointed grey hood, long white beard, full-length
+cloak of flat geometric triangular facets in dark maroon, brick red, ochre,
+warm brown and muted grey that keep exactly the same pattern for the whole
+video, thin dark legs, bare feet. Low-poly flat-shaded hand-painted look, no
+outlines. His posture, his height and his size never change, and his head
+stays at the same height.
+
+He holds a long wooden walking staff upright in his front hand at chest height,
+its tip on the floor; at the top the staff opens into an open claw of curled
+root fingers, EMPTY: no orb, no ball, no gem, no glow, no light. He keeps the
+staff in the same hand the whole time, and the whole staff stays inside the
+frame at all times.
+
+He stands completely still for two seconds. Then, in one single quick and
+natural movement, he turns around to face the other way, turning his BACK to
+the camera as he turns, the way an old man turns back when he hears someone
+call him from behind: the whole turn takes only about one and a half seconds,
+a pivot with just two short, clear, natural steps of his bare feet, from his
+side profile facing right, through a view from behind, to his side profile
+facing left, without stopping halfway and without any extra small steps. The
+staff turns with him: he lifts its tip just off the floor, carries it round
+close to his body and plants it again on the floor in front of him as the turn
+ends. His feet stay on the same line and his position on screen does not move.
+Then he stands completely still in the final pose, identical to the last frame,
+until the end of the video.
+
+Crisp frames, no motion blur, no flicker. Sound: the soft rustle of the cloak,
+two light bare footsteps and a dry wooden knock when the staff is planted
+again. No music, no voice.
+
+SI SALE MAL
+-----------
+- Lento o con pasitos: otra toma; no acelerar.
+- El baston cambia de mano o desaparece tras el cuerpo mucho rato: otra toma,
+  repetir "he keeps the staff in the same hand the whole time".
+- Pinta bola o brillo en la garra: repetir "the claw is EMPTY, no orb".

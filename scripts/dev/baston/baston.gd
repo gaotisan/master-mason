@@ -73,6 +73,10 @@ const PASO_MANO := {"correr_bloqueado": true, "agacharse_activo": false, "salto_
 const PISADA_A := preload("res://assets/audio/magnus_paso_a.wav")
 const PISADA_B := preload("res://assets/audio/magnus_paso_b.wav")
 const MANO_ANIMS := ["andar", "arranque_andar", "parada_andar", "reposo"]
+## Con el baston en la mano tambien cambia el giro (de pie): por delante, del
+## video magnus_andar_giro_baston (giro_mano.py). No esta en MANO_ANIMS para
+## que no se pueda sacar ni guardar el baston a mitad de giro.
+const MANO_GIRO := ["giro"]
 const TRANSICIONES := ["sacar_baston", "guardar_baston"]
 
 ## Puesto a la espalda o guardado (escondido). Cambia con un fundido corto.
@@ -224,7 +228,7 @@ func _cambiar_frames(sf: SpriteFrames) -> void:
 
 func _construir_frames_mano() -> SpriteFrames:
 	var sf := _frames_espalda.duplicate() as SpriteFrames
-	_anadir(sf, MANO_ANIMS)
+	_anadir(sf, MANO_ANIMS + MANO_GIRO)
 	return sf
 
 ## Pone (o cambia) esas animaciones en sf con las hojas de mano.json.
@@ -297,6 +301,12 @@ func _colocar() -> void:
 		_visible_anim = false
 		visible = false
 		return
+	# Con el baston en la mano no hay giro con baston (2026-10-08): mejor que no
+	# se vea durante el giro que verlo saltar a la espalda y volver a la mano.
+	if en_mano and String(_sprite.animation) == "giro":
+		_visible_anim = false
+		visible = false
+		return
 	_visible_anim = true
 	var f: Array = lista[mini(_sprite.frame, lista.size() - 1)]
 	var x: float = f[0]
@@ -310,6 +320,11 @@ func _colocar() -> void:
 		_colocar_con_funda(f)
 		return
 	z_index = 1 if f[3] == 1 else -1
+	# giros con el baston detras (escondido tras la capucha): el resplandor de
+	# la bola tambien detras del cuerpo, que si no se ve la luz a traves de la
+	# cabeza. Fuera de los giros sigue encima (asoma tras la capucha).
+	var en_giro := String(_sprite.animation) in ["giro", "giro_agachado"]
+	_luz.z_index = 0 if en_giro and f[3] != 1 else 2
 	# de espaldas (giros): metido bajo la tunica, con el parche del cuello
 	var parche: float = f[4] if f.size() > 4 else 0.0
 	$Madera/Funda.modulate.a = parche

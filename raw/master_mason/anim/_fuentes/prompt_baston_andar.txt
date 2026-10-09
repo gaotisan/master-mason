@@ -1,0 +1,68 @@
+PROMPT PARA EL VIDEO DE ANDAR CON EL BASTON EN LA MANO (Google Flow, Frames to Video)
+====================================================================================
+Por que (2026-10-07): el video que hay (Animated_wizard_walking_forward_...) no da
+para un andar limpio:
+  - el baston no sigue el ritmo de los pasos: lo adelanta cuando le parece, asi
+    que la misma fase de las piernas sale con el baston en sitios distintos y
+    solo cierra un ciclo (c_062-c_109); la parada solo engancha con el ciclo en
+    dos puntos y tarda 1,5-3 s en pararse desde que se suelta la tecla;
+  - la punta del baston se ARRASTRA por el suelo (va ~2 px master por fotograma
+    mas lenta que el pie plantado): con los pies clavados, el baston patina;
+  - empieza cogiendo el baston y acaba en otro reposo: entre el principio y el
+    final la IA cambia los poligonos de la tunica, y el reposo no casa con el
+    arranque (5 pasos de diferencia; lo normal entre dos fotogramas es 1).
+
+Con inicio y fin en la MISMA imagen (el reposo con el baston en la mano que ya
+usa el juego, y con el que acaban sacar y empiezan guardar), el arranque sale del
+reposo y la parada vuelve a el sin salto.
+
+En Flow, modo fotogramas a video:
+  inicio = baston_ref_en_mano_1080.png
+  fin    = baston_ref_en_mano_1080.png   (la misma)
+  16:9, 1080p, 8 s, con audio. Sacar 2-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. el baston: se apoya y se levanta siempre en el mismo momento del paso; la
+     punta nunca resbala por el suelo mientras esta apoyada
+  2. un ritmo parejo: todos los pasos iguales, sin parones ni acelerones
+  3. arranca del reposo y vuelve a el; quieto al principio y al final
+  4. perfil estricto mirando a la derecha todo el rato, mismo tamano
+  5. la tunica no cambia de dibujo
+  6. nada encima del personaje (controles, marcas)
+
+EL PROMPT
+---------
+2D side-view game animation for a side-scrolling game. The camera follows the
+character sideways at exactly his walking speed, so he stays in the centre of
+the frame the whole time, always the same size; there is no visible background
+movement because the background is a flat pure chroma-key green (#24D732)
+everywhere: no ground, no floor line, no shadows, no scenery, no text, no
+on-screen interface.
+
+Character: exactly the character in the first frame, unchanged: an old master
+builder, wizard-like, tall pointed grey hood, long white beard, full-length
+cloak of flat geometric triangular facets in dark maroon, brick red, ochre,
+warm brown and muted grey that keep exactly the same pattern for the whole
+video, thin dark legs, bare feet. Low-poly flat-shaded hand-painted look, no
+outlines. Strict side profile facing RIGHT the whole video.
+
+He holds a long wooden walking staff upright in his front hand, at chest
+height, its top an open claw of curled root fingers. The claw is EMPTY: no orb,
+no ball, no gem, no glow, no light.
+
+Action, one continuous take:
+- 0 to 1 s: he stands completely still, exactly as in the first frame.
+- 1 to 6.5 s: he starts walking forward and walks at a slow, steady, even pace,
+  like a tired old pilgrim: about one step every 0.8 seconds, all steps the same
+  length and the same rhythm. He uses the staff as a walking stick in a regular
+  rhythm: on EVERY step of his front foot he lifts the staff cleanly off the
+  floor, swings it a little forward and plants its tip firmly on the floor
+  ahead of him at the same moment that foot lands; while the tip is on the floor
+  it stays fixed at that spot and he walks past it. The staff tip never slides
+  or drags along the floor.
+- 6.5 to 7.5 s: he slows down over his last step, plants the staff and stops.
+- 7.5 to 8 s: he stands completely still, exactly as in the last frame.
+
+Crisp frames, no motion blur, no flicker. Sound: only soft bare footsteps, the
+light knock of the staff on the floor at each plant and the rustle of the
+cloak; no music, no voice.

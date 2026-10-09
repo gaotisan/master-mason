@@ -101,8 +101,21 @@ ANIMACIONES = [
     # cada fotograma cambia como andar a 30 fps. magnus.gd voltea al terminar.
     # (Antes: 5 vistas de una hoja de IA a 20 fps, 0,25 s: se veia brusco.) Ver
     # raw/master_mason/anim/magnus_giro_pie_video/como_se_hizo.txt.
-    ('giro',            'magnus_giro_pie_rapido',  47,  8, 30.0, False, None, None,
-     [1.0, 0.5] + [1.0] * 43 + [0.5, 1.0]),             # fundidos de un refresco
+    # Giro de pie POR DELANTE (de cara a la camara; 2026-10-08/09), de un video
+    # de un giro de 360 sin baston (Wizard_performing_360-degree_rot..._
+    # 20261008170411, job magnus_giro_frente). Por delante el baston a la
+    # espalda queda detras del cuerpo (por la espalda se veia girar y quedaba
+    # muy raro). Solo la PRIMERA mitad del video (del perfil al frente, c_007-
+    # c_052) y luego ella misma espejada y al reves: los sprites mirando a la
+    # izquierda son los de la derecha volteados, asi que la segunda mitad del
+    # video (el otro costado, otro brazo y otro dibujo de la tunica) no podia
+    # acabar en el reposo espejado ("pega un saltazo"). Asi empieza en el
+    # reposo y acaba exactamente en el reposo espejado; en el frente, el dibujo
+    # de la tunica se invierte fundido en 6 fotogramas con manos y mangas
+    # encajadas. 92 fotogramas a 60 fps, 1,53 s; tono estandar. Ver
+    # raw/master_mason/anim/magnus_giro_frente/espejo.py. El de antes (por la
+    # espalda): magnus_giro_pie_rapido, 47 a 30 fps.
+    ('giro',            'magnus_giro_frente',      92, 10, 60.0, False),
     # Salto corriendo: sale de un video en el que corre, salta una piedra y se
     # para. Se usan solo los fotogramas 128-165: despegue, vuelo y aterrizaje.
     # El video viene a camara lenta, como el del salto de parado: 27 fotogramas

@@ -1,0 +1,68 @@
+PROMPTS PARA EL ARRANQUE Y LA PARADA DEL ANDAR CON EL BASTON (Google Flow, Frames to Video)
+=========================================================================================
+Por que (2026-10-08): el ciclo sale del video del bucle (Old_master_builder_
+walking_cycle_..., cierra perfecto), pero el arranque y la parada siguen
+saliendo de otro video (Character_walking_on_green_screen_...). Entre videos
+distintos nunca casan: al echar a andar y al pararse cambian de golpe la
+inclinacion del baston, el dibujo de la tunica y la postura. Con imagen de
+inicio y de fin fijas, cada video empalma exacto por construccion, como el
+bucle:
+
+  ARRANQUE  inicio = baston_reposo_720_ref.png   fin = baston_andar_bucle_ref.png
+  PARADA    inicio = baston_andar_bucle_ref.png  fin = baston_reposo_720_ref.png
+
+  baston_reposo_720_ref.png: el reposo con el baston que usa el juego.
+  baston_andar_bucle_ref.png: la pose de andar con la que empieza y acaba el bucle.
+  Las dos en _fuentes/ y en Descargas; 1280x720, mismo tamano y sitio.
+  16:9, 720p, 8 s. Sacar 2-3 tomas de cada uno.
+
+Que mirar:
+  ARRANQUE: quieto al principio, echa a andar y en los ultimos fotogramas YA
+            va andando a su ritmo normal (no frena para llegar a la pose).
+  PARADA:   en los primeros fotogramas YA va andando a su ritmo normal (no
+            arranca desde quieto), da uno o dos pasos, frena y se queda quieto.
+  En los dos: el baston al ritmo de los pasos, sin arrastrarlo; perfil derecho;
+  mismo tamano; la capucha da igual (la punta la quito yo).
+
+
+ARRANQUE
+--------
+2D side-view game animation for a side-scrolling game. The camera follows the
+character sideways so he always stays in the centre of the frame, always the
+same size. Flat pure chroma-key green background (#24D732) everywhere: no
+ground, no floor line, no shadows, no scenery, no text, no on-screen interface.
+
+Character: exactly the character in the first frame, unchanged for the whole
+video: an old master builder, wizard-like, grey hood exactly as in the first
+frame, long white beard, full-length cloak of flat geometric triangular facets
+that keep exactly the same pattern, thin dark legs, bare feet. Low-poly
+flat-shaded hand-painted look, no outlines. Strict side profile facing RIGHT.
+He holds a long wooden walking staff in his front hand; its top is an open claw
+of curled root fingers, EMPTY: no orb, no ball, no gem, no glow, no light.
+
+Action: he stands completely still for about one second, exactly as in the
+first frame. Then he starts walking forward calmly, like a tired old pilgrim,
+and within about one and a half seconds he is walking at his slow, steady
+pace, using the staff as a walking stick in rhythm with his steps (he lifts
+it, swings it a little forward and plants its tip on the floor; it never
+slides). He keeps walking at that same steady pace, without slowing down,
+until the very last frame, which is exactly the pose of the last frame image,
+still in the middle of his stride.
+
+Crisp frames, no motion blur, no flicker. Sound: soft bare footsteps, the light
+knock of the staff and the rustle of the cloak; no music, no voice.
+
+
+PARADA
+------
+(Mismo texto de camara, fondo y personaje que el ARRANQUE.)
+
+Action: from the very first frame he is already walking forward at his slow,
+steady pace, exactly as in the first frame image, in the middle of his stride,
+using the staff as a walking stick in rhythm with his steps. He takes one or
+two more calm steps, slows down naturally like a tired old pilgrim, plants the
+staff upright in front of him and comes to a complete stop. Then he stands
+completely still, exactly as in the last frame, until the end of the video.
+
+Crisp frames, no motion blur, no flicker. Sound: soft bare footsteps, the light
+knock of the staff and the rustle of the cloak; no music, no voice.

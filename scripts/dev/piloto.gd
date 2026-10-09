@@ -24,6 +24,10 @@ extends Node
 
 var _t := 0.0
 var _i := 0
+## Acciones que el guion tiene pulsadas. Grabando, si la ventana pierde el foco
+## Godot suelta todas las teclas y el personaje se paraba a media caminata
+## (2026-10-08); se vuelven a apretar en cada tick mientras el guion las quiera.
+var _pulsadas := {}
 
 func _ready() -> void:
 	var p := get_node_or_null(personaje)
@@ -39,4 +43,11 @@ func _physics_process(delta: float) -> void:
 		ev.pressed = paso[2]
 		Input.parse_input_event(ev)
 		print("piloto %.3f %s %s" % [_t, paso[1], "pulsa" if paso[2] else "suelta"])
+		if paso[2]:
+			_pulsadas[paso[1]] = true
+		else:
+			_pulsadas.erase(paso[1])
 		_i += 1
+	for accion in _pulsadas:
+		if not Input.is_action_pressed(accion):
+			Input.action_press(accion)

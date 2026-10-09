@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/game/dark_stage.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/dev/baston/piloto_baston.gd" id="2"]
+
+[node name="PilotoBastonGiros" type="Node"]
+
+[node name="DarkStage" parent="." instance=ExtResource("1")]
+caida_al_empezar = false
+
+[node name="Piloto" type="Node" parent="."]
+script = ExtResource("2")
+guion = [[1.0, "mover_izquierda", true], [1.15, "mover_izquierda", false], [3.0, "mover_derecha", true], [3.15, "mover_derecha", false], [5.0, "agacharse", true], [6.5, "mover_izquierda", true], [6.65, "mover_izquierda", false], [9.0, "mover_derecha", true], [9.15, "mover_derecha", false], [11.5, "agacharse", false]]
+ignorar_teclado = true
+zoom = 2.2
+x_inicial = 1400.0
+personaje = NodePath("../DarkStage/Magnus")

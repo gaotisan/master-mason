@@ -1,0 +1,61 @@
+PROMPT PARA EL BUCLE DEL ANDAR CON EL BASTON (Google Flow, Frames to Video)
+=========================================================================
+Por que (2026-10-08): el video de andar (Character_walking_on_green_screen_
+20261007224913) no se repite exacto: en cada vuelta la IA dibuja distinto el
+brazo del baston (manga corta y la mano asomando en una, manga larga y ancha
+en la otra), la mano que cuelga y el dibujo de la tunica. Ningun empalme casa
+a la vez piernas y brazos: elegido por el color "cambia el paso", elegido por
+la silueta "fluctua el brazo". Un fundido entre vueltas deja manos y pies
+dobles.
+
+Con la MISMA imagen de inicio y de fin, el video acaba exactamente como
+empieza y el bucle cierra por construccion. La imagen es el fotograma 136 de
+ese video (justo antes de que empiece a frenar), con la capucha ya recortada:
+asi el final del bucle sigue con la parada que ya tenemos, sin salto.
+
+En Flow, modo fotogramas a video:
+  inicio = baston_andar_bucle_ref.png
+  fin    = baston_andar_bucle_ref.png   (la misma)
+  (en _fuentes/ y en Descargas; 1280x720, mismo tamano y sitio que el video)
+  16:9, 720p, 8 s. Sacar 2-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. que ande TODO el video, sin pararse ni frenar al final: el ultimo
+     fotograma tiene que llegar andando a la pose del primero
+  2. el mismo ritmo de principio a fin (no acelera para llegar a la pose)
+  3. el brazo del baston y la mano que cuelga como en la imagen todo el rato
+  4. perfil derecho, mismo tamano, en el centro, sin nada encima
+(La punta de la capucha la quito yo si sale.)
+
+EL PROMPT
+---------
+2D side-view game animation of a seamless walk cycle for a side-scrolling
+game. The camera follows the character sideways at exactly his walking speed,
+so he stays in the centre of the frame the whole time, always the same size.
+Flat pure chroma-key green background (#24D732) everywhere: no ground, no floor
+line, no shadows, no scenery, no text, no on-screen interface.
+
+Character: exactly the character in the first frame, unchanged for the whole
+video: an old master builder, wizard-like, grey pointed hood exactly as in the
+first frame, long white beard, full-length cloak of flat geometric triangular
+facets that keep exactly the same pattern, the same sleeves and the same
+arms as in the first frame, thin dark legs, bare feet. Low-poly flat-shaded
+hand-painted look, no outlines. Strict side profile facing RIGHT.
+
+He holds the long wooden walking staff in his front hand exactly as in the
+first frame; its top is an open claw of curled root fingers, EMPTY: no orb, no
+ball, no gem, no glow, no light. His other hand hangs relaxed at his side.
+
+Action: from the very first frame to the very last frame he keeps walking
+forward without stopping, at the same slow, steady, even pace he already has in
+the first frame, every step the same length and the same rhythm, using the
+staff as a walking stick in a regular rhythm: he lifts it, swings it a little
+forward and plants its tip on the floor ahead of him, always at the same moment
+of his stride; the tip never slides on the floor. He does not slow down, stop
+or pause at any point: the video ends while he is still walking, at exactly the
+same moment of the stride and in exactly the same pose as the first frame, so
+the video loops seamlessly.
+
+Crisp frames, no motion blur, no flicker. Sound: soft bare footsteps, the light
+knock of the staff at each plant and the rustle of the cloak; no music, no
+voice.
