@@ -210,12 +210,55 @@ ANIMACIONES = [
     # Sin baston: los mismos andares, parejos (ciclo de 1,37 s, 34 y 29 f).
     ('andar_frente_sin',  'magnus_andar_frente_sin',  34, 6, 24.8, True),
     ('andar_espalda_sin', 'magnus_andar_espalda_sin', 29, 6, 21.2, True),
+    # La vuelta sin baston (Pilgrim_turns_around_on_green, video 50-104, todos),
+    # hecha con referencias de los andares sin baston; registrada contra
+    # andar_frente_sin c_015 (0,10) y andar_espalda_sin c_004 (0,16).
+    ('vuelta_frontal_sin', 'magnus_vuelta_frontal_sin', 55, 7, 30.0, False),
+    # Puentes por flujo optico entre los andares con baston y la vuelta (sin
+    # fundido: el fundido de opacidad dejaba dos dibujos superpuestos). 4
+    # intermedios cada uno, casilla de la vuelta. Ver
+    # raw/master_mason/anim/magnus_puentes_frontal/puente.py.
+    ('puente_espalda',   'magnus_puentes_frontal', 4, 8, 30.0, False, (292, 400), [0, 1, 2, 3]),
+    ('puente_espalda_b', 'magnus_puentes_frontal', 4, 8, 30.0, False, (292, 400), [4, 5, 6, 7]),
+    ('puente_frente',    'magnus_puentes_frontal', 4, 8, 30.0, False, (292, 400), [8, 9, 10, 11]),
+    ('puente_frente_b',  'magnus_puentes_frontal', 4, 8, 30.0, False, (292, 400), [12, 13, 14, 15]),
+    # Los de la vuelta sin baston (magnus_puentes_frontal_sin/puente_sin.py).
+    ('puente_espalda_sin',        'magnus_puentes_frontal_sin', 4, 8, 30.0, False, None, [0, 1, 2, 3]),
+    ('puente_espalda_sin_b',      'magnus_puentes_frontal_sin', 4, 8, 30.0, False, None, [4, 5, 6, 7]),
+    ('puente_frente_sin',         'magnus_puentes_frontal_sin', 4, 8, 30.0, False, None, [8, 9, 10, 11]),
+    ('puente_frente_sin_b',       'magnus_puentes_frontal_sin', 4, 8, 30.0, False, None, [12, 13, 14, 15]),
+    ('puente_reposo_espalda_sin', 'magnus_puentes_frontal_sin', 4, 8, 30.0, False, None, [16, 17, 18, 19]),
+    ('puente_reposo_frente_sin',  'magnus_puentes_frontal_sin', 4, 8, 30.0, False, None, [20, 21, 22, 23]),
+    # Parada y reposo sin baston, de frente y de espaldas (videos de Veo,
+    # raw/.../magnus_reposo_frente_sin/montar.py y enganches.py), a la velocidad
+    # del video (24 fps):
+    #   parada_frente_sin  video 3-102: entra desde andar_frente_sin c_024 (0,16),
+    #                      da un par de pasitos acercandose (crece un 11 %) y se
+    #                      asienta; casa con el reposo en su c_173 (0,022).
+    #   reposo_frente_sin  bucle 160-227 (cierre 0,019).
+    #   reposo_espalda_sin bucle 136-211 (cierre 0,016); se entra desde los pies
+    #                      juntos del andar_espalda_sin (c_009 -> 186, c_024 -> 156).
+    ('parada_frente_sin', 'magnus_reposo_frente_sin', 100, 12, 24.0, False, None, list(range(0, 100))),
+    ('reposo_frente_sin', 'magnus_reposo_frente_sin', 68, 12, 24.0, True, None, list(range(100, 168))),
+    ('reposo_espalda_sin', 'magnus_reposo_espalda_sin', 76, 10, 24.0, True),
     # Un paso agachado (de agachado a agachado, 39 px mas alla): dos videos de
     # Flow seguidos (el pie de delante sale; el cuerpo avanza y el de atras se
     # junta), con el nodo por AVANCE_PASO_AGACHADO. Un toque agachado lo da;
     # ver raw/master_mason/anim/magnus_paso_agachado/como_se_hizo.txt.
     ('paso_agachado',     'magnus_paso_agachado',     95, 10, 60.0, False),   # apagado en magnus.gd
 ]
+
+
+# La secuencia con baston de frente / espaldas de un solo video (reposo, arranque,
+# andar, vuelta y los puentes entre ellos, en dos hojas): la lista la escribe
+# raw/master_mason/anim/magnus_secuencia_frontal/secuencia.py.
+# Lo mismo sin baston: magnus_secuencia_frontal_sin (secuencia.py magnus_secuencia_frontal_sin).
+import json as _json
+for _d in ('magnus_secuencia_frontal', 'magnus_secuencia_frontal_sin'):
+    _SEC = os.path.join(ANIM_RAW, _d, 'animaciones.json')
+    if os.path.exists(_SEC):
+        for _n, _job, _cnt, _fps, _bucle, _idx in _json.load(open(_SEC)):
+            ANIMACIONES.append((_n, _job, _cnt, 16, _fps, _bucle, (292, 400), _idx))
 
 
 def _usos():

@@ -1,0 +1,2 @@
+job:     magnus_puentes_frontal_sin
+nota:    puentes por flujo optico de la vuelta sin baston (puente_sin.py)

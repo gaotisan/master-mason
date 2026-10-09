@@ -3,7 +3,8 @@ extends Node2D
 ## ellos, aparte del peregrino del juego: magnus.gd no se toca.
 ##   abajo     anda hacia la camara (de frente) y crece con la cercania
 ##   arriba    se aleja (de espaldas) y encoge
-##   suelto    se queda quieto en el fotograma en que iba (aun no hay reposo)
+##   suelto    termina el paso y se para con los pies juntos; sin baston,
+##             ademas, parada y reposo respirando (con baston aun no hay)
 ##   B         con baston / sin baston
 ##   Z         camara: plano general / medio / primer plano (le sigue)
 ##   M         gastar un cuarto de magia (destello y estallido); C, otro color
@@ -17,11 +18,11 @@ extends Node2D
 ## paso constante), asi que los pies no patinan. La fila del suelo sale del
 ## tamano con el horizonte del propio video (baja).
 ##
-## LA VUELTA (con baston): al cambiar de sentido da la vuelta en el sitio
-## (vuelta_frontal; de espaldas a frente, la misma al reves) y sigue andando por
-## el fotograma 5 del otro andar, que es contra el que se registro. Los videos
-## redibujan la tunica a su manera: en cada enganche un fundido corto (FUNDIDO)
-## tapa el cambio de textura. Sin baston aun no hay vuelta: cambia de golpe.
+## LA VUELTA: al cambiar de sentido da la vuelta en el sitio (vuelta_frontal
+## con baston, vuelta_frontal_sin sin el; de espaldas a frente, la misma al
+## reves) y sigue andando por el fotograma del otro andar contra el que se
+## registro (ENGANCHE). Los videos redibujan la tunica a su manera: en cada
+## enganche un fundido corto (FUNDIDO) tapa el cambio de textura.
 ##
 ## La bola del baston, como en el de perfil con el baston en la mano: la madera
 ## ya viene en el dibujo y la bola es la de scenes/dev/baston.tscn (orbe, luz,
@@ -37,6 +38,12 @@ extends Node2D
 const FRAMES := preload("res://resources/characters/magnus_frames.tres")
 const BASTON := preload("res://scenes/dev/baston.tscn")
 const FRONTAL := "res://assets/characters/baston/frontal.json"
+## Con baston: la secuencia de un solo video (reposo, arranque, andar, vuelta y
+## puentes; raw/master_mason/anim/magnus_secuencia_frontal/secuencia.py).
+const SECUENCIA := "res://assets/characters/magnus/secuencia_frontal.json"
+## Sin baston: lo mismo de su propio video (sufijo _sb, puentes ps_), con el
+## baston a la espalda en la funda de cuero.
+const SECUENCIA_SIN := "res://assets/characters/magnus/secuencia_frontal_sin.json"
 const ORBE_EN_MADERA := Vector2(-0.6, -24)   # posicion del Orbe dentro de Madera
 const COLORES: Array[Color] = [
 	Color(1.0, 0.62, 0.18), Color(0.35, 0.75, 1.0), Color(0.55, 1.0, 0.45),
@@ -55,9 +62,80 @@ const ANDAR := {
 	"andar_frente_sin":  {"fps": 24.8, "paso": -0.077 / 34.0, "baja": 180.7},
 	"andar_espalda_sin": {"fps": 21.2, "paso": 0.077 / 29.0, "baja": 157.1},
 }
-const VUELTA := "vuelta_frontal"
+## Como en baston.gd: de espaldas la madera se corta 8 px bajo el pivote (el
+## hombro) y el parche de tela tapa el corte.
+const FUNDA := "res://assets/characters/baston/funda_cuero.json"
+## Donde va la funda en el baston (px de hoja, ejes del nodo Baston sin girar):
+## en el palo (x +1, su centro en la textura) y 80 px por debajo de la bola (el
+## Orbe va en -24), como en el concepto de Gemini.
+const FUNDA_EN_BASTON := Vector2(1.0, 56.0)
+const VUELTA := "vuelta_frontal"   # con baston; sin el, vuelta_frontal_sin
 const VUELTA_FPS := 30.0
-const ENGANCHE := 4              # vuelta <-> andares por su c_005
+## Fotogramas de cada andar con los pies juntos (uno por paso, medio ciclo de
+## separacion; medidos por la anchura y el desnivel de los pies y vistos a ojo):
+## al soltar la tecla termina el paso hasta uno de ellos y se para ahi. El de
+## frente con baston coincide con el enganche de su vuelta.
+const PIES_JUNTOS := {"andar_frente": [4, 25], "andar_espalda": [13, 27],
+	"andar_frente_sin": [23, 0], "andar_espalda_sin": [8, 23]}
+## PARADA Y REPOSO (sin baston, como en el perfil: andar -> parada -> reposo).
+## Al llegar a los pies juntos se pasa (con el fundido) a:
+##   de frente: parada_frente_sin (da un par de pasitos acercandose y se asienta;
+##     entra desde andar c_024 a 0,16, desde c_001 a 0,25) y al acabar
+##     reposo_frente_sin por su fotograma 13 (casa a 0,022)
+##   de espaldas: reposo_espalda_sin por el fotograma que mejor casa con cada
+##     pies juntos (andar c_009 -> 50, c_024 -> 20)
+## Desde ahi, la tecla de seguir de cara sale andando por el fotograma del andar
+## que mejor casa (SALIDA); la otra, da la vuelta. Todo a 24 fps, los del video.
+## (raw/master_mason/anim/magnus_reposo_frente_sin/montar.py y enganches.py)
+const PARADA := {"andar_frente_sin": {23: ["parada_frente_sin", 0], 0: ["parada_frente_sin", 0]},
+	"andar_espalda_sin": {8: ["reposo_espalda_sin", 50], 23: ["reposo_espalda_sin", 20]}}
+const TRAS_PARADA := {"parada_frente_sin": ["reposo_frente_sin", 13]}
+const QUIETO := {"parada_frente_sin": "frente", "reposo_frente_sin": "frente", "reposo_espalda_sin": "espalda"}
+const SALIDA := {"frente": 23, "espalda": 8}
+const QUIETO_FPS := 24.0
+## LA VUELTA CON BASTON, SIN FUNDIDO: la vuelta es de otro video y un fundido
+## de opacidad dejaba dos dibujos superpuestos (emborronado). Se entra y se sale
+## por puentes de flujo optico (raw/master_mason/anim/magnus_puentes_frontal/
+## puente.py), desde los pies juntos de cada andar: si va andando, termina el
+## paso hasta uno de ellos (medio paso como mucho). Por andar, fotograma de
+## pies juntos -> su puente hacia la vuelta.
+const VUELTA_DESDE := {"andar_frente": {4: "puente_frente", 25: "puente_frente_b"},
+	"andar_espalda": {13: "puente_espalda", 27: "puente_espalda_b"},
+	"andar_frente_sin": {23: "puente_frente_sin", 0: "puente_frente_sin_b"},
+	"andar_espalda_sin": {8: "puente_espalda_sin", 23: "puente_espalda_sin_b"}}
+## Lo mismo desde la parada y el reposo sin baston (el reposo respira muy poco:
+## desde cualquier fotograma se entra al puente sin que se note). La parada de
+## frente se deja terminar: se entra cuando ya es reposo.
+const VUELTA_DESDE_QUIETO := {"reposo_frente_sin": "puente_reposo_frente_sin",
+	"reposo_espalda_sin": "puente_reposo_espalda_sin"}
+## Cada puente: [extremo de la vuelta: "ini" o "fin", cara del otro extremo].
+## Todos van de A a B como en puente.py; los que acaban en la vuelta se
+## recorren hacia delante para entrar en ella y al reves para salir.
+const PUENTE := {
+	"puente_frente": ["ini", "frente"], "puente_frente_b": ["ini", "frente"],
+	"puente_espalda": ["fin", "espalda"], "puente_espalda_b": ["fin", "espalda"],
+	"puente_frente_sin": ["ini", "frente"], "puente_frente_sin_b": ["ini", "frente"],
+	"puente_reposo_frente_sin": ["ini", "frente"],
+	"puente_espalda_sin": ["fin", "espalda"], "puente_espalda_sin_b": ["fin", "espalda"],
+	"puente_reposo_espalda_sin": ["fin", "espalda"]}
+## Los puentes que van DE la vuelta A otra cosa (los demas van hacia ella).
+const SALE_DE_VUELTA := ["puente_espalda", "puente_espalda_sin", "puente_reposo_espalda_sin"]
+## Para salir de la vuelta: con tecla al andar, sin tecla al reposo (sin baston).
+## [puente, animacion final, fotograma]
+const SALIR := {
+	"con": {"frente": {"andar": ["puente_frente", "andar_frente", 4]},
+		"espalda": {"andar": ["puente_espalda", "andar_espalda", 13]}},
+	"sin": {"frente": {"andar": ["puente_frente_sin", "andar_frente_sin", 23],
+			"reposo": ["puente_reposo_frente_sin", "reposo_frente_sin", 13]},
+		"espalda": {"andar": ["puente_espalda_sin", "andar_espalda_sin", 8],
+			"reposo": ["puente_reposo_espalda_sin", "reposo_espalda_sin", 20]}}}
+const REPOSO_TRAS_VUELTA := {"andar_frente_sin": ["reposo_frente_sin", 13], "andar_espalda_sin": ["reposo_espalda_sin", 20]}
+## La parada de frente se acerca: lo que baja el suelo por unidad de escala en
+## su video (suelo = 403,6 + 0,941 raiz, x OBJ 309 / 2).
+const BAJA_PARADA := 145.4
+## Fotograma de cada andar contra el que se registro su vuelta (montar.py de
+## magnus_vuelta_frontal y magnus_vuelta_frontal_sin): por ahi se sale de ella.
+const ENGANCHE := {"andar_frente": 4, "andar_espalda": 4, "andar_frente_sin": 14, "andar_espalda_sin": 3}
 const FUNDIDO := 0.18            # s (a 0,12 aun se notaba el cambio de tunica al entrar)
 const SUELO_SALIDA := 1200.0     # la fila del suelo del juego, con escala 1
 const ESCALA_MIN := 0.45
@@ -76,8 +154,12 @@ var _zoom := 0
 var _info: Label
 var _t := 0.0
 var _bola: Node2D
+var _fondo: Node2D
+var _funda_atras: Sprite2D
+var _funda_delante: Sprite2D
 var _garra: Sprite2D
 var _orbes: Dictionary = {}
+var _espalda: Dictionary = {}   # baston a la espalda en las animaciones sin baston
 var _magia := 1.0
 var _mostrada := 1.0
 var _destello := 0.0
@@ -86,17 +168,55 @@ var _con_baston := true
 var _cara := "frente"            # hacia donde mira: frente / espalda
 var _girando := 0                # 0, +1 (frente -> espalda), -1 (al reves)
 var _fundido := 0.0
+var _andando := false            # venia andando: al soltar, termina el paso
+var _relativa: Dictionary = {}   # cuanto crece cada fotograma de la parada (frontal.json)
+var _base_parada := 1.0
+var _quiere := ""
+var _secuencia: Array = []       # tramos [animacion, desde, hasta] de la vuelta con baston
+var _tras_secuencia: Array = []  # [cara, andar, fotograma] al acabar
+var _cara_final := ""            # hacia donde mira al acabar la vuelta en curso
+var _sec: Dictionary = {}        # la del modo actual (secuencia_frontal[_sin].json)
+var _secs: Dictionary = {}       # true: con baston, false: sin
+var _cb := "reposo"              # con baston: reposo / arranque / andar / puente / vuelta
+var _cb_dir := 1                 # sentido de la vuelta en curso
+var _cb_h0 := 1.0                # arranque: altura de video al entrar y escala entonces
+var _cb_base := 1.0
 var _bola_antes := Vector2.ZERO   # en los enganches la bola va de donde estaba a su sitio
 var _garra_fundiendo := false     # y la garra pegada (andar_frente) se desvanece
 
 
 func _ready() -> void:
+	# el fondo en su nodo, bien al fondo: asi lo que va detras del personaje
+	# (el baston a la espalda visto de frente) puede ir por debajo del sprite
+	# sin quedar tambien por debajo del fondo
+	_fondo = Node2D.new()
+	_fondo.z_index = -10
+	_fondo.draw.connect(_dibujar_fondo)
+	add_child(_fondo)
 	_orbes = JSON.parse_string(FileAccess.open(FRONTAL, FileAccess.READ).get_as_text())
+	_espalda = _orbes.get("baston_espalda", {})
+	_relativa = _orbes.get("escala_relativa", {})
+	for con in [true, false]:
+		var sec: Dictionary = JSON.parse_string(FileAccess.open(SECUENCIA if con else SECUENCIA_SIN, FileAccess.READ).get_as_text())
+		for clave in ["pies_juntos"]:     # el JSON los da en float
+			for nombre in sec[clave]:
+				sec[clave][nombre] = sec[clave][nombre].map(func(v): return int(v))
+		for nombre in sec["orbe"]:
+			_orbes[nombre] = {"orbe": sec["orbe"][nombre], "escala_bola": sec["escala_bola"]}
+		for nombre in sec.get("baston_espalda", {}):
+			_espalda[nombre] = sec["baston_espalda"][nombre]
+		_secs[con] = sec
+	_sec = _secs[true]
 	# la bola, antes que el sprite: se dibuja detras (la garra le queda delante)
 	_bola = BASTON.instantiate()
 	_bola.set_script(null)
 	_bola.z_index = 0
 	add_child(_bola)
+	# la funda de cuero, en dos capas pegadas al baston: atras (lenguetas e
+	# interior de las bocas), la madera, delante (la pared del tubo)
+	var fj: Dictionary = JSON.parse_string(FileAccess.open(FUNDA, FileAccess.READ).get_as_text())
+	_funda_atras = _capa_funda("res://assets/characters/baston/funda_cuero_atras.png", fj, 0)
+	_funda_delante = _capa_funda("res://assets/characters/baston/funda_cuero_delante.png", fj, 2)
 	_bola.get_node("Madera").self_modulate.a = 0.0
 	_bola.get_node("Madera/Funda").modulate.a = 0.0
 	_bola.get_node("Madera/Chispas").emitting = true
@@ -108,7 +228,7 @@ func _ready() -> void:
 	_fantasma = Sprite2D.new()
 	_fantasma.visible = false
 	add_child(_fantasma)
-	_poner_anim("andar_frente", 0)
+	_poner_anim("reposo_frente_cb", 0)
 	# la garra del de frente, encima del sprite (la bola le queda detras)
 	_garra = Sprite2D.new()
 	_garra.centered = false
@@ -179,11 +299,15 @@ func _poner_anim(nombre: String, fotograma: int, fundir := false) -> void:
 
 
 func _cambiar_baston(si: bool) -> void:
-	if si == _con_baston or _girando != 0:
+	if si == _con_baston or _girando != 0 or not _secuencia.is_empty() or _cb in ["puente", "vuelta"]:
 		return
 	_con_baston = si
-	var anim := _andar_de(_cara)
-	_poner_anim(anim, mini(_sprite.frame, _sprite.sprite_frames.get_frame_count(anim) - 1), true)
+	# de momento, de un modo al otro por el reposo de esa cara (sacar y guardar
+	# el baston tendran su animacion)
+	_andando = false
+	_cb = "reposo"
+	_sec = _secs[si]
+	_poner_anim("reposo_%s%s" % [_cara, _suf()], 0, true)
 
 
 func _gastar(cuanto: float) -> void:
@@ -236,23 +360,48 @@ func _process(delta: float) -> void:
 	elif arriba and not abajo:
 		quiere = "espalda"
 
-	if _girando != 0:
+	_quiere = quiere
+	if true:
+		# los dos modos con su secuencia de un solo video (lo de abajo es lo de
+		# antes, con los andares y la vuelta de videos sueltos: ya no se usa)
+		_cb_tick(delta, quiere)
+	elif not _secuencia.is_empty():
+		_seguir_secuencia(delta)
+	elif _girando != 0:
 		_seguir_vuelta(delta)
-	elif quiere != "" and quiere != _cara:
-		if _con_baston:
-			# a la vuelta: hacia delante de frente a espaldas, al reves si no
-			_girando = 1 if quiere == "espalda" else -1
-			var n := _sprite.sprite_frames.get_frame_count(VUELTA)
-			_poner_anim(VUELTA, 0 if _girando > 0 else n - 1, true)
+	elif quiere != "" and quiere != _cara and VUELTA_DESDE.has(String(_sprite.animation)):
+		# con baston: a la vuelta por un puente, desde los pies juntos; si va
+		# andando, termina antes el paso hasta ellos
+		var anim := String(_sprite.animation)
+		if VUELTA_DESDE[anim].has(_sprite.frame):
+			_empezar_vuelta(VUELTA_DESDE[anim][_sprite.frame])
 		else:
-			_cara = quiere
-			_poner_anim(_andar_de(_cara), 0, true)
+			_andar(anim, delta, true, VUELTA_DESDE[anim].keys())
+	elif quiere != "" and quiere != _cara and VUELTA_DESDE_QUIETO.has(String(_sprite.animation)):
+		_empezar_vuelta(VUELTA_DESDE_QUIETO[String(_sprite.animation)])
+	elif quiere != "" and quiere != _cara:
+		# a la vuelta: hacia delante de frente a espaldas, al reves si no
+		_girando = 1 if quiere == "espalda" else -1
+		var v := _vuelta()
+		_poner_anim(v, 0 if _girando > 0 else _sprite.sprite_frames.get_frame_count(v) - 1, true)
 	elif quiere != "":
 		var anim := _andar_de(_cara)
 		if (_cara == "frente" and _escala < ESCALA_MAX) or (_cara == "espalda" and _escala > ESCALA_MIN):
 			if _sprite.animation != anim:
-				_poner_anim(anim, 0, true)
+				# de la parada o el reposo, por el fotograma del andar que mejor casa
+				_poner_anim(anim, SALIDA[_cara] if QUIETO.has(String(_sprite.animation)) else 0, true)
 			_andar(anim, delta)
+	elif _andando and ANDAR.has(String(_sprite.animation)):
+		# soltada la tecla: termina el paso y se para con los pies juntos (al
+		# acabar una vuelta no: la vuelta ya acaba de pie)
+		if _sprite.frame in PIES_JUNTOS[String(_sprite.animation)]:
+			_andando = false
+		else:
+			_andar(String(_sprite.animation), delta, true)
+		if not _andando:
+			_a_la_parada()
+	elif QUIETO.has(String(_sprite.animation)):
+		_seguir_quieto(delta)
 
 	_fundido = move_toward(_fundido, 0.0, delta / FUNDIDO)
 	_magia_bola(delta)
@@ -262,32 +411,298 @@ func _process(delta: float) -> void:
 		"con baston" if _con_baston else "sin baston", roundi(_magia * 100.0)]
 
 
-## Fotogramas por tiempo, y el tamano con cada fotograma.
-func _andar(anim: String, delta: float) -> void:
+## Fotogramas por tiempo, y el tamano con cada fotograma. Parando, hasta el
+## siguiente fotograma con los pies juntos (PIES_JUNTOS) y ahi se queda.
+func _andar(anim: String, delta: float, parando := false, hasta: Array = []) -> void:
+	_andando = true
 	var d: Dictionary = ANDAR[anim]
 	_acum += delta * d["fps"]
 	var n := _sprite.sprite_frames.get_frame_count(anim)
+	var paradas: Array = hasta if not hasta.is_empty() else PIES_JUNTOS[anim]
 	while _acum >= 1.0:
 		_acum -= 1.0
 		_sprite.frame = (_sprite.frame + 1) % n
 		var antes := _escala
 		_escala = clampf(1.0 / (1.0 / _escala + d["paso"]), ESCALA_MIN, ESCALA_MAX)
 		_y += d["baja"] * (_escala - antes)
+		if parando and _sprite.frame in paradas:
+			_acum = 0.0
+			_andando = false
+			return
 
 
-## La vuelta va en el sitio, a su ritmo; al acabar, el otro andar por ENGANCHE.
+## Parado con los pies juntos: si hay parada / reposo para ese andar y ese
+## fotograma (PARADA), se pasa a el.
+func _a_la_parada() -> void:
+	var p = PARADA.get(String(_sprite.animation), {}).get(_sprite.frame)
+	if p != null:
+		_poner_anim(p[0], p[1], true)
+		_base_parada = _escala / _rel_parada(p[0], p[1])
+
+
+func _rel_parada(anim: String, f: int) -> float:
+	var r = _relativa.get(anim)
+	return 1.0 if r == null else float(r[mini(f, r.size() - 1)])
+
+
+## La parada (de una pasada, acercandose como en su video) y los reposos (en
+## bucle), a su ritmo; al acabar la parada, el reposo.
+func _seguir_quieto(delta: float) -> void:
+	var anim := String(_sprite.animation)
+	_acum += delta * QUIETO_FPS
+	var n := _sprite.sprite_frames.get_frame_count(anim)
+	while _acum >= 1.0:
+		_acum -= 1.0
+		if TRAS_PARADA.has(anim) and _sprite.frame + 1 >= n:
+			var t: Array = TRAS_PARADA[anim]
+			_poner_anim(t[0], t[1])     # casa a 0,022: sin fundido
+			return
+		_sprite.frame = (_sprite.frame + 1) % n
+		if _relativa.has(anim):
+			var antes := _escala
+			_escala = _base_parada * _rel_parada(anim, _sprite.frame)
+			_y += BAJA_PARADA * (_escala - antes)
+
+
+## La vuelta con baston, sin fundidos: puente (flujo optico) -> vuelta ->
+## puente -> el otro andar. De frente a espaldas, la vuelta hacia delante; al
+## reves, hacia atras y los puentes del revés.
+func _empezar_vuelta(p: String) -> void:
+	var v := _vuelta()
+	var nv := FRAMES.get_frame_count(v)
+	var hacia_espalda: bool = PUENTE[p][0] == "ini"
+	# el puente de entrada: hacia la vuelta (los que salen de ella, al reves)
+	var entrada: Array = [p, 3, 0] if p in SALE_DE_VUELTA else [p, 0, 3]
+	var giro: Array = [v, 0, nv - 1] if hacia_espalda else [v, nv - 1, 0]
+	_secuencia = [entrada, giro]
+	_girando = 1 if hacia_espalda else -1
+	_cara_final = "espalda" if hacia_espalda else "frente"
+	_andando = false
+	_tramo_siguiente()
+
+
+## Al acabar la vuelta: el puente de salida, segun haya tecla o no (se decide
+## en ese momento, no al empezar).
+func _salida_de_vuelta() -> void:
+	var opciones: Dictionary = SALIR["con" if _con_baston else "sin"][_cara_final]
+	var r: Array = opciones["andar"] if (_quiere == _cara_final or not opciones.has("reposo")) else opciones["reposo"]
+	var p: String = r[0]
+	_secuencia = [[p, 0, 3] if p in SALE_DE_VUELTA else [p, 3, 0]]
+	_tras_secuencia = [_cara_final, r[1], r[2]]
+	_tramo_siguiente()
+
+
+func _tramo_siguiente() -> void:
+	var t: Array = _secuencia[0]
+	_poner_anim(t[0], t[1])
+
+
+## Fotograma a fotograma a VUELTA_FPS por los tramos; al acabar, el otro andar
+## por el fotograma con el que casa el ultimo puente (pies juntos: si no hay
+## tecla, se queda ahi).
+func _seguir_secuencia(delta: float) -> void:
+	_acum += delta * VUELTA_FPS
+	while _acum >= 1.0:
+		_acum -= 1.0
+		var t: Array = _secuencia[0]
+		if _sprite.frame == t[2]:
+			_secuencia.pop_front()
+			if _secuencia.is_empty():
+				if _girando != 0:
+					_girando = 0
+					_salida_de_vuelta()
+					return
+				_cara = _tras_secuencia[0]
+				_poner_anim(_tras_secuencia[1], _tras_secuencia[2])
+				_tras_secuencia = []
+				return
+			_tramo_siguiente()
+		else:
+			_sprite.frame += 1 if t[2] > t[1] else -1
+
+
+## ---------------------------------------------------------------- con baston
+## Todo a los 24 fps del video. Reposo (ida y vuelta) -> sale por SALIDAS ->
+## puente -> arranque (crece / encoge como en el video) -> andar (bucle, 1/escala
+## cambia "paso" por fotograma). Al soltar o pedir la otra cara: hasta los pies
+## juntos y puente al reposo o a la vuelta. La vuelta, al acabar: con la tecla
+## de esa cara, a andar; si no, puente al reposo.
+func _cb_tick(delta: float, quiere: String) -> void:
+	# el reposo respira a su ritmo (fps_reposo, 2,5 s por respiracion); para salir
+	# de el, exhalando, y todo lo demas, a los fps del video
+	var fps := float(_sec["fps"])
+	if _cb == "reposo" and quiere == "":
+		fps = float(_sec["fps_reposo"])
+	_acum += delta * fps
+	while _acum >= 1.0:
+		_acum -= 1.0
+		_cb_paso(quiere)
+
+
+func _suf() -> String:
+	return "_cb" if _con_baston else "_sb"
+
+
+func _pre() -> String:
+	return "pt_" if _con_baston else "ps_"
+
+
+func _otra(cara: String) -> String:
+	return "espalda" if cara == "frente" else "frente"
+
+
+func _cb_puente(nombre: String) -> void:
+	_cb = "puente"
+	_poner_anim(nombre, 0)
+
+
+func _cb_paso(quiere: String) -> void:
+	var anim := String(_sprite.animation)
+	var n := _sprite.sprite_frames.get_frame_count(anim)
+	var c := "f" if _cara == "frente" else "b"
+	match _cb:
+		"reposo":
+			# un fotograma con la respiracion dibujada, ida y vuelta: la posicion p
+			# es la inspiracion k (0 = el fotograma base, sin aire)
+			var kk := int(_sec["k_reposo"])
+			var k := _sprite.frame if _sprite.frame < kk else 2 * kk - 2 - _sprite.frame
+			if quiere != "":
+				if k == 0:
+					var pr: Dictionary = _sec["puente_reposo"][anim]
+					_cb_puente(pr["arr"] if quiere == _cara else pr["vu"])
+				else:
+					_sprite.frame = maxi(k - 3, 0)     # exhala deprisa (0,2 s como mucho)
+				return
+			_sprite.frame = (_sprite.frame + 1) % n
+		"arranque":
+			if _sprite.frame + 1 >= n:
+				var e: Array = _sec["entra_bucle"][anim]
+				_poner_anim(e[0], int(e[1]))
+				_cb = "andar"
+				return
+			_sprite.frame += 1
+			var h: Array = _sec["h"][anim]
+			_cb_escala(_cb_base * float(h[_sprite.frame]) / _cb_h0)
+		"andar":
+			var pj: Array = _sec["pies_juntos"][anim]
+			if quiere != _cara and _sprite.frame in pj:
+				if quiere == "":
+					_cb_puente("%sa%s%d_r%s" % [_pre(), c, _sprite.frame, c])
+				else:
+					_cb_puente("%sa%s%d_vu" % [_pre(), c, _sprite.frame])
+				return
+			_sprite.frame = (_sprite.frame + 1) % n
+			_cb_escala(1.0 / (1.0 / _escala + float(_sec["paso"][anim])))
+		"puente":
+			if _sprite.frame + 1 < n:
+				_sprite.frame += 1
+				return
+			var a: Array = _sec["puentes"][anim]["a"]
+			_poner_anim(a[0], int(a[1]))
+			if String(a[0]).begins_with("vuelta"):
+				_cb = "vuelta"
+				_cb_dir = 1 if int(a[1]) == 0 else -1
+			elif String(a[0]).begins_with("arranque"):
+				_cb = "arranque"
+				_cb_h0 = float(_sec["h"][a[0]][0])
+				_cb_base = _escala
+			else:
+				_cb = "reposo"
+		"vuelta":
+			var f := _sprite.frame + _cb_dir
+			if f >= 0 and f < n:
+				_sprite.frame = f
+				return
+			_cara = "espalda" if _cb_dir > 0 else "frente"
+			if _cb_dir > 0:
+				if quiere == "espalda":
+					# 153 -> 154: seguido en el video
+					_poner_anim("arranque_espalda" + _suf(), 0)
+					_cb = "arranque"
+					_cb_h0 = float(_sec["h"]["arranque_espalda" + _suf()][0])
+					_cb_base = _escala
+				else:
+					_cb_puente(_pre() + "vu_rb")
+			else:
+				_cb_puente(_pre() + ("vu_arrf" if quiere == "frente" else "vu_rf"))
+
+
+func _cb_escala(nueva: float) -> void:
+	nueva = clampf(nueva, ESCALA_MIN, ESCALA_MAX)
+	_y += float(_sec["baja"]) * (nueva - _escala)
+	_escala = nueva
+
+
+func _vuelta() -> String:
+	return VUELTA + ("" if _con_baston else "_sin")
+
+
+## La vuelta va en el sitio, a su ritmo; al acabar, el otro andar por el
+## fotograma contra el que se registro (ENGANCHE).
 func _seguir_vuelta(delta: float) -> void:
 	_acum += delta * VUELTA_FPS
-	var n := _sprite.sprite_frames.get_frame_count(VUELTA)
+	var n := _sprite.sprite_frames.get_frame_count(_sprite.animation)
 	while _acum >= 1.0:
 		_acum -= 1.0
 		var f := _sprite.frame + _girando
 		if f < 0 or f >= n:
 			_cara = "espalda" if _girando > 0 else "frente"
 			_girando = 0
-			_poner_anim(_andar_de(_cara), ENGANCHE, true)
+			_andando = false
+			var anim := _andar_de(_cara)
+			if _quiere == "" and REPOSO_TRAS_VUELTA.has(anim):
+				# sin tecla, la vuelta acaba de pie: al reposo de ese lado
+				var r: Array = REPOSO_TRAS_VUELTA[anim]
+				_poner_anim(r[0], r[1], true)
+			else:
+				_poner_anim(anim, ENGANCHE[anim], true)
 			return
 		_sprite.frame = f
+
+
+## Sin baston en la mano: el de scenes/dev/baston.tscn entero (madera, bola,
+## luz) a la espalda, por FUERA de la tunica, en diagonal y metido en la funda
+## de cuero (funda_cuero.py; la idea es el concepto de Gemini). Cada fila de
+## frontal.json "baston_espalda": [x, y, giro, delante, -]; de espaldas va
+## delante del sprite; de frente, detras (asoma la garra por el hombro).
+func _baston_a_la_espalda(lista: Array) -> void:
+	var f: Array = lista[mini(_sprite.frame, lista.size() - 1)]
+	_madera(true)
+	_bola.visible = true
+	_bola.scale = Vector2.ONE * _escala
+	_bola.position = _sprite.position + (_sprite.offset + Vector2(f[0], f[1])) * _escala
+	_bola.rotation = f[2]
+	# delante del sprite (1) o detras (-3: el sprite va en 0 y la madera y la
+	# funda suben 1 y 2 sobre el)
+	_bola.z_index = 1 if f[3] == 1 else -3
+
+
+func _capa_funda(ruta: String, fj: Dictionary, z: int) -> Sprite2D:
+	var sp := Sprite2D.new()
+	sp.texture = load(ruta)
+	sp.centered = false
+	sp.offset = -Vector2(fj["eje"][0], fj["eje"][1])
+	sp.scale = Vector2.ONE * float(fj["escala"])
+	sp.position = FUNDA_EN_BASTON
+	sp.z_index = z
+	sp.visible = false
+	_bola.add_child(sp)
+	return sp
+
+
+## Con la madera y la funda (a la espalda) o solo la bola (en la mano: la madera
+## va en el dibujo y la bola por detras de los dedos de la garra).
+func _madera(si: bool) -> void:
+	var madera := _bola.get_node("Madera") as Sprite2D
+	madera.self_modulate.a = 1.0 if si else 0.0
+	madera.z_index = 1 if si else 0
+	madera.get_node("Funda").modulate.a = 0.0     # el parche de tela del perfil, aqui no
+	(madera.material as ShaderMaterial).set_shader_parameter("corte", 1.0)
+	_funda_atras.visible = si
+	_funda_delante.visible = si
+	if not si:
+		_bola.rotation = 0.0
+		_bola.z_index = 0
 
 
 func _colocar() -> void:
@@ -301,6 +716,9 @@ func _colocar() -> void:
 	var d = _orbes.get(String(_sprite.animation)) if _con_baston else null
 	_bola.visible = d != null
 	var con_garra: bool = d != null and d.has("garra")
+	_madera(false)
+	if d == null and _espalda.has(String(_sprite.animation)):
+		_baston_a_la_espalda(_espalda[String(_sprite.animation)])
 	if d != null:
 		var o: Array = d["orbe"][mini(_sprite.frame, d["orbe"].size() - 1)]
 		var e: float = d["escala_bola"]
@@ -337,26 +755,27 @@ func _colocar() -> void:
 		if alto > vista.y * 0.9:
 			centro.y = _sprite.position.y - alto - vista.y * 0.04 + vista.y / 2.0
 	_camara.position = centro - vista / 2.0
-	queue_redraw()
+	_fondo.queue_redraw()
 
 
-func _draw() -> void:
+func _dibujar_fondo() -> void:
+	var f := _fondo
 	# fondo oscuro y suelo con lineas hacia el punto de fuga, para leer la
 	# profundidad; las transversales a escalas fijas (0,5 / 0,75 / 1 / 1,5 / 2 / 2,5).
 	# Con la camara de los videos (a media altura del personaje) el horizonte
 	# queda muy cerca de los pies: el suelo se ve muy plano.
 	const K := 165.0
 	const HORIZONTE := SUELO_SALIDA - K
-	draw_rect(Rect2(-6000, -6000, 15000, 15000), Color(0.08, 0.09, 0.11))
-	draw_rect(Rect2(-6000, HORIZONTE, 15000, 9000), Color(0.13, 0.12, 0.11))
+	f.draw_rect(Rect2(-6000, -6000, 15000, 15000), Color(0.08, 0.09, 0.11))
+	f.draw_rect(Rect2(-6000, HORIZONTE, 15000, 9000), Color(0.13, 0.12, 0.11))
 	var fuga := Vector2(1456, HORIZONTE)
 	for i in range(-14, 15):
 		var lejos := Vector2(1456 + i * 240, HORIZONTE + K * 3.0)
-		draw_line(fuga.lerp(lejos, 0.12), lejos, Color(0.2, 0.19, 0.17), 2.0)
+		f.draw_line(fuga.lerp(lejos, 0.12), lejos, Color(0.2, 0.19, 0.17), 2.0)
 	for s in [0.5, 0.75, 1.0, 1.5, 2.0, 2.5]:
 		var y: float = HORIZONTE + K * s
-		draw_line(Vector2(-6000, y), Vector2(9000, y), Color(0.2, 0.19, 0.17), 2.0)
+		f.draw_line(Vector2(-6000, y), Vector2(9000, y), Color(0.2, 0.19, 0.17), 2.0)
 	# sombra bajo los pies
-	draw_set_transform(_sprite.position, 0.0, Vector2(1.0, 0.22))
-	draw_circle(Vector2.ZERO, 80.0 * _escala, Color(0, 0, 0, 0.35))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	f.draw_set_transform(_sprite.position, 0.0, Vector2(1.0, 0.22))
+	f.draw_circle(Vector2.ZERO, 80.0 * _escala, Color(0, 0, 0, 0.35))
+	f.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

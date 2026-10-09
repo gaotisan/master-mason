@@ -1,6 +1,6 @@
 ﻿job:     magnus_vuelta_frontal_sin
-creado:  2026-10-07 23:31
-fuente:  Pilgrim_walking_and_turning_around_20261007232159.mp4
+creado:  2026-10-08 09:36
+fuente:  Pilgrim_turns_around_on_green_20261008093222.mp4
 nota:    
 
 Flujo:

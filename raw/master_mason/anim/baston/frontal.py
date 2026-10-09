@@ -244,5 +244,107 @@ datos['vuelta_frontal'] = {
     'escala_bola': round(ancho_frente / GARRA_PERFIL, 3)}
 print('vuelta_frontal', len(fv), 'fotogramas')
 
+# ---------------------------------------------------------------- a la espalda
+# Sin baston en la mano, el baston va a la espalda bajo la tunica, como en el
+# perfil (baston_seguimiento.json): en el giro de pie, de espaldas puras, el
+# pivote (el hombro, donde lo corta la funda) cae centrado bajo la capucha y 97
+# px de master por debajo de su punta (medido en giro c_017-c_019). Aqui se pone
+# igual: x = centro de la capucha (60 px de arriba del dibujo), y = su punta +
+# 97. De espaldas va delante con el parche de tela (la funda); de frente,
+# detras (lo tapa la cabeza y asoman la garra y la luz). En la vuelta, delante
+# cuando ya no se ve la barba.
+# En x, el baston va pegado a la espalda, no al centro de la capucha: en el giro
+# de perfil el pivote, medido sobre el tronco (filas 130-170 bajo la punta de
+# la capucha; p = (pivote - centro)/semiancho), sigue a lo que la cabeza se
+# adelanta (g = (centro de la capucha - centro del tronco)/semiancho) con
+# p = -2,28 g - 0,05 (ajuste en los 47 fotogramas): de frente y de espaldas
+# g ~ 0 y va al centro; de perfil se va al borde de la espalda y asoma detras
+# de la cabeza, como en el perfil.
+# Y ladeado hacia su hombro derecho (lo pidio el usuario: recto por la columna,
+# de frente la bola quedaba detras de la cabeza): pivote en el omoplato
+# (LADO_X px de hoja hacia ese lado) e inclinado LADO_GIRO, para que la bola
+# (radio ~11 px de hoja, 24 sobre el pivote) asome un poco por el lado de la
+# capucha (semiancho ~21 a esa altura). Ese hombro, de frente, a la izquierda
+# de la pantalla (donde lleva el baston en la mano) y de espaldas a la derecha;
+# de perfil el ladeo va en profundidad y no se ve: en la vuelta se escala con
+# 1 - |p| (p ~ +-1 de perfil).
+K_ESPALDA = -2.28
+# FUNDA DE CUERO (2026-10-08, reemplaza a lo de arriba de ladearlo y cortarlo en
+# el hombro bajo la tunica): el baston va entero por FUERA de la tunica, en
+# diagonal, metido en una funda de cuero en el omoplato (funda_cuero.py), como
+# en el concepto de Gemini (_fuentes/baston_concepto_funda.jpeg). Medido en el
+# concepto y llevado a capucha-pies 628: la bola a BOLA_LADO px de master hacia
+# su hombro derecho del centro de la capucha y BOLA_BAJO por debajo de su punta,
+# el baston inclinado GIRO (la garra hacia ese hombro; el pie hacia la cadera
+# contraria, dentro de la silueta). De frente, el mismo hombro a la izquierda
+# de la pantalla y el baston detras del cuerpo.
+BOLA_LADO = 60.0
+BOLA_BAJO = 39.0
+GIRO = 0.34
+ORBE_LOCAL = np.array([-0.6, -24.0]) * 2     # la bola respecto al pivote (master)
+baston_espalda = {}
+def _de(job, desde=0, hasta=None):
+    return sorted(glob.glob(os.path.join(ANIM, job, '04_limpios', 'c_*.png')))[desde:hasta]
+
+
+for anim, fs, alto in (('andar_frente_sin', _de('magnus_andar_frente_sin'), 720),
+                       ('andar_espalda_sin', _de('magnus_andar_espalda_sin'), 720),
+                       ('vuelta_frontal_sin', _de('magnus_vuelta_frontal_sin'), 720),
+                       ('parada_frente_sin', _de('magnus_reposo_frente_sin', 0, 100), 720),
+                       ('reposo_frente_sin', _de('magnus_reposo_frente_sin', 100), 720),
+                       ('reposo_espalda_sin', _de('magnus_reposo_espalda_sin'), 720)):
+    filas = []
+    for f in fs:
+        a = np.asarray(Image.open(f).convert('RGBA')).astype(float)
+        op = a[..., 3] > 128
+        top = int(np.nonzero(op.any(1))[0].min())
+        hc = float(np.nonzero(op[top:top + 60])[1].mean())
+        band = np.nonzero(op[top + 130:top + 170])[1]
+        l, r = np.percentile(band, 3), np.percentile(band, 97)
+        c, h = (l + r) / 2, (r - l) / 2
+        pp = float(np.clip(K_ESPALDA * (hc - c) / h, -1.05, 1.05))
+        barba = (op & (a[..., :3].min(2) > 175))[top:top + 300].sum()
+        # en los andares el tronco baila con los brazos: ahi, centrado en la capucha
+        filas.append([c + pp * h if anim.startswith('vuelta') else hc, top, barba, pp])
+    v = np.array(filas, float)
+    delante = [1 if ('espalda' in anim or (anim.startswith('vuelta') and b < 150)) else 0 for b in v[:, 2]]
+    if anim.startswith('vuelta'):
+        lado = np.array([(1 - min(abs(q), 1.0)) * (1 if dl else -1) for q, dl in zip(v[:, 3], delante)])
+    else:
+        lado = np.full(len(v), 1.0 if 'espalda' in anim else -1.0)
+    bx = v[:, 0] + BOLA_LADO * lado; by = v[:, 1] + BOLA_BAJO; giro = GIRO * lado
+    x, y, gg = suavizar(bx), suavizar(by), suavizar(giro)
+    if anim.startswith('vuelta') or anim.startswith('parada'):
+        for w, src in ((x, bx), (y, by), (gg, giro)):
+            w[0], w[-1] = src[0], src[-1]
+    filas_json = []
+    for xx, yy, g_, dl in zip(x, y, gg, delante):
+        c_, s_ = np.cos(g_), np.sin(g_)
+        ox, oy = c_ * ORBE_LOCAL[0] - s_ * ORBE_LOCAL[1], s_ * ORBE_LOCAL[0] + c_ * ORBE_LOCAL[1]
+        px, py = xx - ox, yy - oy                    # pivote = bola - R(giro) orbe
+        # [x, y, giro, delante, parche]: parche 0, ya no se corta en el hombro
+        filas_json.append([round(px / 2 - 146, 2), round(py / 2 - alto / 4, 2), round(float(g_), 4), dl, 0.0])
+    baston_espalda[anim] = filas_json
+    print(anim, 'baston a la espalda:', len(filas), 'fotogramas, delante en', sum(delante))
+datos['baston_espalda'] = baston_espalda
+
+# La parada de frente se acerca (da un par de pasitos): cuanto crece cada uno de
+# sus fotogramas respecto al ultimo (video 3-102; magnus_reposo_frente_sin/
+# medidas.json, de su montar.py). La escena escala al personaje con eso.
+med = json.load(open(os.path.join(ANIM, 'magnus_reposo_frente_sin', 'medidas.json')))
+datos['escala_relativa'] = {'parada_frente_sin': [round(v / med['magnus_reposo_frente_sin']['escala_relativa'][101], 4)
+                                                  for v in med['magnus_reposo_frente_sin']['escala_relativa'][2:102]]}
+
+# Los puentes entre andares y vuelta (magnus_puentes_frontal/puente.py): la bola
+# interpolada entre la de sus extremos (bola.json).
+_pb = os.path.join(ANIM, 'magnus_puentes_frontal', 'bola.json')
+if os.path.exists(_pb):
+    for nombre, filas in json.load(open(_pb)).items():
+        datos[nombre] = {'orbe': [[f[0], f[1]] for f in filas], 'escala_bola': filas[0][2]}
+
+_ps = os.path.join(ANIM, 'magnus_puentes_frontal_sin', 'baston.json')
+if os.path.exists(_ps):
+    datos['baston_espalda'].update(json.load(open(_ps)))
+
 json.dump(datos, open(SALIDA, 'w'), separators=(',', ':'))
 print('->', SALIDA)

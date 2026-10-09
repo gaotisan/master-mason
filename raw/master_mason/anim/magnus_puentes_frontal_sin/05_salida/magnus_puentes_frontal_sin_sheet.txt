@@ -1,0 +1,12 @@
+﻿animacion:  magnus_puentes_frontal_sin
+origen:     04_limpios
+hoja:       magnus_puentes_frontal_sin_sheet.png
+casilla:    292 x 360 px
+escala:     1/2   (master en 04_limpios: 584 x 720)
+hframes:    8
+vframes:    3
+fotogramas: 24   (las 0 casillas sobrantes van vacias)
+fps:        30
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 24.

@@ -36,3 +36,23 @@ distinta (parches redibujados): el fundido lo tapa. Saltos medidos en la
 grabacion (cambio medio por fotograma, lo normal 0,4-0,9): entrada 1,4,
 salida 0,8, vuelta atras 0,9 (sin fundidos eran 1,9 / 1,1 / 1,2).
 Grabacion: 05_salida/vuelta_en_juego.mp4.
+
+ENGANCHES SIN FUNDIDO (2026-10-08): el usuario veia un emborronado al girar con
+el baston: el fundido de opacidad mezclaba el fotograma del andar (a veces a
+media zancada) con el de la vuelta, de otro video (tunica redibujada, baston en
+otra postura) y salian dos dibujos superpuestos. Ahora se entra y se sale por
+puentes de flujo optico (raw/master_mason/anim/magnus_puentes_frontal/puente.py,
+4 intermedios), desde los pies juntos de cada andar (si va andando, termina el
+paso: medio paso como mucho). Se intento antes aprovechar los extremos del
+propio video (el 1 casa con andar_frente c_018 a 0,067 y el 240 con andar_espalda
+c_005 a 0,054) pero entre ellos y el giro esta el pasito y el rato quieto: no se
+puede cortar (0,37 / 0,15) sin usar el video entero (varios segundos).
+extremos.py y registro.json quedan de esa prueba. Grabacion:
+magnus_puentes_frontal/05_salida/vuelta_con_puentes.mp4.
+
+SIN BASTON TAMBIEN (2026-10-08): la vuelta sin baston (vuelta_frontal_sin)
+tenia el mismo emborronado al empezar y al acabar. Puentes en
+magnus_puentes_frontal_sin/puente_sin.py (andar, parada y reposo <-> vuelta;
+el baston de la espalda interpolado). En la escena todas las vueltas van por
+_empezar_vuelta / _salida_de_vuelta: al acabar, con tecla al andar y sin ella
+al reposo. Grabacion: magnus_puentes_frontal_sin/05_salida/vuelta_sin_con_puentes.mp4.

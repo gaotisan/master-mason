@@ -1,0 +1,40 @@
+PROMPTS DEL REPOSO DE FRENTE Y DE ESPALDAS (con y sin baston)
+=============================================================
+(Google Flow, Veo 3.1 - Quality, 16:9, 1080p si se puede, 2026-10-08)
+Ahora al soltar la tecla el peregrino se congela en el fotograma en que iba.
+Reposo = respirar quieto, en bucle (se corta un tramo de ~2,5 s, como el reposo
+de perfil). Fotograma inicial Y final = la MISMA imagen (asi cierra el bucle):
+  con baston, de frente:   referencia_vuelta_frente.png
+  con baston, de espaldas: referencia_vuelta_espalda.png
+  sin baston, de frente:   referencia_vuelta_sin_frente.png
+  sin baston, de espaldas: referencia_vuelta_sin_espalda.png
+Mirar: que no mueva los pies ni se desplace, que respire poco (sutil), que el
+baston no cambie de mano ni de forma, capucha igual.
+
+CON BASTON
+----------
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no cast shadow on the ground, no floor line, no props,
+no text, no logos, no on-screen interface.
+
+The old pilgrim from the first frame stands completely still in exactly the
+same pose and from exactly the same angle as in the first frame, resting after
+a walk, holding his tall wooden staff upright in his right hand, its top an
+open antler-shaped claw, empty. He only breathes, slowly and calmly: a very
+subtle rise and fall of his chest and shoulders, about one breath every two and
+a half seconds, the cloak and the beard moving very slightly with it. His feet
+never move, he does not shift his weight, does not turn, does not look around,
+does not move the staff. The video ends exactly as the first frame.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame; it is part of the cloak, not a hat: no tall point, no cone.
+Same character, same faceted cloak pattern, same low-poly flat-shaded
+hand-painted style, colours and lighting as the first frame, crisp frames, no
+motion blur, no flicker. Sound: only soft calm breathing, no music, no voice.
+
+SIN BASTON
+----------
+(igual, cambiando la frase del baston por:)
+... resting after a walk, his arms hanging relaxed at his sides, empty hands,
+carrying nothing. He only breathes, ...

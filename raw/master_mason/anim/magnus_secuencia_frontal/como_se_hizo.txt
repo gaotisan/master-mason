@@ -1,0 +1,66 @@
+magnus_secuencia_frontal (y _sin): la secuencia de frente / espaldas de UN video
+================================================================================
+2026-10-08. Por que: la vuelta y los andares salian de videos distintos y la
+capucha cambiaba de ancho al girar. El usuario pidio un video por modo con todo
+seguido (quieto, anda, se para, gira, se aleja, se para) y se monta todo de ahi.
+
+  con baston  _fuentes/Pilgrim_walking_turning_full_20261008161217.mp4
+              (original "Pilgrim_walking_and_turning_anim..._20261008161217.mp4")
+  sin baston  _fuentes/Pilgrim_walking_animation_sequence_20261008164615.mp4
+              (mas cerca de la camara; bucles casi perfectos)
+
+Pasos (cada job):
+  nuevo / frames / elegir "1-240" ; python ../magnus_andar_frente/croma.py <job>
+  python medir.py <job>        capucha-pies sin baston, pies, eje (medidas_crudas.json)
+  python montar.py [<job>]     los 240 a la casilla 584x800 con capucha-pies 628
+                               (tamano suavizado, suelo por la recta suelo~h) -> _todos/
+  python secuencia.py [<job>]  animaciones, bucles cerrados por flujo, puentes
+                               -> 04_limpios (+ <job>_pt/04_limpios: puentes, otra hoja:
+                               todo junto no cabe en 4096x4096), animaciones.json,
+                               assets/characters/magnus/secuencia_frontal[_sin].json
+  hoja.ps1 -Job <job> -Cols 16 -Fps 24 -Escala 2 ; idem <job>_pt
+  python tools/anim/_spriteframes.py resources/characters/magnus_frames.tres
+         (lee animaciones.json de los dos jobs)
+
+Tramos (fotogramas del video):
+  con  reposo_f 1-28 (ida y vuelta) | arranque 29-52 | andar_f bucle 45-85 (41),
+       cerrado por flujo los 8 primeros hacia 86-93 | vuelta 121-153 |
+       arranque_e 154-170 | andar_e bucle 165-202 (38, 6 cerrados) | reposo_e 216-240
+       Los bucles de este video no cierran solos (0,21 / 0,16: el bote del paso
+       desplaza la figura; encajados, la pose casa a 0,10).
+  sin  reposo_f 1-17 | arranque 18-45 | andar_f 38-68 (31, cierra a 0,033) |
+       vuelta 119-152 | arranque_e 153-175 | andar_e 170-205 (36, 0,051) | reposo_e 224-240
+       De frente crece muy poco (camara que retrocede con el?): el bucle de frente
+       avanza por ciclo lo mismo que el de espaldas (paso_frente_como_espalda).
+Puentes: 3-5 fotogramas de flujo optico entre fotogramas del mismo video: salir
+del reposo (cada 7 fotogramas) a arrancar o a la vuelta; de los pies juntos del
+andar (2 por ciclo) al reposo o a la vuelta; de la vuelta al reposo / al
+arranque de frente. Sin fundidos.
+Escena (scripts/dev/prueba_frontal.gd, _cb_tick / _cb_paso): los dos modos con
+esto; lo anterior (andares y vueltas de videos sueltos, puentes de
+magnus_puentes_frontal*) queda en el codigo sin usarse.
+Bola (con baston): seguida por color en cada sprite. Sin baston: el baston en la
+funda de cuero a la espalda, calculado por sprite (baston_espalda en el json).
+Grabaciones: 05_salida/secuencia_en_juego.mp4 de cada job (cambio maximo entre
+fotogramas 0,88 con baston y 0,68 sin, sin picos).
+
+PENDIENTE: el video sin baston, de espaldas, NO tiene el chevron gris (parches con
+una franja gris vertical); el de con baston y los giros de perfil si.
+
+EL REPOSO, TERCERA VERSION (2026-10-09): un fotograma y la respiracion dibujada.
+  v1 (fotogramas 1-28 de ida y vuelta): "como Chiquito", la pierna iba y venia
+     (en 1-13 asienta un pie y desde 23 lo levanta).
+  v2 (14-22, alineados con ECC): seguia "temblando". Medido: el tramo quieto no
+     tiene respiracion (0,2-1 px sueltos sin direccion), la textura del video
+     hierve (0,04-0,07 por fotograma aun compensando el movimiento) y 9 fotogramas
+     de ida y vuelta son 0,67 s: todo va y viene 1,5 veces por segundo. En el
+     perfil (magnus_respirando) hierve igual, pero lo tapa una respiracion amplia
+     y lenta (2,5 s).
+  v3: secuencia.py respiracion(): el fotograma BASE_F / BASE_B (con: 18 y 229; sin:
+     9 y 232) deformado: de la cadera para arriba sube hasta 3,5 px de master
+     (hombros y capucha) y el pecho se ensancha un 1,2 %, senoidal, 2,5 s, 12 fps
+     (16 fotogramas de ida y vuelta). El baston en la mano y la mano no se deforman
+     (+-22 px del palo, +-50 en la garra). Sin baston, el de la espalda sube con
+     los hombros. Del reposo se sale siempre por el fotograma base: la escena
+     exhala deprisa (k - 3 por tick, 0,2 s como mucho) y entra en el puente.
+  Grabado: cambio medio por fotograma del reposo 0,04 (antes 0,22), textura quieta.

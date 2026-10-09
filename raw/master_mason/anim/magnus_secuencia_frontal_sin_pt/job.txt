@@ -1,0 +1,2 @@
+job:     magnus_secuencia_frontal_sin_pt
+nota:    puentes de la secuencia sin baston (magnus_secuencia_frontal/secuencia.py)
