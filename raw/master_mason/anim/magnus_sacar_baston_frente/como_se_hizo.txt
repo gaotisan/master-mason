@@ -70,3 +70,18 @@ mas oscura y azulada (va hacia la referencia sin baston). animar.py la lleva al
 color estandar (../igualar_capucha.py) fotograma a fotograma, medida en cada uno
 y suavizada en el tiempo (sin parpadeo); los reposos de las puntas ya lo llevan
 (secuencia.py). En los empalmes casan a menos de 1 en Lab.
+
+SIN EMBORRONADO EN LOS PUENTES (2026-10-10): el usuario veia "blur o cambio en el
+personaje" al sacar / guardar de frente. Medido (laplaciano medio en el cuerpo):
+reposos 15,6-17,8, video 15-17, puentes 13,5-14,5: lo blando eran los puentes.
+Dos causas, y animar.py arregla las dos (puente.py no se toca: lo usan las
+secuencias):
+  - el deformado por flujo remuestreaba con interpolacion LINEAL: con
+    desplazamientos de fraccion de pixel emborronaba cada fotograma deformado.
+    Ahora cubica (deformar() propio).
+  - al mezclar nuestro reposo con el redibujo de Veo se promediaba el DETALLE
+    (no casan en lo fino): lo grueso (gaussiana de 3 px) se mezcla suave, el
+    detalle se toma del de antes hasta la mitad del puente y del de despues
+    desde ahi (sin promediar).
+Puentes ahora 15,2-17,7 (como el video y los reposos); el cambio de detalle a
+mitad del puente mueve 0,30 por fotograma, menos que el propio gesto (0,33-0,49).

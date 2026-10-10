@@ -44,12 +44,40 @@ SB = json.load(open(os.path.join(PROY, 'assets', 'characters', 'magnus', 'secuen
 GIRO_SIN = SB['baston_espalda']['reposo_frente_sb'][0][2]
 
 
+def deformar(img, f, t):
+    """Como puente.deformar pero con interpolacion cubica: la lineal emborronaba
+    cada fotograma deformado (desplazamientos de fraccion de pixel)."""
+    import cv2
+    h, w = f.shape[:2]
+    gx, gy = np.meshgrid(np.arange(w, dtype=np.float32), np.arange(h, dtype=np.float32))
+    return np.clip(cv2.remap(img, gx - t * f[..., 0], gy - t * f[..., 1], cv2.INTER_CUBIC, borderValue=0), 0, 1)
+
+
+SIGMA_DETALLE = 3.0       # px de master: por debajo, "detalle" (pinceladas y bordes de los parches)
+
+
 def mezcla(A, B, t):
-    """A llevado hacia B una fraccion t por flujo, mezclado con B traido desde A."""
+    """A llevado hacia B una fraccion t por flujo, mezclado con B traido desde A.
+
+    Sin promediar el DETALLE (2026-10-10): el usuario veia un emborronado al
+    empezar y al acabar sacar / guardar. Medido (laplaciano en el cuerpo): el
+    video y los reposos andan en 15-18 y los puentes bajaban a 13,5-14,5. Es
+    nuestro reposo y el redibujo de Veo, que no casan en lo fino: al
+    promediarlos, lo fino se emborrona. La forma y el color grueso (por encima
+    de SIGMA_DETALLE) se mezclan suave; el detalle se toma de uno o del otro y
+    cambia de golpe a mitad del puente (entre dos fotogramas, tapado por lo
+    grueso)."""
+    import cv2
     a, b = P.premul(A), P.premul(B)
     a8 = (a[..., :3] * 255).astype(np.uint8); b8 = (b[..., :3] * 255).astype(np.uint8)
     fab, fba = P.flujo(a8, b8), P.flujo(b8, a8)
-    m = (1 - t) * P.deformar(a, fab, t) + t * P.deformar(b, fba, 1 - t)
+    at, bt = deformar(a, fab, t), deformar(b, fba, 1 - t)
+    grueso = lambda x: cv2.GaussianBlur(x.astype(np.float32), (0, 0), SIGMA_DETALLE)
+    ga, gb = grueso(at), grueso(bt)
+    w = 0.0 if t < 0.5 else 1.0                          # el detalle: de A hasta la mitad, luego de B (sin promediar)
+    m = (1 - t) * ga + t * gb + (1 - w) * (at - ga) + w * (bt - gb)
+    m[..., 3] = (1 - t) * at[..., 3] + t * bt[..., 3]  # la silueta, suave
+    m = np.clip(m, 0, 1)
     al = np.clip(m[..., 3:], 1e-4, 1)
     rgb = np.where(m[..., 3:] > 1e-4, m[..., :3] / al, 0)
     return Image.fromarray((np.dstack([rgb, m[..., 3]]) * 255).round().clip(0, 255).astype(np.uint8), 'RGBA')
