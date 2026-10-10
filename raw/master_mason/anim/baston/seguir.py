@@ -75,12 +75,24 @@ SIN_BASTON = {"cayendo", "caida", "tumbado", "levantarse",
               # sacar/guardar de frente (godot-a3, 2026-10-09): el baston va en
               # el dibujo; medidos aqui como de perfil, fallaban (sin barba)
               "sacar_baston_frente", "guardar_baston_frente"}
+# Y todas las de la vista de frente/espaldas de godot-a3 (2026-10-10; secuencias
+# _cb/_sb, sus puentes pt_/ps_ y los puentes viejos puente_*): las coloca
+# prueba_frontal.gd con secuencia_frontal*.json y aqui, medidas como de perfil,
+# salian datos sin sentido (y alguna vez NaN).
+FRONTALES_SUFIJO = ("_cb", "_sb")
+FRONTALES_PREFIJO = ("pt_", "ps_", "puente_")
+
+
+def sin_baston(nombre):
+    return nombre in SIN_BASTON or nombre.endswith(FRONTALES_SUFIJO) or nombre.startswith(FRONTALES_PREFIJO)
+
+
 GIROS = {"giro", "giro_agachado"}
 # Giros que pasan POR DELANTE (de cara a la camara; 2026-10-08; el de pie sale
 # de magnus_giro_simetrico desde el 2026-10-10). Ahi la espalda no se ve nunca: el baston va siempre
-# detras del cuerpo y pasa de su sitio en el reposo (perfil derecho) a ese
-# mismo sitio espejado (perfil izquierdo) al ritmo del giro, medido por la
-# barba. Sin funda ni parche: no se llega a ver la espalda.
+# detras del cuerpo y pasa de su sitio de perfil derecho al de perfil izquierdo
+# siguiendo a la capucha, al ritmo del giro medido por la barba
+# (colocar_giro_delante). Sin funda ni parche: no se llega a ver la espalda.
 GIROS_POR_DELANTE = {"giro"}
 # px del pivote a la punta de abajo: alto del sprite que deja exportar.py menos el pivote
 from PIL import Image as _Im
@@ -748,11 +760,23 @@ def colocar_giro_vertical(ms, base, lista):
     return out
 
 
-def colocar_giro_delante(celdas, base):
-    """El baston en un giro por delante: de la colocacion del primer fotograma
-    (perfil derecho, la del reposo) a la misma espejada (perfil izquierdo), con
-    el avance del giro medido por la barba (de un lado de la silueta al otro;
-    de frente queda en medio), suavizado y sin volver atras. Siempre detras."""
+def colocar_giro_delante(celdas, base, ms):
+    """El baston en un giro por delante, siempre detras del cuerpo y siguiendolo
+    (2026-10-10; el usuario: al principio "se queda demasiado quieto, no
+    acompana al cuerpo y parece que pivota"). Antes iba de la colocacion del
+    primer fotograma a la misma espejada, sin mirar el cuerpo: mientras el
+    hombre empezaba a girar (la capucha avanza 7 px y baja 3, el tronco se
+    inclina) el baston se quedaba clavado, y al acabar quedaba 11 px despegado
+    de la espalda hasta que el cuerpo se asentaba. Ahora:
+      - de perfil (antes de f0 y desde f1), la colocacion normal de cada
+        fotograma (base: el borde de atras de la capucha y la inclinacion del
+        tronco), como en todas las animaciones;
+      - girando, detras de la capucha (su centro, que siempre se ve) a K cos(phi),
+        con la inclinacion proyectada igual y lo que se balancee el tronco; K y
+        la altura salen de f0 y f1, asi que empalma exacto con la de perfil.
+    El avance del giro (t = (1 - cos phi)/2), por la barba: de un lado de la
+    silueta al otro (de frente queda en medio), suavizado y sin volver atras;
+    f0 = ultimo fotograma sin girar, f1 = primero del todo girado."""
     off = []
     for c in celdas:
         a = c[..., 3] > 128
@@ -765,13 +789,31 @@ def colocar_giro_delante(celdas, base):
     p = np.maximum.accumulate(np.clip(p, 0, 1))
     p = np.convolve(np.pad(p, 2, mode="edge"), np.ones(5) / 5, mode="valid")
     p = p * p * (3 - 2 * p)
-    W = celdas[0].shape[1]
-    x0, y0, t0 = base[0][:3]
-    out = []
-    for pi in p:
-        # espejo respecto al centro de la casilla y giro al reves
-        out.append((x0 * (1 - pi) + (W - x0) * pi, y0, t0 * (1 - pi) - t0 * pi, False, 0.0))
-    return out
+    n = len(p)
+    f0 = 0
+    while f0 + 1 < n and p[f0 + 1] <= 0.005:
+        f0 += 1
+    f1 = next(i for i in range(f0 + 1, n) if p[i] >= 0.995)
+    cx = _suave3([m["cap_x"] for m in ms])
+    cy = _suave3([m["cap_y"] for m in ms])
+    tilt = _suave3([m["tilt"] for m in ms])
+    xb0, yb0, tb0 = base[f0][:3]
+    xb1, yb1, tb1 = base[f1][:3]
+    K0, K1 = xb0 - cx[f0], xb1 - cx[f1]
+    pos = []
+    for i in range(n):
+        if i <= f0 or i >= f1:
+            pos.append(base[i][:3])
+            continue
+        t = (p[i] - p[f0]) / (p[f1] - p[f0])
+        x = cx[i] + (K0 * (1 - t) - K1 * t) * (1 - 2 * t)
+        y = cy[i] + (yb0 - cy[f0]) * (1 - t) + (yb1 - cy[f1]) * t
+        th = tb0 * (1 - t) + tb1 * t + GANANCIA * (tilt[i] - (tilt[f0] * (1 - t) + tilt[f1] * t))
+        pos.append((x, y, th))
+    pos = np.array(pos, float)
+    for k in range(3):
+        pos[1:-1, k] = _suave3(pos[:, k])[1:-1]          # solo el ruido; los extremos exactos
+    return [(float(x), float(y), float(th), False, 0.0) for x, y, th in pos]
 
 
 def seguir_todo():
@@ -779,14 +821,16 @@ def seguir_todo():
     m0 = medir(A["reposo"]["celdas"][0], SUELO_COMUN)
     datos = {}
     for nombre, an in A.items():
-        if nombre in SIN_BASTON:
+        if sin_baston(nombre):
             datos[nombre] = None
             continue
         suelo = SUELO.get(nombre, SUELO_COMUN)
         ms = [medir(c, suelo) for c in an["celdas"]]
         base = [colocar(m, m0) for m in ms]
         if nombre in GIROS_POR_DELANTE:
-            lista = colocar_giro_delante(an["celdas"], base)
+            for m, c in zip(ms, an["celdas"]):
+                m.update(medir_giro(c, m))
+            lista = colocar_giro_delante(an["celdas"], base, ms)
         elif nombre in GIROS:
             for m, c in zip(ms, an["celdas"]):
                 m.update(medir_giro(c, m))

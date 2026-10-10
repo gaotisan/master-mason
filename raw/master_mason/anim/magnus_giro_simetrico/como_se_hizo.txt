@@ -29,7 +29,12 @@ Pasos (los que no son de tools/anim, a mano, aqui apuntados):
   5. hoja.ps1 -Job magnus_giro_simetrico -Desde 04_giro -Fps 24 -Escala 2 -Cols 10
      y tools/anim/_spriteframes.py (entrada 'giro', 61 f, 24 fps, 2,5 s).
   6. Baston a la espalda en el giro: baston/seguir.py (GIROS_POR_DELANTE,
-     colocar_giro_delante, por la barba: vale para cualquier giro por delante).
+     colocar_giro_delante: vale para cualquier giro por delante). Sigue a la
+     capucha: de perfil, la colocacion normal de cada fotograma; girando, tras
+     el centro de la capucha a K cos(phi), con el avance del giro por la barba
+     (2026-10-10: antes iba del sitio del primer fotograma a su espejo sin
+     mirar el cuerpo y al empezar se quedaba clavado). En el juego:
+     05_salida/giro_baston_espalda_en_juego.mp4.
      Con el baston en la mano el giro es otro (giro_mano.py, mano_giro.png).
 
 A 24 fps, como el video: 2,5 s (el giro agachado tambien va a su ritmo, 2,8 s).

@@ -90,6 +90,17 @@ ENTRADA_FUNDIDO = 26
 # echar a andar a 122: se paraba y arrancaba de golpe.
 CURVA_FUNDIDO = 2.0
 PARADA_DESDE = 137        # lo que sigue al ciclo en el video
+# Cuanto salto se admite al entrar en la parada, en pasos de imagen del ciclo
+# (lo que cambia la imagen de un fotograma al siguiente; ver andar_v2). Con 2,0
+# (de silueta) casaban 38 de 41 fotogramas y se entraba enseguida, pero con
+# saltos que a la vista eran de hasta 2 pasos: el baculo pasaba de ir
+# balanceandose a quedarse vertical de golpe (2026-10-10; el usuario: "cuando
+# se para hace algo raro, se descuadra"). Con 1,2 solo se entra desde el 40, el
+# 0 y el 1 del ciclo (1,02-1,17: como un fotograma mas), donde la parada de v2
+# sigue al ciclo como en el video (el c_001 del bucle es el c_136 de v2 y la
+# parada empieza en el c_137); se termina el paso antes de parar (hasta ~1,3 s,
+# ~0,6 de media). El final de la parada ya llega al reposo (0,2 pasos).
+TOLERANCIA_PARADA = 1.2
 # Golpes del audio de los propios videos (pies y baston)
 GOLPES_VIDEO = [43, 62, 79, 97, 115, 132, 156]
 # En el bucle el audio no sigue a los pies (golpes en 62, 79, 110, 171...): las
@@ -183,15 +194,35 @@ def andar_v2():
     cand = range(168, 193)
     p1 = min(cand, key=lambda k: D(P(k), P(REPOSO[0])))
     print("parada c_%03d-c_%03d (a %.2f pasos del reposo)" % (PARADA_DESDE, p1, D(P(p1), P(REPOSO[0])) / paso))
+    # Entradas a la parada, por lo que SE VE (2026-10-10): magnus.gd entra en
+    # el primer tick del fotograma i del ciclo, que apenas se ve (16 ms); lo
+    # que se ve es el i-1 y luego el de la parada. Antes se comparaba la parada
+    # con el i+1 (dos fotogramas mas alla) y por silueta, que no ve el cambio de
+    # dibujo de un video al otro: la entrada "buena" (1,04 de silueta) era a la
+    # vista un salto de 1,9 pasos. Ahora por imagen (luminancia sobre oscuro),
+    # en pasos de imagen del ciclo.
+    cimg = {}
+
+    def I(k, job=None, off=0):
+        if (k, job, off) not in cimg:
+            a = np.asarray(Image.fromarray(cargar(k, job)).reduce(2)).astype(np.float32)
+            al = a[..., 3:] / 255
+            cimg[(k, job, off)] = np.roll((a[..., :3] * al + 20 * (1 - al)).mean(-1), off, 1)
+        return cimg[(k, job, off)]
+    CI = lambda i: I(vuelta(s + (i % L)), BUCLE, off2)
+
+    def DI(a, b):                       # lo que avanza el cuerpo entre los dos, compensado
+        return min(float(np.abs(np.roll(a, d, 1) - b)[:, 20:-20].mean()) for d in range(-8, 9))
+    paso_img = float(np.median([DI(CI(i), CI(i + 1)) for i in range(L)]))
     dist, pose = [], []
     for i in range(L):
-        r = min((D(P(PARADA_DESDE + j), C(i + 1)) / paso, j) for j in range(31))
+        r = min((DI(CI(i - 1), I(PARADA_DESDE + j)) / paso_img, j) for j in range(31))
         dist.append(round(r[0], 2))
         pose.append(r[1])
-    # con 1,6 solo casaban 19 fotogramas del ciclo (hasta 2,6 s esperando a
-    # poder parar); con 2,0, 38 y como mucho 1,3 s
-    print("cierre del ciclo %.2f; entradas a la parada <= 2,0: %s" % (
-        D(C(L - 1), C(L)) / paso, [i for i, x in enumerate(dist) if x <= 2.0]))
+    # Solo se entra donde la parada sigue al ciclo como en el video (TOLERANCIA_PARADA):
+    # el c_001 del bucle es el c_136 de v2 y la parada empieza en el c_137
+    print("cierre del ciclo %.2f; entradas a la parada <= %.2f: %s" % (
+        D(C(L - 1), C(L)) / paso, TOLERANCIA_PARADA, [i for i, x in enumerate(dist) if x <= TOLERANCIA_PARADA]))
     arr = list(range(ARRANQUE_DESDE, kf + 1))
     par = list(range(PARADA_DESDE, p1 + 1))
     ciclo = [vuelta(s + i) for i in range(L)]
@@ -225,7 +256,7 @@ def andar_v2():
         "arranque_andar_de_pie": de_pie,
         "velocidad_parada_andar": suave([V(k) * 30 for k in par]),
         "dist_parada_andar": dist, "pose_andar_a_parada": pose,
-        "espera_parada_andar": L, "tolerancia_parada_andar": 2.0,
+        "espera_parada_andar": L, "tolerancia_parada_andar": TOLERANCIA_PARADA,
         "pisadas": golpes(ciclo, GOLPES_BUCLE),
         "golpes": {"arranque_andar": golpes(arr, GOLPES_VIDEO), "parada_andar": golpes(par, GOLPES_VIDEO)},
     }
