@@ -1,0 +1,2 @@
+origen: 01_frames escalados x1.5108 (1280x720 -> 1934x1088; alto 417 -> 630, como el resto de Magnus)
+frames: p_01 = f001 (referencia: el reposo con el baculo en la mano), p_02..p_84 = f040..f122, p_85 = f192 (referencia: el reposo espejado)

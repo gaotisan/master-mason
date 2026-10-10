@@ -73,9 +73,10 @@ const PASO_MANO := {"correr_bloqueado": true, "agacharse_activo": false, "salto_
 const PISADA_A := preload("res://assets/audio/magnus_paso_a.wav")
 const PISADA_B := preload("res://assets/audio/magnus_paso_b.wav")
 const MANO_ANIMS := ["andar", "arranque_andar", "parada_andar", "reposo"]
-## Con el baston en la mano tambien cambia el giro (de pie): por delante, del
-## video magnus_andar_giro_baston (giro_mano.py). No esta en MANO_ANIMS para
-## que no se pueda sacar ni guardar el baston a mitad de giro.
+## Con el baston en la mano tambien cambia el giro (de pie): por delante,
+## cambiando el baston de mano, del video del job magnus_giro_baston_mano
+## (giro_mano.py). No esta en MANO_ANIMS para que no se pueda sacar ni guardar
+## el baston a mitad de giro.
 const MANO_GIRO := ["giro"]
 const TRANSICIONES := ["sacar_baston", "guardar_baston"]
 

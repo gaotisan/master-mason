@@ -1,0 +1,83 @@
+PROMPT DEL GIRO CON EL BACULO EN LA MANO (Google Flow / Veo 3.1, "Frames to Video", 2026-10-10)
+=============================================================================================
+Por que: el giro con el baculo en la mano de ahora (giro_mano.py, video
+Master_builder_walking_animation..._20261008163432) gira por delante y cambia el
+baculo de mano, y eso gusta ("la cinematica en si esta chula"), pero el video
+llegaba al cambio de mano y no a la pose final (el reposo espejado, con el baculo
+en la otra mano): lo que faltaba se completaba espejando el principio del giro y
+se veia borroso. Aqui se pide con la pose final como ULTIMO fotograma, para que
+el video la alcance de verdad y se quede en ella. Igual que el giro de pie nuevo
+(prompt_giro_frente_simetrico.txt), que salio bien con inicio = reposo y final =
+reposo espejado.
+
+En Flow, modo de fotogramas a video:
+  - fotograma inicial: baston_ref_en_mano_1080.png            (reposo con el baculo en
+    la mano, mirando a la derecha: la pose del juego)
+  - fotograma final:   baston_ref_en_mano_izquierda_1080.png  (el mismo espejado: mirando
+    a la izquierda, con el baculo en la otra mano)
+  (las dos estan aqui en _fuentes/ y copiadas en Descargas)
+  - 16:9, 1080p, 8 s, el modelo de mas calidad, con audio. Sacar 3-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. que ACABE exactamente en la pose final y se quede quieto en ella (lo que
+     fallo la otra vez): baculo en la otra mano, de perfil a la izquierda
+  2. que gire por delante (de frente a la camara a mitad), nunca de espaldas
+  3. el cambio de mano por delante del cuerpo, claro y sin que el baculo se
+     duplique, desaparezca o cambie de forma; la garra de arriba vacia (sin bola)
+     y el baculo siempre dentro del cuadro; la punta vuelve al suelo al acabar
+  4. que el giro dure 1,5-2 s y no se pare al estar de frente; los pies: dos
+     pasos claros que pivotan, no pasitos
+  5. de frente, la tunica igual a los dos lados (la V de las solapas bajo la
+     barba, el peto gris centrado) y la cara en la sombra de la capucha; la
+     capucha sin pico de sombrero de mago
+  6. camara quieta, mismo tamano, la cabeza a la misma altura, no se desplaza
+  7. nada encima (controles, marcas de agua, texto)
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no ground, no floor line, no props, no text, no logos,
+no on-screen interface or player controls.
+
+The old hooded pilgrim from the first frame stands in exactly the same pose:
+slightly stooped, holding his tall wooden walking staff upright in his front
+hand at chest height, its tip on the floor, his other arm hanging relaxed at his
+side. At the top the staff opens into an open claw of curled root fingers,
+EMPTY: no orb, no ball, no gem, no glow, no light. The long faceted cloak goes
+down to his ankles; thin dark legs and bare feet below it. His head is covered
+by the soft grey cloth hood of his cloak, exactly the shape of the first frame:
+no tall point, no cone. The hood comes down low over his forehead and its deep
+shadow hides most of his face: when he faces the camera you only glimpse the tip
+of his nose in the dark opening of the hood, and below it the long white beard.
+His posture, his height and his size never change, and his head stays at the
+same height.
+
+His cloak is perfectly symmetrical: its left half is an exact mirror image of
+its right half, with the same pattern of flat geometric patches in dark maroon,
+brick red, ochre, warm brown and muted grey on both sides, as the first and the
+last frame show, his two sides identical. When he faces the camera the design is
+centred on his chest: a grey hexagonal panel in the middle, two dark lapels
+meeting in a V just below the tip of his beard, matching ochre and maroon panels
+on either side, both sleeves alike. Soft, even light from the front.
+
+He holds completely still for two seconds. Then, in one single natural movement,
+he turns around to face the other way, turning TOWARDS the camera, never showing
+his back: from his side profile facing right, through facing the camera for an
+instant, to his side profile facing left. While he faces the camera he passes
+the staff in front of his body from one hand to the other, so that he ends
+holding it in the other hand, exactly as in the last frame: the last frame is
+the first frame mirrored. The staff stays upright, the same single staff all the
+time, always inside the frame; its tip lifts just off the floor while he turns
+and is planted on the floor in front of him again as the turn ends. The whole
+turn takes about one and a half seconds, a pivot with just two short, clear,
+natural steps of his bare feet, without stopping when he faces the camera and
+without any extra small steps. His feet stay on the same line and his position
+on screen does not move. Then he holds completely still in the final pose,
+identical to the last frame, until the end of the video.
+
+Same low-poly flat-shaded hand-painted style, same colours as the first frame
+throughout, crisp frames with no motion blur, soft matte texture, no flicker.
+Sound: only the soft rustle of the cloak, two light footsteps and the soft knock
+of the staff on the floor, no music, no voice.

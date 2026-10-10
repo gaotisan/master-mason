@@ -1,0 +1,35 @@
+GIRO CON EL BACULO EN LA MANO, POR DELANTE Y CAMBIANDO DE MANO (animacion "giro" de mano.json)
+==========================================================================================
+Fuente: _fuentes/Pilgrim_turning_with_staff_20261010115731.mp4 (24 fps, 1280x720,
+8 s), pedido con _fuentes/prompt_baston_giro_mano.txt en Flow (fotogramas a
+video: inicio baston_ref_en_mano_1080.png = el reposo con el baculo en la mano;
+final baston_ref_en_mano_izquierda_1080.png = el mismo espejado). 2026-10-10.
+
+Por que un video nuevo: el giro anterior (job magnus_andar_giro_baston, commit
+35d3fe6) llegaba al cambio de mano pero no a la pose final; lo que faltaba se
+completaba espejando el principio del giro y fundiendolo, y en la union se veia
+borroso. Este llega solo al reposo espejado: se usa entero, en orden y a su ritmo.
+
+Pasos (los que no son de tools/anim, a mano, aqui apuntados):
+  1. nuevo.ps1 + frames.ps1: 01_frames, los 192 fotogramas.
+  2. 03_seleccion: f001 (el reposo), f040-f122 y f192 (el reposo espejado),
+     escalados x1,5108 (1280x720 -> 1934x1088, como el resto de Magnus). Ver
+     seleccion.txt.
+  3. centrar.ps1 -Ancho 584 -Alto 720 -MargenSuelo 30 -Eje 967 -Sobrescribir
+     fondo.ps1 -Tolerancia 35 -Radio 4
+     ../baston/pulir.py --oscuras  y  --bolsas-verdes
+     -> 04_limpios/ (de ahi lee giro_mano.py).
+  4. ../baston/giro_mano.py -> 04_giro/ (69 fotogramas, f046-f114 del video,
+     24 fps = 2,88 s), assets/characters/baston/mano_giro.png y la entrada "giro"
+     de mano.json (con la bola por fotograma), y garras.npy (la bola, px master).
+     Ver su docstring: tono, colocacion, extremos al reposo y a su espejo (sin
+     fundir el baculo al empezar), la bola (patron en los extremos y marcas a
+     mano en el cambio de mano), el hueco para la bola cuando la garra cruza la
+     cara de canto y la sombra de la capucha en la cara de frente.
+  5. Reimportar (Godot --headless --import) y probar en
+     scenes/dev/piloto_baston.tscn (B saca el baculo; flechas) o grabar
+     piloto_baston_giro_mano.tscn -> 05_salida/giro_mano_en_juego.mp4.
+
+Lo que queda a la vista: en el 19 la garra, aun abierta delante de la cara,
+tapa casi toda la bola un fotograma (el brillo sigue); al acabar, la garra pasa
+en 5 fotogramas, quieta, del dibujo del video al del reposo.
