@@ -64,3 +64,136 @@ EL REPOSO, TERCERA VERSION (2026-10-09): un fotograma y la respiracion dibujada.
      los hombros. Del reposo se sale siempre por el fotograma base: la escena
      exhala deprisa (k - 3 por tick, 0,2 s como mucho) y entra en el puente.
   Grabado: cambio medio por fotograma del reposo 0,04 (antes 0,22), textura quieta.
+
+EL BASTON A LA ESPALDA EN LA VUELTA (2026-10-09): el usuario veia el baston y la
+funda por delante del cuerpo donde el cuerpo deberia taparlos. Antes era un solo
+delante/detras para todo el baston (por la barba): pasaba entero delante de
+golpe (fotograma 18 de vuelta_sb) y la bola saltaba de un lado de la capucha al
+otro. Ahora (secuencia.py, baston_espalda / giros_vuelta) el baston es un
+segmento en 3D sobre una espalda eliptica (del hombro derecho a la cadera
+izquierda); el giro del cuerpo sale de la anchura del torso (90 de frente, 44 de
+perfil, 92 de espaldas: gira mirando a la derecha) y por fotograma se proyecta y
+se calcula que tramo mira a la camara (siempre de la bola hacia abajo: de 0 en
+el fotograma 11 a entero en el 24). La escena dibuja el baston entero detras y
+MaderaDelante (de baston.tscn) delante recortada a ese tramo; la funda y la
+bola van delante cuando su tramo lo esta. De frente y de espaldas da lo mismo
+que antes. Las filas de "baston_espalda" llevan ahora [x, y, giro, corte, 0].
+
+LA FUNDA SOBRE EL BRAZO (2026-10-09, segunda vuelta): el usuario veia la funda
+encima del brazo casi de perfil. Fotograma a fotograma (capturas de Godot de
+vuelta_sb, 0-33): del 15 al 21 el palo y la funda caian dentro de la silueta,
+encima de la manga del brazo de este lado (que de perfil llega hasta el borde de
+la espalda), y la funda se veia de cara, ancha, en pleno perfil. Era la espalda
+eliptica: el pie del palo, mas alla del semiancho, quedaba en el plano del eje y
+de perfil el palo iba por el centro del cuerpo. Ahora:
+  - el palo va en un PLANO pegado por detras a la espalda: la recta tangente por
+    detras al contorno del perfil (fotograma 15), de la bola al pie (la espalda se
+    inclina hacia atras al bajar: 42,6 + 0,0305 dy px del eje), y el eje del palo
+    10 px de master mas atras (R_BASTON). De perfil el palo y la funda asoman por
+    detras de la espalda, como un carcaj, y no tocan la manga.
+  - delante o detras sin medias tintas: hasta 90 grados detras (asoma lo que sale
+    de la silueta), pasado el perfil entero delante (el plano mira a la camara).
+    En los 90 el palo esta fuera de la silueta: el cambio no se ve.
+  - la bola y la garra (CORTE_GARRA, los 42 px de arriba de baston.png) delante
+    desde 68 grados (fotograma 12): ahi la bola queda mas cerca de la camara que
+    el lado de la capucha. Antes la tapaba la punta de la capucha hasta el 15 y
+    aparecia delante de golpe en el 16.
+  - la funda es un tubo aplastado: ancho |cos THETA|, sin bajar de 0,45 (de canto).
+    Va en la quinta columna de las filas: [x, y, giro, corte, ancho] (1 de frente
+    y de espaldas, como antes).
+Las demas animaciones (reposo, andar, puentes) salen igual que antes (de frente y
+de espaldas el plano da lo mismo) y los sprites no cambian.
+
+LA CAPUCHA AL COLOR ESTANDAR (2026-10-09): el usuario vio que al guardar el baston,
+al llegar al reposo sin baston, la capucha era "bastante mas azul". Medido (Lab
+del gris azulado de la capucha, mismos pixeles): perfil (estandar, magnus_respirando)
+52,9 / -2,7 / -4,0; de frente con baston 46,7 / -0,5 / -4,1 (gris neutro); sin
+baston 47,4 / -3,8 / -5,3 (casi turquesa, el doble de saturacion); de espaldas,
+el video sin baston casi gris (44,5 / -0,2 / -2,7). El usuario eligio llevarlas
+todas a la del perfil. ../igualar_capucha.py: en la franja de la capucha (punta
+al 27 % del alto, apagandose al 32 %: los parches grises de la tunica quedan
+debajo), lo gris azulado; color en Lab con media y desviacion de los ejes de
+color, la luz solo desplazada (la barba, casi neutra, no cambia). secuencia.py lo
+aplica al guardar cada sprite, con dos ajustes por video (medidos en el reposo
+de frente y en el de espaldas) mezclados segun hacia donde mira (en la vuelta,
+(1 - cos THETA) / 2). Despues: frente con / sin 52,5 / 52,7 (a 0,3), espaldas
+52,6 / 52,5 (a 0,1), perfil de la vuelta 58,4 / 57,0 (mas luz en los dos).
+
+LA FUNDA, DE ESPALDAS (2026-10-10):
+  - Con el baston en la mano, la funda se queda VACIA en la espalda (como en el
+    perfil, baston.gd): secuencia.py escribe "funda_espalda" en
+    secuencia_frontal.json con el mismo modelo que el baston guardado, y la
+    escena la dibuja (solo la funda) de espaldas, andando y en la vuelta. Para las
+    referencias de sacar / guardar de espaldas: si el video no la llevara, Veo la
+    haria desaparecer al sacar el baston.
+  - Con el baston en la mano lo mas alto del dibujo es la garra: _medidas_cuerpo
+    tomaba la garra por la punta de la capucha y la funda vacia salia arriba y a
+    la derecha. En ese modo mide sin lo fino (apertura horizontal de 15 px).
+  - El usuario: "sale muy a la derecha de la espalda y un poco como pegote".
+    Eligio (entre variantes pintadas) CENTRADA en la columna y al 75 %:
+      * de espaldas el baston va respecto a la capucha, y la capucha de estos
+        videos no queda centrada sobre el cuerpo: desfase_espalda() mide en el
+        reposo de espaldas cuanto hay que moverlo para que la funda caiga en la
+        columna (-7,7 px sin baston, -26,6 con el) y se aplica con cos^2 THETA
+        pasado el perfil (de frente no cambia nada; en la vuelta, poco a poco).
+      * tamaño: ../baston/funda_cuero.py TAMANO = 0,75 (funda_cuero.json escala
+        0,1875; la textura no cambia). Tambien la del perfil (avisada la otra
+        sesion).
+  Los sprites no cambian (md5 iguales): solo el json.
+
+LA CORREA EN VEZ DE LA FUNDA (2026-10-10): de espaldas la funda de tubo seguia
+pareciendo un pegote. El usuario pidio a Gemini tres composiciones sobre nuestra
+referencia y eligio una correa en diagonal (hombro derecho - cadera izquierda)
+con dos presillas con hebilla. ../baston/correa.py la aisla de esa imagen
+(_fuentes/baston_correa_gemini.jpeg) y la deja en dos capas como la funda
+(correa_atras: la correa, detras del baston; correa_delante: las presillas,
+delante: el palo pasa por dentro) + correa.json. La escena la cuelga del mismo
+modelo que el baston (CORREA_INICIO: empieza bajo la capucha), asi que sigue la
+vuelta, va delante / detras del cuerpo y de canto de perfil igual que el; con el
+baston en la mano se ve la correa vacia. El palo es mas ancho que la correa: con
+el baston dentro solo se ven las presillas (el usuario lo prefirio asi frente a
+una correa mas ancha o corrida a un lado). De frente no asoma nada nuevo.
+La funda de tubo (funda_cuero, al 75 %) la sigue usando el perfil (baston.gd).
+
+LA CORREA AL ANDAR DE ESPALDAS CON EL BASTON EN LA MANO (2026-10-10): el usuario
+la veia "pegada y moviendose irreal". Medido con flujo optico (la tela bajo la
+correa frente a la correa): se deslizaba 3,4 px por fotograma y hasta 44 px a lo
+largo del ciclo (sin baston, 0,8 px y 13 px: ahi se veia bien). Causa: en el
+modo con baston el nudo de la garra pasaba la apertura de 15 px y entraba en el
+centro de la "capucha" (bailaba 59 px al balancearse el baston; la capucha de
+verdad, 10). _medidas_cuerpo mide ahora la capucha (punta y centro) por su
+color gris azulado en ese modo: la correa se mueve 9 px en el ciclo (antes 57) y
+se desliza 0,9 px por fotograma, como sin baston. De rebote cambia un poco el
+giro estimado de la vuelta con baston (y con el el color de la capucha de esos
+sprites): hoja magnus_secuencia_frontal rehecha.
+
+LA CORREA VACIA, COSIDA A LA TUNICA (2026-10-10): aun midiendo bien la capucha, la
+correa vacia "se mueve mucho y queda como pegote" (con el baston dentro, que se
+balancee si tiene sentido: pesa). secuencia.py, correa_pegada_a_la_tela() (solo el
+modo con baston):
+  - de la vuelta al reposo de espaldas el modo sale de un video seguido: cada
+    fotograma (arranque, andar, parada) se ENCAJA con el reposo de espaldas por
+    el torso (ECC afin, hombros a caderas, sin brazos ni baston) y la correa va
+    con ese ajuste. Encajar uno con el siguiente (flujo optico encadenado)
+    acumulaba error: la correa acababa a un lado; contra el reposo, no.
+  - en la VUELTA el encaje falla (el torso cambia demasiado al girar): el
+    modelo, con la correa pegada a la tela (sin los 10 px que separan el palo de
+    la espalda: de perfil la correa vacia salia flotando por detras) y de canto
+    casi invisible (ancho |cos|, sin el minimo de la funda gruesa); corrido poco
+    a poco (con el giro, de 100 a 180 grados) hasta casar con el arranque.
+  - puentes de espaldas: de la postura de un extremo a la del otro.
+  Andando de espaldas la correa ya no se mueve sobre la tunica (se mueve lo que
+  se mueve la tela). Sin baston (palo en la correa) sigue el modelo de antes.
+
+LA CORREA VACIA EN LA VUELTA (2026-10-10): el usuario: al empezar a girar "se ve la
+funda deslizarse por la espalda"; de lado no se debe ver nada (esta pegada a la
+espalda), ni de frente a espaldas ni al reves. Ahora:
+  - oculta (ancho 0) hasta 125 grados; de 125 a 150 se va abriendo de una raya a
+    su ancho, y COSIDA a la tela: flujo optico encadenado solo en ese tramo
+    (unos 14 fotogramas hacia atras desde el arranque, que ya va encajado con el
+    reposo): sin tiempo de acumular error.
+  - en la escena la correa vacia cuelga del sprite con clip_children: se recorta
+    con la silueta del personaje (al girar, la parte de la cadera izquierda ya no
+    sale por fuera del cuerpo). De frente (detras del cuerpo) no se dibuja.
+    capa_espalda.gd, para sacar referencias con baston, usa el sprite solo como
+    mascara (CLIP_CHILDREN_ONLY).

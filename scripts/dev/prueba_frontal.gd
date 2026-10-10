@@ -5,7 +5,8 @@ extends Node2D
 ##   arriba    se aleja (de espaldas) y encoge
 ##   suelto    termina el paso y se para con los pies juntos; sin baston,
 ##             ademas, parada y reposo respirando (con baston aun no hay)
-##   B         con baston / sin baston
+##   B         saca / guarda el baston (de frente y parado, con su animacion;
+##             si no, cambia de modo sin mas)
 ##   Z         camara: plano general / medio / primer plano (le sigue)
 ##   M         gastar un cuarto de magia (destello y estallido); C, otro color
 ##   R         vuelve al sitio de salida; Esc, sale
@@ -44,6 +45,11 @@ const SECUENCIA := "res://assets/characters/magnus/secuencia_frontal.json"
 ## Sin baston: lo mismo de su propio video (sufijo _sb, puentes ps_), con el
 ## baston a la espalda en la funda de cuero.
 const SECUENCIA_SIN := "res://assets/characters/magnus/secuencia_frontal_sin.json"
+## Sacar y guardar el baston de frente, de un reposo al otro (videos de Flow con
+## fotograma inicial y final sacados de esta escena; raw/master_mason/anim/
+## magnus_sacar_baston_frente/animar.py): la bola sigue a la garra del video,
+## filas [x, y, escala, giro].
+const BASTON_FRENTE := "res://assets/characters/magnus/baston_frente.json"
 const ORBE_EN_MADERA := Vector2(-0.6, -24)   # posicion del Orbe dentro de Madera
 const COLORES: Array[Color] = [
 	Color(1.0, 0.62, 0.18), Color(0.35, 0.75, 1.0), Color(0.55, 1.0, 0.45),
@@ -64,11 +70,27 @@ const ANDAR := {
 }
 ## Como en baston.gd: de espaldas la madera se corta 8 px bajo el pivote (el
 ## hombro) y el parche de tela tapa el corte.
-const FUNDA := "res://assets/characters/baston/funda_cuero.json"
-## Donde va la funda en el baston (px de hoja, ejes del nodo Baston sin girar):
-## en el palo (x +1, su centro en la textura) y 80 px por debajo de la bola (el
-## Orbe va en -24), como en el concepto de Gemini.
-const FUNDA_EN_BASTON := Vector2(1.0, 56.0)
+## Lo que sujeta el baston a la espalda: la CORREA en diagonal con dos presillas
+## (2026-10-10; el usuario eligio esta composicion de Gemini: la funda de tubo,
+## funda_cuero, de espaldas quedaba "como un pegote"). raw/master_mason/anim/
+## baston/correa.py: dos capas como la funda (la correa detras del baston, las
+## presillas delante: el palo pasa por dentro) y correa.json.
+const FUNDA := "res://assets/characters/baston/correa.json"
+const FUNDA_ATRAS := "res://assets/characters/baston/correa_atras.png"
+const FUNDA_DELANTE := "res://assets/characters/baston/correa_delante.png"
+## La correa empieza este trecho bajo el pivote del baston (px de hoja, a lo
+## largo del palo): justo bajo la capucha, donde sale en la imagen de Gemini.
+const CORREA_INICIO := 22.0
+## z de la bola, su luz y sus chispas: los de baston.tscn (relativos al baston)
+## y, cuando la bola va delante del cuerpo, absolutos sobre el sprite (la bola
+## en 2, como MaderaDelante, que va despues y le pone los dedos de la garra
+## encima; la luz y las chispas por encima de todo).
+const Z_BOLA_RELATIVO := {"Orbe": 0, "Luz": 2, "Recarga": 0, "Estallido": 0, "Chispas": 0}
+const Z_BOLA_DELANTE := {"Orbe": 2, "Luz": 5, "Recarga": 5, "Estallido": 5, "Chispas": 5}
+## Donde va el centro de la correa en el baston (px de hoja, ejes del nodo
+## Baston sin girar): en el palo (x +1) y bajando desde CORREA_INICIO la mitad de
+## su largo (correa.json). La fija _ready.
+var _funda_en_baston := Vector2(1.0, 56.0)
 const VUELTA := "vuelta_frontal"   # con baston; sin el, vuelta_frontal_sin
 const VUELTA_FPS := 30.0
 ## Fotogramas de cada andar con los pies juntos (uno por paso, medio ciclo de
@@ -157,6 +179,15 @@ var _bola: Node2D
 var _fondo: Node2D
 var _funda_atras: Sprite2D
 var _funda_delante: Sprite2D
+var _funda_atras_f: Sprite2D      # copias de la funda delante del cuerpo
+var _funda_delante_f: Sprite2D
+var _funda_escala := 0.25         # la de funda_cuero.json
+## Con el baston en la mano, la funda de cuero se queda VACIA en la espalda (como
+## en el perfil): las mismas capas y la misma colocacion que con el baston
+## guardado ("funda_espalda" de secuencia_frontal.json), en un nodo aparte (el
+## de _bola va con la bola, en la garra). Se ve de espaldas y en la vuelta.
+var _funda_vacia: Node2D
+var _vacia: Dictionary = {}       # animacion con baston -> filas [x, y, giro, corte, ancho]
 var _garra: Sprite2D
 var _orbes: Dictionary = {}
 var _espalda: Dictionary = {}   # baston a la espalda en las animaciones sin baston
@@ -177,6 +208,8 @@ var _tras_secuencia: Array = []  # [cara, andar, fotograma] al acabar
 var _cara_final := ""            # hacia donde mira al acabar la vuelta en curso
 var _sec: Dictionary = {}        # la del modo actual (secuencia_frontal[_sin].json)
 var _secs: Dictionary = {}       # true: con baston, false: sin
+var _acciones: Dictionary = {}   # sacar_baston_frente / guardar_baston_frente: de, a, orbe
+var _accion := ""                # la pedida con B, de frente y parado (empieza al acabar de espirar)
 var _cb := "reposo"              # con baston: reposo / arranque / andar / puente / vuelta
 var _cb_dir := 1                 # sentido de la vuelta en curso
 var _cb_h0 := 1.0                # arranque: altura de video al entrar y escala entonces
@@ -205,8 +238,16 @@ func _ready() -> void:
 			_orbes[nombre] = {"orbe": sec["orbe"][nombre], "escala_bola": sec["escala_bola"]}
 		for nombre in sec.get("baston_espalda", {}):
 			_espalda[nombre] = sec["baston_espalda"][nombre]
+		for nombre in sec.get("funda_espalda", {}):
+			_vacia[nombre] = sec["funda_espalda"][nombre]
 		_secs[con] = sec
 	_sec = _secs[true]
+	if FileAccess.file_exists(BASTON_FRENTE):
+		var bf: Dictionary = JSON.parse_string(FileAccess.open(BASTON_FRENTE, FileAccess.READ).get_as_text())
+		for nombre in bf:
+			if bf[nombre] is Dictionary and FRAMES.has_animation(nombre):
+				_acciones[nombre] = bf[nombre]
+				_orbes[nombre] = {"orbe": bf[nombre]["orbe"], "escala_bola": 1.0}
 	# la bola, antes que el sprite: se dibuja detras (la garra le queda delante)
 	_bola = BASTON.instantiate()
 	_bola.set_script(null)
@@ -215,8 +256,30 @@ func _ready() -> void:
 	# la funda de cuero, en dos capas pegadas al baston: atras (lenguetas e
 	# interior de las bocas), la madera, delante (la pared del tubo)
 	var fj: Dictionary = JSON.parse_string(FileAccess.open(FUNDA, FileAccess.READ).get_as_text())
-	_funda_atras = _capa_funda("res://assets/characters/baston/funda_cuero_atras.png", fj, 0)
-	_funda_delante = _capa_funda("res://assets/characters/baston/funda_cuero_delante.png", fj, 2)
+	_funda_escala = float(fj["escala"])
+	if fj.has("largo"):
+		_funda_en_baston = Vector2(1.0, CORREA_INICIO + float(fj["largo"]) * _funda_escala / 2.0)
+	_funda_atras =_capa_funda(FUNDA_ATRAS, fj, 0)
+	_funda_delante = _capa_funda(FUNDA_DELANTE, fj, 2)
+	# las copias de delante del cuerpo (z absolutos sobre el sprite, que va en 0):
+	# funda de atras 1, madera 2 (MaderaDelante), funda de delante 3
+	_funda_atras_f = _capa_funda(FUNDA_ATRAS, fj, 1, true)
+	_funda_delante_f = _capa_funda(FUNDA_DELANTE, fj, 3, true)
+	# la correa vacia (con el baston en la mano): plana y pegada a la espalda, asi
+	# que va RECORTADA con la silueta del personaje (clip_children del sprite, mas
+	# abajo, cuando existe): al girar no se sale del cuerpo (el usuario: de lado no
+	# se ve, "esta pegada a la espalda"). La correa y encima las presillas.
+	_funda_vacia = Node2D.new()
+	_funda_vacia.visible = false
+	for capa in [FUNDA_ATRAS, FUNDA_DELANTE]:
+		var sp := _capa_funda(capa, fj, 0)
+		_bola.remove_child(sp)
+		_funda_vacia.add_child(sp)
+		sp.visible = true
+	var md := _bola.get_node("MaderaDelante") as Sprite2D
+	md.z_as_relative = false
+	md.z_index = 2
+	md.visible = false
 	_bola.get_node("Madera").self_modulate.a = 0.0
 	_bola.get_node("Madera/Funda").modulate.a = 0.0
 	_bola.get_node("Madera/Chispas").emitting = true
@@ -224,6 +287,8 @@ func _ready() -> void:
 	_sprite = AnimatedSprite2D.new()
 	_sprite.sprite_frames = FRAMES
 	add_child(_sprite)
+	_sprite.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+	_sprite.add_child(_funda_vacia)
 	# el fotograma de antes, encima, desvaneciendose en los enganches
 	_fantasma = Sprite2D.new()
 	_fantasma.visible = false
@@ -241,7 +306,8 @@ func _ready() -> void:
 	var ayuda := Label.new()
 	ayuda.text = "PRUEBA DEL ANDAR DE FRENTE / DE ESPALDAS\n" + \
 		"abajo: hacia la camara (de frente)   arriba: alejandose (de espaldas)\n" + \
-		"B: con / sin baston   Z: plano general / medio / primer plano   M: gastar magia   C: color\n" + \
+		"B: sacar / guardar el baston (de frente y parado; si no, cambia sin mas)   Z: plano general / medio / primer plano\n" + \
+		"M: gastar magia   C: color\n" + \
 		"R: volver al sitio   Esc: salir"
 	ayuda.position = Vector2(60, 50)
 	ayuda.add_theme_font_size_override("font_size", 40)
@@ -299,7 +365,12 @@ func _poner_anim(nombre: String, fotograma: int, fundir := false) -> void:
 
 
 func _cambiar_baston(si: bool) -> void:
-	if si == _con_baston or _girando != 0 or not _secuencia.is_empty() or _cb in ["puente", "vuelta"]:
+	if si == _con_baston or _girando != 0 or not _secuencia.is_empty() or _cb in ["puente", "vuelta", "accion"]:
+		return
+	var accion := "sacar_baston_frente" if si else "guardar_baston_frente"
+	if _cara == "frente" and _cb == "reposo" and _acciones.has(accion):
+		# de frente y parado, con su animacion: empieza al acabar de espirar
+		_accion = accion
 		return
 	_con_baston = si
 	# de momento, de un modo al otro por el reposo de esa cara (sacar y guardar
@@ -531,7 +602,7 @@ func _cb_tick(delta: float, quiere: String) -> void:
 	# el reposo respira a su ritmo (fps_reposo, 2,5 s por respiracion); para salir
 	# de el, exhalando, y todo lo demas, a los fps del video
 	var fps := float(_sec["fps"])
-	if _cb == "reposo" and quiere == "":
+	if _cb == "reposo" and quiere == "" and _accion == "":
 		fps = float(_sec["fps_reposo"])
 	_acum += delta * fps
 	while _acum >= 1.0:
@@ -566,6 +637,13 @@ func _cb_paso(quiere: String) -> void:
 			# es la inspiracion k (0 = el fotograma base, sin aire)
 			var kk := int(_sec["k_reposo"])
 			var k := _sprite.frame if _sprite.frame < kk else 2 * kk - 2 - _sprite.frame
+			if _accion != "":
+				# sacar / guardar: parten del fotograma base, como los puentes
+				if k == 0:
+					_empezar_accion()
+				else:
+					_sprite.frame = maxi(k - 3, 0)
+				return
 			if quiere != "":
 				if k == 0:
 					var pr: Dictionary = _sec["puente_reposo"][anim]
@@ -608,6 +686,17 @@ func _cb_paso(quiere: String) -> void:
 				_cb_base = _escala
 			else:
 				_cb = "reposo"
+		"accion":
+			if _sprite.frame + 1 < n:
+				_sprite.frame += 1
+				return
+			# acaba en el fotograma base del reposo del otro modo
+			if anim.begins_with("guardar"):
+				_con_baston = false
+				_sec = _secs[false]
+			_accion = ""
+			_cb = "reposo"
+			_poner_anim(String(_acciones[anim]["a"]), 0)
 		"vuelta":
 			var f := _sprite.frame + _cb_dir
 			if f >= 0 and f < n:
@@ -625,6 +714,16 @@ func _cb_paso(quiere: String) -> void:
 					_cb_puente(_pre() + "vu_rb")
 			else:
 				_cb_puente(_pre() + ("vu_arrf" if quiere == "frente" else "vu_rf"))
+
+
+## Sacar o guardar: al sacar ya es el modo con baston (la bola va en la garra
+## del video); al guardar lo sigue siendo hasta acabar en el reposo sin baston.
+func _empezar_accion() -> void:
+	if _accion.begins_with("sacar"):
+		_con_baston = true
+		_sec = _secs[true]
+	_cb = "accion"
+	_poner_anim(_accion, 0)
 
 
 func _cb_escala(nueva: float) -> void:
@@ -663,8 +762,13 @@ func _seguir_vuelta(delta: float) -> void:
 ## Sin baston en la mano: el de scenes/dev/baston.tscn entero (madera, bola,
 ## luz) a la espalda, por FUERA de la tunica, en diagonal y metido en la funda
 ## de cuero (funda_cuero.py; la idea es el concepto de Gemini). Cada fila de
-## frontal.json "baston_espalda": [x, y, giro, delante, -]; de espaldas va
-## delante del sprite; de frente, detras (asoma la garra por el hombro).
+## "baston_espalda": [x, y, giro, corte, ancho]. El baston va en 3D, en un plano
+## pegado por detras a la espalda (secuencia.py, baston_espalda): entero DETRAS
+## del cuerpo y, encima, una copia DELANTE (MaderaDelante de baston.tscn)
+## recortada de la bola hasta "corte" (fraccion del alto de baston.png): 0 de
+## frente, 1 de espaldas; en la vuelta, 0, solo la garra (la bola ya delante de
+## la capucha) o 1 pasado el perfil. La bola y la funda van delante cuando su
+## tramo lo esta. "ancho": el de la funda (de canto, de perfil, se ve estrecha).
 func _baston_a_la_espalda(lista: Array) -> void:
 	var f: Array = lista[mini(_sprite.frame, lista.size() - 1)]
 	_madera(true)
@@ -672,18 +776,64 @@ func _baston_a_la_espalda(lista: Array) -> void:
 	_bola.scale = Vector2.ONE * _escala
 	_bola.position = _sprite.position + (_sprite.offset + Vector2(f[0], f[1])) * _escala
 	_bola.rotation = f[2]
-	# delante del sprite (1) o detras (-3: el sprite va en 0 y la madera y la
-	# funda suben 1 y 2 sobre el)
-	_bola.z_index = 1 if f[3] == 1 else -3
+	_bola.z_index = -3            # el entero, detras del sprite (que va en 0)
+	var corte: float = f[3]
+	var delante := _bola.get_node("MaderaDelante") as Sprite2D
+	delante.visible = corte > 0.001
+	(delante.material as ShaderMaterial).set_shader_parameter("desde", 0.0)
+	(delante.material as ShaderMaterial).set_shader_parameter("corte", corte)
+	var funda_delante: bool = corte > float(_secs[false].get("funda_corte", 0.42))
+	_funda_atras_f.visible = funda_delante
+	_funda_delante_f.visible = funda_delante
+	# la funda es un tubo aplastado: de perfil se ve de canto (estrecha)
+	var ancho: float = f[4] if f.size() > 4 and float(f[4]) > 0.0 else 1.0
+	for sp in [_funda_atras, _funda_delante, _funda_atras_f, _funda_delante_f]:
+		(sp as Sprite2D).scale.x = _funda_escala * ancho
+	_bola_delante(corte > 0.001)
 
 
-func _capa_funda(ruta: String, fj: Dictionary, z: int) -> Sprite2D:
+## Con el baston en la mano: la funda vacia donde iria con el baston guardado
+## (misma fila: pivote del baston, giro, corte y ancho), solo las capas de la
+## funda; delante del cuerpo cuando su tramo lo esta (de espaldas, pasado el
+## perfil en la vuelta).
+func _poner_funda_vacia() -> void:
+	var lista = _vacia.get(String(_sprite.animation)) if _con_baston else null
+	_funda_vacia.visible = lista != null
+	if lista == null:
+		return
+	var f: Array = lista[mini(_sprite.frame, lista.size() - 1)]
+	# hija del sprite: en su espacio (su escala ya va), recortada con su silueta
+	_funda_vacia.position = _sprite.offset + Vector2(f[0], f[1])
+	_funda_vacia.rotation = f[2]
+	var delante: bool = float(f[3]) > float(_secs[true].get("funda_corte", 0.42))
+	# aqui el ancho siempre viene (secuencia.py): 0 es que no se ve (de lado en la
+	# vuelta). Por detras del cuerpo (de frente) una correa plana en la espalda
+	# no asoma: tampoco se ve.
+	var ancho: float = float(f[4]) if f.size() > 4 else 1.0
+	if ancho < 0.01 or not delante:
+		_funda_vacia.visible = false
+		return
+	for sp in _funda_vacia.get_children():
+		(sp as Sprite2D).scale.x = _funda_escala * ancho
+
+
+## La bola (y su luz y chispas) delante del cuerpo o con el baston de detras.
+func _bola_delante(si: bool) -> void:
+	var madera := _bola.get_node("Madera")
+	for n in ["Orbe", "Luz", "Recarga", "Estallido", "Chispas"]:
+		var nodo := madera.get_node(n) as CanvasItem
+		nodo.z_as_relative = not si
+		nodo.z_index = Z_BOLA_DELANTE[n] if si else Z_BOLA_RELATIVO[n]
+
+
+func _capa_funda(ruta: String, fj: Dictionary, z: int, absoluta := false) -> Sprite2D:
 	var sp := Sprite2D.new()
 	sp.texture = load(ruta)
 	sp.centered = false
 	sp.offset = -Vector2(fj["eje"][0], fj["eje"][1])
 	sp.scale = Vector2.ONE * float(fj["escala"])
-	sp.position = FUNDA_EN_BASTON
+	sp.position = _funda_en_baston
+	sp.z_as_relative = not absoluta
 	sp.z_index = z
 	sp.visible = false
 	_bola.add_child(sp)
@@ -703,6 +853,10 @@ func _madera(si: bool) -> void:
 	if not si:
 		_bola.rotation = 0.0
 		_bola.z_index = 0
+		(_bola.get_node("MaderaDelante") as CanvasItem).visible = false
+		_funda_atras_f.visible = false
+		_funda_delante_f.visible = false
+		_bola_delante(false)
 
 
 func _colocar() -> void:
@@ -722,11 +876,19 @@ func _colocar() -> void:
 	if d != null:
 		var o: Array = d["orbe"][mini(_sprite.frame, d["orbe"].size() - 1)]
 		var e: float = d["escala_bola"]
+		var giro := 0.0
+		if o.size() > 3:
+			# sacar / guardar: la bola pasa de la de a la espalda (escala 1, girada
+			# con el baston) a la de en la mano (escala_bola, derecha) o al reves
+			e = o[2]
+			giro = o[3]
 		_bola.scale = Vector2.ONE * _escala * e
+		_bola.rotation = giro
 		_bola.position = _sprite.position + (_sprite.offset + Vector2(o[0], o[1])) * _escala \
-			- ORBE_EN_MADERA * _escala * e
+			- ORBE_EN_MADERA.rotated(giro) * _escala * e
 		if _fundido > 0.0 and _bola_antes != Vector2.ZERO:
 			_bola.position = _bola.position.lerp(_bola_antes, _fundido)
+	_poner_funda_vacia()
 	# la garra pegada va en el andar de frente; al salir de el se desvanece con
 	# el fundido en su ultima postura (la de la vuelta ya viene en el dibujo)
 	if not con_garra and _garra_fundiendo and _fundido > 0.0:

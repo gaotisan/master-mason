@@ -1,0 +1,72 @@
+magnus_sacar_baston_frente y magnus_guardar_baston_frente: sacar y guardar el baston de frente
+=============================================================================================
+2026-10-09. De un reposo de frente al otro (reposo_frente_sb <-> reposo_frente_cb).
+
+EL PROBLEMA: los dos reposos son de videos distintos y la figura no es la misma
+(sin baston la tunica es un 10-15 % mas ancha abajo, con baston la capucha y los
+hombros algo mas anchos, los parches de otra forma, el de con baston unos 20 px a
+la derecha; el color medio, igual). Enlazarlos con un video libre no casaria.
+
+LA SOLUCION: Flow (Veo 3.1) con fotograma inicial Y final sacados de la escena:
+  _fuentes/referencia_baston_espalda_frente.png  reposo sin baston, el baston a la
+      espalda como lo pinta la escena (de frente solo asoma la garra), SIN bola
+  _fuentes/referencia_baston_mano_frente.png     reposo con baston, SIN bola
+  1920x1080, croma #24D732, sprites de master 1:1 (casilla 584x800 en (668, 286)),
+  ~410 px de aire sobre la capucha. Prompts: _fuentes/prompt_baston_sacar_guardar_frente.txt
+  Videos: _fuentes/Pilgrim_draws_wooden_staff_20261009165324.mp4 (sacar)
+          _fuentes/Pilgrim_stowing_wooden_staff_20261009165938.mp4 (guardar)
+  Veo los devolvio a 1280x720 con el encuadre al pixel: el primer y el ultimo
+  fotograma calcan las referencias (silueta al 97-98 %, menos de 1 px).
+  El de guardar trae una SOMBRA en el suelo (2-189) aunque el prompt la prohibia:
+  quitar_sombra.py (en magnus_guardar_baston_frente) la aplana antes del croma.
+
+PASOS
+  nuevo / frames / elegir "1-192" (los dos jobs)
+  python magnus_guardar_baston_frente/quitar_sombra.py
+  python magnus_andar_frente/croma.py <job>
+  python montar.py <job>     transformacion fija (x1,5 desde (445,33, 190,67) del
+                             video) a una casilla 664x904 (la del reposo con +40 a
+                             cada lado y +104 arriba: el baston levantado sube por
+                             encima; 904 para que la hoja mida multiplos de 4)
+  python garra.py '[["magnus_sacar_baston_frente", [20, 46], [146, 58]],
+                    ["magnus_guardar_baston_frente", [135, 74], [9, 64]]]'
+                             la bola en cada fotograma (la garra del video va vacia)
+  python animar.py           las dos animaciones, sus puentes, la bola -> 04_limpios,
+                             animaciones.json, assets/characters/magnus/baston_frente.json
+  hoja.ps1 -Job <job> -Cols 16 -Fps 24 -Escala 2 (los dos)
+  python tools/anim/_spriteframes.py resources/characters/magnus_frames.tres
+
+TRAMOS
+  sacar   quieto 1-20, mueve la mano desde el 21, saca el baston hacia arriba
+          (60-70), lo cruza (74-90), lo planta (~104), se balancea y vuelve
+          (104-144). Se usa 20..146 (al 96 % de la silueta del reposo con baston).
+  guardar quieto 1-8, se desplaza 6 px despacio (9-27), lo sube (28-60), lo mete
+          por detras de la cabeza (62-74), baja el brazo (74-100). Se usa 9..135
+          (al 97 % del reposo sin baston). Los 3 ultimos del video (190-192) son la
+          referencia pegada de golpe: no se usan.
+  Puentes por flujo optico (como la secuencia): 3 de entrada desde el fotograma
+  base del reposo, 4 de salida hasta el del otro. Cambio por fotograma en los
+  empalmes 0,13-0,17 (x100), menos que el del propio video (mediana 0,32-0,48).
+  El reposo sin baston, en los puentes, con el baston que le pinta la escena
+  por detras (baston_espalda_reposo.png, de capa_espalda.gd): el video lleva la
+  garra dibujada y sin ella en el puente se desvanecia y volvia a salir.
+
+LA BOLA (garra.py): se sigue la garra por su forma (plantilla girada y desplazada
+sobre un mapa de "madera": pardo saturado; la capucha es gris). Las plantillas y
+la bola de partida, de las propias referencias (la bola se conoce al pixel: la de
+baston_espalda y la del orbe de reposo_frente_cb). Cada tramo desde su extremo
+hacia dentro; donde la garra pasa por detras de la capucha (sacar 47-57, guardar
+65-73) se interpola: la bola va detras del sprite y la tapa la capucha. Revisado
+fotograma a fotograma con la bola pintada encima. Filas [x, y, escala, giro]: de
+la bola a la espalda (escala 1, girada -0,34 como el baston) a la de la mano
+(1,092, derecha), repartido por lo que recorre la garra.
+
+ESCENA (prueba_frontal.gd): B de frente y parado lo saca o lo guarda (espira
+antes hasta el fotograma base, como al salir a andar); acaba en el reposo del
+otro modo. Andando o de espaldas, B cambia de modo sin mas, como antes.
+
+LA CAPUCHA (2026-10-09): Veo la pinta casi gris al principio y, al acabar guardar,
+mas oscura y azulada (va hacia la referencia sin baston). animar.py la lleva al
+color estandar (../igualar_capucha.py) fotograma a fotograma, medida en cada uno
+y suavizada en el tiempo (sin parpadeo); los reposos de las puntas ya lo llevan
+(secuencia.py). En los empalmes casan a menos de 1 en Lab.

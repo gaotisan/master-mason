@@ -1,0 +1,12 @@
+﻿animacion:  magnus_sacar_baston_frente
+origen:     04_limpios
+hoja:       magnus_sacar_baston_frente_sheet.png
+casilla:    332 x 452 px
+escala:     1/2   (master en 04_limpios: 664 x 904)
+hframes:    16
+vframes:    9
+fotogramas: 134   (las 10 casillas sobrantes van vacias)
+fps:        24
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 134.

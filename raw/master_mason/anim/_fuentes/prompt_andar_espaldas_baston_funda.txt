@@ -1,0 +1,56 @@
+PROMPT: ANDAR DE ESPALDAS CON EL BASTON EN LA MANO Y LA CORREA VACIA (Flow, Veo 3.1)
+==================================================================================
+2026-10-10. El usuario: rehacer el andar de espaldas con baston para que la funda
+de cuero (vacia) venga en el propio video, moviendose con la tunica, en vez de
+pintarla encima (encima "se ve fatal"). Que empiece parado, ande sin andares
+chulescos y se pare.
+
+Solo fotograma INICIAL: referencia_baston_mano_espaldas.png (reposo de espaldas
+con baston de la escena, con la correa vacia de dos presillas (correa.py), la
+capucha al color estandar, sin bola). Sin fotograma final: al alejarse encoge y
+no se sabe donde acaba. Es la misma imagen con la que acaba el SACAR de espaldas.
+16:9, Veo 3.1 - Quality, 1080p si lo ofrece, 8 s, con audio.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+The old pilgrim from the first frame stands with his back to the camera,
+holding his long wooden staff upright in his right hand; at its top an open
+antler-shaped claw. The claw is EMPTY: no orb, no ball, no gem, no glow, no
+light. On his back, a thin leather strap with two small empty loops runs
+diagonally from his right shoulder down to his left hip, exactly as in the
+first frame: it stays there the whole video and only moves with the cloak.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 6.5 s: he walks straight away from the camera, along the line of sight,
+  getting slowly smaller with the distance. A calm, humble walk of a tired old
+  man: small even steps, upright back, relaxed shoulders, arms close to the
+  body; no swagger, no strut, no swaying hips, no bouncing, no exaggerated arm
+  swing. The staff stays in his right hand, upright, its tip touching the
+  ground in time with his steps.
+- 6.5 to 8 s: he slows down and stops with both bare feet together, and
+  stands still, still seen exactly from behind.
+
+He is seen exactly from behind the whole video and never turns toward the
+camera or to the side. His head is covered by the soft grey cloth hood of his
+cloak, exactly the shape of the first frame: part of the cloak, not a hat, it
+never grows or stands up. Same character throughout: brown faceted patchwork
+cloak with the large grey chevron patch on the back exactly as in the first
+frame, thin dark legs and bare feet. Same low-poly flat-shaded hand-painted
+style, colours and lighting as the first frame, crisp frames with no motion
+blur, soft matte texture, no flicker. Sound: soft bare footsteps, cloth rustle
+and the light knock of the staff tip on the ground; no music, no voice.
+
+
+AL REVISAR LAS TOMAS
+--------------------
+1. De espaldas todo el rato, en linea recta hacia el fondo (no de lado).
+2. La correa: que se quede en la espalda y no cambie de forma ni de sitio.
+3. Andar tranquilo, sin chulerias ni bote; que se pare con los pies juntos.
+4. Camara quieta (que no le siga) y sin sombra en el suelo.
+5. La garra vacia, sin bola ni brillo.
+6. Que de 3 o 4 pasos seguidos limpios (de ahi sale el bucle).

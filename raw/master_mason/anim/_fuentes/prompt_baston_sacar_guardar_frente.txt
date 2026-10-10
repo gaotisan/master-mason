@@ -1,0 +1,118 @@
+PROMPTS PARA SACAR Y GUARDAR EL BASTON DE FRENTE (Google Flow, Frames to Video)
+==============================================================================
+Como los del perfil (prompt_baston_sacar_guardar.txt): dos videos, cada uno con
+fotograma inicial Y final, sacados de la escena de prueba (prueba_frontal):
+
+  SACAR   inicio = referencia_baston_espalda_frente.png   fin = referencia_baston_mano_frente.png
+  GUARDAR inicio = referencia_baston_mano_frente.png      fin = referencia_baston_espalda_frente.png
+
+  - referencia_baston_espalda_frente.png: el reposo de frente SIN baston
+    (secuencia_frontal_sin, reposo_frente_sb, el fotograma base) con el baston a
+    la espalda como lo pone la escena: de frente solo asoma la garra sobre el
+    hombro derecho.
+  - referencia_baston_mano_frente.png: el reposo de frente CON baston
+    (secuencia_frontal, reposo_frente_cb, el fotograma base).
+  1920x1080, croma #24D732, a la escala de master (capucha-pies 628) y en la
+  misma posicion relativa que en la escena (el de con baston va unos 20 px a la
+  derecha), pies en y~1040 y ~410 px de aire sobre la capucha para que el baston
+  no se salga al levantarlo. La garra VACIA en las dos: la bola la pone el juego.
+
+POR QUE CON LOS DOS FOTOGRAMAS (2026-10-09): los dos reposos son de videos
+distintos y la figura no es la misma: sin baston la tunica es mas ancha abajo
+(10-15 %), con baston la capucha y los hombros algo mas anchos, los parches
+repartidos de otra forma; el color medio es el mismo. Dando inicio y fin, el
+video arranca y acaba exactamente en nuestros reposos (los empalmes son los de
+siempre) y el cambio de figura se reparte por todo el gesto. Si en la toma la
+tunica "se derrite" a la vista: plan B, unificar la figura (rehacer la
+secuencia con baston desde el ultimo fotograma de un buen SACAR).
+
+16:9, Veo 3.1 - Quality, 1080p, 8 s, con audio. El gesto a la velocidad real
+del juego, sin camara lenta (acelerar o diezmar se ve a saltitos).
+
+
+SACAR
+-----
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no cast shadow on the ground, no floor line, no props,
+no text, no logos, no on-screen interface. The character stays full-body in
+frame, same size and same place on screen, facing the camera the whole video.
+The whole staff stays inside the frame at all times, even when he lifts it
+above his head.
+
+The old pilgrim from the first frame faces the camera, his arms relaxed at his
+sides, empty hands. He carries his long wooden staff on his back, slung
+diagonally in a short leather holder; seen from the front only its top, an
+open antler-shaped claw, shows above his right shoulder. The claw is EMPTY: no
+orb, no ball, no gem, no glow, no light.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he raises his right hand over his right shoulder, grabs the
+  staff just below the claw and pulls it up out of the holder on his back.
+- 2.5 to 4 s: he brings the staff over his shoulder and down in front of him,
+  to his right side, and plants its bottom tip on the ground beside his right
+  foot.
+- 4 to 8 s: he stands still exactly as in the last frame, holding the staff
+  upright in his right hand.
+
+His feet stay in place, at most a small shift of weight; his head stays at the
+same height. His head is covered by the soft grey cloth hood of his cloak, low
+and rounded, exactly the shape of the first frame: part of the cloak, not a
+hat, no tall point, no cone. Same character throughout: white beard, brown
+faceted patchwork cloak, thin dark legs and bare feet; the cloak moves only a
+little and settles into the shape of the last frame. Same low-poly flat-shaded
+hand-painted style, colours and lighting as the first frame, crisp frames with
+no motion blur, soft matte texture, no flicker. Sound: cloth rustle, the wood
+sliding out of the leather and the dry knock of the staff tip on the ground; no
+music, no voice.
+
+
+GUARDAR
+-------
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no cast shadow on the ground, no floor line, no props,
+no text, no logos, no on-screen interface. The character stays full-body in
+frame, same size and same place on screen, facing the camera the whole video.
+The whole staff stays inside the frame at all times, even when he lifts it
+above his head.
+
+The old pilgrim from the first frame faces the camera, holding his long wooden
+staff upright in his right hand, its tip on the ground; at its top an open
+antler-shaped claw. The claw is EMPTY: no orb, no ball, no gem, no glow, no
+light.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he lifts the staff off the ground and raises it up over his
+  right shoulder.
+- 2.5 to 4 s: he slides it down behind his back, diagonally, into the short
+  leather holder on his back, until only the claw shows above his right
+  shoulder; he lets go and his arm comes back to rest at his side.
+- 4 to 8 s: he stands still exactly as in the last frame, arms relaxed at his
+  sides, empty hands.
+
+His feet stay in place, at most a small shift of weight; his head stays at the
+same height. His head is covered by the soft grey cloth hood of his cloak, low
+and rounded, exactly the shape of the first frame: part of the cloak, not a
+hat, no tall point, no cone. Same character throughout: white beard, brown
+faceted patchwork cloak, thin dark legs and bare feet; the cloak moves only a
+little and settles into the shape of the last frame. Same low-poly flat-shaded
+hand-painted style, colours and lighting as the first frame, crisp frames with
+no motion blur, soft matte texture, no flicker. Sound: cloth rustle and a soft
+wooden scrape as the staff slides into the leather; no music, no voice.
+
+
+AL REVISAR LAS TOMAS
+--------------------
+1. Que el baston no se salga por arriba al levantarlo.
+2. La garra vacia, sin bola ni brillo.
+3. De frente todo el rato, pies quietos, misma altura de la cabeza.
+4. El gesto en 2-3 s, a velocidad normal.
+5. La tunica: que el paso de la figura de un reposo a la del otro no se vea
+   como un derretido a mitad del gesto (si se ve, plan B).
+6. La capucha baja y redondeada, sin punta de mago.
+Si sale algo encima del personaje (texto, marcas), pedir otra toma pronto.
