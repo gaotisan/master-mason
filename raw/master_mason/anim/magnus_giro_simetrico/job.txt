@@ -1,0 +1,11 @@
+﻿job:     magnus_giro_simetrico
+creado:  2026-10-10 09:24
+fuente:  Pilgrim_turning_on_green_screen_20261010091716.mp4
+nota:    giro de pie por delante, tunica simetrica, a su ritmo (prompt_giro_frente_simetrico.txt)
+
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

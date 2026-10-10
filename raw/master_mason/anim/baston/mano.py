@@ -16,8 +16,8 @@ COLS = 8
 # (magnus_andar_baston_v2, c_NNN = fotograma NNN del video; empieza y acaba en
 # el reposo con el baston, que es baston_ref_en_mano). Los tramos salen de
 # medir (paso.py -> paso_medido.json y andar_v2() aqui abajo):
-#   reposo c_001-c_020 (quieto), arranque c_021 -> ciclo (BUCLE, abajo),
-#   parada c_137 -> quieto (c_136 es la imagen del bucle). Antes (magnus_andar_baston, otro video): el baston iba a
+#   reposo c_001-c_020 (quieto), arranque c_021 -> c_070 y al ciclo (BUCLE,
+#   abajo), parada c_137 -> quieto (c_136 es la imagen del bucle). Antes (magnus_andar_baston, otro video): el baston iba a
 #   su aire, se arrastraba, y la tunica cambiaba de dibujo entre el principio
 #   y el final.
 # Ciclo: video aparte hecho bucle (Old_master_builder_walking_cycle_
@@ -32,11 +32,33 @@ BUCLE = "magnus_andar_baston_bucle"
 # Del bucle se usa un tramo: 192 fotogramas enteros llevaban el baston a su
 # aire (el video lo balancea cada ~55 fotogramas y los pasos van cada ~41: unas
 # veces lo adelanta poco y una vez mucho, fotogramas 28-48; el usuario: "primero
-# lanza el baston poquito y luego mas"). c_090 -> c_199 (dando la vuelta por el
-# 192 -> 1, que es limpio) tiene dos vaivenes iguales y cierra a 0,57 pasos
-# normales mirando a la vez silueta, manos y garra.
+# lanza el baston poquito y luego mas").
+# Ciclo de UNA zancada del final del video (2026-10-10): c_153 -> c_191, c_001,
+# c_002 (41 fotogramas, 1,37 s a 30). El de antes, c_090 -> c_199 (110), cerraba
+# bien (0,57) pero por dentro llevaba un tropiezo, c_126-c_146 ("al principio un
+# bucle que no encaja, y luego ya anda normal"): el pie claro (el de cerca) se
+# planta delante en el 126 y, en vez de quedarse atras como en todas las demas
+# zancadas (x 175-181 de la casilla master), se levanta a medio camino (x 285, el
+# 139) y vuelve a plantarse delante en el 146; el oscuro da un paso corto (aterriza
+# en x 310 en vez de 370) y se queda atras otra vez. Dos pasos en 20 fotogramas
+# (13 y 7) donde los demas van cada 19-26: los pies van y vuelven. En el 140-142
+# las piernas tienen ademas huecos de la limpieza. De c_147 al final del video y
+# seguido por el 192 -> 1 anda normal; una zancada (pie claro aterriza en el
+# 146, 187...) mide 41-42. El corte se eligio con la matriz de parecido
+# (silueta, piernas, baston+garra y color) de todos los pares con 34-59 de
+# separacion en c_147 -> c_027 (sin el tropiezo ni el lanzamiento grande del
+# 28-48): el corte c_002 -> c_153 casa el c_153 con el c_003 que tocaria tras
+# el c_002 a 0,44 pasos normales (silueta 0,40, piernas 0,23, baston 0,62, color 0,50;
+# garra a 2,5 px master; los pies a 0-5 px), menos que un paso normal; +-2
+# fotogramas alrededor del corte, 0,81. Todos los fotogramas seguidos menos el
+# c_192: el 192 y el 1 son la misma imagen (Flow con inicio = fin), y con los
+# dos el pie plantado volvia atras 2 px en el 1 (335 -> 337 -> 329) mientras
+# el cuerpo seguia: patinaba ~4 px una vez por vuelta (0,4 pasos de cambio,
+# medio fotograma parado). Al dar la vuelta el video sigue del 191 al 1 (0,58,
+# como los de al lado: 0,76 y 0,63).
 N_BUCLE = 192
-CICLO = (90, 110)         # primer fotograma, largo (del job BUCLE, dando la vuelta)
+CICLO = (153, 41)         # primer fotograma, largo (del job BUCLE, dando la vuelta)
+vuelta = lambda k: (k - 1) % (N_BUCLE - 1) + 1     # ... 190, 191, 1, 2 ... (el 192 = el 1)
 REPOSO = (1, 20)          # el reposo quieto de v2: ancla de los pies y pose de referencia
 # Reposo respirando con el baston en la mano (Pilgrim_standing_breathing_calmly_
 # 20261008122010): bucle c_002-c_076, dos respiraciones; empieza en la pose de
@@ -45,6 +67,28 @@ REPOSO = (1, 20)          # el reposo quieto de v2: ancla de los pies y pose de 
 REPOSO_JOB = "magnus_reposo_baston"
 REPOSO_BUCLE = (2, 76)
 ARRANQUE_DESDE = 21
+# Largo maximo del arranque (fotogramas de v2): el que ya tenia, 49-50 (1,65 s).
+# Se juega entero (soltar a medias sigue hasta el ciclo), asi que no se alarga.
+ARRANQUE_MAX = 50
+# Arranque SIN el video v2 (2026-10-10; el usuario: "el arrancar ese no cuadra
+# con el andar ... pon solo el andar y hazlo cuadrar"): v2 es otro video (otro
+# angulo del baston, otra postura) y al entrar al ciclo saltaba ~1,4 pasos, con
+# el baston cambiando de golpe. Ahora del reposo se pasa directamente al ciclo:
+# ARRANQUE_FUNDIDO fotogramas que llevan el reposo hasta el fotograma
+# ENTRADA_FUNDIDO del ciclo moviendo pixeles (transicion()), en el sitio, y de
+# ahi sigue el ciclo. El 26 es el del ciclo que mas se parece al reposo: el paso
+# de los pies (juntos, a 10 px de los del reposo: se van atras mientras el
+# cuerpo avanza esos 10 px, sin patinar: como cargar el peso antes del primer
+# paso) y la bola a menos de 1 px de la del reposo. ARRANQUE_VIDEO = True
+# vuelve al arranque de v2.
+ARRANQUE_VIDEO = False
+ARRANQUE_FUNDIDO = 8      # 0,27 s a 30 fps
+ENTRADA_FUNDIDO = 26
+# La transicion acelera (t = (j/(n-1))^CURVA_FUNDIDO): cada fotograma cambia y
+# avanza mas que el anterior y el ultimo ya casi como un paso del ciclo. Con una
+# curva suave (que frena al final) el cuerpo bajaba a 10 px/s justo antes de
+# echar a andar a 122: se paraba y arrancaba de golpe.
+CURVA_FUNDIDO = 2.0
 PARADA_DESDE = 137        # lo que sigue al ciclo en el video
 # Golpes del audio de los propios videos (pies y baston)
 GOLPES_VIDEO = [43, 62, 79, 97, 115, 132, 156]
@@ -76,8 +120,8 @@ def andar_v2():
         se levanta: saltos de +4/+6 en medio de -7/-8);
       - el ciclo va desplazado OFF px para que su primer fotograma caiga donde
         el c_136 de v2 (son la misma imagen);
-      - el arranque acaba en el primer fotograma de v2 cuyo siguiente se
-        parece a uno del ciclo (y se entra por ese);
+      - el arranque acaba en el fotograma de v2 cuyo siguiente mejor se
+        parece a uno del ciclo, sin pasar de ARRANQUE_MAX (y se entra por ese);
       - la parada empieza en c_137 de v2 y llega al quieto mas parecido al
         reposo; desde el fotograma i del ciclo se entra por el de la parada
         mas parecido al que tocaria (el i+1 del ciclo).
@@ -120,24 +164,21 @@ def andar_v2():
     OFF_R = 2 * offr
     print("reposo respirando desplazado", OFF_R, "px (master) para casar con el de v2")
     print("bucle desplazado", OFF, "px (master) para casar con c_136")
-    vuelta = lambda k: (k - 1) % N_BUCLE + 1
     C = lambda i: P(vuelta(s + (i % L)), BUCLE, off2)  # fotograma i del ciclo
     D = lambda a, b: float(np.abs(a - b).mean())
     paso = float(np.median([D(C(i), C(i + 1)) for i in range(L)]))
 
-    # arranque: el primero que empalme bien (<= 1,8 pasos del bucle), no el
-    # mejor: el arranque se juega entero (soltar a medias sigue hasta el
-    # ciclo). Son videos distintos y nunca casan tan bien como dentro de uno:
-    # con 1,25 el primero era c_080 y el arranque duraba 2 s.
-    mejor = None
-    for kf in range(44, 136):
-        d, e = min((D(P(kf + 1), C(e)) / paso, e) for e in range(L))
-        if mejor is None or d < mejor[0]:
-            mejor = (d, kf, e)
-        if d <= 1.8:
-            mejor = (d, kf, e)
-            break
-    d_arr, kf, entrada = mejor
+    # arranque: el mejor empalme sin alargarlo (ARRANQUE_MAX): se juega entero
+    # (soltar a medias sigue hasta el ciclo). Son videos distintos y nunca casan
+    # tan bien como dentro de uno: el de verdad bueno, c_135 -> c_192 (0,3
+    # pasos), alarga el arranque a 3,8 s; con 1,25 el primero era c_080 y el
+    # arranque duraba 2 s (y ese pone el pie claro donde iba el oscuro). Antes
+    # se cogia el primero <= 1,8: con el ciclo de una zancada salia c_061 ->
+    # c_190 (1,79), con el baston girando de golpe y sin la pisada del c_062;
+    # el mejor hasta el c_070 es c_070 -> c_158 (1,39), como el de antes
+    # (c_069 -> c_158, 1,78 con el ciclo viejo) un fotograma mas tarde.
+    d_arr, entrada, kf = min(min((D(P(kf + 1), C(e)) / paso, e) for e in range(L)) + (kf,)
+                             for kf in range(44, ARRANQUE_DESDE + ARRANQUE_MAX))
     print("arranque c_%03d-c_%03d, al ciclo por %d (salto %.2f pasos)" % (ARRANQUE_DESDE, kf, entrada, d_arr))
     cand = range(168, 193)
     p1 = min(cand, key=lambda k: D(P(k), P(REPOSO[0])))
@@ -196,17 +237,58 @@ def andar_v2():
         "reposo":         {"desde": REPOSO_BUCLE[0], "hasta": REPOSO_BUCLE[1], "fps": 30.0, "bucle": True,
                            "job": REPOSO_JOB, "dx_fijo": OFF_R},
     }
+    if not ARRANQUE_VIDEO:
+        # del reposo al ENTRADA_FUNDIDO del ciclo, en el sitio (ver arriba); el
+        # ultimo de la transicion ES ese del ciclo, y se sigue por el siguiente
+        anims["arranque_andar"] = {"fundido": ENTRADA_FUNDIDO, "n": ARRANQUE_FUNDIDO,
+                                   "fps": 30.0, "bucle": False}
+        paso_juego.update({"corte_arranque_andar": ARRANQUE_FUNDIDO - 1,
+                           "entrada_andar": (ENTRADA_FUNDIDO + 1) % L,
+                           "arranque_andar_de_pie": ARRANQUE_FUNDIDO - 1})
+        paso_juego["golpes"]["arranque_andar"] = {}
+        print("arranque: transicion de %d fotogramas del reposo al %d del ciclo; se sigue por el %d"
+              % (ARRANQUE_FUNDIDO, ENTRADA_FUNDIDO, (ENTRADA_FUNDIDO + 1) % L))
     return anims, paso_juego
 
 
-def avance_en_hoja(nombre, bucle):
+def transicion(a, b, n):
+    """n fotogramas de a a b (los dos incluidos, tal cual) moviendo pixeles: a
+    llevado una fraccion t hacia b y b una (1 - t) hacia a por el flujo optico,
+    mezclados (alfa premultiplicado) con t acelerando (CURVA_FUNDIDO). Para pasar entre dos poses
+    casi quietas: el reposo y el paso del ciclo que mas se le parece."""
+    import cv2
+
+    def gris(x):
+        x = x.astype(np.float32)
+        al = x[..., 3:4] / 255
+        return cv2.cvtColor((x[..., :3] * al + 30 * (1 - al)).astype(np.uint8), cv2.COLOR_RGB2GRAY)
+    dis = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_MEDIUM)
+    fab = cv2.GaussianBlur(dis.calc(gris(a), gris(b), None), (0, 0), 3)    # a(x) ~ b(x + fab(x))
+    fba = cv2.GaussianBlur(dis.calc(gris(b), gris(a), None), (0, 0), 3)
+    h, w = a.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    out = []
+    for j in range(n):
+        t = (j / (n - 1)) ** CURVA_FUNDIDO
+        at = cv2.remap(a, xx - t * fab[..., 0], yy - t * fab[..., 1], cv2.INTER_LINEAR, borderValue=0)
+        bt = cv2.remap(b, xx - (1 - t) * fba[..., 0], yy - (1 - t) * fba[..., 1], cv2.INTER_LINEAR, borderValue=0)
+        out.append(fundir(at, bt, t))
+    out[0], out[-1] = a, b
+    return out
+
+
+def avance_en_hoja(nombre, bucle, sigue=False):
     """Lo que avanza el pie plantado de cada fotograma al siguiente, medido en
     la hoja que acaba de salir (media escala: lo que dibuja el juego), al
     octavo de px. Medido en el video a tamano completo y dividido entre dos,
     la tabla salia ~0,3 px por fotograma alta y en cada apoyo el pie patinaba
     hacia delante ~6 px. Los fotogramas en que la franja del suelo engana (un
     pie que aterriza: negativos o muy bajos) se rellenan de los vecinos, y
-    luego media de 5."""
+    luego media de 5. El ultimo fotograma de un tramo suelto no tiene
+    siguiente y vale 0 (la parada acaba quieta); con sigue (el arranque, que
+    sigue en el ciclo) vale lo del anterior: con el 0, la media de 5 bajaba
+    los tres ultimos del arranque a 90, 68 y 46 px/s y el cuerpo se frenaba
+    justo antes de entrar al ciclo a ~125."""
     hoja = np.array(Image.open(DESTINO / f"mano_{nombre}.png").convert("RGBA"))[..., 3].astype(np.float32) / 255
     n = _HOJAS[nombre]
     F = [hoja[(i // COLS) * 360:(i // COLS + 1) * 360, (i % COLS) * 292:(i % COLS + 1) * 292] for i in range(n)]
@@ -219,6 +301,8 @@ def avance_en_hoja(nombre, bucle):
                     for d in np.arange(-8, 3.01, 0.125))[1]
     pares = range(n) if bucle else range(n - 1)
     v = np.array([paso(F[i], F[(i + 1) % n]) for i in pares] + ([] if bucle else [0.0]))
+    if sigue:
+        v[-1] = v[-2]
     from scipy.ndimage import median_filter
     med = median_filter(v, size=7, mode="wrap" if bucle else "nearest")
     malo = (np.abs(v - med) > 0.8) | (v < 0)
@@ -233,6 +317,25 @@ def avance_en_hoja(nombre, bucle):
 
 
 _HOJAS = {}
+
+
+def avance_transicion(nombre, n):
+    """Lo que avanza el cuerpo en cada fotograma de una transicion (transicion())
+    para que los pies no patinen: los pies del primero y del ultimo, comparados
+    en la hoja (franja del suelo, como en avance_en_hoja), dan cuanto se van
+    atras en el dibujo; se reparte con el mismo t de la transicion. El
+    ultimo vale lo del anterior (se sigue en el ciclo)."""
+    hoja = np.array(Image.open(DESTINO / f"mano_{nombre}.png").convert("RGBA"))[..., 3].astype(np.float32) / 255
+    F = [hoja[(i // COLS) * 360:(i // COLS + 1) * 360, (i % COLS) * 292:(i % COLS + 1) * 292] for i in (0, n - 1)]
+    suelo = int(np.median([np.where((f > 0.5).any(1))[0].max() for f in F]))
+    xs = np.arange(292, dtype=float)
+    A, B = F[0][suelo - 5:suelo + 1], F[1][suelo - 5:suelo + 1]
+    total = -min((float(np.abs(np.stack([np.interp(xs - d, xs, r, left=0, right=0) for r in A]) - B).sum()), d)
+                 for d in np.arange(-20, 8.01, 0.125))[1]
+    ts = np.array([(j / (n - 1)) ** CURVA_FUNDIDO for j in range(n)])
+    v = np.maximum(np.diff(ts) * total, 0.0)
+    print("transicion %s: los pies se van %.2f px atras en el dibujo" % (nombre, total))
+    return np.append(v, v[-1])
 
 
 def garra(a):
@@ -533,6 +636,8 @@ if __name__ == "__main__":
     ref_garra = cargar(REPOSO[0])
     for nombre in ANDAR:
         d = ANDAR[nombre]
+        if d.get("fundido") is not None:       # la transicion: mas abajo, con el reposo y el ciclo
+            continue
         if d.get("job") == BUCLE:
             # el bucle entero, en orden, y luego el tramo: empezando el
             # seguimiento en el c_090 (baston inclinado, lejos de la pose del
@@ -551,15 +656,34 @@ if __name__ == "__main__":
     EMPALMES_IMG["mano"] = np.array(Image.fromarray(desplazar(REPOSO_0, DX_REPOSO))
                                     .resize((292, 360), Image.LANCZOS))
     G_REPOSO_0 = (GARRA_ANDAR["reposo"][0][0] + DX_REPOSO, GARRA_ANDAR["reposo"][0][1])
+    TRANSICION = None
+    if ANDAR["arranque_andar"].get("fundido") is not None:
+        # arranque = del primer fotograma del reposo (en su sitio) al ENTRADA_FUNDIDO
+        # del ciclo (en el suyo), moviendo pixeles; la bola, de la una a la otra
+        d = ANDAR["arranque_andar"]
+        e = d["fundido"]
+        dx_c = DX_MANO + ANDAR["andar"]["dx_fijo"]
+        TRANSICION = transicion(desplazar(REPOSO_0, DX_REPOSO),
+                                desplazar(cargar(ANDAR["andar"]["frames"][e], BUCLE), dx_c), d["n"])
+        g_e = (GARRA_ANDAR["andar"][e][0] + dx_c, GARRA_ANDAR["andar"][e][1])
+        ts = [(j / (d["n"] - 1)) ** CURVA_FUNDIDO for j in range(d["n"])]
+        GARRA_ANDAR["arranque_andar"] = [(G_REPOSO_0[0] + (g_e[0] - G_REPOSO_0[0]) * t,
+                                          G_REPOSO_0[1] + (g_e[1] - G_REPOSO_0[1]) * t) for t in ts]
     info = {}
     for nombre, d in ANIMS.items():
-        ks = list(d.get("frames", range(d["desde"], d["hasta"] + 1)))
+        if d.get("fundido") is not None:
+            ks = list(range(d["n"]))
+            frames0 = TRANSICION
+        else:
+            ks = list(d.get("frames", range(d["desde"], d["hasta"] + 1)))
+            frames0 = [cargar(k, d.get("job")) for k in ks]
         n = len(ks)
         filas = (n + COLS - 1) // COLS
         hoja = Image.new("RGBA", (292 * COLS, 360 * filas), (0, 0, 0, 0))
         orbe = []
-        frames0 = [cargar(k, d.get("job")) for k in ks]
-        if d.get("dx_fijo") is not None:       # el ciclo del bucle: un dx, el que casa con v2
+        if d.get("fundido") is not None:       # ya en su sitio (y la bola tambien)
+            dxs = [0] * n
+        elif d.get("dx_fijo") is not None:     # el ciclo del bucle: un dx, el que casa con v2
             dxs = [DX_MANO + d["dx_fijo"]] * n
         elif d.get("job"):
             dxs = desplazamientos(frames0)
@@ -636,8 +760,11 @@ if __name__ == "__main__":
     PASO["avance_ciclo_andar"] = [round(float(x), 3) for x in avance_en_hoja("andar", True)]
     media = float(np.mean(PASO["avance_ciclo_andar"]))
     PASO["avance_andar"], PASO["velocidad_andar"] = round(media, 3), round(media * 30, 2)
-    arr_v = avance_en_hoja("arranque_andar", False) * 30
-    arr_v[0] = 0.0
+    if ANDAR["arranque_andar"].get("fundido") is not None:
+        arr_v = avance_transicion("arranque_andar", ANDAR["arranque_andar"]["n"]) * 30
+    else:
+        arr_v = avance_en_hoja("arranque_andar", False, sigue=True) * 30
+        arr_v[0] = 0.0
     PASO["avance_arranque_andar"] = [round(float(x), 2) for x in arr_v]
     par_v = avance_en_hoja("parada_andar", False) * 30
     PASO["velocidad_parada_andar"] = [round(float(x), 2) for x in par_v]

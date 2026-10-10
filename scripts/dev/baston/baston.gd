@@ -85,6 +85,10 @@ const TRANSICIONES := ["sacar_baston", "guardar_baston"]
 @export var magia_recarga := 0.05     # por segundo (0..1): vacia a llena en 20 s
 @export var magia_suavizado := 4.0    # cuanto tarda la bola en alcanzar el valor real
 @export var destello_caida := 3.5     # por segundo: el destello de gastar dura ~0,3 s
+## Particulas de la bola (Recarga, Chispas y Estallido). Apagadas (2026-10-10):
+## el usuario quiere la bola y su brillo tal cual, sin los pixeles que salian
+## de ella ("humillo"); esos efectos se trabajaran aparte.
+@export var particulas := false
 @export var colores: Array[Color] = [
 	Color(1.0, 0.62, 0.18), Color(0.35, 0.75, 1.0), Color(0.55, 1.0, 0.45),
 	Color(0.85, 0.45, 1.0), Color(1.0, 0.3, 0.25)]
@@ -121,6 +125,9 @@ func _ready() -> void:
 	_sprite.frame_changed.connect(_colocar)
 	_sprite.animation_changed.connect(_colocar)
 	_mano = JSON.parse_string(FileAccess.open(MANO, FileAccess.READ).get_as_text())
+	if not particulas:
+		for p in [_recarga, _estallido, _chispas]:
+			p.emitting = false
 	var fj: Dictionary = JSON.parse_string(FileAccess.open(FUNDA_CUERO, FileAccess.READ).get_as_text())
 	for capa in [_funda_atras, _funda_delante]:
 		capa.offset = -Vector2(fj["eje"][0], fj["eje"][1])
@@ -256,7 +263,8 @@ func gastar(cuanto: float) -> bool:
 		return false
 	magia -= cuanto
 	_destello = 1.0
-	_estallido.restart()
+	if particulas:
+		_estallido.restart()
 	return true
 
 func siguiente_color() -> void:
@@ -278,8 +286,8 @@ func _process(delta: float) -> void:
 	for m in [_orbe.material, _luz.material]:
 		(m as ShaderMaterial).set_shader_parameter("carga", _mostrada)
 		(m as ShaderMaterial).set_shader_parameter("destello", _destello)
-	_recarga.emitting = puesto and magia < 0.999
-	_chispas.emitting = puesto and _mostrada > 0.97
+	_recarga.emitting = particulas and puesto and magia < 0.999
+	_chispas.emitting = particulas and puesto and _mostrada > 0.97
 	var objetivo := 1.0 if puesto else 0.0
 	_alfa = move_toward(_alfa, objetivo, delta / maxf(fundido, 0.001))
 	modulate.a = _alfa

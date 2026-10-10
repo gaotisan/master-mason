@@ -34,16 +34,24 @@ lado, el video esta iluminado desde la derecha (la mitad derecha un 20 % mas
 clara, hasta un 40 % en los costados), la capucha deja ver mas sombra por dentro
 a un lado, la barba y las cejas no son iguales y el pie derecho es mas grande y
 mas claro. Ademas el centro del DIBUJO del pecho (la V de las solapas, el borde
-del peto) esta, de frente, 7 px a la izquierda del centro de la silueta, y la
-barba cuelga ladeada hacia alli. Los fundidos para taparlo se veian como "un
-blur raro"; con el sastre a una costura que no era el centro del dibujo, las
-solapas "no encajaban", "un pegote" (una V doble y una tira naranja junto a la
-barba). Ahora, en este orden:
+del peto) esta, de frente, 7 px a la izquierda del centro de la silueta; la
+barba cuelga ladeada hacia alli y los brazos tambien cuelgan 7 px a la
+izquierda (el de detras mas pegado al cuerpo). Los fundidos para taparlo se
+veian como "un blur raro"; con el sastre a una costura que no era el centro del
+dibujo, las solapas "no encajaban", "un pegote" (una V doble y una tira naranja
+junto a la barba); con los brazos simetrizados con flujo optico, "algo raro a la
+altura del vientre, pegado a la parte baja de los brazos" (una rendija dentada
+que temblaba entre brazo y cuerpo). Ahora, en este orden:
 
   1. DIBUJO CORRIDO (desplazar_dibujo()): de DE_FRENTE al frente, el dibujo de
      la TELA se corre poco a poco (hasta 7 px en el centro del cuerpo, menos
      hacia los bordes, como un leve giro sobre el cilindro) para que su centro
-     caiga en el eje; la silueta, la cabeza y las manos no se mueven.
+     caiga en el eje; la silueta, la cabeza y las manos no se mueven, y junto a
+     los bordes laterales de la silueta tampoco el dibujo (el filo se queda).
+     BRAZOS (colocar_brazos()): a la vez, los brazos enteros (manga, mano y su
+     silueta) se corren lo mismo abajo y menos hacia el hombro: de frente
+     quedan simetricos y en el corte no saltan (las manos, que antes cambiaban
+     1,7 veces su paso normal, ahora menos que en un paso).
   2. CABEZA (con la barba) simetrica, ANTES del sastre (ver 4 y 5): asi, de
      frente, la barba ya cuelga recta en su sitio y lo que el sastre pinta a
      su lado casa con lo del otro lado. Sus campos se miden en el frente con un
@@ -61,26 +69,27 @@ barba). Ahora, en este orden:
      costado de delante rellenada (tela_rellena(), inpaint); dejar ahi la tela
      del video dejaba tiras de otro dibujo. Cerca del frente el centro del
      cilindro va a la costura: espejo puro (si no, las mangas saltaban).
-  4. CABEZA, PIES Y MANGAS, FORMA Y LUZ (simetrizar(), ganancia_luz()): en el
-     frente un campo de ganancia suave iguala su luz con la de su espejo y, con
-     la luz ya igualada, el flujo optico hasta su espejo los lleva al punto
-     medio moviendo pixeles (iterado). Hacia atras (SIMETRIA -> frente) los
-     campos se llevan con el flujo del video a donde esta cada parte en cada
-     fotograma y entran poco a poco. (Pies y mangas, despues del sastre.)
-  5. CABEZA, PIES Y MANGAS, DIBUJO FINO (mitad_espejada()): lo que mover
-     pixeles no iguala sin deformar (las facetas de la barba, las cejas, el
-     contorno fino; forzarlo con flujo fino dejaba la barba "liquida"): su lado
-     derecho va, desde DETALLE y con la diferencia pegada a la parte, al
-     izquierdo espejado. Cada parte respecto a su eje en el corte: medio paso
-     de los suyos antes del de la casilla (la cabeza a 0,8 px: centrada se
-     pararia un fotograma, en su sitio saltaba 4 px). Las MANOS no se tocan:
-     llevarlas a su espejo les ponia una manopla marron y dedos fantasma; las
-     del video son limpias y en el corte cambian 1,7 veces su movimiento normal.
+  4. CABEZA Y PIES, FORMA Y LUZ (simetrizar(), ganancia_luz()): en el frente
+     un campo de ganancia suave iguala su luz con la de su espejo y, con la luz
+     ya igualada, el flujo optico hasta su espejo los lleva al punto medio
+     moviendo pixeles (iterado). Hacia atras (SIMETRIA -> frente) los campos se
+     llevan con el flujo del video a donde esta cada parte en cada fotograma y
+     entran poco a poco. (Los pies, despues del sastre.)
+  5. CABEZA Y PIES, DIBUJO FINO (mitad_espejada()): lo que mover pixeles no
+     iguala sin deformar (las facetas de la barba, las cejas, el contorno fino;
+     forzarlo con flujo fino dejaba la barba "liquida"): su lado derecho va,
+     desde DETALLE y con la diferencia pegada a la parte, al izquierdo espejado.
+     Cada parte respecto a su eje en el corte: medio paso de los suyos antes
+     del de la casilla (la cabeza a 0,8 px: centrada se pararia un fotograma,
+     en su sitio saltaba 4 px). Las MANOS y las MANGAS no pasan por aqui: la
+     forma de las manos llevada a su espejo era una manopla marron con dedos
+     fantasma y en las mangas abria la rendija junto al vientre; ya van en su
+     sitio por 1.
 
 Medido (cambio en el corte / el de un fotograma normal, por zonas): cabeza 3,5 /
-5,2, hombros 3,4 / 5,1, tronco 1,4 / 2,4, mangas 1,5 / 4,7, pies 0,0 / 0,7
-(quietos), manos 10,4 / 6,3 (las del video, sin tocar). Antes: cabeza 9,1 /
-7,2, pies 3,7 / 0,5, y el tronco se paraba en el corte.
+5,2, hombros 3,4 / 5,0, tronco 1,4 / 2,5, mangas 2,0 / 4,7, manos 5,1 / 6,3, pies
+0,0 / 0,6 (quietos). Antes: cabeza 9,1 / 7,2, manos 10,4 / 6,3, pies 3,7 / 0,5, y
+el tronco se paraba en el corte.
 
     python espejo.py   (luego hoja.ps1 -Job magnus_giro_frente -Desde 04_espejo)"""
 import os, shutil, sys
@@ -261,17 +270,6 @@ def capucha(a):
     return np.isin(lab, arriba[arriba > 0])
 
 
-def brazos(a):
-    """Mangas: lo que cuelga a los lados del tronco (de frente), sin las manos
-    (a las manos, llevarlas a su espejo les ponia una manopla marron y dedos
-    fantasma; las del video son limpias y ya se parecen)."""
-    op = a[..., 3] > 128
-    z = np.zeros_like(op)
-    fuera_tronco = np.abs(np.arange(a.shape[1]) - EJE)[None, :] > 72
-    z[280:400] = (op & fuera_tronco)[280:400]
-    return z & ~ndimage.binary_dilation(manos(a), iterations=8)
-
-
 def pies(a):
     """Piernas y pies: lo que queda por debajo del bajo de la tunica."""
     op = a[..., 3] > 128
@@ -420,6 +418,12 @@ def desplazar_dibujo(a, d, xl, xr):
     xx = np.arange(W, dtype=np.float32)[None, :].repeat(h, 0)
     yy = np.arange(h, dtype=np.float32)[:, None].repeat(W, 1)
     s = (d * np.cos(np.arcsin(np.clip((xx - c[:, None]) / R[:, None], -1, 1)))).astype(np.float32)
+    # junto a un borde lateral de la silueta (el hueco entre brazo y cuerpo) el
+    # dibujo no se corre: el filo se queda y lo de dentro se estira un poco. (Si
+    # no, el borde de la tunica tomaba el relleno del hueco: una escalera de
+    # bloques oscuros que temblaba.) Solo en horizontal: el bajo si se corre.
+    lateral = ndimage.distance_transform_edt(a[..., 3] > 128, sampling=[1000, 1])
+    s *= np.clip(lateral / 14, 0, 1).astype(np.float32)
     # solo la tela: la cabeza (con la barba) y las manos se quedan; a la barba la
     # lleva luego a su sitio la simetria de la cabeza. (Corrida aqui con la tela,
     # entre la barba movida y lo de la cabeza que no se movia se abrian rajas,
@@ -431,6 +435,64 @@ def desplazar_dibujo(a, d, xl, xr):
     out = a.astype(np.float32).copy()
     out[..., :3] = np.where(tela[..., None], movido, out[..., :3])
     return out.round().clip(0, 255).astype(np.uint8)
+
+
+def colocar_brazos(a, d):
+    """Corre los BRAZOS (mangas y manos, con su silueta) d px a la derecha abajo
+    y menos hacia el hombro, del que cuelgan. En el video, de frente, los brazos
+    cuelgan, como el dibujo del pecho y la barba, 7 px a la izquierda del eje
+    (el de detras mas pegado al cuerpo): sin esto, en el corte el hueco entre
+    brazo y cuerpo saltaba de lado. (Simetrizarlos con flujo optico, como la
+    cabeza, abria una rendija dentada que temblaba junto al vientre.) Es un
+    desplazamiento suave, sin flujo: por fila, lo que hay fuera del cuerpo (el
+    tramo de la silueta mas alla del hueco, o los 50 px de fuera si brazo y
+    cuerpo se tocan)."""
+    if abs(d) < 0.01:
+        return a
+    h, W = a.shape[:2]
+    op = a[..., 3] > 128
+    w = np.zeros((h, W), np.float32)
+    xs = np.arange(W)
+    for y in range(280, 520):
+        c = np.where(op[y])[0]
+        if len(c) < 3:
+            continue
+        cortes = np.where(np.diff(c) > 1)[0]
+        ini = np.r_[c[0], c[cortes + 1]]
+        fin = np.r_[c[cortes], c[-1]]
+        largo = fin - ini
+        tramos = [(i, f) for i, f, l in zip(ini, fin, largo) if l >= 2]
+        if not tramos:
+            continue
+        centro = max(tramos, key=lambda t: t[1] - t[0])     # el cuerpo
+        for i, f in tramos:
+            if f < centro[0] or i > centro[1]:               # brazo o mano sueltos
+                w[y, i:f + 1] = 1
+        i, f = centro
+        for lado, suelto, borde in ((xs - i, tramos[0][0] < i, i), (f - xs, tramos[-1][1] > f, f)):
+            # brazo pegado al cuerpo: el borde de la silueta mas alla del cuerpo
+            # (la tunica, a esta altura, no pasa de 92 px del eje)
+            if not suelto and abs(borde - EJE) > 100:
+                w[y] = np.maximum(w[y], np.clip((65 - lado) / 15, 0, 1) * (xs >= i) * (xs <= f))
+    # el brazo se mete en lo transparente hacia donde va (el hueco o el fondo
+    # de su lado); hacia el otro lado no (si no, el cuerpo se estiraba hasta la mano)
+    ext = w.copy()
+    for paso in range(1, 13):
+        if d > 0:
+            ext[:, paso:] = np.maximum(ext[:, paso:], w[:, :-paso])
+        else:
+            ext[:, :-paso] = np.maximum(ext[:, :-paso], w[:, paso:])
+    w = np.where(op, w, ext)
+    # (mas suave en vertical: donde el brazo se separa del cuerpo, de una fila a
+    # la siguiente cambia como se reparte, y salia un escalon)
+    w = cv2.GaussianBlur(w, (0, 0), sigmaX=2.5, sigmaY=7)
+    yy = np.arange(h, dtype=np.float32)[:, None]
+    s = (d * np.clip((yy - 290) / 130, 0, 1) * np.clip((505 - yy) / 25, 0, 1) * w).astype(np.float32)
+    xx = np.arange(W, dtype=np.float32)[None, :].repeat(h, 0)
+    yyy = yy.repeat(W, 1).astype(np.float32)
+    p = premult(a)
+    movido = cv2.remap(p, xx - s, yyy, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=0)
+    return despremult(movido)
 
 
 def tela_rellena(a, valido):
@@ -605,7 +667,7 @@ if __name__ == '__main__':
         xl, xr = np.mean([ext[j][0] for j in vec], 0), np.mean([ext[j][1] for j in vec], 0)
         XLR[k] = (xl, xr)
         RF[k] = suave((k - DE_FRENTE) / (FRENTE - DE_FRENTE))
-        B[k] = desplazar_dibujo(C[k], corre * RF[k], xl, xr)
+        B[k] = colocar_brazos(desplazar_dibujo(C[k], corre * RF[k], xl, xr), corre * RF[k])
         cos_c = np.cos(np.arcsin(np.clip((costura[k] - (xl + xr) / 2) / np.maximum((xr - xl) / 2, 10), -1, 1)))
         costura[k] = costura[k] + corre * RF[k] * cos_c
     print('costura (solapas / falda): ' + ' '.join('%d:%.0f/%.0f' % (k, costura[k][290], costura[k][585])
@@ -657,11 +719,10 @@ if __name__ == '__main__':
     # 3. tunica de sastre
     X = {k: cuerpo(B[k], costura[k], *XLR[k], RF[k]) for k in ks}
 
-    # 4. pies y mangas, medidos en el frente ya cosido
+    # 4. pies, medidos en el frente ya cosido (los brazos ya van en su sitio: 1)
     F = X[FRENTE]
-    resto = partes_de([(pies(F), None),                                        # quietos
-                       (brazos(F), float(np.median(costura[FRENTE][280:400])))])  # con la tela
-    print('ejes en el frente: pies %.2f, mangas %.2f' % (resto[0][1], resto[1][1]))
+    resto = partes_de([(pies(F), None)])                                        # quietos
+    print('eje de los pies en el frente: %.2f' % resto[0][1])
     aplicar(X, *campos(F, resto))
 
     if os.environ.get('ESPEJO_DEPURAR'):     # ruta .npz: guarda los pasos del final del giro

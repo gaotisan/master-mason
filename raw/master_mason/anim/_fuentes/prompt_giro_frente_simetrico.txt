@@ -1,0 +1,81 @@
+PROMPT DEL GIRO DE PIE POR DELANTE, A SU RITMO Y CON LA TUNICA SIMETRICA
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-10)
+=========================================================================
+Por que: el giro de ahora sale de un video de exhibicion lento (360 grados con
+paradas) que en el juego va 2,5 veces mas rapido: cada paso dura ~0,15 s (al
+andar, ~0,57 s) y el usuario lo ve "a trompicones". Ademas la tunica tiene otro
+dibujo y otra luz a cada lado, y para que el giro case con su espejo hay que
+retocarla mucho (magnus_giro_frente/espejo.py: "sastre", barba, brazos...).
+Aqui se pide el giro ya a la velocidad del juego, POR DELANTE, y con la tunica
+igual a los dos lados: asi se usa a su ritmo y casi sin apanos.
+
+En Flow, modo de fotogramas a video:
+  - fotograma inicial: referencia_giro_pie_video_inicio.png  (el reposo del juego,
+    mirando a la derecha, a su tamano de master en 1920x1080)
+  - fotograma final:   referencia_giro_pie_video_fin.png     (el mismo, espejado)
+  Que el final sea el inicio espejado le dice al modelo que los dos costados
+  son iguales (el mismo dibujo, en espejo): es lo que queremos de la tunica.
+  - 16:9, 8 s, el modelo de mas calidad, con audio. Sacar 3-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. que gire POR DELANTE: a mitad del giro mira a la camara; nunca de espaldas
+  2. que el giro dure 1-1,5 s y no se pare al estar de frente
+  3. los pies: dos pasos claros que pivotan, no pasitos
+  4. DE FRENTE, la tunica igual a los dos lados: la V de las solapas debajo de
+     la punta de la barba, el peto gris centrado, los paneles de cada lado a
+     juego, las dos mangas iguales; la barba recta en el centro, los dos
+     brazos igual de separados del cuerpo, la luz pareja (un lado no mas claro)
+  5. camara quieta, mismo tamano, cabeza a la misma altura, no se desplaza
+  6. la capucha como la del primer fotograma (sin pico de sombrero de mago) y,
+     de frente, la cara casi tapada por su sombra (sin ojos a la vista), como
+     en el andar de frente (referencia_vuelta_sin_frente.png)
+  7. nada encima (controles, marcas de agua, texto)
+Para el 4 basta parar el video en el fotograma en que mira a la camara. Si
+ninguna toma sale simetrica, la mejor de las demas vale igual: lo que falte lo
+iguala espejo.py, como ahora.
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no ground, no floor line, no props, no text, no logos,
+no on-screen interface or player controls.
+
+The old hooded pilgrim from the first frame stands in exactly the same relaxed
+standing pose: slightly stooped, arms hanging relaxed at his sides, empty hands,
+the long faceted cloak down to his ankles, thin dark legs and bare feet visible
+below it. His head is covered by the soft grey cloth hood of his cloak, exactly
+the shape of the first frame: no tall point, no cone. The hood comes down low
+over his forehead and its deep shadow hides most of his face: when he faces the
+camera you only glimpse the tip of his nose in the dark opening of the hood, his
+eyes lost in shadow, and below it the long white beard. His face is never
+clearly visible. His posture, his height and his size never change, and his
+head stays at the same height.
+
+His cloak is perfectly symmetrical: its left half is an exact mirror image of
+its right half, with the same pattern of flat geometric patches in dark maroon,
+brick red, ochre, warm brown and muted grey on both sides, as the first and the
+last frame show, his two sides identical. When he faces the camera the design is
+centred on his chest: a grey hexagonal panel in the middle, two dark lapels
+meeting in a V just below the tip of his beard, matching ochre and maroon panels
+on either side, both sleeves alike. His long white beard hangs straight down the
+middle of his chest, and both arms hang the same way, at the same distance from
+his body. Soft, even light from the front: both halves of his body are equally
+lit, with no light from one side.
+
+He holds completely still for two seconds. Then, in one single quick and natural
+movement, he turns around to face the other way, turning TOWARDS the camera, the
+way an old man turns back when he hears someone call him: from his side profile
+facing right, through facing the camera for an instant, to his side profile
+facing left. He never shows his back. The whole turn takes only about one and a
+half seconds, a pivot with just two short, clear, natural steps of his bare
+feet, without stopping when he faces the camera and without any extra small
+steps. His feet stay on the same line and his position on screen does not move.
+Then he holds completely still in the final pose, identical to the last frame,
+until the end of the video.
+
+Same low-poly flat-shaded hand-painted style, same colours as the first frame
+throughout, crisp frames with no motion blur, soft matte texture, no flicker.
+Sound: only the soft rustle of the cloak and two light footsteps, no music, no
+voice.

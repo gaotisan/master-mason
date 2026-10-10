@@ -1,0 +1,43 @@
+GIRO DE PIE POR DELANTE, A SU RITMO (animacion "giro" de magnus_frames.tres)
+=============================================================================
+Fuente: _fuentes/Pilgrim_turning_on_green_screen_20261010091716.mp4 (24 fps,
+1280x720, 8 s), pedido con _fuentes/prompt_giro_frente_simetrico.txt en Flow
+(fotogramas a video: inicio referencia_giro_pie_video_inicio.png = el reposo del
+juego; final referencia_giro_pie_video_fin.png = el mismo espejado). 2026-10-10.
+
+Por que un video nuevo: el giro anterior (magnus_giro_frente, commit 354b341)
+salia de un video de exhibicion lento que en el juego iba 2,5 veces mas rapido:
+los pasos se veian "a trompicones". Y la tunica tenia otro dibujo y otra luz a
+cada lado: habia que usar solo la primera mitad, espejarla y retocar mucho el
+frente para que casara con su espejo. El usuario pidio un video "con consistencia
+en la tunica en ambos lados para no tener que hacer apanos". Este gira por
+delante, con dos pasos, y de frente sale simetrico; acaba en el reposo espejado.
+
+Pasos (los que no son de tools/anim, a mano, aqui apuntados):
+  1. nuevo.ps1 + frames.ps1: 01_frames, los 192 fotogramas.
+  2. 03_seleccion: f001 (el reposo), f040-f122 y f192 (el reposo espejado),
+     escalados x1,5108 (1280x720 -> 1934x1088: alto 415 -> 627, como el resto
+     de Magnus). Ver seleccion.txt.
+  3. centrar.ps1 -Ancho 584 -Alto 720 -MargenSuelo 30 -Eje 967 -Sobrescribir
+     fondo.ps1 -Tolerancia 35 -Radio 4
+     ../baston/pulir.py --oscuras  y  --bolsas-verdes
+     -> _antes_de_alinear/ (no va a git: se rehace asi).
+  4. giro_video.py -> 04_giro/ (61 fotogramas, f050-f110 del video, en orden):
+     tono estandar, colocacion, restos del croma, los extremos al reposo del
+     juego y a su espejo (forma moviendo pixeles + fundido de 5 fotogramas casi
+     quieto) y la sombra de la capucha en la cara de frente. Ver su docstring.
+  5. hoja.ps1 -Job magnus_giro_simetrico -Desde 04_giro -Fps 24 -Escala 2 -Cols 10
+     y tools/anim/_spriteframes.py (entrada 'giro', 61 f, 24 fps, 2,5 s).
+  6. Baston a la espalda en el giro: baston/seguir.py (GIROS_POR_DELANTE,
+     colocar_giro_delante, por la barba: vale para cualquier giro por delante).
+     Con el baston en la mano el giro es otro (giro_mano.py, mano_giro.png).
+
+A 24 fps, como el video: 2,5 s (el giro agachado tambien va a su ritmo, 2,8 s).
+De f050 vuelve la cabeza; de f058 a f088, los dos pasos; de ahi a f110 planta el
+pie y la capa se asienta. Acelerarlo deja los pasos "a trompicones" como antes.
+
+La cara: el prompt pedia que de frente la capucha le tapara la cara, como en el
+andar de frente; el video la deja atras y la cara iluminada, con los ojos a la
+vista. giro_video.py la oscurece bajo el borde de delante de la capucha (SOMBRA,
+SOMBRA_LLENA, SOMBRA_CAIDA; SOMBRA = 0 la quita), segun lo de frente que mira la
+cabeza: nada de perfil, del todo de frente.

@@ -71,10 +71,13 @@ SIN_BASTON = {"cayendo", "caida", "tumbado", "levantarse",
               # de frente/espaldas: las coloca baston/frontal.py (frontal.json)
               "andar_frente", "andar_espalda", "vuelta_frontal", "andar_frente_sin",
               "andar_espalda_sin", "vuelta_frontal_sin", "parada_frente_sin",
-              "reposo_frente_sin", "reposo_espalda_sin"}
+              "reposo_frente_sin", "reposo_espalda_sin",
+              # sacar/guardar de frente (godot-a3, 2026-10-09): el baston va en
+              # el dibujo; medidos aqui como de perfil, fallaban (sin barba)
+              "sacar_baston_frente", "guardar_baston_frente"}
 GIROS = {"giro", "giro_agachado"}
-# Giros que pasan POR DELANTE (de cara a la camara; 2026-10-08, el de pie sale
-# de magnus_giro_frente). Ahi la espalda no se ve nunca: el baston va siempre
+# Giros que pasan POR DELANTE (de cara a la camara; 2026-10-08; el de pie sale
+# de magnus_giro_simetrico desde el 2026-10-10). Ahi la espalda no se ve nunca: el baston va siempre
 # detras del cuerpo y pasa de su sitio en el reposo (perfil derecho) a ese
 # mismo sitio espejado (perfil izquierdo) al ritmo del giro, medido por la
 # barba. Sin funda ni parche: no se llega a ver la espalda.

@@ -64,4 +64,15 @@ una tira naranja; (4) el detector de piel cogia el panel tostado del hombro como
 cuello -> una L naranja sin coser. Ahora: el dibujo de la tela se corre hasta el
 eje, la costura va por alturas, la cabeza se hace simetrica antes de coser, ahi
 se rellena con la tela del costado de delante y la piel solo cuenta si viene de
-la cara (detalle en el docstring de espejo.py).
+la cara (detalle en el docstring de espejo.py). Subido en 354b341.
+
+Brazos (2026-10-10): "aun queda algo raro en las solapas a la altura del vientre,
+pegados a la parte baja de los brazos". Era: los brazos, de frente, cuelgan 7 px
+a la izquierda (como el dibujo y la barba; el de detras pegado al cuerpo) y las
+mangas se simetrizaban con flujo optico y su dibujo espejado: junto al vientre se
+abria una rendija dentada que temblaba (dos huecos entre brazo y cuerpo en el
+lado de detras) y el borde de la tunica junto al hueco hacia escalera (el dibujo
+corrido cogia el relleno del hueco). Ahora los brazos enteros se corren esos 7
+px (colocar_brazos(): sin flujo, un desplazamiento suave) y el dibujo de la tela
+no se corre junto a los bordes laterales. Las manos, de paso, ya no saltan en el
+corte.

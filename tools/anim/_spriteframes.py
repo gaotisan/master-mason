@@ -115,7 +115,14 @@ ANIMACIONES = [
     # encajadas. 92 fotogramas a 60 fps, 1,53 s; tono estandar. Ver
     # raw/master_mason/anim/magnus_giro_frente/espejo.py. El de antes (por la
     # espalda): magnus_giro_pie_rapido, 47 a 30 fps.
-    ('giro',            'magnus_giro_frente',      92, 10, 60.0, False),
+    # Ahora (2026-10-10): ese iba 2,5 veces mas rapido que su video y los pasos
+    # se veian "a trompicones". Video nuevo pedido a la velocidad del juego y con
+    # la tunica igual a los dos lados (Pilgrim_turning_on_green_screen_
+    # 20261010091716, job magnus_giro_simetrico): se usa entero y en orden, a su
+    # ritmo (24 fps, 2,5 s, como el giro agachado), sin espejos ni retoques del
+    # dibujo; empieza en el reposo y acaba en el reposo espejado, y de frente la
+    # capucha le sombrea la cara. Ver magnus_giro_simetrico/giro_video.py.
+    ('giro',            'magnus_giro_simetrico',   61, 10, 24.0, False),
     # Salto corriendo: sale de un video en el que corre, salta una piedra y se
     # para. Se usan solo los fotogramas 128-165: despegue, vuelo y aterrizaje.
     # El video viene a camara lenta, como el del salto de parado: 27 fotogramas
