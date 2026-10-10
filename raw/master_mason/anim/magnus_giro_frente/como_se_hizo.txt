@@ -29,7 +29,39 @@ Pasos (los que no son de tools/anim, a mano, aqui apuntados):
 04_limpios/ es un paso intermedio anterior (colocado y con el tono, pero con la
 segunda mitad del video): ya no lo usa nada.
 
-Pendiente (2026-10-09): en el frente el dibujo y la LUZ de la tunica cambian al
-pasar al espejo (el video esta iluminado desde la derecha: de frente, la mitad
-derecha de la tunica es un 20 % mas clara de media, hasta un 40 % en los
-costados). Se esta probando hacer la tunica simetrica ("de sastre").
+Tunica simetrica ("de sastre", 2026-10-09): en el frente el dibujo y la LUZ
+de la tunica cambiaban al pasar al espejo (el video esta iluminado desde la
+derecha: de frente, la mitad derecha un 20 % mas clara, hasta un 40 % en los
+costados; y los paneles de cada lado son distintos). La version anterior (sin
+sastre) quedo en el commit 623a11c.
+
+Primer sastre (con rampas y un fundido de 6 fotogramas en el frente): el usuario
+"hace un blur raro, no termina de ser fluido, se nota el cambio". Revisado
+fotograma a fotograma (mapas de lo que cambia de un fotograma al siguiente, por
+zonas): en el corte saltaban la cabeza (barba y capucha no simetricas, ni
+de forma ni de luz), los pies (el derecho mas claro), mangas y manos; la tela
+del costado de detras corria al reves cerca del frente y en el corte se
+paraba; y en el hombro de detras habia rayas y un parche de piel. Ahora (ver
+el docstring de espejo.py) nada se funde con otro fotograma:
+  - tunica de sastre SIEMPRE, con la costura seguida con el flujo de la tela y,
+    cerca del frente, espejo puro;
+  - cabeza, pies, mangas y manos: luz y forma llevadas poco a poco a su espejo
+    (campos que viajan con el movimiento del video) y su dibujo fino, de c_044
+    al frente, al de su lado izquierdo espejado;
+  - cada parte avanza en el corte lo que avanza sola (la cabeza se balancea
+    1,6 px por fotograma, la tela 0,6);
+  - restos del croma limpios (verde en los huecos, oliva en las manos, filo
+    morado en la capucha).
+
+Solapas (2026-10-09, tarde): el usuario, "ambas solapas hacen un efecto raro a
+la mitad del giro, como si no encajaran, un pegote". Era: (1) el centro del
+DIBUJO del pecho (la V de las solapas) esta, de frente, 7 px a la izquierda del
+de la silueta y el sastre cosia en el centro de la silueta -> V doble; (2) el
+cuerpo va torcido (las solapas miran de frente antes que la falda) y la costura
+era una sola, seguida por la falda -> arriba desviada 10 px; (3) junto a la
+barba, donde el simetrico queda debajo de ella, se dejaba la tela del video ->
+una tira naranja; (4) el detector de piel cogia el panel tostado del hombro como
+cuello -> una L naranja sin coser. Ahora: el dibujo de la tela se corre hasta el
+eje, la costura va por alturas, la cabeza se hace simetrica antes de coser, ahi
+se rellena con la tela del costado de delante y la piel solo cuenta si viene de
+la cara (detalle en el docstring de espejo.py).

@@ -266,12 +266,15 @@ ANIMACIONES = [
 # andar, vuelta y los puentes entre ellos, en dos hojas): la lista la escribe
 # raw/master_mason/anim/magnus_secuencia_frontal/secuencia.py.
 # Lo mismo sin baston: magnus_secuencia_frontal_sin (secuencia.py magnus_secuencia_frontal_sin).
+# Sacar y guardar el baston de frente (de un reposo al otro), casilla mas grande
+# (el baston sube por encima de la cabeza): magnus_sacar_baston_frente/animar.py.
 import json as _json
-for _d in ('magnus_secuencia_frontal', 'magnus_secuencia_frontal_sin'):
+for _d, _cas in (('magnus_secuencia_frontal', (292, 400)), ('magnus_secuencia_frontal_sin', (292, 400)),
+                 ('magnus_sacar_baston_frente', (332, 452)), ('magnus_guardar_baston_frente', (332, 452))):
     _SEC = os.path.join(ANIM_RAW, _d, 'animaciones.json')
     if os.path.exists(_SEC):
         for _n, _job, _cnt, _fps, _bucle, _idx in _json.load(open(_SEC)):
-            ANIMACIONES.append((_n, _job, _cnt, 16, _fps, _bucle, (292, 400), _idx))
+            ANIMACIONES.append((_n, _job, _cnt, 16, _fps, _bucle, _cas, _idx))
 
 
 def _usos():
