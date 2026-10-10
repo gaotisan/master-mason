@@ -1,0 +1,170 @@
+{
+ "job": "magnus_andar_giro_baston",
+ "dx": 43,
+ "fotogramas": [
+  {
+   "c": 116,
+   "espejo": false
+  },
+  {
+   "c": 117,
+   "espejo": false
+  },
+  {
+   "c": 118,
+   "espejo": false
+  },
+  {
+   "c": 119,
+   "espejo": false
+  },
+  {
+   "c": 120,
+   "espejo": false
+  },
+  {
+   "c": 121,
+   "espejo": false
+  },
+  {
+   "c": 122,
+   "espejo": false
+  },
+  {
+   "c": 123,
+   "espejo": false
+  },
+  {
+   "c": 124,
+   "espejo": false
+  },
+  {
+   "c": 125,
+   "espejo": false
+  },
+  {
+   "c": 126,
+   "espejo": false
+  },
+  {
+   "c": 127,
+   "espejo": false
+  },
+  {
+   "c": 128,
+   "espejo": false
+  },
+  {
+   "c": 129,
+   "espejo": false
+  },
+  {
+   "c": 130,
+   "espejo": false
+  },
+  {
+   "c": 131,
+   "espejo": false
+  },
+  {
+   "c": 132,
+   "espejo": false
+  },
+  {
+   "c": 133,
+   "espejo": false
+  },
+  {
+   "c": 134,
+   "espejo": false
+  },
+  {
+   "c": 135,
+   "espejo": false
+  },
+  {
+   "c": 136,
+   "espejo": false
+  },
+  {
+   "c": 137,
+   "espejo": false
+  },
+  {
+   "c": 138,
+   "espejo": false
+  },
+  {
+   "c": 139,
+   "espejo": false
+  },
+  {
+   "c": 140,
+   "espejo": false
+  },
+  {
+   "c": 141,
+   "espejo": false
+  },
+  {
+   "c": 142,
+   "espejo": false
+  },
+  {
+   "c": 143,
+   "espejo": false
+  },
+  {
+   "c": 144,
+   "espejo": false
+  },
+  {
+   "c": 145,
+   "espejo": false
+  },
+  {
+   "c": 146,
+   "espejo": false
+  },
+  {
+   "c": 147,
+   "espejo": false
+  },
+  {
+   "c": 148,
+   "espejo": false
+  },
+  {
+   "c": 123,
+   "espejo": true
+  },
+  {
+   "c": 122,
+   "espejo": true
+  },
+  {
+   "c": 121,
+   "espejo": true
+  },
+  {
+   "c": 120,
+   "espejo": true
+  },
+  {
+   "c": 119,
+   "espejo": true
+  },
+  {
+   "c": 118,
+   "espejo": true
+  },
+  {
+   "c": 117,
+   "espejo": true
+  },
+  {
+   "c": 116,
+   "espejo": true
+  }
+ ]
+}

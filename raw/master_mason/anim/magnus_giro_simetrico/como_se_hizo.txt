@@ -21,7 +21,7 @@ Pasos (los que no son de tools/anim, a mano, aqui apuntados):
   3. centrar.ps1 -Ancho 584 -Alto 720 -MargenSuelo 30 -Eje 967 -Sobrescribir
      fondo.ps1 -Tolerancia 35 -Radio 4
      ../baston/pulir.py --oscuras  y  --bolsas-verdes
-     -> _antes_de_alinear/ (no va a git: se rehace asi).
+     -> 04_limpios/ (va a git, como en los demas jobs del baston; de ahi lee giro_video.py).
   4. giro_video.py -> 04_giro/ (61 fotogramas, f050-f110 del video, en orden):
      tono estandar, colocacion, restos del croma, los extremos al reposo del
      juego y a su espejo (forma moviendo pixeles + fundido de 5 fotogramas casi

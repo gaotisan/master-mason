@@ -41,7 +41,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(AQUI), 'magnus_giro_frente'))
 import espejo as E                      # las piezas comunes (mover, encaje, flujo, ...)
 tono = E.tono
 
-ORIGEN = os.path.join(AQUI, '_antes_de_alinear')     # recortado, sin fondo, pulido
+ORIGEN = os.path.join(AQUI, '04_limpios')            # recortado, sin fondo, pulido (va a git)
 DESTINO = os.path.join(AQUI, '04_giro')
 REPOSO = E.REPOSO                                     # magnus_respirando/04_limpios/c_01.png
 # en ORIGEN: c_01 = f001 (el reposo), c_02..c_84 = f040..f122, c_85 = f192 (reposo espejado)

@@ -34,6 +34,10 @@ SRC = os.path.join(PROY, 'raw', 'master_mason', 'anim', '_fuentes', 'baston_fund
 DST = os.path.join(PROY, 'assets', 'characters', 'baston')
 HOJA = 12.0 / 130.0           # px de hoja por px de imagen
 TEX = 4.0                     # la textura va a 4x hoja
+# 2026-10-10, el usuario: de espaldas la funda se veia "como un pegote"; eligio
+# el 75 % (mas cerca de la pieza del concepto). Para todas las vistas (el perfil
+# lee tambien funda_cuero.json): la textura no cambia, solo la escala.
+TAMANO = 0.75
 CUERPO = (190, 578)           # filas del tubo (sin las lenguetas)
 
 g = np.asarray(Image.open(SRC).convert('RGB')).astype(float)
@@ -86,6 +90,6 @@ for nombre, m in (('atras', alfa * ~delante), ('delante', alfa * delante)):
     salida['tamano'] = [im.width, im.height]
 # en la textura: el eje de las bocas (donde va el palo) y el centro del tubo
 salida['eje'] = [round((eje_x - caja[0]) * s, 2), round(((CUERPO[0] + CUERPO[1]) / 2 - caja[1]) * s, 2)]
-salida['escala'] = 1 / TEX
+salida['escala'] = TAMANO / TEX
 json.dump(salida, open(os.path.join(DST, 'funda_cuero.json'), 'w'))
 print('funda_cuero_atras/delante.png', salida)
