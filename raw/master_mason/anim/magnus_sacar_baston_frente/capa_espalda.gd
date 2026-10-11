@@ -44,9 +44,11 @@ func _run() -> void:
 	esc._colocar()
 	if con:
 		esc._bola.visible = false        # la bola va en la garra del sprite: fuera
-		# la correa vacia cuelga del sprite y se recorta con su silueta: el sprite
-		# solo como mascara (sin dibujarse)
-		esc._sprite.clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+		# la correa vacia cuelga del sprite: el sprite transparente y sin recortar
+		# (CLIP_CHILDREN_ONLY, sobre fondo transparente, pinta la silueta en negro;
+		# en el reposo la correa queda dentro de la silueta)
+		esc._sprite.clip_children = CanvasItem.CLIP_CHILDREN_DISABLED
+		esc._sprite.self_modulate.a = 0.0
 	else:
 		esc._sprite.visible = false
 	# la casilla del reposo (292x400 de hoja, centrada en sprite + offset) en (40, 104) de master

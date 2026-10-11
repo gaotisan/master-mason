@@ -1,21 +1,38 @@
-PROMPTS PARA SACAR Y GUARDAR EL BASTON DE ESPALDAS
-(2026-10-10: con la CORREA de dos presillas, ver baston/correa.py; antes la funda de tubo) (Google Flow, Frames to Video)
+PROMPTS PARA SACAR Y GUARDAR EL BASTON DE ESPALDAS (Google Flow, Frames to Video)
 ===============================================================================
-Como los de frente (prompt_baston_sacar_guardar_frente.txt), que salieron bien:
-fotograma inicial Y final sacados de la escena de prueba (prueba_frontal).
+2026-10-10 (noche), el usuario: "las quiero igual que las otras (la misma
+cinematica) pero de espaldas". LA MISMA COREOGRAFIA QUE LOS DE FRENTE, vista por
+detras, con los tiempos medidos en los videos de frente que gustaron
+(Pilgrim_draws_wooden_staff_20261009165324.mp4 y
+Pilgrim_stowing_wooden_staff_20261009165938.mp4, hojas de contacto cada 0,25 s):
+  SACAR   quieto 0-1 s; sube la mano derecha al hombro y agarra bajo la garra
+          1-2 s; tira recto hacia arriba, el baston sale entero y la garra queda
+          muy por encima de la capucha 2-2,75 s; lo baja por delante y un
+          momento lo sujeta cruzado con las dos manos 2,75-3,5 s; lo endereza a
+          su derecha y lo planta junto al pie derecho 3,5-4 s; quieto 4-8 s.
+  GUARDAR quieto 0-1,25 s; lo levanta recto 1,25-1,75 s; lo inclina sobre el
+          hombro derecho y lo baja por la espalda 1,75-3 s; suelta y baja el
+          brazo despacio 3-4 s; quieto 4-8 s.
+Antes (2026-10-10 por la manana): ya con la CORREA de dos presillas (ver
+baston/correa.py; antes aun la funda de tubo), pero con el gesto generico.
+
+Fotograma inicial Y final sacados de la escena de prueba (prueba_frontal), como
+los de frente:
 
   SACAR   inicio = referencia_baston_espalda_espaldas.png   fin = referencia_baston_mano_espaldas.png
   GUARDAR inicio = referencia_baston_mano_espaldas.png      fin = referencia_baston_espalda_espaldas.png
 
   - referencia_baston_espalda_espaldas.png: reposo de espaldas SIN baston
-    (reposo_espalda_sb, fotograma base) con el baston cruzando la espalda en su
-    funda de cuero, como lo pinta la escena (sin bola).
+    (reposo_espalda_sb, fotograma base) con el baston cruzando la espalda,
+    sujeto por las dos presillas de la correa, como lo pinta la escena (sin bola).
   - referencia_baston_mano_espaldas.png: reposo de espaldas CON baston
-    (reposo_espalda_cb, base), con la FUNDA VACIA en la espalda (2026-10-10, como
-    en el perfil: si no, Veo la haria desaparecer al sacar el baston; la escena
-    ya la dibuja con el baston en la mano, de espaldas y en la vuelta).
-  REHECHAS el 2026-10-10 con la funda centrada en la columna y al 75 % (el
-  usuario: la primera version la ponia "muy a la derecha, como un pegote").
+    (reposo_espalda_cb, base), con la CORREA VACIA en la espalda (si no, Veo la
+    haria desaparecer al sacar el baston; la escena la dibuja con el baston en
+    la mano, de espaldas y en la vuelta).
+  REHECHAS el 2026-10-10 por la noche con la escena de ahora (correa cosida a
+  la tunica): la de sin baston sale identica a la de la manana; la de con
+  baston, igual salvo el borde de la correa (capa_espalda.gd pintaba la silueta
+  en negro desde que la correa cuelga del sprite: arreglado).
   1920x1080, croma #24D732, a escala de master y en la misma posicion relativa
   que en la escena, ~410 px de aire sobre la capucha. Capucha ya al color
   estandar (igualar_capucha.py). Garra VACIA: la bola la pone el juego.
@@ -46,11 +63,17 @@ claw is EMPTY: no orb, no ball, no gem, no glow, no light.
 Action, one continuous take, calm and deliberate like an old man, at natural
 speed, no slow motion:
 - 0 to 1 s: he stands still exactly as in the first frame.
-- 1 to 2.5 s: he raises his right hand over his right shoulder, grabs the
-  staff just below the claw and pulls it up and out of the two leather loops
-  on his back.
-- 2.5 to 4 s: he brings the staff over his shoulder and down to his right
-  side, and plants its bottom tip on the ground beside his right foot.
+- 1 to 2 s: he slowly raises his right hand to his right shoulder and grabs
+  the staff just below the claw.
+- 2 to 2.75 s: he pulls the staff straight up, sliding it out of the two
+  leather loops, until it is completely free and held upright beside his
+  head, the claw high above his hood.
+- 2.75 to 3.5 s: he lowers it in front of his body and for a moment holds it
+  diagonally across his chest with both hands; from behind only its two ends
+  show, the claw above his right shoulder and the bottom end beside his left
+  knee.
+- 3.5 to 4 s: he swings it upright to his right side and plants its bottom tip
+  on the ground beside his right foot.
 - 4 to 8 s: he stands still exactly as in the last frame, holding the staff
   upright in his right hand; the empty strap with its two loops stays on his
   back.
@@ -63,8 +86,8 @@ thin dark legs and bare feet; the cloak moves only a little and settles into
 the shape and patches of the last frame. Same low-poly flat-shaded hand-painted
 style, colours and lighting as the first frame, crisp frames with no motion
 blur, soft matte texture, no flicker. Sound: cloth rustle, the wood sliding out
-of the leather and the dry knock of the staff tip on the ground; no music, no
-voice.
+of the leather loops and the dry knock of the staff tip on the ground; no
+music, no voice.
 
 
 GUARDAR
@@ -87,13 +110,15 @@ no gem, no glow, no light.
 
 Action, one continuous take, calm and deliberate like an old man, at natural
 speed, no slow motion:
-- 0 to 1 s: he stands still exactly as in the first frame.
-- 1 to 2.5 s: he lifts the staff off the ground and raises it up over his
+- 0 to 1.25 s: he stands still exactly as in the first frame.
+- 1.25 to 1.75 s: he lifts the staff straight up off the ground with his right
+  hand.
+- 1.75 to 3 s: he tilts it back over his right shoulder and slides it down
+  diagonally across his back, through the two leather loops of the strap,
+  until it lies across his back as in the last frame, with the claw above his
   right shoulder.
-- 2.5 to 4 s: he slides it down diagonally through the two leather loops of
-  the strap on his back, until it lies across his back as in the last frame
-  with the claw above his right shoulder; he lets go and his arm comes back to
-  rest at his side.
+- 3 to 4 s: he lets go and his right arm comes slowly down to rest at his
+  side.
 - 4 to 8 s: he stands still exactly as in the last frame, arms relaxed at his
   sides, empty hands.
 
@@ -116,7 +141,8 @@ AL REVISAR LAS TOMAS
 4. Sin sombra en el suelo (si la pinta, se puede quitar, pero mejor sin).
 5. Al sacar, que la correa se quede en la espalda; al guardar, que el baston
    entre por las dos presillas y acabe cruzado como en la referencia.
-6. El gesto en 2-3 s, a velocidad normal.
+6. El mismo ritmo que los de frente (los tiempos de arriba, el gesto en unos
+   3 s): si va mucho mas lento o mas rapido, no casara con el de frente.
 7. La tunica: de espaldas los dos reposos tienen parches distintos (el de con
    baston lleva el chevron gris grande); que el paso no se vea como un
    derretido a mitad del gesto.
