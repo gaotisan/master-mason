@@ -1,0 +1,41 @@
+GIRO AGACHADO POR DELANTE, A SU RITMO (animacion "giro_agachado" de magnus_frames.tres)
+====================================================================================
+Fuente: _fuentes/Crouching_character_pivots_in_place_20261011020817.mp4 (24 fps,
+1280x720, 8 s), pedido con _fuentes/prompt_giro_agachado_frente.txt en Flow
+(fotogramas a video: inicio referencia_giro_agachado_inicio.png = el agachado del
+juego, c_089 de magnus_agacharse; final referencia_giro_agachado_fin.png = el
+mismo espejado). 2026-10-11.
+
+Por que un video nuevo: el giro agachado de antes (magnus_giro_agachado_video)
+giraba por detras, ensenando la espalda, y quedaba raro; y asi el baston a la
+espalda tenia que pasar por delante del cuerpo con una funda de cuero. El usuario
+pidio hacerlo por delante, como el giro de pie (magnus_giro_simetrico), "para
+facilitar la animacion del baston". Este gira hacia la camara una sola vez,
+agachado todo el rato, y acaba en el agachado espejado.
+
+Que hace el video: quieto hasta el 44; gira del 45 al 93 (de frente del 61 al
+77); quieto, mirando a la izquierda, del 94 al final (el 192 calca la
+referencia espejada).
+
+Pasos (los que no son de tools/anim, a mano, aqui apuntados):
+  1. nuevo.ps1 + frames.ps1: 01_frames, los 192 fotogramas.
+  2. 03_seleccion: f001 (el agachado), f040-f110 y f192 (el agachado espejado),
+     escalados x1,5108 (1280x720 -> 1934x1088, como el resto de Magnus). Ver
+     seleccion.txt.
+  3. centrar.ps1 -Ancho 584 -Alto 720 -MargenSuelo 30 -Eje 967 -Sobrescribir
+     fondo.ps1 -Tolerancia 35 -Radio 4
+     ../baston/pulir.py --oscuras  y  --bolsas-verdes (entre brazos y rodillas
+     quedaba verde encerrado: ~3000 px por fotograma)
+     -> 04_limpios/ (de ahi lee giro_agachado.py).
+  4. giro_agachado.py -> 04_giro/ (59 fotogramas, f042-f100 del video, en orden,
+     2,46 s a 24 fps): como giro_video.py del giro de pie con el agachado en
+     lugar del reposo: tono del agachado, colocacion (encaje al empezar y al
+     acabar), restos del croma, los extremos al agachado del juego y a su espejo
+     (forma moviendo pixeles y fundido de 5 fotogramas, quieto) y la sombra de
+     la capucha en la cara de frente. Extremos a 0,01 pasos del agachado y de
+     su espejo; el cambio por fotograma sube y baja sin saltos (max 1,5).
+  5. hoja.ps1 -Job magnus_giro_agachado_simetrico -Desde 04_giro -Fps 24 -Escala 2 -Cols 10
+     y tools/anim/_spriteframes.py (entrada 'giro_agachado', 59 f, 24 fps).
+  6. Baston a la espalda en el giro: baston/seguir.py, ahora en
+     GIROS_POR_DELANTE como el giro de pie (colocar_giro_delante: sigue a la
+     capucha, siempre detras del cuerpo, sin funda).

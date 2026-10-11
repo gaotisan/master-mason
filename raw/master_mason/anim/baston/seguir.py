@@ -89,11 +89,13 @@ def sin_baston(nombre):
 
 GIROS = {"giro", "giro_agachado"}
 # Giros que pasan POR DELANTE (de cara a la camara; 2026-10-08; el de pie sale
-# de magnus_giro_simetrico desde el 2026-10-10). Ahi la espalda no se ve nunca: el baston va siempre
-# detras del cuerpo y pasa de su sitio de perfil derecho al de perfil izquierdo
-# siguiendo a la capucha, al ritmo del giro medido por la barba
-# (colocar_giro_delante). Sin funda ni parche: no se llega a ver la espalda.
-GIROS_POR_DELANTE = {"giro"}
+# de magnus_giro_simetrico desde el 2026-10-10, el agachado de
+# magnus_giro_agachado_simetrico desde el 2026-10-11). Ahi la espalda no se ve
+# nunca: el baston va siempre detras del cuerpo y pasa de su sitio de perfil
+# derecho al de perfil izquierdo siguiendo a la capucha, al ritmo del giro
+# medido por la barba (colocar_giro_delante). Sin funda ni parche: no se llega a
+# ver la espalda.
+GIROS_POR_DELANTE = {"giro", "giro_agachado"}
 # px del pivote a la punta de abajo: alto del sprite que deja exportar.py menos el pivote
 from PIL import Image as _Im
 BAJO_PIVOTE = _Im.open(PROY / "assets/characters/baston/baston.png").height - 40

@@ -195,18 +195,15 @@ ANIMACIONES = [
     ('arranque_agachado', 'magnus_arranque_agachado', 27, 7, 20.0, False),
     ('andar_agachado',    'magnus_andar_agachado',    42, 7, 20.0, True),
     ('parada_agachado',   'magnus_parada_agachado',   31, 8, 20.0, False),
-    # Giro agachado, de un video de Flow hecho con el agachado del juego como
-    # primer y ultimo fotograma: el giro entero por detras, con TODOS sus
-    # fotogramas y a su ritmo (24 fps), entre el agachado y el agachado
-    # espejado, con fundidos en los enlaces. Arranca suave: en el video ya viene
-    # girando, asi que los primeros fotogramas duran algo mas. 2,7 s; magnus.gd
-    # voltea al terminar. (Antes: 5 vistas de Gemini; el mismo giro de dos en dos
-    # a 60 fps; y por delante con espejo. Las tres se veian a saltitos.) Los
-    # fundidos duran un refresco cada uno (0,4 a 24 fps): mas largos (antes 1,6 y
-    # 1,4) se veian como "un mini blur al principio". Ver
-    # raw/master_mason/anim/magnus_giro_agachado_video/como_se_hizo.txt.
-    ('giro_agachado',     'magnus_giro_agachado_video', 65, 10, 24.0, False, None, None,
-     [1.0, 0.4, 0.4, 1.6, 1.4, 1.25, 1.15, 1.05] + [1.0] * 55 + [0.4, 1.0]),
+    # Giro agachado POR DELANTE (2026-10-11), de un video de Flow con el agachado
+    # del juego como primer fotograma y su espejo como ultimo: un solo giro hacia
+    # la camara, agachado todo el rato, con todos sus fotogramas y a su ritmo (24
+    # fps), 59 fotogramas, 2,5 s; los extremos llevados al agachado y a su espejo.
+    # magnus.gd voltea al terminar. El de antes (magnus_giro_agachado_video) iba
+    # por detras, ensenando la espalda, y quedaba raro; por delante el baston a la
+    # espalda va siempre detras del cuerpo, como en el giro de pie. Ver
+    # raw/master_mason/anim/magnus_giro_agachado_simetrico/como_se_hizo.txt.
+    ('giro_agachado',     'magnus_giro_agachado_simetrico', 59, 10, 24.0, False),
     # Andar en diagonal (tres cuartos, de cara a la derecha y hacia la camara), de
     # Cloaked_figure_walking_diagonally (job magnus_andar_diagonal): el ciclo de dos
     # pasos del video, 81-122, en bucle. A 30 fps (el video va a 24 y anda mas
