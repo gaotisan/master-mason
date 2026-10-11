@@ -252,10 +252,13 @@ func _anadir(sf: SpriteFrames, nombres: Array) -> void:
 		sf.set_animation_speed(nombre, d["fps"])
 		sf.set_animation_loop(nombre, d["bucle"])
 		var dur: Array = d.get("duraciones", [])
+		# casilla de 292x360; mas ancha si el baston se sale (sacar_baston: la punta
+		# sale por delante al descolgarlo). Mismo centro: el sprite va centrado.
+		var ancho := int(d.get("ancho", 292))
 		for i in int(d["n"]):
 			var t := AtlasTexture.new()
 			t.atlas = hoja
-			t.region = Rect2((i % int(d["cols"])) * 292, (i / int(d["cols"])) * 360, 292, 360)
+			t.region = Rect2((i % int(d["cols"])) * ancho, (i / int(d["cols"])) * 360, ancho, 360)
 			sf.add_frame(nombre, t, dur[i] if i < dur.size() else 1.0)
 
 func gastar(cuanto: float) -> bool:

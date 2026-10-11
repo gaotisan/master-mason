@@ -17,6 +17,9 @@ CASOS = {
     "sacar": ("magnus_sacar_baston", 123, 0, (205, 55, 295, 150), (252, 98)),
     "guardar": ("magnus_guardar_baston", 93, 0, (338, 82, 418, 168), (377, 122)),
     "sacar_v3": ("magnus_sacar_baston_v3", 180, 0, (195, 65, 255, 150), (223, 107)),
+    # descolgarlo de la espalda (Character_unslings_staff_animation_20261011100434,
+    # casilla ancha de 744: 80 px de master mas a cada lado que la de 584)
+    "sacar_v4": ("magnus_sacar_baston_v4", 63, 0, (275, 60, 345, 150), (309, 100)),
 }
 FONDO = (60, 56, 54)
 # Marcas a mano (2026-10-07) sobre rejilla en 04_limpios: fotograma -> (x, y,

@@ -110,11 +110,28 @@ GOLPES_BUCLE = [22, 43, 63, 86, 109, 127, 146, 166, 187]
 ANIMS = {
     # transiciones (videos de Flow): a velocidad del video, sin bola (la garra
     # va moviendose por todos lados; la bola se esconde mientras duran)
-    # sacar: video nuevo del 2026-10-07 (Character_drawing_staff_for_game_...),
-    # entero del reposo al quedarse quieto con el en la mano: f5-f184. El de
-    # antes era magnus_sacar_baston, 1-123 (video f56-f178), garra "sacar".
-    "sacar_baston":   {"desde": 1, "hasta": 180, "fps": 24.0, "bucle": False,
-                       "job": "magnus_sacar_baston_v3", "sin_orbe": True, "garra": "sacar_v3"},
+    # sacar: video del 2026-10-11 (Character_unslings_staff_animation_20261011100434,
+    # job magnus_sacar_baston_v4): lo descuelga de la espalda (la punta de abajo
+    # sale hacia delante), lo endereza girandolo en la mano y lo planta delante;
+    # f22-f84, 2,6 s. El de antes (v3, Character_drawing_staff_for_game_...,
+    # f5-f184, 7,5 s) lo llevaba en horizontal dando la vuelta a la cabeza como
+    # una helice ("un giro raro"); antes aun, magnus_sacar_baston (garra "sacar").
+    # Casilla ancha (margen: px de master de mas a cada lado): al descolgarlo la
+    # punta del baston sale 64 px por delante de la casilla de 584. La bola sale
+    # de donde esta a la espalda (bola_desde) y llega a la del reposo en la mano.
+    # A su ritmo (duraciones iguales): este video va parejo, y la medida del
+    # movimiento llevaba los saltos de compresion del video (cada 4 fotogramas)
+    # a las duraciones: 1,42 en el 4 con el hombre quieto, 1,23 y 0,60 en el
+    # 38 y el 42 (se quedaba un fotograma y luego saltaba).
+    # alinear_y: la planta del pie a PIES_Y, como en los reposos (el usuario: "al
+    # final hay un pedazo de blur, como si los tamanos no coincidieran": la
+    # figura iba 13 px mas baja y el fundido con el reposo mezclaba dos).
+    # empalme_forma: en los fundidos de los extremos el video se lleva primero
+    # a la forma del reposo (la garra y la mano difieren 3-6 px) y luego se funde.
+    "sacar_baston":   {"desde": 1, "hasta": 63, "fps": 24.0, "bucle": False,
+                       "job": "magnus_sacar_baston_v4", "sin_orbe": True, "garra": "sacar_v4",
+                       "margen": 80, "bola_desde": "espalda", "a_su_ritmo": True, "alinear_y": True,
+                       "empalme_forma": True},
     # guardar empieza en el 17: los 16 primeros son el reposo casi quieto (0,7 s
     # de espera tras pulsar)
     "guardar_baston": {"desde": 17, "hasta": 93, "fps": 24.0, "bucle": False,
@@ -544,11 +561,37 @@ def desplazar(a, dx):
     return out
 
 
-def desplazamientos(frames):
+# Y la planta del pie, en la misma fila en todas (el reposo normal, c_01 de
+# magnus_respirando, y el reposo con el baston la tienen en la 677). Las
+# transiciones se anclaban solo en x: el sacar v4, centrado con otro margen de
+# suelo, quedaba 13 px mas bajo y al fundirse con los reposos se veian dos
+# figuras ("un pedazo de blur, como si los tamanos no coincidieran").
+PIES_Y = 677
+
+
+def pies_abajo(a, x0):
+    """Fila de la planta del pie: la ultima opaca en las columnas del pie (60
+    px desde x0, el borde izquierdo del pie; el baston plantado delante no
+    cuenta)."""
+    op = a[..., 3] > 128
+    return int(np.where(op[:, x0:x0 + 60].any(1))[0].max())
+
+
+def desplazar_y(a, dy):
+    out = np.zeros_like(a)
+    if dy >= 0:
+        out[dy:] = a[:a.shape[0] - dy]
+    else:
+        out[:dy] = a[-dy:]
+    return out
+
+
+def desplazamientos(frames, objetivo=PIES_X):
     """dx de cada fotograma para llevar los pies a PIES_X (mediana de 5: el
-    borde del pie baila 1 px por el antialias)."""
+    borde del pie baila 1 px por el antialias). objetivo: PIES_X mas el margen
+    en las casillas anchas."""
     from scipy.ndimage import median_filter
-    v = np.array([PIES_X - pies_izq(a) for a in frames], float)
+    v = np.array([objetivo - pies_izq(a) for a in frames], float)
     return [int(round(x)) for x in median_filter(v, size=5, mode="nearest")]
 
 
@@ -624,16 +667,38 @@ def postura_video(celda):
     return mejor
 
 
-def empalmar(p, destino, t):
-    """Casilla p del video llevada hacia la del reposo (t de 0 a 1)."""
+def llevar_forma(p, destino, w):
+    """La casilla p movida una fraccion w hacia la forma de destino (flujo
+    optico de destino a p, suavizado): con w = 1 tiene la silueta de destino.
+    Para que al fundirse no se vean dos figuras cuando la pose del video y la
+    del reposo difieren unos px (la garra, la mano que cuelga)."""
+    import cv2
+
+    def gris(x):
+        al = x[..., 3:4].astype(np.float32) / 255
+        return cv2.cvtColor((x[..., :3] * al + 30 * (1 - al)).astype(np.uint8), cv2.COLOR_RGB2GRAY)
+    dis = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_MEDIUM)
+    f = cv2.GaussianBlur(dis.calc(gris(destino), gris(p), None), (0, 0), 2)   # destino(x) ~ p(x + f)
+    h, w_ = p.shape[:2]
+    yy, xx = np.mgrid[0:h, 0:w_].astype(np.float32)
+    return cv2.remap(p, xx + w * f[..., 0], yy + w * f[..., 1], cv2.INTER_LINEAR, borderValue=0)
+
+
+def empalmar(p, destino, t, forma=False):
+    """Casilla p del video llevada hacia la del reposo (t de 0 a 1). Con forma,
+    antes de fundir se mueven los pixeles del video hacia la forma del reposo
+    (llevar_forma), en la misma medida."""
     t = t * t * (3 - 2 * t)
     if destino != "espalda":
-        return fundir(p, EMPALMES_IMG[destino], t)
+        q = llevar_forma(p, EMPALMES_IMG[destino], t) if forma else p
+        return fundir(q, EMPALMES_IMG[destino], t)
     pv = np.array(postura_video(p))
     tc = min(1.0, t / COLOR_HASTA)
     ts = max(0.0, (t - COLOR_HASTA) / (1 - COLOR_HASTA))
     ts = ts * ts * (3 - 2 * ts)
-    return fundir(p, reposo_espalda(*(pv * (1 - ts))), tc * tc * (3 - 2 * tc))
+    r = reposo_espalda(*(pv * (1 - ts)))
+    q = llevar_forma(p, r, t) if forma else p
+    return fundir(q, r, tc * tc * (3 - 2 * tc))
 
 
 EMPALMES_IMG = {}
@@ -710,16 +775,27 @@ if __name__ == "__main__":
             frames0 = [cargar(k, d.get("job")) for k in ks]
         n = len(ks)
         filas = (n + COLS - 1) // COLS
-        hoja = Image.new("RGBA", (292 * COLS, 360 * filas), (0, 0, 0, 0))
+        # casilla ancha: margen px de master de mas a cada lado (la hoja, a media
+        # escala, margen de mas en total); el centro es el mismo y el sprite va
+        # centrado, asi que el personaje cae en el mismo sitio
+        m = d.get("margen", 0)
+        ancho = 292 + m
+        hoja = Image.new("RGBA", (ancho * COLS, 360 * filas), (0, 0, 0, 0))
         orbe = []
         if d.get("fundido") is not None:       # ya en su sitio (y la bola tambien)
             dxs = [0] * n
         elif d.get("dx_fijo") is not None:     # el ciclo del bucle: un dx, el que casa con v2
             dxs = [DX_MANO + d["dx_fijo"]] * n
         elif d.get("job"):
-            dxs = desplazamientos(frames0)
+            dxs = desplazamientos(frames0, PIES_X + m)
         else:                                  # andar con baston: un solo dx, el de su reposo
             dxs = [DX_MANO] * n
+        # en vertical, la planta del pie a PIES_Y (con alinear_y; la camara es
+        # quieta y los pies no se mueven: un dy para todos, medido en el primero)
+        dy = 0
+        if d.get("alinear_y"):
+            dy = PIES_Y - pies_abajo(desplazar(frames0[0], dxs[0]), PIES_X + m)
+            print(nombre, "pies llevados %d px en vertical" % dy)
         afinada = PROY / f"raw/master_mason/anim/baston/garra_{d.get('garra', nombre.split('_')[0])}.json"
         if d.get("sin_orbe") and afinada.exists():
             # marcada a mano y afinada con patron (garra_patron.py); None = fuera de imagen
@@ -731,7 +807,16 @@ if __name__ == "__main__":
                     if not np.isnan(v[i - 1:i + 2]).any():
                         w[i] = (v[i - 1] + 2 * v[i] + v[i + 1]) / 4
                 v[:] = w
-            xs = xs + np.array(dxs, float)
+            xs = xs + np.array(dxs, float) - m          # a la casilla de 584
+            ys = ys + dy
+            # los primeros 8 salen de donde la deja la animacion de antes (con
+            # bola_desde): sin salto al empezar
+            if d.get("bola_desde"):
+                origen = garra_espalda() if d["bola_desde"] == "espalda" else G_REPOSO_0
+                for j in range(8):
+                    t = j / 8
+                    xs[j] = origen[0] + (xs[j] - origen[0]) * t
+                    ys[j] = origen[1] + (ys[j] - origen[1]) * t
             # los ultimos 8 fotogramas llegan justo a donde la pone la animacion
             # siguiente (reposo a la espalda o en la mano): sin salto al acabar
             destino = garra_espalda() if nombre == "guardar_baston" else G_REPOSO_0
@@ -752,21 +837,27 @@ if __name__ == "__main__":
             if g is not None and not d.get("sin_orbe"):
                 g = (g[0] + dxs[i], g[1])
             a = desplazar(a, dxs[i])
+            if dy:
+                a = desplazar_y(a, dy)
             # media escala y respecto al centro de la casilla (el sprite va centrado)
             orbe.append([round(float(g[0]) / 2 - 146, 2), round(float(g[1]) / 2 - 180, 2)] if g else None)
-            peq = Image.fromarray(a).resize((292, 360), Image.LANCZOS)
+            peq = Image.fromarray(a).resize((ancho, 360), Image.LANCZOS)
             if nombre in EMPALMES:
-                # fundido con el reposo de antes (primeros) y el de despues (ultimos)
+                # fundido con el reposo de antes (primeros) y el de despues (ultimos);
+                # en la casilla ancha, en la franja de 292 del centro (en esos
+                # fotogramas no hay nada en los margenes)
                 antes, despues = EMPALMES[nombre]
                 t_ini = 1 - i / FUNDIDO if i < FUNDIDO else 0.0
                 t_fin = (i - (n - 1 - FUNDIDO)) / FUNDIDO if i > n - 1 - FUNDIDO else 0.0
-                p = np.array(peq)
+                todo = np.array(peq)
+                p = todo[:, m // 2:m // 2 + 292]
                 if t_ini > 0:
-                    p = empalmar(p, antes, t_ini)
+                    p = empalmar(p, antes, t_ini, d.get("empalme_forma", False))
                 if t_fin > 0:
-                    p = empalmar(p, despues, t_fin)
-                peq = Image.fromarray(p)
-            hoja.paste(peq, ((i % COLS) * 292, (i // COLS) * 360))
+                    p = empalmar(p, despues, t_fin, d.get("empalme_forma", False))
+                todo[:, m // 2:m // 2 + 292] = p
+                peq = Image.fromarray(todo)
+            hoja.paste(peq, ((i % COLS) * ancho, (i // COLS) * 360))
         hoja.save(DESTINO / f"mano_{nombre}.png")
         _HOJAS[nombre] = n
         # Duracion de cada fotograma (SpriteFrames la admite por fotograma). Los
@@ -775,7 +866,7 @@ if __name__ == "__main__":
         # lo que se mueve hasta el siguiente, respecto a la media de su entorno:
         # misma velocidad aparente, sin quitar ni inventar fotogramas.
         duraciones = [1.0] * n
-        if d.get("job") and d.get("dx_fijo") is None:
+        if d.get("job") and d.get("dx_fijo") is None and not d.get("a_su_ritmo"):
             comp = [desplazar(f, dx)[..., :3] * (desplazar(f, dx)[..., 3:] / 255.0)
                     for f, dx in zip(frames0, dxs)]
             mov = np.array([np.abs(comp[i + 1] - comp[i]).mean() for i in range(n - 1)] + [0.0])
@@ -786,6 +877,8 @@ if __name__ == "__main__":
         info[nombre] = {"hoja": f"res://assets/characters/baston/mano_{nombre}.png", "n": n,
                         "cols": COLS, "fps": d["fps"], "bucle": d["bucle"], "orbe": orbe,
                         "duraciones": duraciones}
+        if m:
+            info[nombre]["ancho"] = ancho          # baston.gd corta la hoja con este ancho de casilla
         print(nombre, n, "fotogramas; sin bola en", sum(o is None for o in orbe))
     # el avance, medido en las hojas que acaban de salir (ver avance_en_hoja)
     PASO["avance_ciclo_andar"] = [round(float(x), 3) for x in avance_en_hoja("andar", True)]

@@ -1,0 +1,77 @@
+PROMPT PARA SACAR EL BASTON DE PERFIL, COMO EL DE FRENTE (Google Flow / Veo 3.1, "Frames to Video", 2026-10-11)
+==============================================================================================================
+Por que: el sacar de perfil de ahora (job magnus_sacar_baston_v3, video
+Character_drawing_staff_for_game_20261007173433) estira el brazo hacia delante y
+luego lleva el baston en horizontal dando la vuelta alrededor de la cabeza, como
+una helice (fotogramas 30-80 de la animacion), antes de ponerlo vertical: el
+usuario lo ve "un giro raro". El de frente (magnus_sacar_baston_frente) gusta:
+sube la mano por encima del hombro, saca el baston hacia arriba y lo baja
+delante, sin barridos. Aqui se pide ese mismo gesto, visto de lado.
+
+En Flow, modo de fotogramas a video:
+  - fotograma inicial: referencia_sacar_perfil_inicio.png  (el reposo del juego mirando a
+    la derecha, con el baston a la espalda como lo pinta el juego: solo asoma la
+    garra, VACIA, detras de la capucha)
+  - fotograma final:   referencia_sacar_perfil_fin.png     (el reposo con el baston en la
+    mano, el de ahora del juego, garra VACIA)
+  (las dos aqui en _fuentes/ y copiadas en Descargas; 1920x1080, croma #24D732,
+  sprites de master 1:1, los pies en y=1040 y ~410 px de aire sobre la capucha
+  para que el baston no se salga al levantarlo)
+  - 16:9, Veo 3.1 - Quality, 1080p, 8 s, con audio. Sacar 3-4 tomas.
+  El gesto a la velocidad real del juego, sin camara lenta (acelerar o diezmar
+  se ve a saltitos).
+
+Que mirar en cada toma, por orden:
+  1. que NO gire el baston en horizontal ni lo haga girar alrededor de la cabeza:
+     siempre casi vertical (lo justo de inclinado para pasarlo por el hombro)
+  2. de perfil todo el rato: no se vuelve hacia la camara ni ensena la espalda
+  3. el baston entero dentro del cuadro, tambien al levantarlo; un solo baston,
+     que no se duplica, no desaparece ni cambia de forma
+  4. la garra vacia: sin bola, sin brillo
+  5. el gesto en 2-3 s y luego quieto en la pose final (la del ultimo fotograma)
+  6. pies quietos (a lo sumo un cambio de peso), cabeza a la misma altura
+  7. la capucha como la del primer fotograma (sin pico de sombrero de mago)
+  8. nada encima (controles, marcas de agua, texto)
+Si sale algo encima del personaje, pedir otra toma pronto.
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no cast shadow on the ground, no floor line, no props,
+no text, no logos, no on-screen interface or player controls. The character
+stays full-body in frame, same size and same place on screen. The whole staff
+stays inside the frame at all times, even when he lifts it above his head.
+
+2D side view. The old hooded pilgrim from the first frame stands in exactly the
+same pose, in strict side profile facing RIGHT, and he stays in that side
+profile for the whole video: he never turns his body or his head towards the
+camera and never shows his back. He carries his long wooden staff on his back,
+upright, tucked under the collar of his cloak; only its top, an open claw of
+curled root fingers, shows behind his hood. The claw is EMPTY: no orb, no ball,
+no gem, no glow, no light. His head is covered by the soft grey cloth hood of
+his cloak, exactly the shape of the first frame: part of the cloak, not a hat,
+no tall point, no cone. White beard, long brown faceted patchwork cloak, thin
+dark legs and bare feet.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he raises his near hand up behind his head, grabs the staff just
+  below the claw and pulls it straight up out of the back of his cloak, keeping
+  it upright, until its lower end is free.
+- 2.5 to 4 s: holding it upright, he lifts it over his shoulder to the front
+  and lowers it in front of him in one smooth downward movement, and plants its
+  bottom tip on the floor ahead of his feet. The staff stays nearly vertical the
+  whole time, only slightly tilted as it passes over his shoulder: it is never
+  horizontal, it never spins or twirls and it never swings around his head.
+- 4 to 8 s: he stands still exactly as in the last frame, holding the staff
+  upright in front of him in one hand at chest height, its tip on the floor.
+
+His feet stay in place, at most a small shift of weight; his head stays at the
+same height. The cloak moves only a little and settles into the shape of the
+last frame. Same low-poly flat-shaded hand-painted style, colours and lighting
+as the first frame, crisp frames with no motion blur, soft matte texture, no
+flicker. Sound: cloth rustle, the wood sliding out of the cloak and the dry
+knock of the staff tip on the floor; no music, no voice.
