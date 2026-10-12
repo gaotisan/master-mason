@@ -7,6 +7,9 @@ extends SceneTree
 ##   CAPTURA_ANIM   reposo (por defecto reposo_frente_sb)
 ##   CAPTURA_CON    1: modo con baston (de el, solo la funda vacia; la bola no)
 ##   CAPTURA_NOMBRE fichero (por defecto baston_espalda_reposo.png)
+##   CAPTURA_FILA_DE sin baston: el baston a la espalda en la fila de la correa
+##                  vacia de esa animacion del modo con baston (la espalda nueva sin
+##                  baston, magnus_espalda_sin_baston: la correa en el mismo sitio)
 ## Con el reposo de frente sin baston: el baston a la espalda (solo asoma la
 ## garra). De espaldas: el baston entero y la funda (sin baston), o la funda vacia
 ## (con baston).
@@ -41,6 +44,9 @@ func _run() -> void:
 	esc._escala = 1.0
 	esc._y = esc.SUELO_SALIDA
 	esc._poner_anim(anim, 0)
+	var fila_de := OS.get_environment("CAPTURA_FILA_DE")
+	if fila_de != "":
+		esc._espalda[anim] = esc._vacia[fila_de]
 	esc._colocar()
 	if con:
 		esc._bola.visible = false        # la bola va en la garra del sprite: fuera

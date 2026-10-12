@@ -1,0 +1,19 @@
+ANDAR DE ESPALDAS SIN BASTON, v3 (2026-10-12)
+=============================================
+Video: _fuentes/Old_pilgrim_walking_away_20261012112519.mp4 (Flow; inicio =
+referencia_espalda_sin_baston.png, la espalda del chevron; prompt "ANDAR DE ESPALDAS
+SIN BASTON" de _fuentes/prompt_espalda_sin_baston_vuelta_andar.txt, ya con los pies
+oscuros). Repite el v2, que salio descalzo y con las piernas color carne. Pies
+oscuros (un poco anchos, dice el usuario; la IA no los saca mejores), chevron todo el
+rato, sin sombra. Anda en el sitio como el v2 (la camara va con el).
+Montado en la secuencia sin baston de la escena frontal: ver
+../magnus_secuencia_frontal/como_se_hizo.txt y secuencia.py (TRAMOS: 24 quieto, primer
+paso en el 25; bucle 58-93, ciclo de 36 = 1,5 s, cierra a 0,84).
+Pasos: nuevo / frames / elegir "1-192"; croma.py; ../magnus_secuencia_frontal/medir.py;
+../magnus_secuencia_frontal/montar_en_sitio.py magnus_andar_espalda_sin_v3
+
+PIERNAS (2026-10-12): Veo las saco grises (calzas) y gruesas. ../magnus_secuencia_frontal/
+igualar_piernas.py las lleva al color del reposo de espaldas sin baston (transferencia en
+Lab con las estadisticas de todo el video; brillos comprimidos) y las adelgaza (correr
+x0,72, andar x0,85: espinilla y pie como en el andar aceptado). Veo intacto en _todos_veo/;
+el arreglo, sobre _todos/. Si se vuelve a montar, volver a pasarlo.

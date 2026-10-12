@@ -56,9 +56,55 @@ CONFIG = {
         # alejandose, 649 -> 579 en 60): la camara retrocede con el. Andaria casi
         # en el sitio: el de frente avanza por ciclo lo mismo que el de espaldas.
         paso_frente_como_espalda=True,
-        FRENTE=dict(a=38, P=31, m=8), ESPALDA=dict(a=170, P=36, m=6),
-        REPOSO_F=(1, 17), REPOSO_B=(224, 240), VUELTA=(119, 152), ARR_F0=18,
-        BASE_F=9, BASE_B=232),
+        FRENTE=dict(a=38, P=31, m=8),
+        REPOSO_F=(1, 17), ARR_F0=18, BASE_F=9,
+        # (2026-10-12) LA VUELTA Y EL ANDAR DE ESPALDAS, DE OTROS VIDEOS: los de este eran
+        # otra tunica (sin el chevron). Pedidos con nuestras referencias (prompt_espalda_
+        # sin_baston_vuelta_andar.txt) y montados con montar_en_sitio.py (la vuelta, con
+        # la transformacion fija; el andar, en el sitio y corregido de tamano). TRAMOS:
+        # la linea de tiempo (desde, hasta, job, su primer fotograma); lo de frente sigue
+        # siendo de este video (1-118). La vuelta: 44 (justo antes de girar) a 102 (gira
+        # entre el 46 y el 100 y luego se cuadra muy despacio: el resto lo hacen puentes
+        # de N_PUENTE_VUELTA_B). El andar (v3, 2026-10-12: el v2 salio descalzo, con las
+        # piernas color carne; repetido con el prompt de los pies oscuros): 24 (quieto; el
+        # primer paso, en el 25) a 106; el bucle, 58-93 (36: el que mejor cierra pronto).
+        # La vuelta y el correr de frente tambien salieron descalzos pero con las piernas
+        # oscuras: pies oscurecidos con oscurecer_pies.py (en su _todos).
+        TRAMOS=[(1, 118, 'magnus_secuencia_frontal_sin', 1),
+                (119, 177, 'magnus_vuelta_sin_v2', 44),
+                (178, 260, 'magnus_andar_espalda_sin_v3', 24),
+                (261, 423, 'magnus_correr_frente', 18),
+                (424, 590, 'magnus_correr_espalda_v2', 18)],
+        # (2026-10-12) LAS CARRERAS (D1 del guion: se corre de frente y de espaldas solo con
+        # el baston guardado). Videos en el sitio (prompt_correr_frente_espaldas.txt; la
+        # primera de espaldas traia sombra en el suelo: magnus_correr_espalda/quitar_sombra.py
+        # antes del croma), montados con montar_en_sitio.py. En fotogramas del video: arranque
+        # (del 18, quieto, al 47; 1,25 s como el de perfil) y de ahi al bucle por la fase
+        # 'entra'; bucle (a, P, m: el que mejor cierra); parada (desde que empieza a
+        # frenar hasta que se planta), a la que se entra desde la fase 'sale' del
+        # bucle con un puente (frenando ya no corre igual: ningun fotograma del bucle casa).
+        # La velocidad, la del andar por la de perfil (435 / 192). La de espaldas es la v2
+        # (magnus_correr_espalda_v2, pies oscuros, sin sombra): ciclo de 19 (0,79 s, el de
+        # perfil) y mucho mas regular que la primera; corre a su ritmo hasta el 145 y frena
+        # del 146 al 170; la parada acaba en el 184, lo mas parecido al reposo (de ahi a
+        # 192 solo se asienta la tunica). 'entra' y 'sale', por la fase del ciclo (sale:
+        # 4 fotogramas antes de la parada, los del puente).
+        CARRERAS=dict(
+            frente=dict(desde=261, video0=18, arr=(18, 47), bucle=dict(a=88, P=21, m=4), entra=5,
+                        parada=(140, 180), sale=10),
+            espalda=dict(desde=424, video0=18, arr=(18, 47), bucle=dict(a=78, P=19, m=4), entra=8,
+                         parada=(146, 184), sale=7)),
+        VEL_CORRER=435.0 / 192.0,
+        VUELTA=(119, 177), ESPALDA=dict(a=212, P=36, m=6), REPOSO_B=(178, 178), BASE_B=178,
+        # el andar nuevo va en el sitio: el avance, la zancada por ciclo del de antes
+        # (0,00227 por fotograma en un ciclo de 36), acelerando desde el primer paso
+        # (ARRANCA_B[0]) hasta el bucle (ARRANCA_B[1]); asi el de frente (que avanza lo
+        # mismo por ciclo, paso_frente_como_espalda) no cambia
+        AVANCE_CICLO_B=0.00227 * 36, ARRANCA_B=(179, 212), N_PUENTE_VUELTA_B=6,
+        # (2026-10-11) el reposo de espaldas, con la espalda "oficial" (la del chevron:
+        # la de con baston sin el baston), no la de este video (otra tunica: al sacar el
+        # baston de espaldas se veia el cambio). Ver magnus_espalda_sin_baston.
+        ESPALDA_NUEVA=os.path.join('magnus_espalda_sin_baston', 'espalda_sin_baston.png')),
 }
 JOB = sys.argv[1] if len(sys.argv) > 1 else 'magnus_secuencia_frontal'
 C = CONFIG[JOB]
@@ -75,6 +121,45 @@ H1 = C['H1']                     # capucha-pies de video con la que la escena ti
 FPS = 24.0
 FRENTE, ESPALDA = C['FRENTE'], C['ESPALDA']
 REPOSO_F, REPOSO_B, VUELTA = C['REPOSO_F'], C['REPOSO_B'], C['VUELTA']
+if C.get('TRAMOS'):
+    # la h de la linea de tiempo: lo de este video, la suya; la vuelta, en el sitio
+    # (H1); el andar nuevo, la de una camara fija con el avance de AVANCE_CICLO_B (H1/h
+    # es 1/escala: sube v por fotograma, de 0 a v_c entre ARRANCA_B[0] y [1])
+    _v_c = C['AVANCE_CICLO_B'] / ESPALDA['P']
+    _a0, _a1 = C['ARRANCA_B']
+    H = []
+    VEL = {}          # carreras: cambio de 1/escala en cada fotograma de la linea de tiempo
+    _carr = {c['desde']: (cara, c) for cara, c in C.get('CARRERAS', {}).items()}
+    for _d, _h, _job, _p in C['TRAMOS']:
+        _acum = 0.0
+        for _k in range(_d, _h + 1):
+            if _job == JOB:
+                H.append(MED['h'][_p + (_k - _d) - 1])
+            elif _d == VUELTA[0]:
+                H.append(H1)
+            elif _d in _carr:
+                # carrera: de 0 a v_run en el arranque, v_run, y a 0 en la parada; v_run, la
+                # del andar de esa cara (el de frente: el de espaldas por P_b / P_f) por VEL_CORRER
+                _cara, _c = _carr[_d]
+                _v_and = _v_c * (ESPALDA['P'] / FRENTE['P'] if _cara == 'frente' else 1.0)
+                _vr = _v_and * C['VEL_CORRER']
+                _vv = _p + (_k - _d)
+                _s = lambda x: x * x * (3 - 2 * x)
+                if _vv < _c['arr'][0]:
+                    _f = 0.0
+                elif _vv <= _c['arr'][1]:
+                    _f = _s((_vv - _c['arr'][0]) / float(_c['arr'][1] - _c['arr'][0]))
+                elif _vv < _c['parada'][0]:
+                    _f = 1.0
+                else:
+                    _f = 1.0 - _s(min((_vv - _c['parada'][0]) / float(_c['parada'][1] - _c['parada'][0]), 1.0))
+                H.append(H1 / (1.0 - _acum) if _cara == 'frente' else H1 / (1.0 + _acum))
+                VEL[_k] = (-1.0 if _cara == 'frente' else 1.0) * _vr * _f
+                _acum += _vr * _f
+            else:
+                H.append(H1 / (1.0 + _acum))
+                _t = min(max((_k - _a0) / float(_a1 - _a0), 0.0), 1.0)
+                _acum += _v_c * _t * _t * (3 - 2 * _t)
 ARR_F = (C['ARR_F0'], FRENTE['a'] + FRENTE['m'] - 1)
 ARR_B = (VUELTA[1] + 1, ESPALDA['a'] + ESPALDA['m'] - 1)     # sigue a la vuelta en el video
 # EL REPOSO (2026-10-09): UN fotograma (BASE_F / BASE_B, los dos pies apoyados) y
@@ -91,11 +176,45 @@ ARR_B = (VUELTA[1] + 1, ESPALDA['a'] + ESPALDA['m'] - 1)     # sigue a la vuelta
 RESP = dict(PERIODO=2.5, FPS_R=12.0, SUBE=3.5, ENSANCHA=0.012)
 
 _cache = {}
+if C.get('TRAMOS'):
+    # la capucha al estandar al leer cada fotograma (capucha() luego no la toca): lo de
+    # este video con su ajuste de siempre (lo que se usa es de frente); los videos
+    # nuevos, medida en cada fotograma y suavizada en el tiempo (cada video la pinta a
+    # su manera, y en la vuelta cambia de un lado al otro)
+    CAPUCHA_D = IC.medir(IC.estandar())
+    CAPUCHA_F_ORIG = IC.medir([Image.open(os.path.join(TODOS, 'c_%03d.png' % C['BASE_F'])).convert('RGBA')])
+    _capucha_tramo = {}
+
+
+def _de_tramo(k):
+    for d_, h_, job_, p_ in C['TRAMOS']:
+        if d_ <= k <= h_:
+            return d_, h_, job_, p_ + (k - d_)
+    raise IndexError('fotograma %d fuera de los tramos' % k)
+
+
+def _capucha_de(d_, h_, job_, p_):
+    if job_ not in _capucha_tramo:
+        from scipy.ndimage import gaussian_filter1d
+        ims = [Image.open(os.path.join(ANIM, job_, '_todos', 'c_%03d.png' % (p_ + i))).convert('RGBA') for i in range(h_ - d_ + 1)]
+        med = gaussian_filter1d(np.array([np.concatenate(IC.medir([im])) for im in ims]), 4, axis=0, mode='nearest')
+        _capucha_tramo[job_] = (p_, med)
+    return _capucha_tramo[job_]
 
 
 def F(k):
     if k not in _cache:
-        _cache[k] = Image.open(os.path.join(TODOS, 'c_%03d.png' % k)).convert('RGBA')
+        if C.get('TRAMOS'):
+            d_, h_, job_, j = _de_tramo(k)
+            im = Image.open(os.path.join(ANIM, job_, '_todos', 'c_%03d.png' % j)).convert('RGBA')
+            if job_ == JOB:
+                im = IC.aplicar(im, CAPUCHA_F_ORIG, CAPUCHA_D)
+            else:
+                p0, med = _capucha_de(d_, h_, job_, _de_tramo(d_)[3])
+                im = IC.aplicar(im, (med[j - p0, :3], med[j - p0, 3:]), CAPUCHA_D)
+            _cache[k] = im
+        else:
+            _cache[k] = Image.open(os.path.join(TODOS, 'c_%03d.png' % k)).convert('RGBA')
     return _cache[k]
 
 
@@ -226,6 +345,11 @@ def bola(im):
 # ---------------------------------------------------------------- piezas
 anims = {}      # nombre -> lista de imagenes
 BASE_F, BASE_B = C['BASE_F'], C['BASE_B']
+# la capucha de este video (de frente y de espaldas) y la estandar: ver "a disco"
+if C.get('TRAMOS'):
+    CAPUCHA_F = CAPUCHA_B = CAPUCHA_D        # F ya la deja al estandar: capucha() no la toca
+else:
+    CAPUCHA_F, CAPUCHA_B, CAPUCHA_D = IC.medir([F(BASE_F)]), IC.medir([F(BASE_B)]), IC.medir(IC.estandar())
 
 
 def _baston_x(k):
@@ -237,13 +361,31 @@ def _baston_x(k):
 
 
 anims['reposo_frente'+SUF], S_RESP, GEO_F = respiracion(F(BASE_F), _baston_x(BASE_F))
-anims['reposo_espalda'+SUF], _, GEO_B = respiracion(F(BASE_B), _baston_x(BASE_B))
+if C.get('ESPALDA_NUEVA'):
+    # ya lleva la capucha al estandar: se pasa al color de este video (el ajuste al
+    # reves) para que capucha() la deje como estaba, y los puentes la traten igual
+    BASE_B_IMG = IC.aplicar(Image.open(os.path.join(ANIM, C['ESPALDA_NUEVA'])).convert('RGBA'), CAPUCHA_D, CAPUCHA_B)
+else:
+    BASE_B_IMG = F(BASE_B)
+anims['reposo_espalda'+SUF], _, GEO_B = respiracion(BASE_B_IMG, _baston_x(BASE_B))
 K_RESP = len(S_RESP)
 anims['arranque_frente'+SUF] = [F(k) for k in range(ARR_F[0], ARR_F[1] + 1)]
 anims['arranque_espalda'+SUF] = [F(k) for k in range(ARR_B[0], ARR_B[1] + 1)]
 anims['andar_frente'+SUF] = bucle(FRENTE)
 anims['andar_espalda'+SUF] = bucle(ESPALDA)
 anims['vuelta'+SUF] = [F(k) for k in range(VUELTA[0], VUELTA[1] + 1)]
+CARRERAS = C.get('CARRERAS', {})
+
+
+def _t(c, v):
+    """Fotograma v del video de una carrera -> la linea de tiempo."""
+    return c['desde'] + (v - c['video0'])
+
+
+for _cara, _c in CARRERAS.items():
+    anims['arranque_correr_%s%s' % (_cara, SUF)] = [F(_t(_c, v)) for v in range(_c['arr'][0], _c['arr'][1] + 1)]
+    anims['correr_%s%s' % (_cara, SUF)] = bucle(dict(_c['bucle'], a=_t(_c, _c['bucle']['a'])))
+    anims['parada_correr_%s%s' % (_cara, SUF)] = [F(_t(_c, v)) for v in range(_c['parada'][0], _c['parada'][1] + 1)]
 pj_f = pies_juntos(anims['andar_frente'+SUF]); pj_b = pies_juntos(anims['andar_espalda'+SUF])
 print('pies juntos: frente', pj_f, 'espalda', pj_b)
 
@@ -263,12 +405,14 @@ def hacer(nombre, de, a, img_de, img_a, n):
 
 
 VF0, VF1 = F(VUELTA[0]), F(VUELTA[1])
+# la vuelta de otro video acaba algo antes de cuadrarse: sus puentes de espaldas, mas largos
+N_VB = C.get('N_PUENTE_VUELTA_B', 4)
 # del reposo se sale siempre desde el fotograma base (la escena antes exhala deprisa)
 RF0, RB0 = anims['reposo_frente'+SUF][0], anims['reposo_espalda'+SUF][0]
 hacer(PRE + 'rf_arr', ['reposo_frente'+SUF, 0], ['arranque_frente'+SUF, 0], RF0, anims['arranque_frente'+SUF][0], 3)
 hacer(PRE + 'rf_vu', ['reposo_frente'+SUF, 0], ['vuelta'+SUF, 0], RF0, VF0, 4)
 hacer(PRE + 'rb_arr', ['reposo_espalda'+SUF, 0], ['arranque_espalda'+SUF, 0], RB0, anims['arranque_espalda'+SUF][0], 3)
-hacer(PRE + 'rb_vu', ['reposo_espalda'+SUF, 0], ['vuelta'+SUF, len(anims['vuelta'+SUF]) - 1], RB0, VF1, 4)
+hacer(PRE + 'rb_vu', ['reposo_espalda'+SUF, 0], ['vuelta'+SUF, len(anims['vuelta'+SUF]) - 1], RB0, VF1, N_VB)
 for j in pj_f:
     im = anims['andar_frente'+SUF][j]
     hacer(PRE + 'af%d_rf' % j, ['andar_frente'+SUF, j], ['reposo_frente'+SUF, REPOSO_ENTRADA], im, anims['reposo_frente'+SUF][0], 5)
@@ -276,12 +420,21 @@ for j in pj_f:
 for j in pj_b:
     im = anims['andar_espalda'+SUF][j]
     hacer(PRE + 'ab%d_rb' % j, ['andar_espalda'+SUF, j], ['reposo_espalda'+SUF, REPOSO_ENTRADA], im, anims['reposo_espalda'+SUF][0], 5)
-    hacer(PRE + 'ab%d_vu' % j, ['andar_espalda'+SUF, j], ['vuelta'+SUF, len(anims['vuelta'+SUF]) - 1], im, VF1, 4)
+    hacer(PRE + 'ab%d_vu' % j, ['andar_espalda'+SUF, j], ['vuelta'+SUF, len(anims['vuelta'+SUF]) - 1], im, VF1, N_VB)
 # salidas de la vuelta: hacia delante acaba de espaldas (153); al reves, de frente (121)
-hacer(PRE + 'vu_rb', ['vuelta'+SUF, len(anims['vuelta'+SUF]) - 1], ['reposo_espalda'+SUF, REPOSO_ENTRADA], VF1, anims['reposo_espalda'+SUF][0], 4)
+hacer(PRE + 'vu_rb', ['vuelta'+SUF, len(anims['vuelta'+SUF]) - 1], ['reposo_espalda'+SUF, REPOSO_ENTRADA], VF1, anims['reposo_espalda'+SUF][0], N_VB)
 hacer(PRE + 'vu_rf', ['vuelta'+SUF, 0], ['reposo_frente'+SUF, REPOSO_ENTRADA], VF0, anims['reposo_frente'+SUF][0], 4)
 hacer(PRE + 'vu_arrf', ['vuelta'+SUF, 0], ['arranque_frente'+SUF, 0], VF0, anims['arranque_frente'+SUF][0], 4)
-# 153 -> 154 (arranque de espaldas) es seguido en el video: sin puente
+# 153 -> 154 (arranque de espaldas) es seguido en el video: sin puente. Con la vuelta y
+# el andar de videos distintos (TRAMOS) no lo es: puente vu_arrb (la escena lo usa si esta)
+for _cara, _c in CARRERAS.items():
+    _x, _rep = ('f' if _cara == 'frente' else 'b'), 'reposo_%s%s' % (_cara, SUF)   # f / b, como rb_, ab_
+    _arr, _cor, _par = 'arranque_correr_%s%s' % (_cara, SUF), 'correr_%s%s' % (_cara, SUF), 'parada_correr_%s%s' % (_cara, SUF)
+    hacer(PRE + 'r%s_arrc' % _x, [_rep, 0], [_arr, 0], anims[_rep][0], anims[_arr][0], 4)
+    hacer(PRE + 'c%s_pc' % _x, [_cor, _c['sale']], [_par, 0], anims[_cor][_c['sale']], anims[_par][0], 3)
+    hacer(PRE + 'pc%s_r%s' % (_x, _x), [_par, len(anims[_par]) - 1], [_rep, REPOSO_ENTRADA], anims[_par][-1], anims[_rep][0], 4)
+if C.get('TRAMOS'):
+    hacer(PRE + 'vu_arrb', ['vuelta'+SUF, len(anims['vuelta'+SUF]) - 1], ['arranque_espalda'+SUF, 0], VF1, anims['arranque_espalda'+SUF][0], N_VB)
 
 
 # ---------------------------------------------------------------- para la escena
@@ -478,7 +631,7 @@ def baston_espalda(ims, bucle_, thetas, cuerpo):
 # y no casaba con la de con baston (de espaldas, B cambia de modo al momento).
 # Cada sprite con la mezcla de los dos ajustes segun hacia donde mira: 0 de
 # frente, 1 de espaldas, en la vuelta (1 - cos THETA) / 2.
-CAPUCHA_F, CAPUCHA_B, CAPUCHA_D = IC.medir([F(BASE_F)]), IC.medir([F(BASE_B)]), IC.medir(IC.estandar())
+# (CAPUCHA_F, CAPUCHA_B y CAPUCHA_D: arriba, antes de las piezas)
 TH_CAPUCHA = giros_vuelta(anims['vuelta' + SUF])[0]
 
 
@@ -486,14 +639,19 @@ def capucha(im, nombre, k):
     if nombre.startswith('vuelta'):
         t = (1 - np.cos(np.radians(TH_CAPUCHA[k]))) / 2
     else:
-        t = 1.0 if ('espalda' in nombre or 'rb' in nombre or nombre.startswith(PRE + 'ab')) else 0.0
+        t = 1.0 if ('espalda' in nombre or 'rb' in nombre or nombre.startswith(PRE + 'ab') or nombre.startswith(PRE + 'cb')) else 0.0
     fuente = tuple(a * (1 - t) + b * t for a, b in zip(CAPUCHA_F, CAPUCHA_B))
     return IC.aplicar(im, fuente, CAPUCHA_D)
 
 
 lista = []
-for carpeta, job, cuales in ((SAL, JOB, [n for n in sorted(anims) if not n.startswith(PRE)]),
-                             (SAL_PT, JOB_PT, [n for n in sorted(anims) if n.startswith(PRE)])):
+JOB_CO = JOB + '_co'                       # las carreras, en otra hoja (no caben con lo demas)
+SAL_CO = os.path.join(ANIM, JOB_CO, '04_limpios')
+_grupos = [(SAL, JOB, [n for n in sorted(anims) if not n.startswith(PRE) and 'correr' not in n]),
+           (SAL_PT, JOB_PT, [n for n in sorted(anims) if n.startswith(PRE)])]
+if CARRERAS:
+    _grupos.append((SAL_CO, JOB_CO, [n for n in sorted(anims) if not n.startswith(PRE) and 'correr' in n]))
+for carpeta, job, cuales in _grupos:
     os.makedirs(carpeta, exist_ok=True)
     for f in glob.glob(os.path.join(carpeta, '*.png')):
         os.remove(f)
@@ -506,7 +664,7 @@ for carpeta, job, cuales in ((SAL, JOB, [n for n in sorted(anims) if not n.start
         n = len(anims[nombre])
         orden = rf_orden if nombre == 'reposo_frente'+SUF else rb_orden if nombre == 'reposo_espalda'+SUF else range(n)
         idx = [indice[(nombre, k)] for k in orden]
-        bucle_ = nombre.startswith('reposo') or nombre.startswith('andar')
+        bucle_ = nombre.startswith('reposo') or nombre.startswith('andar') or nombre.startswith('correr')
         lista.append([nombre, job, len(idx), RESP['FPS_R'] if nombre.startswith('reposo') else FPS, bucle_, idx])
     print(job, len(orden_hoja), 'sprites')
 json.dump(lista, open(os.path.join(D, 'animaciones.json'), 'w'))
@@ -550,6 +708,23 @@ escena = {
     'k_reposo': K_RESP, 'fps_reposo': RESP['FPS_R'],
     'puentes': puentes, 'orbe': orden_bola, 'escala_bola': round(39.3 / 36.0, 3), 'h1': H1,
 }
+for _cara, _c in CARRERAS.items():
+    # correr: como andar (paso por fotograma en el bucle, h en el arranque y en la
+    # parada), y por donde se sale del bucle a la parada ('a_parada': el puente y la fase)
+    _x = 'f' if _cara == 'frente' else 'b'
+    _arr, _cor, _par = 'arranque_correr_%s%s' % (_cara, SUF), 'correr_%s%s' % (_cara, SUF), 'parada_correr_%s%s' % (_cara, SUF)
+    escena['paso'][_cor] = paso(dict(a=_t(_c, _c['bucle']['a']), P=_c['bucle']['P']))
+    escena['h'][_arr] = [H[k - 1] for k in range(_t(_c, _c['arr'][0]), _t(_c, _c['arr'][1]) + 1)]
+    escena['h'][_par] = [H[k - 1] for k in range(_t(_c, _c['parada'][0]), _t(_c, _c['parada'][1]) + 1)]
+    # y como sumar a 1/escala desde donde este (la h relativa se dispara en la parada:
+    # en la carrera el avance sintetico es grande): lo acumulado en cada fotograma
+    for _n, (_v0, _v1) in ((_arr, _c['arr']), (_par, _c['parada'])):
+        _ks = range(_t(_c, _v0), _t(_c, _v1) + 1)
+        escena.setdefault('avance', {})[_n] = [round(float(sum(VEL[j] for j in _ks if j < k)), 5) for k in _ks]
+    escena['entra_bucle'][_arr] = [_cor, _c['entra']]
+    escena.setdefault('a_parada', {})[_cor] = [PRE + 'c%s_pc' % _x, _c['sale']]
+    escena['puente_reposo']['reposo_%s%s' % (_cara, SUF)]['arrc'] = PRE + 'r%s_arrc' % _x
+    print('correr de %s: paso %.5f; arranque %d, bucle %d, parada %d' % (_cara, escena['paso'][_cor], len(anims[_arr]), len(anims[_cor]), len(anims[_par])))
 if C.get('paso_frente_como_espalda'):
     escena['paso']['andar_frente' + SUF] = -escena['paso']['andar_espalda' + SUF] * ESPALDA['P'] / FRENTE['P']
     escena['h']['arranque_frente' + SUF] = [H1] * len(escena['h']['arranque_frente' + SUF])   # sin acercarse
@@ -570,9 +745,9 @@ if True:
         if nombre.startswith('vuelta'):
             thetas = th_vu
         else:
-            espalda = 'espalda' in nombre or 'rb' in nombre or nombre.startswith(PRE + 'ab')
+            espalda = 'espalda' in nombre or 'rb' in nombre or nombre.startswith(PRE + 'ab') or nombre.startswith(PRE + 'cb')
             thetas = [180.0 if espalda else 0.0] * len(ims)
-        filas = baston_espalda(ims, nombre.startswith('andar'), thetas, CUERPO)
+        filas = baston_espalda(ims, nombre.startswith('andar') or nombre.startswith('correr'), thetas, CUERPO)
         if nombre.startswith('reposo'):
             # el de la base, y sube con los hombros al respirar (va cosido a la tunica)
             m = np.median(np.array(filas, float), 0).tolist()
@@ -582,6 +757,14 @@ if True:
             filas = [[round(m[0], 2), round(m[1] - RESP['SUBE'] * sube * S_RESP[k] / 2, 2), round(m[2], 4), round(m[3], 3),
                       round(m[4], 3)] for k in range(K_RESP)]
         escena[CLAVE][nombre] = [filas[k] for k in orden]
+if C.get('ESPALDA_NUEVA'):
+    # el baston en la fila de la correa vacia del reposo de espaldas con baston: es la
+    # misma figura con la misma respiracion, y asi la correa esta en el mismo sitio
+    # en los dos modos (sacar / guardar de espaldas van de una a la otra)
+    _cb = json.load(open(os.path.join(PROY, 'assets', 'characters', 'magnus', CONFIG['magnus_secuencia_frontal']['json'])))
+    escena[CLAVE]['reposo_espalda' + SUF] = _cb['funda_espalda']['reposo_espalda_cb']
+
+
 def correa_pegada_a_la_tela(escena):
     """La correa VACIA (con el baston en la mano) cosida a la tunica (2026-10-10).
 

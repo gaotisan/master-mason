@@ -1,5 +1,23 @@
 PROMPTS PARA SACAR Y GUARDAR EL BASTON DE ESPALDAS (Google Flow, Frames to Video)
 ===============================================================================
+*** DESCARTADO (2026-10-11, noche) ***: tampoco con el gesto de colgarselo (v3)
+salen bien: el baston atraviesa al personaje. De frente salio porque lo dificil
+(el baston entrando y saliendo de la correa) queda tapado por el cuerpo; de
+espaldas se ve entero, y objetos que tocan el cuerpo es lo que peor hace la IA.
+Decidido con el usuario: sacar / guardar SOLO DE FRENTE; de espaldas, al pulsar,
+se da la vuelta (la de siempre) y lo hace de cara (prueba_frontal.gd, _cb_paso).
+Se queda la espalda del chevron para el modo sin baston (vuelta y andar de
+espaldas nuevos, prompt_espalda_sin_baston_vuelta_andar.txt).
+
+2026-10-11 (tarde): CON LA ESPALDA NUEVA DEL MODO SIN BASTON. El primer video
+(magnus_sacar_baston_espalda) cambiaba de tunica a mitad del gesto: la espalda sin
+baston era otra tunica. Ahora referencia_baston_espalda_espaldas.png es la espalda
+nueva (la del chevron, la misma tunica que la de con baston:
+magnus_espalda_sin_baston/hacer_espalda.py) con el baston en la correa, en la fila de
+la correa vacia del reposo con baston (capa_espalda.gd, CAPTURA_FILA_DE): la correa
+en el mismo sitio en los dos modos. Entre las dos referencias solo cambian el brazo
+derecho y el baston. Los prompts insisten en que la tunica no cambia.
+
 2026-10-10 (noche), el usuario: "las quiero igual que las otras (la misma
 cinematica) pero de espaldas". LA MISMA COREOGRAFIA QUE LOS DE FRENTE, vista por
 detras, con los tiempos medidos en los videos de frente que gustaron
@@ -42,6 +60,19 @@ real. Ojo con la SOMBRA: en el guardar de frente la pinto aunque el prompt la
 prohibia (se quito a mano); aqui se insiste mas.
 
 
+
+2026-10-11 (noche), v3: GESTO DE COLGARSELO. Los de la v2 (sacarlo recto hacia
+arriba, como los de frente) no salieron bien de espaldas: para salir de las
+presillas un baston tan largo como el tiene que subir muy por encima de la cabeza
+y Veo se pierde. El usuario: "un movimiento mas de colgarse algo, como una
+escopeta o sombrilla de playa ... que se la ponga en un angulo que coincida con
+las presillas". Ahora: guardar = lo lleva tras el hombro derecho y echa la punta
+de abajo hacia la cadera izquierda, al angulo de la correa (~20 grados de la
+vertical, medido en la referencia), y se asienta en las presillas; sacar = lo
+levanta un poco y la punta de abajo se descuelga como un pendulo hasta quedar
+vertical en la mano. Nunca por encima de la cabeza. Mismas referencias.
+
+
 SACAR
 -----
 Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
@@ -51,43 +82,45 @@ ground, no floor, no floor line, no props, no text, no logos, no on-screen
 interface. The character stays full-body in frame, same size and same place on
 screen, seen exactly from behind, facing away from the camera the whole video:
 he never turns toward the camera. The whole staff stays inside the frame at all
-times, even when he lifts it above his head.
+times.
 
 The old pilgrim from the first frame stands with his back to the camera, his
-arms relaxed at his sides, empty hands. His long wooden staff is slung
-diagonally across his back, held against a thin leather strap (it runs from
-his right shoulder down to his left hip) by two small leather loops; its top,
-an open antler-shaped claw, rises above his right shoulder. The
-claw is EMPTY: no orb, no ball, no gem, no glow, no light.
+arms relaxed at his sides, empty hands. His long wooden staff is slung across
+his back on a steep diagonal, about 20 degrees from vertical, held by two small
+leather loops on a thin leather strap that runs from his right shoulder down to
+his left hip; its top, an open antler-shaped claw, rises just above his right
+shoulder. The claw is EMPTY: no orb, no ball, no gem, no glow, no light.
 
-Action, one continuous take, calm and deliberate like an old man, at natural
-speed, no slow motion:
+He takes the staff off his back the way a man unslings a rifle, or takes a
+closed beach umbrella off his shoulder: one simple, compact movement, close to
+his body. Action, one continuous take, calm and deliberate like an old man, at
+natural speed, no slow motion:
 - 0 to 1 s: he stands still exactly as in the first frame.
-- 1 to 2 s: he slowly raises his right hand to his right shoulder and grabs
-  the staff just below the claw.
-- 2 to 2.75 s: he pulls the staff straight up, sliding it out of the two
-  leather loops, until it is completely free and held upright beside his
-  head, the claw high above his hood.
-- 2.75 to 3.5 s: he lowers it in front of his body and for a moment holds it
-  diagonally across his chest with both hands; from behind only its two ends
-  show, the claw above his right shoulder and the bottom end beside his left
-  knee.
-- 3.5 to 4 s: he swings it upright to his right side and plants its bottom tip
-  on the ground beside his right foot.
-- 4 to 8 s: he stands still exactly as in the last frame, holding the staff
+- 1 to 2 s: he raises his right hand to his right shoulder and grabs the staff
+  just below the claw.
+- 2 to 3 s: he lifts it a little, out of the two loops, and lets its bottom end
+  swing out from behind his back to his right side, so that the staff hangs
+  upright from his hand beside him.
+- 3 to 3.5 s: he lowers it, letting it slide down through his hand, and plants
+  its bottom tip on the ground beside his right foot, his hand at chest height
+  as in the last frame.
+- 3.5 to 8 s: he stands still exactly as in the last frame, holding the staff
   upright in his right hand; the empty strap with its two loops stays on his
   back.
+The staff is never lifted high above his head, it never spins or twirls and it
+never swings around his head.
 
 His feet stay in place, at most a small shift of weight; his head stays at the
 same height. His head is covered by the soft grey cloth hood of his cloak,
 exactly the shape of the first frame: part of the cloak, not a hat, it never
-grows or stands up. Same character throughout: brown faceted patchwork cloak,
-thin dark legs and bare feet; the cloak moves only a little and settles into
-the shape and patches of the last frame. Same low-poly flat-shaded hand-painted
-style, colours and lighting as the first frame, crisp frames with no motion
-blur, soft matte texture, no flicker. Sound: cloth rustle, the wood sliding out
-of the leather loops and the dry knock of the staff tip on the ground; no
-music, no voice.
+grows or stands up. Same character throughout: brown faceted patchwork cloak
+with the large grey chevron patch on his back, exactly as in the first and last
+frames: the cloak and its patches never change during the video, it only moves
+a little with his arm; thin dark legs and bare feet. Same low-poly flat-shaded
+hand-painted style, colours and lighting as the first frame, crisp frames with
+no motion blur, soft matte texture, no flicker. Sound: cloth rustle, a short leather creak as the staff
+leaves the loops and the dry knock of the staff tip on the ground; no music, no
+voice.
 
 
 GUARDAR
@@ -99,38 +132,42 @@ ground, no floor, no floor line, no props, no text, no logos, no on-screen
 interface. The character stays full-body in frame, same size and same place on
 screen, seen exactly from behind, facing away from the camera the whole video:
 he never turns toward the camera. The whole staff stays inside the frame at all
-times, even when he lifts it above his head.
+times.
 
 The old pilgrim from the first frame stands with his back to the camera,
 holding his long wooden staff upright in his right hand, its tip on the ground;
-at its top an open antler-shaped claw. A thin leather strap with two small
-empty loops runs diagonally across his back, from his right shoulder down to
-his left hip. The claw is EMPTY: no orb, no ball,
-no gem, no glow, no light.
+at its top an open antler-shaped claw. A thin leather strap with two small empty
+loops runs on a steep diagonal across his back, from his right shoulder down to
+his left hip. The claw is EMPTY: no orb, no ball, no gem, no glow, no light.
 
-Action, one continuous take, calm and deliberate like an old man, at natural
-speed, no slow motion:
-- 0 to 1.25 s: he stands still exactly as in the first frame.
-- 1.25 to 1.75 s: he lifts the staff straight up off the ground with his right
-  hand.
-- 1.75 to 3 s: he tilts it back over his right shoulder and slides it down
-  diagonally across his back, through the two leather loops of the strap,
-  until it lies across his back as in the last frame, with the claw above his
+He puts the staff on his back the way a man slings a rifle, or rests a closed
+beach umbrella on his shoulder: one simple, compact movement, close to his body,
+ending with the staff at exactly the angle of the strap. Action, one continuous
+take, calm and deliberate like an old man, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2 s: he lifts the staff a little off the ground and raises it behind his
   right shoulder.
-- 3 to 4 s: he lets go and his right arm comes slowly down to rest at his
-  side.
-- 4 to 8 s: he stands still exactly as in the last frame, arms relaxed at his
+- 2 to 2.75 s: he swings its bottom end behind his back toward his left hip, so
+  the staff lies across his back on the same steep diagonal as the strap, about
+  20 degrees from vertical, with the claw just above his right shoulder; it
+  drops a little and settles into the two leather loops, exactly as in the last
+  frame.
+- 2.75 to 3.5 s: he lets go and his right arm comes down to rest at his side.
+- 3.5 to 8 s: he stands still exactly as in the last frame, arms relaxed at his
   sides, empty hands.
+The staff is never lifted high above his head, it never spins or twirls and it
+never swings around his head.
 
 His feet stay in place, at most a small shift of weight; his head stays at the
 same height. His head is covered by the soft grey cloth hood of his cloak,
 exactly the shape of the first frame: part of the cloak, not a hat, it never
-grows or stands up. Same character throughout: brown faceted patchwork cloak,
-thin dark legs and bare feet; the cloak moves only a little and settles into
-the shape and patches of the last frame. Same low-poly flat-shaded hand-painted
-style, colours and lighting as the first frame, crisp frames with no motion
-blur, soft matte texture, no flicker. Sound: cloth rustle and a soft wooden
-scrape as the staff slides through the leather loops; no music, no voice.
+grows or stands up. Same character throughout: brown faceted patchwork cloak
+with the large grey chevron patch on his back, exactly as in the first and last
+frames: the cloak and its patches never change during the video, it only moves
+a little with his arm; thin dark legs and bare feet. Same low-poly flat-shaded
+hand-painted style, colours and lighting as the first frame, crisp frames with
+no motion blur, soft matte texture, no flicker. Sound: cloth rustle and a short leather creak as the staff
+settles into the loops; no music, no voice.
 
 
 AL REVISAR LAS TOMAS
@@ -141,8 +178,7 @@ AL REVISAR LAS TOMAS
 4. Sin sombra en el suelo (si la pinta, se puede quitar, pero mejor sin).
 5. Al sacar, que la correa se quede en la espalda; al guardar, que el baston
    entre por las dos presillas y acabe cruzado como en la referencia.
-6. El mismo ritmo que los de frente (los tiempos de arriba, el gesto en unos
-   3 s): si va mucho mas lento o mas rapido, no casara con el de frente.
-7. La tunica: de espaldas los dos reposos tienen parches distintos (el de con
-   baston lleva el chevron gris grande); que el paso no se vea como un
-   derretido a mitad del gesto.
+6. El gesto corto y pegado al cuerpo (unos 2,5 s): que no levante el baston por
+   encima de la cabeza ni lo haga girar; que acabe en el angulo de la correa.
+7. La tunica, la misma al principio y al final (el chevron gris, espalda nueva):
+   que no cambie de parches en ningun momento.

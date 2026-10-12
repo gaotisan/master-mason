@@ -135,40 +135,42 @@ def giro_mientras_se_mueve(pos, desde, hasta):
     return desde + (hasta - desde) * t
 
 
-b_sin, b_con = G.bolas_de_referencia()
-ANIMS = {
-    # nombre: job, tramo del video, (reposo de entrada), (reposo de salida), de, a
-    'sacar_baston_frente': ('magnus_sacar_baston_frente', (20, 146),
-                            ('magnus_secuencia_frontal_sin', 'reposo_frente_sb_000.png', b_sin, 1.0, GIRO_SIN),
-                            ('magnus_secuencia_frontal', 'reposo_frente_cb_000.png', b_con, ESCALA_CON, 0.0),
-                            'reposo_frente_sb', 'reposo_frente_cb'),
-    'guardar_baston_frente': ('magnus_guardar_baston_frente', (9, 135),
-                              ('magnus_secuencia_frontal', 'reposo_frente_cb_000.png', b_con, ESCALA_CON, 0.0),
-                              ('magnus_secuencia_frontal_sin', 'reposo_frente_sb_000.png', b_sin, 1.0, GIRO_SIN),
-                              'reposo_frente_cb', 'reposo_frente_sb'),
-}
-N_ENTRA, N_SALE = 3, 4
-escena = {'fps': FPS, 'casilla': [CAS[0] // 2, CAS[1] // 2]}
-for nombre, (job, (a, b), ent, sal, de, hacia) in ANIMS.items():
-    R0, R1 = reposo(ent[0], ent[1]), reposo(sal[0], sal[1])
-    V = capucha_estandar(job, a, b)
-    V0, V1 = V[a], V[b]
-    frames = [mezcla(R0, V0, k / (N_ENTRA + 1)) for k in range(1, N_ENTRA + 1)]
-    frames += [V[k] for k in range(a, b + 1)]
-    frames += [mezcla(V1, R1, k / (N_SALE + 1)) for k in range(1, N_SALE + 1)]
-    pv = bola_video(job, a, b)
-    p_ent = [np.array(ent[2]) + (pv[0] - np.array(ent[2])) * k / (N_ENTRA + 1) for k in range(1, N_ENTRA + 1)]
-    p_sal = [pv[-1] + (np.array(sal[2]) - pv[-1]) * k / (N_SALE + 1) for k in range(1, N_SALE + 1)]
-    pos = np.array(p_ent + list(pv) + p_sal)
-    esc = giro_mientras_se_mueve(pos, ent[3], sal[3]); gir = giro_mientras_se_mueve(pos, ent[4], sal[4])
-    filas = [[round(float(x) / 2 - CAS[0] / 4, 2), round(float(y) / 2 - CAS[1] / 4, 2), round(float(e), 4), round(float(g), 4)]
-             for (x, y), e, g in zip(pos, esc, gir)]
-    carpeta = os.path.join(ANIM, job, '04_limpios'); os.makedirs(carpeta, exist_ok=True)
-    for f in glob.glob(os.path.join(carpeta, '*.png')):
-        os.remove(f)
-    for k, im in enumerate(frames):
-        im.save(os.path.join(carpeta, '%s_%03d.png' % (nombre, k)))
-    json.dump([[nombre, job, len(frames), FPS, False, list(range(len(frames)))]], open(os.path.join(ANIM, job, 'animaciones.json'), 'w'))
-    escena[nombre] = {'de': de, 'a': hacia, 'orbe': filas}
-    print(nombre, len(frames), 'fotogramas (%d de puente, video %d-%d, %d de puente)' % (N_ENTRA, a, b, N_SALE))
-json.dump(escena, open(os.path.join(PROY, 'assets', 'characters', 'magnus', 'baston_frente.json'), 'w'), separators=(',', ':'))
+if __name__ == '__main__':
+    # (importable: las de espaldas, magnus_sacar_baston_espalda_v2/animar.py, usan mezcla y demas)
+    b_sin, b_con = G.bolas_de_referencia()
+    ANIMS = {
+        # nombre: job, tramo del video, (reposo de entrada), (reposo de salida), de, a
+        'sacar_baston_frente': ('magnus_sacar_baston_frente', (20, 146),
+                                ('magnus_secuencia_frontal_sin', 'reposo_frente_sb_000.png', b_sin, 1.0, GIRO_SIN),
+                                ('magnus_secuencia_frontal', 'reposo_frente_cb_000.png', b_con, ESCALA_CON, 0.0),
+                                'reposo_frente_sb', 'reposo_frente_cb'),
+        'guardar_baston_frente': ('magnus_guardar_baston_frente', (9, 135),
+                                  ('magnus_secuencia_frontal', 'reposo_frente_cb_000.png', b_con, ESCALA_CON, 0.0),
+                                  ('magnus_secuencia_frontal_sin', 'reposo_frente_sb_000.png', b_sin, 1.0, GIRO_SIN),
+                                  'reposo_frente_cb', 'reposo_frente_sb'),
+    }
+    N_ENTRA, N_SALE = 3, 4
+    escena = {'fps': FPS, 'casilla': [CAS[0] // 2, CAS[1] // 2]}
+    for nombre, (job, (a, b), ent, sal, de, hacia) in ANIMS.items():
+        R0, R1 = reposo(ent[0], ent[1]), reposo(sal[0], sal[1])
+        V = capucha_estandar(job, a, b)
+        V0, V1 = V[a], V[b]
+        frames = [mezcla(R0, V0, k / (N_ENTRA + 1)) for k in range(1, N_ENTRA + 1)]
+        frames += [V[k] for k in range(a, b + 1)]
+        frames += [mezcla(V1, R1, k / (N_SALE + 1)) for k in range(1, N_SALE + 1)]
+        pv = bola_video(job, a, b)
+        p_ent = [np.array(ent[2]) + (pv[0] - np.array(ent[2])) * k / (N_ENTRA + 1) for k in range(1, N_ENTRA + 1)]
+        p_sal = [pv[-1] + (np.array(sal[2]) - pv[-1]) * k / (N_SALE + 1) for k in range(1, N_SALE + 1)]
+        pos = np.array(p_ent + list(pv) + p_sal)
+        esc = giro_mientras_se_mueve(pos, ent[3], sal[3]); gir = giro_mientras_se_mueve(pos, ent[4], sal[4])
+        filas = [[round(float(x) / 2 - CAS[0] / 4, 2), round(float(y) / 2 - CAS[1] / 4, 2), round(float(e), 4), round(float(g), 4)]
+                 for (x, y), e, g in zip(pos, esc, gir)]
+        carpeta = os.path.join(ANIM, job, '04_limpios'); os.makedirs(carpeta, exist_ok=True)
+        for f in glob.glob(os.path.join(carpeta, '*.png')):
+            os.remove(f)
+        for k, im in enumerate(frames):
+            im.save(os.path.join(carpeta, '%s_%03d.png' % (nombre, k)))
+        json.dump([[nombre, job, len(frames), FPS, False, list(range(len(frames)))]], open(os.path.join(ANIM, job, 'animaciones.json'), 'w'))
+        escena[nombre] = {'de': de, 'a': hacia, 'orbe': filas}
+        print(nombre, len(frames), 'fotogramas (%d de puente, video %d-%d, %d de puente)' % (N_ENTRA, a, b, N_SALE))
+    json.dump(escena, open(os.path.join(PROY, 'assets', 'characters', 'magnus', 'baston_frente.json'), 'w'), separators=(',', ':'))

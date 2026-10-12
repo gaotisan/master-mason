@@ -62,6 +62,20 @@ def bolas_de_referencia():
     return a_celda(ox, oy), a_celda(o[0], o[1])
 
 
+def bolas_de_referencia_espalda():
+    """Las de los reposos de espaldas (2026-10-11). Sin baston, la espalda nueva
+    (magnus_espalda_sin_baston): el baston en la fila de la correa vacia del reposo
+    con baston (misma fila: pivote del baston y giro); con baston, el "orbe" de
+    reposo_espalda_cb."""
+    cb = json.load(open(os.path.join(PROY, 'assets', 'characters', 'magnus', 'secuencia_frontal.json')))
+    x, y, g = cb['funda_espalda']['reposo_espalda_cb'][0][:3]
+    ox = x + np.cos(g) * -0.6 - np.sin(g) * -24
+    oy = y + np.sin(g) * -0.6 + np.cos(g) * -24
+    o = cb['orbe']['reposo_espalda_cb'][0]
+    a_celda = lambda px, py: (MX + 2 * (146 + px), MY + 2 * (200 + py))
+    return a_celda(ox, oy), a_celda(o[0], o[1])
+
+
 def plantilla(mapa, centro, lado=110):
     cx, cy = int(round(centro[0])), int(round(centro[1]))
     h = lado // 2
@@ -115,11 +129,19 @@ def seguir(job, ks, inicio_mapa, inicio_bola):
 
 
 if __name__ == '__main__':
-    b_sin, b_con = bolas_de_referencia()
-    m_sin = madera(referencia('referencia_baston_espalda_frente.png'))
-    m_con = madera(referencia('referencia_baston_mano_frente.png'))
+    # --espalda: sacar / guardar de espaldas (referencias y bolas de los reposos de espaldas)
+    espalda = '--espalda' in sys.argv
+    args = [a for a in sys.argv[1:] if a != '--espalda']
+    if espalda:
+        b_sin, b_con = bolas_de_referencia_espalda()
+        m_sin = madera(referencia('referencia_baston_espalda_espaldas.png'))
+        m_con = madera(referencia('referencia_baston_mano_espaldas.png'))
+    else:
+        b_sin, b_con = bolas_de_referencia()
+        m_sin = madera(referencia('referencia_baston_espalda_frente.png'))
+        m_con = madera(referencia('referencia_baston_mano_frente.png'))
     print('bola de partida: sin baston %s, con baston %s' % (np.round(b_sin, 1), np.round(b_con, 1)))
-    TRAMOS = json.loads(sys.argv[1]) if len(sys.argv) > 1 else None
+    TRAMOS = json.loads(args[0]) if args else None
     # [job, [tramo desde el extremo sin baston], [tramo desde el extremo con baston]]
     for job, desde_sin, desde_con in TRAMOS:
         res = {}

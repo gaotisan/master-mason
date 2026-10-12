@@ -1,0 +1,4 @@
+Montado en la secuencia sin baston de la escena frontal: ver
+../magnus_secuencia_frontal/como_se_hizo.txt (2026-10-12) y secuencia.py (TRAMOS, CARRERAS).
+Pasos: nuevo / frames / elegir "1-192"; quitar_sombra.py; croma.py; ../magnus_secuencia_frontal/medir.py;
+../magnus_secuencia_frontal/montar_en_sitio.py magnus_correr_espalda

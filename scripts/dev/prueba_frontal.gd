@@ -50,6 +50,7 @@ const SECUENCIA_SIN := "res://assets/characters/magnus/secuencia_frontal_sin.jso
 ## magnus_sacar_baston_frente/animar.py): la bola sigue a la garra del video,
 ## filas [x, y, escala, giro].
 const BASTON_FRENTE := "res://assets/characters/magnus/baston_frente.json"
+const ACCIONES_ESPALDA := "res://assets/characters/magnus/acciones_espalda.json"   # sacar / guardar de espaldas
 const ORBE_EN_MADERA := Vector2(-0.6, -24)   # posicion del Orbe dentro de Madera
 const COLORES: Array[Color] = [
 	Color(1.0, 0.62, 0.18), Color(0.35, 0.75, 1.0), Color(0.55, 1.0, 0.45),
@@ -203,13 +204,18 @@ var _andando := false            # venia andando: al soltar, termina el paso
 var _relativa: Dictionary = {}   # cuanto crece cada fotograma de la parada (frontal.json)
 var _base_parada := 1.0
 var _quiere := ""
+const DOBLE_TOQUE := 0.30        # dos pulsaciones a menos: correr (como doble_pulsacion de magnus.gd)
+var _reloj := 0.0
+var _tecla_antes := ""
+var _pulsado_en := {}            # cara -> _reloj de su ultima pulsacion
+var _corriendo := false          # doble toque y la tecla sigue pulsada
 var _secuencia: Array = []       # tramos [animacion, desde, hasta] de la vuelta con baston
 var _tras_secuencia: Array = []  # [cara, andar, fotograma] al acabar
 var _cara_final := ""            # hacia donde mira al acabar la vuelta en curso
 var _sec: Dictionary = {}        # la del modo actual (secuencia_frontal[_sin].json)
 var _secs: Dictionary = {}       # true: con baston, false: sin
-var _acciones: Dictionary = {}   # sacar_baston_frente / guardar_baston_frente: de, a, orbe
-var _accion := ""                # la pedida con B, de frente y parado (empieza al acabar de espirar)
+var _acciones: Dictionary = {}   # sacar_ / guardar_baston_frente / _espalda: de, a, orbe
+var _accion := ""                # la pedida con B (sacar_baston / guardar_baston): ver _cambiar_baston
 var _cb := "reposo"              # con baston: reposo / arranque / andar / puente / vuelta
 var _cb_dir := 1                 # sentido de la vuelta en curso
 var _cb_h0 := 1.0                # arranque: altura de video al entrar y escala entonces
@@ -242,8 +248,10 @@ func _ready() -> void:
 			_vacia[nombre] = sec["funda_espalda"][nombre]
 		_secs[con] = sec
 	_sec = _secs[true]
-	if FileAccess.file_exists(BASTON_FRENTE):
-		var bf: Dictionary = JSON.parse_string(FileAccess.open(BASTON_FRENTE, FileAccess.READ).get_as_text())
+	for ruta in [BASTON_FRENTE, ACCIONES_ESPALDA]:
+		if not FileAccess.file_exists(ruta):
+			continue
+		var bf: Dictionary = JSON.parse_string(FileAccess.open(ruta, FileAccess.READ).get_as_text())
 		for nombre in bf:
 			if bf[nombre] is Dictionary and FRAMES.has_animation(nombre):
 				_acciones[nombre] = bf[nombre]
@@ -305,8 +313,8 @@ func _ready() -> void:
 	add_child(capa)
 	var ayuda := Label.new()
 	ayuda.text = "PRUEBA DEL ANDAR DE FRENTE / DE ESPALDAS\n" + \
-		"abajo: hacia la camara (de frente)   arriba: alejandose (de espaldas)\n" + \
-		"B: sacar / guardar el baston (de frente y parado; si no, cambia sin mas)   Z: plano general / medio / primer plano\n" + \
+		"abajo: hacia la camara (de frente)   arriba: alejandose (de espaldas)   doble toque: correr (sin baston)\n" + \
+		"B: sacar / guardar el baston (de frente o de espaldas; andando, se para antes)   Z: plano general / medio / primer plano\n" + \
 		"M: gastar magia   C: color\n" + \
 		"R: volver al sitio   Esc: salir"
 	ayuda.position = Vector2(60, 50)
@@ -367,9 +375,12 @@ func _poner_anim(nombre: String, fotograma: int, fundir := false) -> void:
 func _cambiar_baston(si: bool) -> void:
 	if si == _con_baston or _girando != 0 or not _secuencia.is_empty() or _cb in ["puente", "vuelta", "accion"]:
 		return
-	var accion := "sacar_baston_frente" if si else "guardar_baston_frente"
-	if _cara == "frente" and _cb == "reposo" and _acciones.has(accion):
-		# de frente y parado, con su animacion: empieza al acabar de espirar
+	var accion := "sacar_baston" if si else "guardar_baston"
+	if _acciones.has(accion + "_frente"):
+		# de cara a donde mire, si de esa cara hay animacion (de espaldas desde el
+		# 2026-10-11, con la espalda del chevron en los dos modos); si no, se da la
+		# vuelta (la de siempre) y lo hace de frente. Parado, empieza al acabar de
+		# espirar; andando, termina el paso y se para (_cb_paso)
 		_accion = accion
 		return
 	_con_baston = si
@@ -432,6 +443,15 @@ func _process(delta: float) -> void:
 		quiere = "espalda"
 
 	_quiere = quiere
+	# doble toque: al pulsar, si la pulsacion anterior de esa tecla fue hace poco, a
+	# correr mientras se mantenga
+	_reloj += delta
+	if quiere != "" and quiere != _tecla_antes:
+		_corriendo = _reloj - float(_pulsado_en.get(quiere, -10.0)) <= DOBLE_TOQUE
+		_pulsado_en[quiere] = _reloj
+	elif quiere == "":
+		_corriendo = false
+	_tecla_antes = quiere
 	if true:
 		# los dos modos con su secuencia de un solo video (lo de abajo es lo de
 		# antes, con los andares y la vuelta de videos sueltos: ya no se usa)
@@ -631,13 +651,17 @@ func _cb_paso(quiere: String) -> void:
 	var anim := String(_sprite.animation)
 	var n := _sprite.sprite_frames.get_frame_count(anim)
 	var c := "f" if _cara == "frente" else "b"
+	if _accion != "":
+		# sacar / guardar pendiente: a pararse; de espaldas sin su animacion, a darse
+		# la vuelta (las teclas no mandan hasta acabar)
+		quiere = "" if (_cara == "frente" or _accion_aqui() != "") else "frente"
 	match _cb:
 		"reposo":
 			# un fotograma con la respiracion dibujada, ida y vuelta: la posicion p
 			# es la inspiracion k (0 = el fotograma base, sin aire)
 			var kk := int(_sec["k_reposo"])
 			var k := _sprite.frame if _sprite.frame < kk else 2 * kk - 2 - _sprite.frame
-			if _accion != "":
+			if _accion != "" and _accion_aqui() != "":
 				# sacar / guardar: parten del fotograma base, como los puentes
 				if k == 0:
 					_empezar_accion()
@@ -645,9 +669,19 @@ func _cb_paso(quiere: String) -> void:
 					_sprite.frame = maxi(k - 3, 0)
 				return
 			if quiere != "":
+				var pr: Dictionary = _sec["puente_reposo"][anim]
+				# correr (sin baston, 2026-10-12): doble toque hacia donde mira, como en el
+				# perfil. Tras el primer toque espera DOBLE_TOQUE antes de echar a andar
+				# (solapado con la espiracion), por si llega el segundo
+				var puede_correr: bool = quiere == _cara and pr.has("arrc")
+				if puede_correr and not _corriendo and _reloj - float(_pulsado_en.get(quiere, -10.0)) < DOBLE_TOQUE:
+					_sprite.frame = maxi(k - 3, 0)
+					return
 				if k == 0:
-					var pr: Dictionary = _sec["puente_reposo"][anim]
-					_cb_puente(pr["arr"] if quiere == _cara else pr["vu"])
+					if puede_correr and _corriendo:
+						_cb_puente(pr["arrc"])
+					else:
+						_cb_puente(pr["arr"] if quiere == _cara else pr["vu"])
 				else:
 					_sprite.frame = maxi(k - 3, 0)     # exhala deprisa (0,2 s como mucho)
 				return
@@ -656,11 +690,27 @@ func _cb_paso(quiere: String) -> void:
 			if _sprite.frame + 1 >= n:
 				var e: Array = _sec["entra_bucle"][anim]
 				_poner_anim(e[0], int(e[1]))
-				_cb = "andar"
+				_cb = "correr" if String(e[0]).begins_with("correr") else "andar"
 				return
 			_sprite.frame += 1
-			var h: Array = _sec["h"][anim]
-			_cb_escala(_cb_base * float(h[_sprite.frame]) / _cb_h0)
+			_cb_escala_tramo(anim)
+		"correr":
+			# como andar (mas deprisa); al soltar, cambiar de cara o pedir sacar / guardar,
+			# por la fase de salida del bucle a la parada (frena de verdad, como en el video)
+			var sale: Array = _sec["a_parada"][anim]
+			if (quiere != _cara or not _corriendo) and _sprite.frame == int(sale[1]):
+				_cb_puente(sale[0])
+				return
+			_sprite.frame = (_sprite.frame + 1) % n
+			_cb_escala(1.0 / (1.0 / _escala + float(_sec["paso"][anim])))
+		"parada":
+			# frenando: avanza lo que dice su h (como el arranque, al reves); al acabar, al
+			# reposo por su puente
+			if _sprite.frame + 1 >= n:
+				_cb_puente("%spc%s_r%s" % [_pre(), c, c])
+				return
+			_sprite.frame += 1
+			_cb_escala_tramo(anim)
 		"andar":
 			var pj: Array = _sec["pies_juntos"][anim]
 			if quiere != _cara and _sprite.frame in pj:
@@ -680,8 +730,8 @@ func _cb_paso(quiere: String) -> void:
 			if String(a[0]).begins_with("vuelta"):
 				_cb = "vuelta"
 				_cb_dir = 1 if int(a[1]) == 0 else -1
-			elif String(a[0]).begins_with("arranque"):
-				_cb = "arranque"
+			elif String(a[0]).begins_with("arranque") or String(a[0]).begins_with("parada"):
+				_cb = "arranque" if String(a[0]).begins_with("arranque") else "parada"
 				_cb_h0 = float(_sec["h"][a[0]][0])
 				_cb_base = _escala
 			else:
@@ -704,7 +754,11 @@ func _cb_paso(quiere: String) -> void:
 				return
 			_cara = "espalda" if _cb_dir > 0 else "frente"
 			if _cb_dir > 0:
-				if quiere == "espalda":
+				if quiere == "espalda" and _sec["puentes"].has(_pre() + "vu_arrb"):
+					# la vuelta y el andar de espaldas de videos distintos (sin baston,
+					# 2026-10-12): por un puente
+					_cb_puente(_pre() + "vu_arrb")
+				elif quiere == "espalda":
 					# 153 -> 154: seguido en el video
 					_poner_anim("arranque_espalda" + _suf(), 0)
 					_cb = "arranque"
@@ -713,17 +767,38 @@ func _cb_paso(quiere: String) -> void:
 				else:
 					_cb_puente(_pre() + "vu_rb")
 			else:
-				_cb_puente(_pre() + ("vu_arrf" if quiere == "frente" else "vu_rf"))
+				# con sacar / guardar pendiente, al reposo de frente (no a andar)
+				_cb_puente(_pre() + ("vu_arrf" if quiere == "frente" and _accion == "" else "vu_rf"))
 
 
 ## Sacar o guardar: al sacar ya es el modo con baston (la bola va en la garra
 ## del video); al guardar lo sigue siendo hasta acabar en el reposo sin baston.
 func _empezar_accion() -> void:
+	var nombre := _accion_aqui()
 	if _accion.begins_with("sacar"):
 		_con_baston = true
 		_sec = _secs[true]
 	_cb = "accion"
-	_poner_anim(_accion, 0)
+	_poner_anim(nombre, 0)
+
+
+## La animacion de la accion pedida (sacar_baston / guardar_baston) para la cara a
+## la que mira; "" si de esa cara no hay (se da la vuelta y la hace de frente).
+func _accion_aqui() -> String:
+	var nombre := "%s_%s" % [_accion, _cara]
+	return nombre if _acciones.has(nombre) else ""
+
+
+## La escala en un arranque o una parada: las carreras traen su "avance" (lo que suma
+## 1/escala desde el primer fotograma, como el paso del bucle); el andar, su h (la del
+## video, relativa al primer fotograma).
+func _cb_escala_tramo(anim: String) -> void:
+	var av = _sec.get("avance", {}).get(anim)
+	if av != null:
+		_cb_escala(1.0 / (1.0 / _cb_base + float(av[_sprite.frame])))
+	else:
+		var h: Array = _sec["h"][anim]
+		_cb_escala(_cb_base * float(h[_sprite.frame]) / _cb_h0)
 
 
 func _cb_escala(nueva: float) -> void:

@@ -197,3 +197,67 @@ espalda), ni de frente a espaldas ni al reves. Ahora:
     sale por fuera del cuerpo). De frente (detras del cuerpo) no se dibuja.
     capa_espalda.gd, para sacar referencias con baston, usa el sprite solo como
     mascara (CLIP_CHILDREN_ONLY).
+
+2026-10-12: SIN BASTON, VUELTA Y ANDAR DE ESPALDAS NUEVOS Y LAS CARRERAS
+------------------------------------------------------------------------
+La espalda sin baston era otra tunica (sin el chevron): el reposo de espaldas ya
+salia de magnus_espalda_sin_baston (ESPALDA_NUEVA). Ahora tambien la vuelta y el
+andar de espaldas, y se anaden las carreras de frente y de espaldas (D1 del guion:
+solo con el baston guardado). Videos de Flow con nuestras referencias
+(_fuentes/prompt_espalda_sin_baston_vuelta_andar.txt, prompt_correr_frente_espaldas.txt):
+  magnus_vuelta_sin_v2          Pilgrim_turns_around_on_green_20261012094345
+  magnus_andar_espalda_sin_v2   Pilgrim_walking_away_from_camera_20261012094541 (anda en el sitio)
+  magnus_correr_frente          Old_pilgrim_running_toward_camera_20261012094716
+  magnus_correr_espalda         Pilgrim_running_on_green_screen_20261012094829 (con sombra:
+                                quitar_sombra.py en su job, antes del croma)
+Pasos de cada uno: nuevo / frames / elegir "1-192"; croma.py; medir.py; y
+montar_en_sitio.py (NO montar.py: con la altura casi fija la recta suelo~h sale mal
+condicionada y cada video se descolocaba unos px; aqui la transformacion fija de las
+referencias, que cae al pixel sobre el sprite, y en los que andan o corren el tamano
+corregido al del primero alrededor de los pies; la vuelta, --fijo).
+secuencia.py (sin baston): la linea de tiempo por TRAMOS (1-118 de este video, lo de
+frente; la vuelta nueva 44-102; el andar 26-110; las carreras 18-180 y 18-177). La
+capucha se lleva al estandar al leer cada fotograma (F) y capucha() ya no la toca.
+El andar nuevo va en el sitio: el avance es sintetico, con la zancada por ciclo del de
+antes (asi el de frente, que avanza lo mismo por ciclo, no cambia: -0,00264). La
+vuelta acaba al terminar de girar (102; luego se cuadra muy despacio): sus puentes de
+espaldas, de 6, y uno nuevo vu_arrb (vuelta -> arranque de espaldas; la escena lo usa
+si esta). Carreras (CARRERAS): arranque 18-47 (1,25 s) que entra en el bucle por la
+fase que mejor casa, bucle (frente 88+21, espalda 54+23), parada desde que frena (140)
+a la que se entra desde una fase del bucle con un puente, y la velocidad del andar por
+435/192 (la de perfil). Van en otra hoja: magnus_secuencia_frontal_sin_co.
+En la escena: doble toque hacia donde mira para correr (sin baston), estados
+correr y parada (prueba_frontal.gd).
+
+2026-10-12 (tarde): PIES OSCUROS; ANDAR Y CORRER DE ESPALDAS REPETIDOS
+------------------------------------------------------------------------
+Los cuatro videos nuevos salieron descalzos: los prompts decian "thin dark legs and bare
+feet" (como todos los de antes) y esta vez Veo pinto pies color carne con dedos. En la
+vuelta y el correr de frente las piernas seguian oscuras: oscurecer_pies.py lleva lo
+claro de los pies al marron del pie del andar de frente aceptado (los de Veo, en
+_todos_veo/ de cada job). El andar y el correr de espaldas tenian ademas las piernas
+color carne (y el correr, un pie como una pezuna): repetidos con el prompt corregido
+("thin legs in dark hose and soft dark slippers... he is not barefoot"):
+  magnus_andar_espalda_sin_v3   Old_pilgrim_walking_away_20261012112519 (en el sitio;
+                                24 quieto, primer paso 25, bucle 58+36, cierra a 0,84)
+  magnus_correr_espalda_v2      Old_man_running_on_green_20261012112604 (sin sombra;
+                                ciclo de 19, el de perfil; bucle 78+19, cierra a 1,52;
+                                parada 146-184, sale por la fase 7, entra por la 8)
+El bucle y las fases, buscados como antes: diferencia media entre fotogramas (146x200,
+luminancia premultiplicada y alfa) a un periodo, y el cierre de los m primeros; el
+metodo da lo que se eligio con los videos anteriores (a=64/65 P=34; a=54 P=23).
+El andar va ahora a 0,00227 por fotograma (ciclo de 36 con la misma zancada por ciclo:
+no patina) y el correr de espaldas a 0,00514. Empalmes medidos (todos dentro del paso
+normal de su animacion): cierre del andar 1,29 (paso tipico 1,11), del correr 5,67
+(4,96), arranques al bucle 1,18 y 4,25, correr -> parada 3,2-3,6, puentes al reposo <1,5.
+Los puentes de parada del andar de espaldas cambian de nombre (ps_ab17_*, ps_ab35_*: los
+pies juntos del bucle nuevo); la escena los saca del json.
+Despues, en la escena (fondo oscuro), las piernas del correr de espaldas se veian grises y
+palidas, y las dos de espaldas, gruesas (espinilla/pie en px de master: aceptado 12/29,
+andar v3 15/32, correr v2 18/38). igualar_piernas.py: color de piernas y pies al del
+reposo de espaldas sin baston (de ahi salen y ahi vuelven), con las estadisticas de todo
+el video para que no parpadee, brillos comprimidos, y mas finas (x0,72 el correr, x0,85
+el andar). Pies que patinan, simulados con las formulas de la escena (suelo 145,9 por
+unidad de escala, paso por fotograma): de espaldas el pie apoyado se queda quieto
+(-0,27/+0,17 px por fotograma); de frente el andar ~0 y el correr 0 a escala 1 y +1,7 a
+1,5 (el video en el sitio a otro tamano que el suyo: no se nota corriendo).

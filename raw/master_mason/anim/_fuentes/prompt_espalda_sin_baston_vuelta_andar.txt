@@ -1,0 +1,125 @@
+PROMPTS PARA LA ESPALDA NUEVA DEL MODO SIN BASTON: VUELTA Y ANDAR DE ESPALDAS
+(Google Flow, Frames to Video, 2026-10-11)
+==============================================================================
+
+(2026-10-12) V2, PIES OSCUROS. La primera tanda salio descalza: en cuanto echa a
+andar, piernas y pies color carne y con dedos (revision_pies_descalzos.png, aqui y en
+Descargas/referencias_videos_pendientes/REVISION_pies_descalzos.png). El prompt
+decia "thin dark legs and bare feet", como todos los de antes, y esta vez Veo se
+lo tomo al pie de la letra. En el juego son oscuros: calzas y zapatillas oscuras,
+un solo marron muy oscuro desde el bajo de la tunica hasta la punta del pie. Los
+prompts de abajo ya van corregidos ("bare" fuera, los pies descritos); las
+referencias, las mismas (los pies ya salen oscuros en ellas).
+SOLO SE REPITE EL ANDAR DE ESPALDAS (piernas color carne): la vuelta tiene las
+piernas oscuras y se salvo oscureciendo los pies (magnus_secuencia_frontal/
+oscurecer_pies.py).
+
+Por que: la espalda del modo sin baston era otra tunica (sin el chevron gris de la de
+con baston y del giro de pie de perfil) y al sacar el baston de espaldas se veia el
+cambio (magnus_sacar_baston_espalda/como_se_hizo.txt). La solucion de fondo: el modo
+sin baston pasa a la espalda del chevron. La espalda nueva es la de con baston sin el
+baston y con la manga derecha espejada de la izquierda (magnus_espalda_sin_baston,
+hacer_espalda.py; comparacion en su 05_salida/comparar_espaldas.png). El frente sin
+baston se queda como esta.
+
+Referencias (1920x1080, croma #24D732, la casilla de master en (668, 286) como todas;
+sin baston: el baston y la correa de la espalda los pone la escena):
+  referencia_frente_sin_baston.png   reposo de frente sin baston (el de ahora)
+  referencia_espalda_sin_baston.png  la espalda nueva
+
+16:9, Veo 3.1 - Quality, 1080p si lo ofrece, 8 s, con audio. 2-4 tomas de cada.
+
+
+VUELTA SIN BASTON
+-----------------
+Inicio = referencia_frente_sin_baston.png, fin = referencia_espalda_sin_baston.png.
+La de ahora (vuelta_sb, 34 f = 1,4 s) gira hacia la derecha de la pantalla (a mitad,
+de perfil mirando a la derecha): la nueva igual, para no descolocar el baston de la
+espalda en el giro. Los pies pasan de x = 291 a 280 (11 px): lo absorben los dos
+pasitos de la vuelta.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
+ground, no floor, no floor line, no props, no text, no logos, no on-screen
+interface.
+
+The old pilgrim from the first frame faces the camera, his arms relaxed at his
+sides, empty hands. He carries nothing: no staff, no stick, no bag. He stands
+still for two seconds. Then, in one single natural movement, he turns around in
+place to face away from the camera, turning toward the right side of the screen:
+halfway through the turn he is seen in profile facing right. The whole turn takes
+about one and a half seconds, a pivot with just two short, clear steps of his
+feet in dark slippers, without stopping halfway and without extra small steps. His size does
+not change and his head stays at the same height. He ends seen exactly from
+behind, identical to the last frame, and holds completely still until the end of
+the video.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first and last frames: part of the cloak, not a hat, no tall point, no
+cone, it never grows or stands up. Same character throughout: white beard (seen
+from the front), brown faceted patchwork cloak, and on the back of the cloak the
+large grey chevron patch exactly as in the last frame. His legs and feet are dark, exactly as in the first and last frames: thin legs in dark
+hose and soft dark slippers, one single very dark brown from the hem of the
+cloak down to the tips of his feet; he is not barefoot, no bare skin and no
+toes show at any moment. Same low-poly flat-shaded hand-painted style, same colours and lighting as
+the first frame, crisp frames with no motion blur, soft matte texture, no
+flicker. Sound: only the rustle of the cloak and two light footsteps, no music,
+no voice.
+
+
+ANDAR DE ESPALDAS SIN BASTON
+----------------------------
+Solo inicio = referencia_espalda_sin_baston.png, SIN fotograma final: camara fija,
+se aleja y encoge como en los andares de ahora (se normaliza al montarlo; la escena
+saca de ahi el tamano y la fila del suelo por fotograma, asi no patina). El ritmo,
+el de ahora: ciclo de 1,5 s (un paso cada 0,75 s).
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+The old pilgrim from the first frame stands with his back to the camera, his
+arms relaxed at his sides, empty hands. He carries nothing: no staff, no stick,
+no bag.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 6.5 s: he walks straight away from the camera, along the line of sight,
+  getting slowly smaller with the distance: a calm, steady, unhurried walk of an
+  old man, about one step every 0.75 seconds, real natural steps of his feet
+  in dark slippers, heel to toe, the long faceted cloak swaying gently, his arms hanging
+  relaxed at his sides; no swagger, no bouncing.
+- 6.5 to 8 s: he slows down and stops with both feet together, and stands still.
+
+He is seen exactly from behind the whole video and never turns toward the camera
+or to the side, never leaving the frame. His head is covered by the soft grey
+cloth hood of his cloak, exactly the shape of the first frame: part of the cloak,
+not a hat, no tall point, no cone. Same character throughout: brown faceted
+patchwork cloak with the large grey chevron patch on the back exactly as in the
+first frame. His legs and feet are dark, exactly as in the first frame: thin legs in dark
+hose and soft dark slippers, one single very dark brown from the hem of the
+cloak down to the tips of his feet; he is not barefoot, no bare skin and no
+toes show at any moment. Same low-poly flat-shaded hand-painted
+style, colours and lighting as the first frame, crisp frames with no motion
+blur, soft matte texture, no flicker. Sound: only his soft footsteps and the
+rustle of the cloak, no music, no voice.
+
+
+AL REVISAR LAS TOMAS
+--------------------
+Vuelta: que gire hacia la derecha de la pantalla (de perfil mirando a la derecha a
+mitad), en ~1,5 s con dos pasos; que acabe con el chevron como la referencia.
+Andar: que el chevron siga ahi todo el rato (que no cambie de tunica al alejarse);
+un paso cada ~0,75 s; de espaldas todo el rato; camara quieta (que encoja no
+importa, que no se salga del cuadro); que pare al final con los pies juntos.
+Las dos: manos vacias, nada de baston, sin sombra en el suelo, capucha baja.
+Las dos: piernas y pies OSCUROS todo el video, como en el primer fotograma; si
+salen descalzos (color carne, dedos), otra toma.
+Si sale algo encima del personaje (texto, marcas), pedir otra toma pronto.
+
+SIGUIENTE: sacar y guardar de espaldas, con inicio / fin = espalda nueva con el
+baston en la correa (donde la escena pone la correa vacia del modo con baston) y
+reposo de espaldas con baston.

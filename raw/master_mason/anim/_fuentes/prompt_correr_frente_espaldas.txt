@@ -1,6 +1,19 @@
 PROMPTS PARA CORRER DE FRENTE Y DE ESPALDAS, CON EL BASTON GUARDADO
 (Google Flow, Frames to Video, 2026-10-11)
 ===================================================================
+
+(2026-10-12) V2, PIES OSCUROS. La primera tanda salio descalza: en cuanto echa a
+andar, piernas y pies color carne y con dedos (revision_pies_descalzos.png, aqui y en
+Descargas/referencias_videos_pendientes/REVISION_pies_descalzos.png). El prompt
+decia "thin dark legs and bare feet", como todos los de antes, y esta vez Veo se
+lo tomo al pie de la letra. En el juego son oscuros: calzas y zapatillas oscuras,
+un solo marron muy oscuro desde el bajo de la tunica hasta la punta del pie. Los
+prompts de abajo ya van corregidos ("bare" fuera, los pies descritos); las
+referencias, las mismas (los pies ya salen oscuros en ellas).
+SOLO SE REPITE EL DE ESPALDAS (piernas claras, dedos, un pie como una pezuna):
+el de frente tiene las piernas oscuras y se salvo oscureciendo los pies
+(magnus_secuencia_frontal/oscurecer_pies.py).
+
 La D1 de acciones_del_guion.md: se corre de frente y de espaldas solo con el
 baculo en la funda (con el baculo en la mano no se corre en ninguna vista). Es
 el modo SIN de la escena frontal: el video va SIN baston y la escena le pone el
@@ -9,11 +22,12 @@ casa con el reposo y el andar de ese modo; si el baston lo dibujase Veo, seria
 otro baston y saltaria al pasar de andar a correr.
 
 Dos videos, cada uno con el MISMO fotograma de inicio y de fin (nuestro reposo):
-  CORRER DE FRENTE    inicio = fin = referencia_correr_frente.png
-  CORRER DE ESPALDAS  inicio = fin = referencia_correr_espaldas.png
-  - referencia_correr_frente.png: reposo_frente_sb_000 (secuencia_frontal_sin,
+  CORRER DE FRENTE    inicio = fin = referencia_frente_sin_baston.png
+  CORRER DE ESPALDAS  inicio = fin = referencia_espalda_sin_baston.png
+  - referencia_frente_sin_baston.png: reposo_frente_sb_000 (secuencia_frontal_sin,
     fotograma base), sin la garra que asoma (la pone la escena).
-  - referencia_correr_espaldas.png: reposo_espalda_sb_000, sin baston ni correa.
+  - referencia_espalda_sin_baston.png: la espalda NUEVA del modo sin baston (2026-10-11,
+    la del chevron: magnus_espalda_sin_baston), sin baston ni correa.
   1920x1080, croma #24D732, a escala de master en (668, 286) como las demas
   referencias (aire sobre la capucha ~405 px, pies a ~40 px del borde). Capucha
   ya al color estandar (igualar_capucha.py).
@@ -55,7 +69,7 @@ Action, one continuous take, at natural speed, no slow motion:
 - 2.25 to 6 s: he runs straight toward the camera at a steady, urgent pace,
   about one step every 0.4 seconds: a real run, not a jog, the determined run
   of an old man in a hurry; body leaning slightly forward, quick strides of his
-  bare feet, elbows bent and fists pumping close to his sides, the long cloak
+  feet in dark slippers, elbows bent and fists pumping close to his sides, the long cloak
   flapping around his legs. He runs in a perfectly straight line, never
   turning, never leaving the frame.
 - 6 to 7.25 s: he slows down over three or four shorter steps and stops with
@@ -66,9 +80,12 @@ His head is covered by the soft grey cloth hood of his cloak, low and rounded,
 exactly the shape of the first frame: part of the cloak, not a hat, no tall
 point, no cone; it stays on his head while he runs. Same character throughout:
 white beard, brown faceted patchwork cloak with the same patches as in the
-first frame, thin dark legs and bare feet. Same low-poly flat-shaded
+first frame. His legs and feet are dark, exactly as in the first frame: thin legs in dark
+hose and soft dark slippers, one single very dark brown from the hem of the
+cloak down to the tips of his feet; he is not barefoot, no bare skin and no
+toes show at any moment. Same low-poly flat-shaded
 hand-painted style, colours and lighting as the first frame, crisp frames with
-no motion blur, soft matte texture, no flicker. Sound: only his quick bare
+no motion blur, soft matte texture, no flicker. Sound: only his quick soft
 footsteps and the flapping of the cloak; no breathing, no music, no voice.
 
 
@@ -94,7 +111,7 @@ Action, one continuous take, at natural speed, no slow motion:
 - 2.25 to 6 s: he runs straight away from the camera at a steady, urgent pace,
   about one step every 0.4 seconds: a real run, not a jog, the determined run
   of an old man in a hurry; body leaning slightly forward, quick strides of his
-  bare feet, elbows bent and fists pumping close to his sides, the long cloak
+  feet in dark slippers, elbows bent and fists pumping close to his sides, the long cloak
   flapping around his legs. He runs in a perfectly straight line, always seen
   exactly from behind, never turning his head, never leaving the frame.
 - 6 to 7.25 s: he slows down over three or four shorter steps and stops with
@@ -104,10 +121,13 @@ Action, one continuous take, at natural speed, no slow motion:
 His head is covered by the soft grey cloth hood of his cloak, exactly the shape
 of the first frame: part of the cloak, not a hat, no tall point, no cone; it
 stays on his head while he runs. Same character throughout: brown faceted
-patchwork cloak with the same patches on the back as in the first frame, thin
-dark legs and bare feet. Same low-poly flat-shaded hand-painted style, colours
+patchwork cloak with the large grey chevron patch on the back exactly as in the
+first frame. His legs and feet are dark, exactly as in the first frame: thin legs in dark
+hose and soft dark slippers, one single very dark brown from the hem of the
+cloak down to the tips of his feet; he is not barefoot, no bare skin and no
+toes show at any moment. Same low-poly flat-shaded hand-painted style, colours
 and lighting as the first frame, crisp frames with no motion blur, soft matte
-texture, no flicker. Sound: only his quick bare footsteps and the flapping of
+texture, no flicker. Sound: only his quick soft footsteps and the flapping of
 the cloak; no breathing, no music, no voice.
 
 
@@ -116,7 +136,8 @@ AL REVISAR LAS TOMAS
 1. Que corra de verdad (no trote) y al ritmo de perfil: un paso cada ~0,4 s.
 2. Mismo tamano y sitio todo el rato. Si se acerca o se aleja un poco, se
    normaliza; que no se salga del cuadro.
-3. Manos vacias, nada de baston.
+3. Manos vacias, nada de baston. Piernas y pies OSCUROS todo el video, como en
+   el primer fotograma; si salen descalzos (color carne, dedos), otra toma.
 4. Sin sombra en el suelo.
 5. La capucha baja y redondeada: que no se le caiga ni le salga punta.
 6. De espaldas, que no se gire.

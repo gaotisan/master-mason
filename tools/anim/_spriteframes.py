@@ -272,9 +272,11 @@ ANIMACIONES = [
 # Lo mismo sin baston: magnus_secuencia_frontal_sin (secuencia.py magnus_secuencia_frontal_sin).
 # Sacar y guardar el baston de frente (de un reposo al otro), casilla mas grande
 # (el baston sube por encima de la cabeza): magnus_sacar_baston_frente/animar.py.
+# Y de espaldas (2026-10-11): magnus_sacar_baston_espalda_v2/animar.py.
 import json as _json
 for _d, _cas in (('magnus_secuencia_frontal', (292, 400)), ('magnus_secuencia_frontal_sin', (292, 400)),
-                 ('magnus_sacar_baston_frente', (332, 452)), ('magnus_guardar_baston_frente', (332, 452))):
+                 ('magnus_sacar_baston_frente', (332, 452)), ('magnus_guardar_baston_frente', (332, 452)),
+                 ('magnus_sacar_baston_espalda_v2', (332, 452)), ('magnus_guardar_baston_espalda_b', (332, 452))):
     _SEC = os.path.join(ANIM_RAW, _d, 'animaciones.json')
     if os.path.exists(_SEC):
         for _n, _job, _cnt, _fps, _bucle, _idx in _json.load(open(_SEC)):
