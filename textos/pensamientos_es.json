@@ -3,13 +3,11 @@
 
 	"despertar": ["Hojas secas. Esta luz…\nNo sé qué lugar es este.", "Busco mi nombre… y no está.\nAntes de esta luz, nada."],
 
-	"vuelta": ["He caminado sin desviarme… ¿cómo he vuelto al mismo sitio? ¿Es la luz de antes?"],
+	"vuelta": ["He caminado recto… ¿cómo he vuelto al mismo sitio?\n¿Es la luz de antes?"],
 
-	"asombro": ["Algo baja por la luz… despacio, como si no pesara."],
+	"explorar": ["No puedo quedarme aquí.\nAlgo habrá más allá de la luz."],
 
-	"explorar": ["No puedo quedarme aquí.", "Algo habrá más allá de la luz."],
-
-	"ligero": ["Dentro de la luz apenas peso, como una hoja.\nLa próxima vez, caeré por la luz."],
+	"ligero": ["Dentro de la luz apenas peso como una hoja.\nA ver si la próxima vez caigo por esta luz."],
 
 	"baculo": ["Lo conozco. ¿Ha venido a buscarme?"]
 }

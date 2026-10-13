@@ -36,8 +36,8 @@ const HAZ_DESTINO := Vector2(1456.0, 1200.0)
 
 ## Altura (y del centro) a la que se queda flotando, y cuanto tarda en bajar.
 @export var y_flotar: float = 200.0
-## 6,5 s: el pensamiento del asombro ("Algo baja por la luz… despacio, como si
-## no pesara") tiene que leerse mientras aun baja, no cuando ya flota.
+## 6,5 s: lo que dura la nota del hilo (caida_hojarasca.gd, SonidoHilo) antes
+## de apagarse; baja en silencio, sin pensamiento.
 @export var bajada: float = 6.5
 ## Vaiven al bajar: lo que se mece a cada lado al principio (px y rad) y cada
 ## cuanto (s); se va apagando hasta quedarse casi recto.

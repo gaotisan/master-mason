@@ -102,9 +102,10 @@ extends Node2D
 ## Lo que pasa, en orden: cae y se levanta (pensamiento "despertar"); anda y,
 ## al salir por un lado y entrar por el otro la primera vez, se pregunta como ha
 ## vuelto al mismo sitio y si es la luz de antes ("vuelta"); al acabar, baja el
-## baculo por el haz y se asombra ("asombro": algo baja por la luz, como si no
-## pesara); al quedarse flotando arriba lo reconoce ("baculo"). Desconcierto,
-## asombro, reconocimiento.
+## baculo por el haz en silencio, solo con la nota de un hilo que vibra
+## (SonidoHilo; 2026-10-14, antes decia "Algo baja por la luz…": que hablen la
+## imagen, las hojas y el sonido); al quedarse flotando arriba lo reconoce
+## ("baculo"). Desconcierto, silencio, reconocimiento.
 ## Aparte, antes o despues del baculo: la primera vez que salta en la luz y
 ## flota, al volver al suelo se da cuenta de que alli apenas pesa ("ligero").
 ## Por la luz bajan hojas despacio, desde el principio (ver Las hojas de la
@@ -122,7 +123,7 @@ extends Node2D
 ## que salga a explorar en vez de quedarse dando vueltas en la luz.
 @export var explorar_tras: float = 60.0
 ## Desde que acaba el pensamiento de la vuelta, cuanto hasta que empieza a bajar
-## (s). El asombro sale enseguida, justo cuando el baculo asoma por arriba.
+## (s). La nota del hilo empieza a la vez, cuando el baculo asoma por arriba.
 @export var espera_baculo: float = 0.0
 ## Las dos capas de hojas: cuantas por columna de media (mas el monton de donde
 ## cae, en px de altura).
@@ -168,6 +169,9 @@ extends Node2D
 @export var hojas_paso_db: float = -9.0
 @export var arrastre_db: float = -10.0
 @export var magnus_pasos_db: float = -14.0
+## La nota del hilo mientras baja el baculo (assets/audio/baculo_hilo.wav, de
+## raw/master_mason/audio/baculo/hilo.py): por debajo de los pasos en las hojas.
+@export var hilo_db: float = -15.0
 
 @export_group("La luz")
 ## Zona de la luz para jugar (fracciones de la apertura del haz): pesa poco del
@@ -1043,7 +1047,7 @@ func _bajar_baculo() -> void:
 	_baculo_bajando = true
 	_baculo.bajar()
 	empezar_escalera()
-	_pensar.decir("asombro")
+	_sonar($SonidoHilo, hilo_db)
 
 ## Ya flotando arriba, lo reconoce.
 func _al_posar_baculo() -> void:

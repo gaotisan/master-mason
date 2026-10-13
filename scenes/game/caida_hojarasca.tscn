@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3]
+[gd_scene load_steps=44 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/caida_hojarasca.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="2"]
@@ -23,6 +23,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_golpe.wav" id="s_golpe"]
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_levantarse.wav" id="s_levantarse"]
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_arrastre.wav" id="s_arrastre"]
+[ext_resource type="AudioStream" path="res://assets/audio/baculo_hilo.wav" id="s_hilo"]
 [ext_resource type="Script" path="res://scripts/game/baculo.gd" id="baculo"]
 [ext_resource type="Script" path="res://scripts/ui/pensamientos.gd" id="pensamientos"]
 [ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_lejos.png" id="bosque_tex"]
@@ -265,3 +266,6 @@ max_polyphony = 4
 stream = ExtResource("s_arrastre")
 volume_db = -80.0
 autoplay = true
+
+[node name="SonidoHilo" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("s_hilo")
