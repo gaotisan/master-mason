@@ -1,0 +1,1464 @@
+# MASTER MASON — Guion v3
+
+*Documento maestro. Formato y detalle de `guion_v2.md`, reglas y decisiones de `guion_v2_revisada_externa.md`, según `decisiones_v3.md`, que manda. Se conserva la numeración de secuencias de la v2 para que las referencias cruzadas sigan valiendo.*
+
+---
+
+## 0. Portada
+
+**Título de trabajo:** *Master Mason*. **En pantalla:** **El maestro constructor**.
+*Nota de título:* *Master Mason* conserva a propósito la resonancia con Hiram y la tradición del maestro de obra. Si esa lectura masónica no interesa, el título internacional será *Master Builder*.
+
+**Logline.** Un viejo cantero sin memoria cae en un bosque de otoño donde las hojas sostienen su peso y la luz le quita la gravedad. Un anfitrión con mirada de niño le promete decirle quién es a cambio de que le enseñe el mundo. Cada verdad vuelve el sueño más real, más pesado y más mortal, hasta que el peregrino comprende que para salir no tiene que vencer al dueño con magia, sino demostrar que su casa nunca pudo sostenerse.
+
+**Tesis.**
+1. **Saber es despertar, y despertar duele.** Cada verdad añade al mundo peso, tiempo, sangre y muerte.
+2. **Crear no es poseer.** Una criatura puede acabar teniendo algo que su creador no puso en ella.
+3. **Lo aprendido no se puede desaprender.** El conocimiento es irreversible.
+4. **La realidad no vence por fuerza, sino por consistencia.** La casa de Dóminus cae porque es imposible; el torreón de Iram se queda en pie porque está bien hecho.
+5. **La última elección no pregunta qué sabes, sino qué haces con lo que sabes.** El juego empieza aplastando una cucaracha y termina preguntando si, después de todo, vuelves a golpear.
+
+**Estructura en anillo.** Del 1 al 5 el mundo se construye; el 6 es el centro; del 7 al 10 el mundo paga lo construido, por los mismos sitios, ya reales y rotos.
+- 1 ↔ 10: claro, hojarasca, haz, cuerpo.
+- 2 ↔ 8: mesa, comida, cuidado, traición.
+- 3 ↔ 7: ríos, marcas, número, salida.
+- 4 ↔ 9: sótanos, dibujos, conocimiento robado, la cirugía de Argos.
+- 5 ↔ 6: conocimiento físico, revelación metafísica.
+
+Al final de los caps. 3, 6 y 9 hay un **parpadeo del bronce**.
+
+| Nº | Título | Lugar | Conocimiento | Orbe | Realidad | Cámara dominante | Pérdida | Afecto con Dóminus | Min |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | La luz de antes | Claro, talud, sendero; bosque y casa (congelados) | La Luz | **Rojo** (1.8) | Pluma | Lateral | — | 5 | 18 |
+| 2 | Iram | Sala, cuarto, tres riachuelos, calvero | El Nombre, las estrellas | **Blanco** (2.7) | Pluma | Lateral; frontal fijo en la mesa | La salida sencilla | 6 | 22 |
+| 3 | El bestiario de nadie | Mesa, patio, ríos, muro, robles, ciénaga | Las quimeras, el número | **Tornasol** (3.6) | → Fábula (3.1) | Lateral; 3ª tensa; 1ª (mesa, posesiones) | Tener algo que dar | 8 → 6/7 | 28 |
+| 4 | Bajo la mesa | Casa de noche, ciénaga, sótanos, barranca | La letra, la polinización | **Verde** (4.8) | Fábula | 3ª tensa; lateral; 1ª (cerradura) | La inocencia | 7 | 24 |
+| 5 | El péndulo | Mesa, patio, río, barro, el muro | Número, zoología, **Newton** | El rojo pierde la ligereza | → **Peso** (5.7) | 1ª; lateral | La ligereza | **9** | 26 |
+| 6 | Dos flores de una misma raíz | Mesa, carboncillo, bosque anacrónico, tormenta, río | La historia, la Caverna | **Dorado** (6.4) | Peso | 1ª; lateral; frontal | Dóminus amigo, los legajos | 9 → 3 | 26 |
+| 7 | El agua sabe bajar | Cruces, mesa, planta-león, río hasta el valle | Anatomía, Euclides I (sin el pliego de las paralelas) | — | → **Medida** (7.2) | Lateral; 1ª (manos) | **Eco** | 3 → 0 | 26 |
+| 8 | La sopa | Fosa, río mudo, setas, mesa, tumba, bajo la casa | La dosis | — | Medida | Frontal fijo; lateral; 1ª (Argos) | **El hijo** | 0 → 2 → 0 | 26 |
+| 9 | Tres veces mío | Torreón, camino a la cantera, sótanos, puerta | El oficio, la piedad | Tornasol → **Negro** (9.9) | **Bronce** (9.1) | Diagonal; 3ª tensa; 1ª (Argos) | **Argos** | 0 | 24 |
+| 10 | El quinto postulado | Torreón, casa, escombros, claro, sarcófago | El pliego de las paralelas; conócete a ti mismo | **Negro** como plomada (10.1) | → nada | Diagonal → lateral → 1ª del bronce | Todo | 0 | 14 |
+
+**Duración objetivo: 3 h 40 min – 4 h 00 min.** La tabla suma 3 h 54 min (234 min). Las duraciones de cada capítulo son las de esta tabla. No se diseña para pasar de cuatro horas: si una escena no añade una regla, un vínculo o una consecuencia, se corta (§9).
+
+*Afecto con Dóminus:* contador interno de 0 a 10, nunca visible; decide matices de gesto y algunas líneas. Sus valores viven **solo en esta tabla**; el texto de los capítulos no los repite.
+
+---
+
+## Cambios respecto a v2
+
+- **Tres leyes de Dóminus** y **qué sabe Dóminus**: no lee mentes, solo nota huellas físicas. El río se seca porque deja de imaginar agua *nueva*, no porque borre la gravedad.
+- **Dóminus escala** en vez de ser monstruo desde el 2: sin «azótale» (2.2); vara sin placer (3.3); cumbre de la amistad y primera crueldad en el 5. El jugador puede sospechar antes que Iram, y se ve que **Iram necesita creer en él** (3.3, 5.2).
+- **Escenas cálidas nuevas o reforzadas:** los pies llagados y «Se llama Argos» (2.9), el palo a tres en el alba de las quimeras (3.2), la risa del «fuego tonto» (5.1), empujar juntos el péndulo (5.8).
+- **El hijo vive**: verbo *aprender mirando* (lista en §2). La rama sin veneno pasa a ser causal: el niño imita el procedimiento y echa él las setas (8.5-8.6).
+- **Seis posesiones**: hoja, sapo, pez, **oso de musgo**, cigüeña y Argos. Fuera la polilla (4.3 es ahora la cerradura) y la arpía (el dorado muestra su origen; se la deslumbra o se la deja pasar, 6.5). 5.9 vuelve a ser la posesión del oso, en dos pasos.
+- **El recuerdo del niño (6.2)** se juega dentro de los dibujos a carboncillo del sótano, animados en capas.
+- **Euclides es un misterio de seis capítulos**: falta **el pliego de las paralelas** (def. 23, postulado V, prop. 27-32), arrancado del legajo en 4.6; los dos pasillos paralelos se juntan en 4.2, 7.2 y 8.11; el pliego aparece en 10.2 (en el caballito o bajo la campana) y la casa cae.
+- **Sin guardados falsos**: las marcas copiadas son planas y mudas. El bufón ya no roba guardados.
+- **Báculo**: recuperar = mantener más de 0,25 s; la rueda ralentiza al 10 % y congela la huella.
+- **Puzles**: reglas de diseño en §1; el carnaval pasa a ser el camino a la cantera (9.3).
+- **Cucaracha final de unos 35 s** con señales; huida final rápida; arrastre de menos de un minuto; tramo silencioso en el torreón tras Argos; pausa de «lo peor ha pasado» en 9.2.
+- **Menos simbolismo explicado**: la línea SIGNIFICA queda como nota de director, breve, y nunca pasa a texto del juego. Como mucho un epígrafe por capítulo.
+- **Afecto con Dóminus**: sus valores solo en la tabla de portada.
+- Duración: de 4 h 20 min a **3 h 54 min**.
+
+---
+
+## 1. Reglas del mundo
+
+### Las tres leyes de Dóminus
+Son inviolables. Ninguna escena puede contradecirlas.
+
+**LEY I — Nada surge de la nada.** Dóminus solo transforma, recombina o deforma lo que vio, oyó, soñó o aprendió. No puede imaginar algo absolutamente nuevo. Por eso la madre sale arpía a partir de una vieja vista por la ventanita; la casa copia recuerdos a trozos; las quimeras mezclan animales conocidos; el hijo tiene la cara sin terminar, porque Dóminus no sabe completar a otro; y el bosque repite módulos y heridas. Es también la frase de su padre (6.3).
+
+**LEY II — Una verdad aprendida no se puede borrar.** Dóminus puede deformar el sueño, luchar contra los efectos de una verdad, esconderla o construir alrededor, pero **no deshacerla**. Newton no deja de existir una vez enseñado. Por eso el mundo pesa cada vez más y el final es inevitable. Por eso, en el 7, el río se seca **porque deja de imaginar agua nueva** (lo que ya corre sigue bajando y se agota), no porque suspenda la gravedad. Y por eso **escondió el pliego de las paralelas** en lugar de destruirlo: un papel se puede quemar, pero lo que dice, una vez sabido, no.
+
+**LEY III — La novedad genera autonomía.** Dóminus controla recuerdos y recombinaciones. Pierde el control de lo que produce una conducta o una idea que no estaba en sus recuerdos. Iram empieza como proyección y acaba aprendiendo, combinando y eligiendo. Eco nace de una voz que repite y acaba diciendo una frase que nadie le dijo. Argos sale de un recuerdo y elige a Iram contra la orden de Dóminus. Dóminus puede dañar a estas criaturas o el mundo que necesitan; no puede ordenarles qué sentir.
+
+**Tres clases de criatura** (consecuencia práctica de las leyes):
+- **Lo combinado** (cabracerdo, buitrepez, planta-león, las cabezas del tricéfalo) es de cartón: al fijarlo con el blanco, la parte imposible se vuelve piedra y se cae.
+- **Lo recordado** (Argos, la casa, el padre) está lleno de detalle: al fijarlo, el tiempo real le cobra los años del sueño.
+- **Lo nacido solo** (Eco, y al final Iram) es lo único que Dóminus no gobierna.
+
+### Qué sabe Dóminus
+**No lee la mente.** Nota alteraciones importantes en su mundo: una construcción nueva, un río desviado, una marca repetida, una criatura movida, una mentira metida en una lección. Reconoce los patrones de Iram porque Iram sale de él. Pero **no conoce una decisión privada hasta que deja huella física**.
+- **La fosa (8.1):** ve tierra removida y una rama recién quebrada.
+- **El veneno (8.6):** nota el sabor y los trozos de seta, no la intención.
+- **El torreón:** tarda en comprender qué demuestra.
+- **El pliego (10.4):** sabe que el conocimiento le destruirá y aun así decide leerlo o recordarlo.
+
+Su amenaza de 7.2 («puedo adivinar cualquier treta») es una baladronada que el juego desmiente en 8.1.
+
+### El tiempo y lo que se filtra
+- **Fuera, días; dentro, años.** El niño lleva pocos días en el sarcófago; dentro le ha dado tiempo a crecer hasta tener la cara de su padre. El Argos del sueño es el recuerdo del perro, con años prestados. El Argos real se quedó fuera la noche de la hoguera y puede estar vivo. Fijar a Argos le cobra los años del sueño.
+- **El mundo real se filtra:** el haz es la luz de la ventanita; las hojas que flotan son el polvo; el báculo que baja es la araña por su hilo (lo único que Dóminus no inventó: por eso Iram «lo conoce»); el claro que da la vuelta es la caja; las estrellas son velas; la cara de la arpía es la de una vieja que se asoma al cristal.
+
+### Conocimiento → realidad
+Un recurso `RealityState` con presets y transiciones de unos 30 s. **La respiración solo nace del esfuerzo** y se va en reposo en unos 7 s; nunca es un bucle constante. El estado cambia cuánto esfuerzo hace falta para que aparezca. Ningún cambio se avisa con texto: se nota en el siguiente salto. Las lecciones las da el jugador con su mano: él mismo se quita los poderes.
+
+| Estado | Caps. | Lo activa | g | Salto | Carrerilla | Aliento con… | Caídas | Báculo al recuperarlo | Huella | Señal |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **Pluma** | 1-2 | Inicio | 0,35 en la luz; 0,8 fuera | 100 % (arco lunar en la luz) | ×1,4 | Nunca | Sin daño | Vuelve flotando | 8 s | Sin sombra en la pared hasta el nombre |
+| **Fábula** | 3-4 | Las quimeras (3.1) | 0,35 en manchas de luz y en el cono; 1,0 fuera | 100 % | ×1,4 | Carreras muy largas | Tumbado, sin daño | Vuelve flotando | 5 s | Amanecen las criaturas |
+| **Peso** | 5-6 | Newton (5.7) | 1,0 | 75 % | Imprescindible | ~6 s corriendo o dos saltos largos | Cojera breve (2 s) | Vuelve rodando si hay suelo seguido | 3 s | Hay que empujar el péndulo; las cosas caen |
+| **Medida** | 7-8 | Euclides I (7.2) | 1,15 | 55 %; se trepan bordes | Corta | ~3 s corriendo o trepar | Daño real | Hay que ir a por él | 0 | Los pasillos se corrigen… salvo los dos paralelos |
+| **Bronce** | 9-10 | El atracón de Dóminus (9.1) | 1,3 | Un palmo; en el 10, nada | No | Unos pasos rápidos o un escalón alto | Tumbado largo | Bastón físico: hay que ir a por él | 0 | Se apagan las estrellas; sonido metálico |
+
+**Salto testigo.** El tercer riachuelo, de cuatro cuerpos, con la piedra-corazón en medio, se salta tres veces: en el 2, un brinco flotante (2.6); en el 5, carrerilla, pisar la piedra-corazón y jadeo (5.9); en el 8, imposible: hay que construir un arco (8.3).
+
+**Euclides, el misterio largo.** Lo que falta no es solo el quinto postulado sino **el pliego de las paralelas entero**: la definición 23 («paralelas son las rectas que, prolongadas indefinidamente, no se encuentran»), el postulado V y las proposiciones 27 a 32. El texto del juego sigue siendo mínimo: *Dos paralelas no deberían encontrarse.*
+- **La imagen fija (no cambia de aspecto entre capítulos):** dos pasillos idénticos con **una hilera de clavos de cabeza de latón** cada uno; las dos hileras se acercan hasta tocarse y los pasillos acaban en **una sola puerta**. Cada pasillo tiene una gota que cae en su nota (a una cuarta); donde se juntan, **las dos gotas suenan al unísono**.
+- **4.2** se ve por primera vez · **4.6** el legajo de Euclides tiene un pliego arrancado (hilo de costura cortado, lacre partido; *Falta un pliego.*) · **7.2** el Libro I endereza la casa **salvo esos dos pasillos** (*Eso sigue estando mal.*) · **7.5** la balsa de troncos paralelos siembra la palabra sin decirla · **8.11** siguen juntándose y las tablas del encuentro se rajan · **10.2** aparece el pliego · **10.4** los pasillos se separan, las gotas se desafinan y la casa cae.
+- **Dónde está el pliego (Ley II: no puede borrarlo, solo esconderlo).** Dóminus lo arrancó antes del cap. 4. En 5.3 lo mete en la barriga del caballito, tapada con una cuña, y se lo regala a Iram: saca de su casa lo que más miedo le da. **Si Iram acepta el caballito**, en 10.2 el pliego está dentro. **Si lo rechaza**, Dóminus lo vuelve a sacar y lo guarda **bajo la campana de la hoja**, debajo de la hoja caída al fondo (5.7): donde puede verlo sin tocarlo.
+
+### El báculo
+**Estados:** espalda (en la funda) / mano / clavado.
+- **En la mano solo se anda y se usan poderes.** Si se pulsa saltar, el peregrino mira arriba.
+- **Clavar** (animación nueva): el efecto se queda en un punto y el cuerpo queda libre.
+- **Recuperar:** mantener el botón *llamar* **más de 0,25 s**. La acción corta no se ejecuta hasta soltar, así nunca se llama al báculo por accidente. En Pluma y Fábula vuelve flotando a la mano, como bajó; en Peso, rodando si hay suelo seguido; desde Medida hay que ir a por él.
+- **Llamada corta** (toque y soltar antes de 0,25 s): la voz. Según contexto, Iram grita al agua, llama a Argos (que olfatea y se sienta junto a lo importante) o interactúa con lo que tiene delante.
+- **La huella:** al recuperar o arrancar un báculo clavado, su efecto se queda como un halo que se apaga en **8 / 5 / 3 / 0 s** según el estado. Es **la única forma de combinar dos orbes**.
+- **La rueda de orbes** ralentiza el mundo **al 10 %** y **congela la huella** mientras está abierta. Elegir orbe nunca cuesta tiempo de huella.
+
+### Los orbes
+Cada orbe **se gana con un acontecimiento**. La garra tiene además un **hueco vacío** que nunca se llena (el estaño: el padre).
+
+| Color | Nombre | Ancla | Mecánica | Límites y coste | Gana / pierde |
+|---|---|---|---|---|---|
+| **Rojo** | La Luz | *Fiat lux*; Prometeo | Cono de luz: **lo iluminado se queda quieto, se esconde o reacciona** según la criatura. En Pluma y Fábula, dentro, gravedad lunar y **lo suelto flota y sube**. | Cono de **3 cuerpos**. **La oscuridad espesa se lo come.** **En casa de Dóminus ilumina, pero no aligera.** Carga: 40 s (Fábula), 20 s (Peso), 20 s con pocas velas (Bronce); se recarga en velas y fuego. | Cap. 1. Pierde la ligereza con Newton (5). Se apaga en el 10. |
+| **Blanco** | La Marca | Hiram; marcas de cantero; Vía Láctea | **Fijar:** lo marcado se vuelve piedra y se queda (losas, trazos, guías de compás). **Lo marcado deja de flotar.** *Un tramo solo se fija construyendo encima.* **La marca en un tronco es un punto de guardado.** | **No prende en lo vivo mientras se mueve.** **Cobra el tiempo:** lo recordado madura o envejece de golpe; lo combinado pierde la parte imposible. El bosque ya copia un trazo en 3.4; desde el 7 copia la marca de Iram: **las copias son planas y mudas y no guardan**; la verdadera tiene relieve, polvo de piedra y sonido. | Cap. 2 (2.7). Hasta el final. |
+| **Tornasol** | El Ánima | Cola del pavo real; Argos Panoptes; Hermes | **Posesión en 1ª persona** de seis receptores (§6): se apunta, se clava y el cuerpo se tumba. 2-3 controles por ser; un latido marca el tiempo. | **Argos guarda el cuerpo** y ladra dentro de la posesión si algo se acerca. **Rebota en Dóminus y en lo dormido; con el hijo, choca con la cara lisa.** | Cap. 3 (3.6). En 9.9 se apaga y se vuelve negro. |
+| **Verde** | La Semilla | *Viriditas*; Camerarius | **Crecer:** raíces-rampa, enredaderas, zarzas que atan. **Crece hacia la luz** (el cono o su huella). | Lo crecido se queda y se reproduce solo. En Bronce se pudre enseguida. | Cap. 4 (4.8). |
+| **Dorado** | La Caverna | *República* VII | **Revelar costuras:** azulejo, copias, pintura, la cuerda del péndulo, el injerto. Congela 3 s lo injertado. | Gasta el doble. Hace parpadear a lo combinado y a los aliados. Cuanto más real es el mundo, menos tiempo dura la revelación. | Cap. 6 (6.4). |
+| **Negro** | La Plomada | «Medida, número y peso»; Saturno | No es magia nueva: es el tornasol apagado, convertido en peso y usado como instrumento. Marca la vertical verdadera: **demuestra que algo no se sostiene**. | Todo. | Nace en 9.9; plomada en 10.1. |
+
+*El violeta, el Injerto, es de Dóminus: se ve por primera vez en la cola cosida (5.2), luego en el bosque del atracón y en el tricéfalo.*
+
+### Cámara
+| Cámara | Cuándo |
+|---|---|
+| **Lateral** | Moverse, puzles de física, viajes, persecuciones con decisiones, la huida final. Es donde se lee la física. |
+| **Frontal hacia cámara** | Soledad, algo detrás que él no ve, tramos de carrera **sin obstáculos** (solo ritmo y aliento; lo que viene se anuncia un segundo antes por abajo del encuadre). |
+| **Frontal de espaldas** | Entrar en lo desconocido: la casa, los sótanos. |
+| **Frontal fijo de la mesa** | Las cenas (2.1, 2.9, 8.6) y las escenas de mesa sin balanza, con el encuadre de la secuencia congelada. |
+| **Diagonal** | La casa como maqueta, el torreón. |
+| **3ª persona tensa** | Escenas tipo *Alan Wake*: casa de noche, sótanos, camino a la cantera. |
+| **1ª persona** | Ataúd, posesiones, mesa, manos. Es *ser otro*, salvo al final, que es *ser tú*. |
+
+En 2D, «rotar» es **cortar a otra composición** en un umbral, nunca durante un salto, y **la dirección del stick se conserva hasta que se suelta**. No hay giros de 180° en escenas tensas. Cuanto más real es el mundo, menos cortes mágicos hay.
+
+### Verbos del peregrino
+- **Existentes:** reposo, andar, arrancar y parar, correr con carrerilla, saltos con altura variable, aterrizar, agacharse, girar, andar de frente, de espaldas y en diagonal (también con báculo), tumbarse y levantarse, caer del cielo; con el báculo, sacar, andar, girar y guardar.
+- **Cinco nuevos:** clavar/arrancar (cap. 1), empujar (5), trepar un borde (7), arrodillarse (7) y arrastrarse (10). Ni uno más.
+- **Con trucos** (sin vídeo nuevo): coger y lanzar el palo, esconderse, mirar, llamar, colocar sillar, cavar, tallar, marcar, hacerse daño. Ninguna animación nueva para lo que se resuelva con puesta en escena, primer plano de manos o código. Nunca se acelera, ralentiza, diezma ni empalma una animación: la lentitud se hace con pausas en reposo. Detalle en §7.
+
+### Lo que cada pérdida quita del mando
+| Pérdida | Cap. | Deja de responder |
+|---|---|---|
+| La ligereza | 5 | Flotar en el cono; las losas ya no suben; el báculo ya no vuelve flotando. |
+| Dóminus amigo | 6 | La balanza: su platillo se queda vacío. |
+| **Eco** | 7 | **Gritar al agua.** Desde el 3 contestaba con una palabra-pista del puzle; desde el 7, calla. |
+| **El hijo** | 8 | **Pedir ayuda.** Si no se le pegó, metía los brazos donde Iram no llegaba (4.4, 8.3). |
+| **Argos** | 9 | **Llamarle** (olfatear lo más cercano), **la guardia del cuerpo** y, con él, **poseer**. |
+| Todo | 10 | Salto, carrera, sombra, brazos y andar. |
+
+### La mesa
+En 1ª persona: Dóminus enfrente y una **balanza de cantero**. El jugador pone **legajos** (o cartas) en un platillo y Dóminus equilibra con **respuestas** breves en el otro.
+- **La hoja bajo la campana:** en el platillo de Dóminus, una campana de cristal con una hoja suspendida (el claro en miniatura). Al acercar un legajo, la hoja baja; con dos, se la ve caer. La dosis se lee antes de decidirla. Con Newton (5.7) la hoja cae al fondo y ya no sube; desde 6.6 la campana se queda junto al codo de Dóminus, fuera del platillo vacío.
+- **Dosis:** uno o dos legajos por lección. Si se intenta volcar el montón, Dóminus para la mano: «En pequeñas dosis».
+- **Mentir:** combinar dos cartas en una quimera. No da respuestas, pero la quimera amanece viva (Ley I: Dóminus recombina lo que ya conoce).
+- **Ventanas:** Newton y Euclides son obligatorios; el jugador elige cuándo, dentro de dos lecciones.
+- **Una mentira de Iram** (sobre el origen de los legajos, 4.8) es una alteración que Dóminus nota más tarde; cambia una línea, no la trama.
+
+*Elecciones:* filosofía y tabla de consecuencias en §5. *Afecto:* columna de la tabla de portada.
+
+### Puzles: reglas de diseño
+1. Un puzle introduce como máximo **una regla nueva**; los avanzados combinan reglas conocidas.
+2. **Toda pista va por dos canales** cuando sea razonable: sonido + imagen, forma + comportamiento, luz + movimiento.
+3. Nada al azar que el jugador no pueda leer: lo que cae, cae por **corrientes visibles**.
+4. Nunca se castiga quitando progreso de guardado por una trampa narrativa. El juego puede engañar a Iram, no romper el contrato con el jugador.
+5. Una escena emocional no se disfraza de puzle si no admite solución alternativa.
+6. Si el resultado está predeterminado, **el input expresa resistencia, cuidado o decisión**, no la falsa promesa de salvar.
+7. En Bronce, la pérdida de movilidad se sustituye por **leer el entorno, preparar y decidir**, no por caminar despacio.
+8. La rueda de orbes no consume huella.
+9. **Ayudas invisibles:** tras varios fallos, el mundo ayuda sin decirlo (una hoja más grande, una corriente más). El agua (Eco) da una palabra-pista desde el 3 hasta el 7.
+10. Límites fijos acordados: escalera de otoño con ayudas a los 3 y 6 fallos; ciénaga de **cinco decisiones como máximo**; barranca con **dos anclajes válidos**; setas: **volva, anillo y sombrero**; último charco: **sostén cuanto puedas**; arco sobre Eco en tramos cortos izquierda-derecha.
+
+---
+
+## 2. Personajes
+
+**Iram, el peregrino** (el jugador; en código, «Magnus»). Anciano sin memoria, cantero, *Magister muri*. Habla poco. Llega como hijo del sueño, se vuelve el que enseña y acaba siendo alguien que Dóminus no puso. **Lectura obligatoria:** Iram y Dóminus son **dos desarrollos posibles nacidos del mismo niño, construidos con el rostro recordado del padre**. No son padre e hijo literales ni una misma persona viajando en el tiempo. Iram es lo que aquel niño podría haber llegado a ser si hubiera escuchado; Dóminus, lo que fue dentro de la caja. Su cara se ve tres veces en **primer plano ilustrado**, con el mismo encuadre: el reflejo del río (2.6), junto a la cara tallada de Eco (6.7) y entre los escombros (10.5), donde el plano se desplaza a la cara del niño de carboncillo.
+
+**Dóminus.** El niño encerrado en el sarcófago que imagina este mundo. Dentro es un curandero e inventor alto, de toga oscura, con la cara de su padre y mirada de niño. **Quiere saber sin aceptar que lo que aprende deja de pertenecerle.** Da pena: quemaron a su padre delante de él, su madre le salió un monstruo y cada mañana empuja el péndulo como quien da cuerda a un juguete. Sin música de villano. *Producción:* el NPC facetado que ya existe, como títere.
+**Escalera de crueldad** (el jugador puede sospechar antes que Iram, y el juego lo aprovecha):
+- **1-2, raro pero protector:** cura los pies, comparte el perro; del hijo solo dice «Si te molesta, mándalo fuera».
+- **3-4, egoísta e inquietante:** golpea la mesa cuando no le dan lo que quiere, tiende la vara y **observa sin placer** qué hace Iram, corre la cortina, se sienta encima de la trampilla.
+- **5, cumbre real de la amistad y primera crueldad física:** la risa privada, el padre, el péndulo empujado entre los dos… y la cola de pez cosida.
+- **6, carcelero:** «Tú, sencillamente, no eres nadie».
+- **7, dios celoso:** seca el río con los ojos cerrados.
+- **8, verdugo:** vuelca la sopa en el plato del hijo.
+- **9, niño desesperado que mutila lo que ama:** el tricéfalo.
+- **10, elige saber aunque le destruya.**
+Dos momentos muestran que **Iram necesita creer en él**, con un pensamiento corto y un gesto: tras la vara (3.3) y tras la cola cosida (5.2).
+
+**El hijo sin rostro.** Plantado como una semilla, de unos ocho años, con raíces en el pelo; se mueve como una marioneta. No es solo víctima: **aprende mirando**. Coloca la cuchara imitando a Dóminus (2.2); lanza el palo dos pasos y aplaude (2.4); copia la marca de cantero mal cerrada (2.8, vuelve en su tumba en 8.8); regala el sapo y se pone las antiparras al revés (3.9); intenta empujar una piedra y se le puede ayudar (5.6); abraza o no al ser vendado, según la vara (7.3); imita el estudio de las setas (8.2). Por eso su muerte es consecuencia de una relación, no una tragedia programada.
+
+**Argos.** Un can de palleiro gallego, grande y desgreñado, de ojos color miel: el recuerdo del perro real del niño, y por eso lo más detallado del sueño. Elige a Iram porque huele al niño. **Juega** (el palo, el único juego del juego), **trabaja** (llamada corta: olfatea y se sienta junto a lo importante), **guarda** el cuerpo durante las posesiones y **flota** pataleando en el cono rojo. No es una herramienta: pasa mucho tiempo simplemente acompañando, sin pedir nada. Tres posesiones guionizadas (5.6, 8.10, 9.8). Muere en el 9.
+
+**Eco.** Una voz que nace en el tercer río cuando Iram grita «¿Hay alguien?». Es criatura de **Iram**, no de Dóminus. Solo existe en reflejos, y como todos los ríos son uno, está en todos. Progresión: repite (2.6); elige qué repetir y da pistas (3.4); recibe nombre (4.7); combina palabras y dice «Iram» sin que nadie lo diga (5.4); produce «Tú. Eres. Alguien.» (6.7); muere (7.7). Demuestra la Ley III antes de que el jugador la entienda.
+
+**La madre-arpía.** Mujer-avestruz con cabeza de vieja (*Physiologus*): la madre que Dóminus no supo imaginar. No sabe volar. **No se posee.** Con el dorado (6.5) se ve su origen: la vieja real asomada a la ventanita y una nana deformada. Se la puede deslumbrar o dejar pasar despacio sin atacarla; si se la perdona, deja de cazar y aparece en silencio en el río seco (7.7), las setas (8.4), los entierros (8.8, 9.11) y la huida final (10.6); si se la deslumbra, vuelve a cazar en 8.4. Su cara es la de la vieja del final B en las dos ramas.
+
+**El bufón-pavo real.** Solo avanza cuando no se le mira. Entrega el tornasol (3.6). Después, testigo al fondo; hace una última reverencia en el 10.
+
+**Criaturas.** La **gárgola** del roble (solo mira), el **sapo** negro con antiparras y alas de libélula, el **cabracerdo** y el **buitrepez**, los **Anitales** y el **homúnculo**, el **oso de musgo**, la **cigüeña** gigante (de los campanarios de Santiago), la **planta-león**, la **mujer de párpados morados**, las **luciérnagas** de la ciénaga, los **injertos violetas** del atracón y el **aracnobat**, que a veces cuelga de los aleros.
+
+---
+
+## 3. Capítulos
+
+*Claves: **CÁM** cámara · **LUGAR** · **PASA** · **JUEGA** · **PUZLE** · **TEXTO** · **SON** · **SIGNIFICA** (nota de director; nunca es texto del juego). Los pensamientos van en cursiva y son el techo: si la imagen lo dice, sobran.*
+
+---
+
+### CAPÍTULO 1 — LA LUZ DE ANTES
+
+> «Y dijo Dios: Sea la luz: y fué la luz.»
+> — Génesis 1:3 (Reina-Valera 1909)
+
+**Estado:** Pluma. **Duración:** 18 min. **Objetivo emocional:** asombro, no amenaza.
+
+**Resumen.** Un anciano cae a un claro de hojarasca del que no se puede salir. Por la luz baja un báculo que reconoce. Para cogerlo descubre que en la luz casi no pesa y que las hojas que caen le sostienen. Con el báculo, un remolino abre un sendero; aprende a clavar la luz y a recuperarla, y un perro le olisquea las manos como si le conociera. El bosque le lleva a una casa imposible.
+
+**1.1 La caída** *(hecha)*
+- **CÁM:** cinemática → lateral.
+- **LUGAR:** atardecer; un claro de hojarasca bajo un haz vertical. Sin árboles en plano: alrededor, penumbra.
+- **PASA:** cae, la hojarasca se abre como agua y el mundo da la vuelta. Queda tumbado. No se explica nada.
+- **JUEGA:** levantarse.
+- **TEXTO:** *Hojas secas. Esta luz…* / *Antes de ella, nada.*
+
+**1.2 El claro que da la vuelta** *(hecha)*
+- **PASA:** las hojas se apartan al andar. Si sale por un borde, entra por el otro, sin fundido, como ya funciona.
+- **TEXTO:** cerca del borde: *No puedo quedarme aquí.* / *Algo habrá más allá de la luz.* Tras la primera vuelta: *¿Cómo he vuelto al mismo sitio? ¿Es la luz de antes?*
+- **SON:** en el borde, un zumbido grave de espacio cerrado.
+- **SIGNIFICA:** el claro es la caja. Nadie lo dice.
+
+**1.3 Lo que baja** *(la bajada está hecha; aquí se detiene)*
+- **CÁM:** la cámara sube hasta encuadrar el haz entero.
+- **PASA:** la luz se **espesa** con motas doradas. El báculo baja girando como una pluma, con un **filamento de luz** encima que solo se ve a contraluz, y **se detiene a tres hojas de altura**, fuera del alcance, girando. La garra cierra una bola de un rojo apagado.
+- **JUEGA:** libre; si el jugador se queda quieto, el peregrino mira arriba.
+- **TEXTO:** mientras baja: *Algo baja por la luz… despacio, como si no pesara.* Al detenerse: *Lo conozco. ¿Ha venido a buscarme?*
+- **SON:** una nota aguda sostenida, como un hilo que vibra.
+
+**1.4 El primer salto que flota**
+- **LUGAR:** a ras de suelo, **una raíz vieja en arco**, mitad en la luz y mitad en la sombra, fuera de la columna del báculo.
+- **PASA:** en el haz, el peregrino sube algo más de lo esperado, se queda arriba un instante y **baja despacio**, con la túnica abierta como una campana. No llega al báculo.
+- **PUZLE (contraste, no puzle):** la raíz se salta con un brinco normal en la sombra y con un arco lento y altísimo en la luz. No hay fallo: es un juguete. *(El arco lunar se escala por código sobre el salto existente.)*
+- **SON:** en la luz el aterrizaje no suena; en la sombra, cruje.
+
+**1.5 La hoja que sostiene**
+- **PASA:** baja, más lenta que las demás, **una hoja grande y dorada** y espera a la altura del pecho. Si cae sobre ella, **aguanta**: se dobla, se hunde un palmo y **se oscurece** durante 2 s; luego se pliega y él sigue cayendo, flotando. Si no salta, se le posa en el hombro y resbala, y a los cinco segundos baja otra.
+- **JUEGA:** saltar a la hoja y desde ella.
+- **SON:** un crujido suave y **la primera nota** de la melodía del título, en arpa.
+
+**1.6 La escalera de otoño** *(el primer puzle)*
+- **CÁM:** lateral, abierta lo justo para ver el suelo y el báculo.
+- **LUGAR:** el haz. Empieza a caer hojarasca del cielo, poco a poco, dentro de la luz.
+- **Tres reglas, dos ya aprendidas:** en la luz se pesa poco; una hoja aguanta mientras se dobla; y **el color dice cuánto** (dorada 2 s, ocre 1 s, rojiza medio segundo; todas se oscurecen mientras aguantan).
+- **Las corrientes (trayectorias legibles, no aleatorias):** tres columnas suaves, cada una suelta una hoja cada 3-4 s, y **cada columna tiene su familia de corriente**, siempre la misma:
+  1. **La caída recta** (columna izquierda, abajo): la hoja baja lenta, casi vertical, con un balanceo mínimo. Aquí abundan las **doradas**.
+  2. **El vaivén** (columna central): la hoja hace arcos de péndulo de lado a lado con un periodo fijo de unos 2 s, como una hoja de verdad. Se puede saber en qué extremo estará un segundo después. **Ocres.**
+  3. **La espiral** (columna derecha, arriba, cerca del báculo): una corriente que **sube** girando alrededor del haz antes de dejar caer la hoja. Es la única que acerca al báculo. **Ocres y rojizas.**
+  Las corrientes **se ven** (las motas doradas del haz las dibujan como hilos de humo) **y se oyen** (un soplo suave, distinto en cada columna, en estéreo según su lado). El jugador aprende a prever dónde estará una hoja un segundo después. **Abajo abundan las doradas; arriba solo hay ocres y rojizas.** El báculo está donde desde el suelo y una hoja no se llega, y desde la segunda, sí.
+- **JUEGA:** los controles de siempre (mantener para subir más, dirigir en el aire). **El agarre es automático:** si toca el báculo, alarga la mano y lo coge.
+- **La ráfaga:** llega una sola vez, la primera vez que pisa una hoja por encima de media altura. Se oye un segundo antes y empuja hojas y peregrino **hacia el báculo**. El mundo le ayuda.
+- **Fallo:** sin daño; cae flotando y las hojas siguen cayendo. **Ayudas invisibles:** tras tres caídas baja una hoja enorme que aguanta 3 s y sube con una corriente; tras seis, la espiral se ensancha y alcanza la columna central.
+- **SON:** **cada hoja pisada da la siguiente nota** de la melodía del título, por cualquier ruta. Si toca el suelo, la frase vuelve a empezar. Coger el báculo da la nota final: la melodía siempre se completa con el logro. (Es la canción que el hijo cantará al morir, 8.7.)
+
+**1.7 La mano en el báculo**
+- **CÁM:** plano detalle de un segundo de la mano cerrándose sobre la madera.
+- **PASA:** medio segundo de quietud en el aire. La luz pierde su espesor y el báculo **vuela solo a la funda de la espalda, despacio, como bajó**. Se corta la gravedad lunar: cae unos tres cuerpos con el aterrizaje pesado existente. No se tumba: un primer logro no se castiga. Entonces **un remolino** recorre el claro, levanta la hojarasca en espiral y se la lleva hacia el borde derecho; donde estaban las hojas aparece un sendero de tierra.
+- **Logro:** «Ligero como una hoja», sin aviso en pantalla.
+- **SON:** el golpe de la caída, el remolino y un latido del orbe.
+
+**1.8 El báculo no salta**
+- **PASA:** al sacarlo, **el orbe se enciende rojo**. Con él en la mano, saltar solo hace que mire arriba. Aparece el glifo de guardar, una sola vez en todo el juego. Lo guarda y salta.
+
+**1.9 El cono que se queda** *(clavar y recuperar)*
+- **LUGAR:** un talud tres cuerpos más alto que el salto normal; al pie, una grieta que brilla.
+- **PUZLE:**
+  1. En la mano, el orbe proyecta un cono rojo; apuntado arriba, las motas flotan y suben en él. Pero así no se salta.
+  2. Junto a la grieta aparece **clavar** (animación nueva): el cono queda fijo.
+  3. Guardar las manos y saltar en el cono: flota hasta el borde.
+  4. Arriba, **mantener *llamar***: a los 0,25 s el báculo se arranca y sube flotando por su luz hasta la mano. El glifo enseña la diferencia: **toque = voz; mantener = báculo**. Si el jugador da un toque, el peregrino solo carraspea («¿Eh?») y el báculo sigue clavado.
+  5. Al recuperarlo, el cono se queda un momento como **huella** (8 s): las motas siguen subiendo. Nada lo explica; se verá otra vez en 2.5.
+- **SON:** madera contra tierra y el zumbido del cono; al recuperarlo, la nota de hilo de 1.3.
+
+**1.10 El perro del borde**
+- **CÁM:** lateral; solo el último plano, frontal.
+- **PASA:** un ladrido. Sale de los helechos un perro grande y desgreñado, de ojos color miel. Mueve la cola como si conociera al peregrino de siempre, pero **ladra al báculo** encendido.
+- **PUZLE (el primer vínculo):** con el báculo en la mano retrocede; si se corre hacia él, huye. Hay que **guardar el báculo, agacharse y quedarse quieto**. El perro se acerca, **le olisquea las manos mucho rato**, como si buscara algo, se las lame y se apoya contra él. Último plano frontal: el perro mirando la cara del viejo. Todavía no tiene nombre.
+
+**1.11 El bosque y la ciudad** *(congelada, desde una escena envoltorio)*
+- **PASA:** la secuencia hecha, sin tocarla. El envoltorio la carga **saltándose su caída del cielo** y su cartel final. Antes, el perro trota delante y desaparece entre los árboles (capa del envoltorio).
+- **TEXTO** (si cabe en el envoltorio, en la loma): *Sé cómo se llama esa ciudad. El mío, no.*
+
+**1.12 La puerta entornada** *(congelada)*
+- **PASA:** lo que existe. El envoltorio añade dos capas: **el perro sentado junto a la puerta**, como si llevara horas esperando, y **el arco de humo blanco del péndulo**, que pasa sin que nada lo empuje.
+- **TEXTO:** Dóminus: «Sé bienvenido, peregrino».
+
+**Última imagen.** El humo del péndulo se queda suspendido en el aire, sin caer. Negro.
+
+---
+
+### CAPÍTULO 2 — IRAM
+
+> «Y todo lo que Adam llamó á los animales vivientes, ese es su nombre.»
+> — Génesis 2:19 (Reina-Valera 1909)
+
+**Estado:** Pluma. **Duración:** 22 min. **Dóminus:** raro pero protector.
+
+**Resumen.** Dóminus le llama Iram y le pide que le enseñe el mundo a cambio de decirle quién es. Un niño sin cara pone la cuchara como su padre. Iram juega con el perro, el bosque se repite, en el tercer río ve su cara y nace una voz. Uniendo estrellas gana la Marca. El niño copia su marca de cantero y Dóminus le cura los pies.
+
+**2.1 El nombre** *(congelada; se conserva su elección)*
+- **CÁM:** la existente. **Ese encuadre de la mesa es el de las cenas** (2.9 y 8.6).
+- **PASA:** la elección de nombre que ya existe; elija lo que elija, Dóminus dice: «Iram. Te llamaré Iram». Después, el envoltorio añade el resto.
+- **TEXTO** (condensado del relato):
+  - Iram: «No recuerdo nada. Muéstrame el camino a una aldea».
+  - Dóminus: «Bosques infinitos nos rodean… Te diré quién eres. Pero habrás de devolverme el favor, y el conocimiento que me pides requiere ser administrado en pequeñas dosis. Me hablarás de otras gentes, describirás animales, dibujarás otros árboles… y me versarás en el amor y en las mujeres».
+
+**2.2 El hijo y la cuchara**
+- **CÁM:** frontal fijo de la mesa.
+- **PASA:** sale de entre los trastos **un niño con la cara sin terminar**, que se mueve como una marioneta. Dóminus coloca su cuchara con un gesto preciso, de cirujano. El niño trae **una cuchara torcida** para Iram y **la recoloca tres veces**, cada vez más parecida a la de Dóminus. Entonces mira a Iram. Después Dóminus se queda mirando el báculo un rato largo.
+- **JUEGA:** Iram puede **asentir** (llamada corta): el niño se sienta en el suelo junto a su silla; si no, vuelve a los trastos.
+- **TEXTO:**
+  - Dóminus: «No entiende los límites. Si te molesta, mándalo fuera. Obedece cuando quiere».
+  - Sobre el báculo, casi para sí: «Eso no es de esta casa».
+- **SIGNIFICA:** el niño aprende mirando; el juego lo cobrará en el 8.
+
+**2.3 La primera sombra**
+- **CÁM:** lateral interior, en el cuarto.
+- **PASA:** al apagar la vela entra la luna, y en la pared aparece **su sombra, por primera vez**, una fracción de segundo más lenta que él. El perro rasca la ventana; si se le abre, se echa a los pies de la cama.
+- **TEXTO:** *Iram. Lo repito y no sabe a nada.*
+
+**2.4 La madre y el palo**
+- **CÁM:** lateral; en la orilla, frontal.
+- **LUGAR:** amanecer azulado; un riachuelo con frambuesas.
+- **PASA:** Iram sale con el perro. Coge frambuesas de cara a cámara y **detrás de él**, en la otra orilla, se alza una cara de anciana; el jugador la ve antes. Al girarse (corte a lateral): del cuello abajo es un ave como un avestruz. Ladea la cabeza y se va intentando en vano volar. **El perro no ladra: gime.**
+- **El palo:** **coger y lanzar**; el perro lo trae y lo deja a sus pies. Desde aquí se puede repetir en cualquier descanso con un palo cerca. Es el único juego del juego.
+- **El hijo y el palo:** al tercer lanzamiento, algo se mueve entre los helechos (un segundo da miedo): el niño los ha seguido. Coge el palo con las dos manos e imita a Iram. **El palo apenas llega a dos pasos.** El perro lo recoge con toda la ceremonia y se lo deja a los pies. El niño da **dos palmadas torpes**; si Iram lanza otra vez, aplaude antes de que el perro llegue.
+- **JUEGA:** primer uso de *llamar* con el perro: olfatea y se sienta junto a lo importante (un racimo escondido).
+- **SON:** el aleteo inútil de unas alas que no levantan; luego, las palmadas, secas, a destiempo.
+- **SIGNIFICA:** el primer momento del hijo que no prepara nada.
+
+**2.5 El bosque que se repite y la peña**
+- **PASA:** un segundo riachuelo **igual** que el primero. En los bordes asoma un bufón con plumas de pavo real que se esconde si la cámara le busca y se queda quieto en una pose absurda si se le mira. En un roble, una **gárgola** le sigue con los ojos.
+- **PUZLE (la peña de las frambuesas; regla nueva: la huella sirve para bajar):** en lo alto de una peña de cinco cuerpos, el racimo más rojo del bosque; el perro gime mirándolo. Se **clava el rojo** al pie, se salta en el cono y **el perro salta detrás**, flotando y pataleando con las orejas hacia arriba. Arriba se le da el racimo; se recupera el báculo y se baja por la **huella** (8 s).
+  - **Fallo:** si la huella se apaga a media bajada, cae flotando fuera de la luz (0,8 g), sin daño.
+- **SON:** el gañido de sorpresa del perro al despegar.
+
+**2.6 El tercer río y la voz** *(salto testigo I)*
+- **CÁM:** lateral; al asomarse al agua, **primer plano ilustrado** del reflejo (dos segundos; es el encuadre que vuelve en 6.7 y 10.5); al nacer la voz, cenital.
+- **LUGAR:** el tercer riachuelo, de cuatro cuerpos, con una **piedra con forma de corazón** en medio.
+- **PASA:** cruza de un **brinco**, aterrizando flotando. Todo es igual. Se asoma al agua y ve por primera vez su cara: viejo, barba, capucha. Perdido, grita.
+- **JUEGA:** una llamada corta: «¿Hay alguien?». El agua devuelve «…alguien». El perro ladra a su reflejo.
+- **TEXTO:** *El mismo río. La misma piedra.*
+- **SON:** no es eco de montaña: es una voz suave, sin edad, que sale del agua.
+
+**2.7 El camino de estrellas** *(orbe blanco)*
+- **CÁM:** al tumbarse, el cielo ocupa la pantalla.
+- **LUGAR:** un calvero de noche; delante, una **hondonada de oscuridad espesa**.
+- **PUZLE (unir estrellas):** cinco estrellas, **más grandes** que las otras, laten al ritmo de un corazón, cada una a su tempo. El orden va **del latido más lento al más rápido**, y se lee por **dos canales a la vez**:
+  - **sonoro:** cada estrella late con un golpe grave en estéreo, en su lado de la pantalla;
+  - **visual:** cada estrella **se expande y se contrae** con su latido; la lenta respira hondo, la rápida tiembla.
+  Se apunta a una estrella y se mantiene: un hilo la une a la anterior. Si el orden falla, el hilo se deshace como vaho; nada más. Unidas, sale **un compás abierto sobre una escuadra**, su marca de cantero. El trazo, blanco como leche, cae en la garra: orbe **blanco**.
+- **PUZLE (las losas; regla nueva: un tramo solo se fija construyendo encima):**
+  1. El trazo baja como un camino de losas de luz sobre la hondonada. Cada losa se desvanece al pisarla **salvo que se marque**, y la siguiente solo aparece cuando la anterior está fijada.
+  2. Si el jugador prueba el rojo, el cono **se apaga en lo negro**: la oscuridad espesa se lo come.
+  3. Al final, un hueco: se **clava** el báculo en la última losa fijada, cuyo halo fija la siguiente; se salta y, ya al otro lado, se **recupera** el báculo.
+  - **Fallo:** se vuelve flotando al calvero.
+- **Recompensa:** al otro lado, la luz de la casa. Iram marca un tronco: la marca **sale en relieve, suelta polvo de piedra y suena como un cincel**. **Las marcas en los árboles son puntos de guardado**, y así suenan y se ven siempre (7.1). Si intenta marcar al perro, la marca le resbala y el perro estornuda: **lo vivo, mientras se mueve, no se deja marcar.**
+- **SON:** silencio; un coro grave muy lejano.
+
+**2.8 La primera marca del hijo**
+- **CÁM:** lateral, en el porche de la casa, al alba.
+- **PASA:** Iram vuelve cojeando. El niño espera en el porche. Iram **marca un madero** con el blanco. El niño mira mucho rato, coge un carbón y **copia la marca en el suelo**, con la lengua fuera: la escuadra le sale bien; el compás, torcido, y **el último trazo no llega a cerrar**. Mira a Iram.
+- **JUEGA (elección pequeña):** **corregirle el último trazo** (Iram le coge la mano y la cierran juntos) o **dejarla como está** (Iram asiente; el niño la repasa, satisfecho). Sin consecuencia mecánica: vuelve en su tumba (8.8).
+- **SON:** el carbón contra la piedra.
+
+**2.9 Los pies llagados**
+- **CÁM:** frontal fijo de la mesa (el de 2.1).
+- **PASA:** Dóminus no le reprocha nada: le descalza y le unta los pies con un ungüento amargo, con las mismas manos precisas de la cuchara. La sopa ya estaba servida **para dos**. El perro se tumba a los pies de Iram. El niño mira desde los trastos.
+- **TEXTO:**
+  - Dóminus: «Se llama Argos». Pausa. «Te ha elegido. Nunca eligió a nadie más que a mí». Lo dice con generosidad, sin un gramo de celos.
+  - *Que yo recuerde, nadie me había curado nunca.*
+- **JUEGA:** nada; la escena sigue cuando se pulsa algo.
+- **Regla de montaje:** escena genuinamente cálida. **No insertar amenaza después.**
+- **SIGNIFICA:** por un momento son padre e hijo, y no se sabe quién es quién.
+
+**Última imagen.** Por la rendija de la puerta el péndulo pasa sin ruido; en la pared, la sombra nueva de Iram va un instante tarde. En el suelo del porche, la marca de carbón.
+
+---
+
+### CAPÍTULO 3 — EL BESTIARIO DE NADIE
+
+> «Mi ánimo me lleva a contar las formas mudadas en cuerpos nuevos.»
+> — Ovidio, *Metamorfosis* I, 1-2 (traducción propia)
+
+**Estado:** Pluma → **Fábula**. **Duración:** 28 min. **Dóminus:** del juego compartido a la vara: egoísta e inquietante.
+
+**Resumen.** Las lecciones fracasan, pero las quimeras inventadas amanecen vivas, y por una mañana Dóminus e Iram son dos niños jugando. Luego Dóminus le tiende una vara. Iram cuenta y rompe el bucle del bosque; con luz, las piedras suben. El bufón le da el tornasol. Desde una hoja ve la ciénaga; desde el sapo del hijo, que el niño intenta tener cara. *(Rebanada vertical: §8.)*
+
+**3.1 La primera lección** *(→ Fábula)*
+- **CÁM:** 1ª persona en la mesa; la balanza y la campana de la hoja.
+- **PUZLE (tutorial de la mesa):** cartas de animales comunes; el platillo de Dóminus no se mueve: todo eso ya lo conoce. Arrastrar una carta sobre otra las **combina**: cabra y cerdo, **cabracerdo**; buitre y pez, **buitrepez**. El platillo se inclina, la hoja baja un dedo y Dóminus se ríe. Luego pide mujeres, y en la mano solo hay «Eva». Al ponerla, **golpea la mesa**. Aparece la carta «Aritmética».
+- **TEXTO:**
+  - Dóminus: «Todos esos animales los conozco. ¿Es que no ves que vivo en el bosque?»
+  - Iram: «La primera mujer fue Eva…». Dóminus: «¡Basta! Quiero que me hables de cosas reales».
+  - *De mujeres solo sé lo de Eva. Y no es mío.*
+- **SON:** el golpe coincide con un **trueno** lejano.
+- **SIGNIFICA:** el mundo nuevo nace de las mentiras (Ley I). Primer golpe en la mesa: primer gramo de miedo. Desde aquí, **Fábula** (transición de 30 s durante la noche).
+
+**3.2 El alba de las quimeras**
+- **CÁM:** lateral, el patio y la linde, luz de mañana.
+- **PASA:** Dóminus despierta a Iram **aplaudiendo**: en el patio gruñe un cabracerdo y en el regato chapotea un buitrepez. Los enseña como un niño en su cumpleaños, tirando a Iram de la manga.
+- **JUEGA (el juego de las quimeras):** Dóminus dice dos animales («¡Zorro! ¡Y… garza!»), el jugador elige el tercero entre tres cartas y la quimera asoma entre los árboles un segundo después. No se puede fallar: toda combinación le hace reír.
+- **JUEGA (el palo a tres):** Argos deja el palo a Iram, que puede lanzarlo o dárselo a Dóminus (llamada corta, mirándole). **Dóminus lo lanza lejísimos**, riendo: en Fábula el palo vuela. Argos lo trae… y lo deja a los pies de Iram. «¡Tramposo!». Otra vez, lo mismo. Ríe. El niño, desde el porche, da sus dos palmadas.
+- **TEXTO:** *Digo cabra, digo cerdo. Y al alba, gruñe.*
+- **SON:** la primera música alegre del juego, de cuerda pulsada.
+- **Regla de montaje:** divertida de verdad, sin sombra: es lo que hará doler la pérdida de «Dóminus amigo».
+- **SIGNIFICA:** Argos ya elige, y a Dóminus todavía le hace gracia (se cobra en 6.3 y 9.5).
+
+**3.3 La vara** *(elección)*
+- **CÁM:** frontal fijo de la mesa.
+- **PASA:** el niño intenta **imitar a Iram**: vuelca un pequeño alambique como le vio volcar la tinta. El vidrio se rompe. El niño espera, con los brazos caídos. Dóminus descuelga una **vara fina** y se la tiende a Iram.
+- **TEXTO:** Dóminus: «Enséñale a no tocar lo que no entiende».
+- **JUEGA (tres opciones, sin indicador):**
+  - **Golpear una vez:** Iram levanta la vara; el golpe no se ve (corte a la cara de Iram) y se oye. El niño no llora.
+  - **Golpear la mesa y romper la vara:** el chasquido; el niño se encoge con el ruido. Dóminus recoge los dos trozos y los guarda en un cajón.
+  - **Dejar la vara en la mesa:** Iram la deja y no dice nada. Dóminus la vuelve a colgar en la pared, donde seguirá (visible en el encuadre de 8.6).
+- **Dóminus no reacciona con placer.** En las tres, lo mismo: **mira a Iram**, no al niño, con la curiosidad de quien anota un resultado. Si no se golpeó, dice sin calor: «Lo malcriarás».
+- **DESPUÉS (Iram necesita creer en él):** esa noche, Dóminus **pega con resina el alambique roto**, tarareando, le sirve en él una infusión y se la ofrece sin decir nada. **JUEGA:** cogerla o no (si no, se la bebe él). *Me ponía a prueba. Solo eso.*
+- **CONSECUENCIAS DE LA VARA** (para todo el juego):
+  - **Si golpeó:** el niño sigue acercándose, pero **ya no ofrece la mano**. Regala el sapo igual, mirando al suelo (3.9). En 4.4 solo ayuda si se le llama; en 8.3, no. Se deja vendar sin abrazar (7.3). En la cena mira a Dóminus (8.6).
+  - **Si no golpeó:** **ayuda cuando puede** (4.4, 8.3), le coge la mano (5.6), le abraza al ser vendado (7.3) y en la cena le mira a él (8.6).
+- **SIGNIFICA:** el jugador sospecha antes que Iram; Iram elige no sospechar todavía.
+
+**3.4 Contar hasta cuatro**
+- **LUGAR:** los riachuelos, por la tarde.
+- **PUZLE (regla nueva: el blanco marca trazos):**
+  1. En el primer río hay un racimo; en el segundo, dos; en el tercero, tres; en el cuarto, otra vez uno. Ahora el blanco marca **trazos**: cada pulsación, una raya en la corteza.
+  2. Se marca I, II y III junto a los tres primeros ríos. En el cuarto aparece **la I copiada**, ya puesta, plana.
+  3. Hay que **añadirle tres rayas: IIII**. El bosque no puede copiar un número que el niño nunca le enseñó: la corteza se abre en una costura, la corriente cambia de sentido y aparece un sendero. La primera repetición rota.
+  - **Pistas (dos canales):** Argos se sienta ante la marca repetida. **Si se grita al agua, Eco ya no repite: elige**: «…uno», «…dos», «…tres» y, en el cuarto río, «…cuatro». **Desde aquí, el agua da una palabra-pista del puzle activo** (hasta el 7).
+- **La siembra:** si marca un racimo de frambuesas, **maduran, se pasan y se pudren en un segundo**. Argos se aparta. *Lo marcado cobra el tiempo*; nadie lo dice.
+
+**3.5 Piedras que suben** *(rojo + huella + blanco)*
+- **CÁM:** lateral. **Este encuadre exacto vuelve en 5.9.**
+- **LUGAR:** un **muro de seis cuerpos** con tres losas sueltas al pie y un charco.
+- **PUZLE (regla nueva: la huella sostiene lo que la luz levanta):**
+  1. Se clava el rojo junto a una losa: en el cono, la losa se despega y **sube** despacio, como las motas.
+  2. Se **recupera** el báculo cuando pasa por la altura buena: la huella la sostiene 5 s. (Si hace falta pensar, la rueda de orbes ralentiza el mundo y congela la huella.)
+  3. Al blanco, y se **marca**: se fija en el aire, porque lo marcado no flota.
+  4. Igual con las otras dos, a dos y a cuatro cuerpos: **una escalera de luz y piedra**. Si se marca la alta antes que la de debajo, cae. Argos sube detrás, pataleando en el cono.
+  - **Fallo:** si se apaga la huella, la losa baja despacio. **Pista:** el charco del pie dice «…arriba».
+- **SIGNIFICA:** la luz levanta y la marca sostiene: la combinación que el jugador echará de menos en 5.9.
+
+**3.6 El bufón** *(escena tensa; tornasol)*
+- **CÁM:** lateral, cámara adelantada: el peregrino avanza a la derecha y el bufón queda fuera de encuadre, a la izquierda. Sin giros de cámara.
+- **LUGAR:** un pasillo de robles que se oscurece.
+- **PASA:** el bufón le sigue. Cada vez que el peregrino se gira, está más cerca, quieto en otra pose, con una sonrisa de máscara.
+- **PUZLE (regla nueva: dónde iluminar importa):**
+  1. Avanzar con el báculo en la mano y girarse, iluminando hacia atrás, cuando suenan los cascabeles (aviso sonoro) y las hojas del borde izquierdo se agitan (aviso visual).
+  2. Si la luz le da **en la cara**, sus ojos destellan medio segundo de aviso; si se insiste, la cola deslumbra y el bufón avanza dos árboles. Hay que iluminarle **la cola**: se queda congelado en una pose ridícula.
+  3. En el roble de la gárgola queda acorralado.
+  - **Fallo (sin tocar el guardado):** si le alcanza, **lo tira a la hojarasca**, se ríe, **le apaga el blanco** unos segundos (la garra, gris) y el peregrino reaparece **dos robles más atrás**.
+- **Recompensa:** acorralado, **abre la cola**: cien ojos tornasolados miran a Iram. Una reverencia de feria, y uno de los ojos se escurre como azogue hasta la garra: **tornasol**.
+- **SON:** cascabeles a la espalda; al abrir la cola, un órgano lejano.
+
+**3.7 La hoja** *(primera posesión, con la mirada de la gárgola)*
+- **CÁM:** zoom al «ojo» de la hoja → 1ª persona.
+- **PASA:** una hoja se suelta del roble junto a la gárgola. Se apunta, se clava el báculo y el peregrino se tumba. **Argos se tumba junto al cuerpo**: lo guarda.
+- **JUEGA:** solo inclinarse. No se controla la caída; la hoja baja por las corrientes del 1.6, que el jugador ya sabe leer.
+- **QUÉ SE VE:** en la primera vuelta, la cara de piedra de la gárgola, que la sigue con los ojos. En la segunda, la ciénaga: **las luciérnagas se posan en las piedras firmes y dibujan una espiral que gira hacia dentro**. En la tercera, a lo lejos, en una ventana, **Dóminus mira el cuerpo dormido de Iram**; si la hoja se inclina hacia él, corre la cortina.
+- **Respuestas:** el tornasol **rebota** en Dóminus (que sonríe sin levantar la vista) y en lo dormido; con el hijo, el zoom busca un ojo, choca con la cara lisa y vuelve.
+
+**3.8 La ciénaga a oscuras**
+- **CÁM:** lateral, muy oscura.
+- **PUZLE (regla nueva, la del rojo al revés: lo que se ilumina se esconde):** con el báculo en la mano, las luciérnagas **se apagan**. Hay que **guardarlo y cruzar a oscuras**. Desde el suelo solo se ven las dos o tres luciérnagas más cercanas: la hoja dio la forma («hacia dentro») y el suelo da el paso.
+  - **Cinco decisiones, no más:** el camino tiene cinco bifurcaciones. En cada una, dos piedras con luciérnaga; la buena es la que sigue la espiral hacia dentro. Entre bifurcación y bifurcación, el paso es único y seguro.
+  - **Segundo canal:** al tantear una piedra falsa, **sube un rosario de burbujas** y se oye un gorgoteo medio segundo antes de hundirse; si se retrocede a tiempo, no pasa nada.
+  - **Una pausa:** tras la tercera decisión, una salpicadura espanta a las luciérnagas y hay que **esperar quieto tres segundos** a que vuelvan.
+  - **Fallo:** hundirse hasta la cintura y volver a la última bifurcación acertada.
+
+**3.9 El sapo y las antiparras**
+- **CÁM:** lateral → 1ª persona del sapo → lateral.
+- **PASA:** al otro lado de la ciénaga, el hijo saca del agua un **sapo negro con antiparras y alas de libélula** y se lo ofrece. Intenta sonreír (si Iram le pegó, mirando al suelo).
+- **JUEGA (posesión):** saltitos, bucear y **ajustarse las antiparras** (visión verdosa). En el fondo, un soldadito de plomo medio enterrado. Al salir, mira arriba, al niño.
+- **QUÉ SE VE:** a través de las antiparras, la cara del niño **no está vacía**: tiene rayitas finísimas, como un boceto a lápiz.
+- **AL VOLVER:** el sapo salta al hombro de Iram y se queda: **le reconoce**. Ha dejado las antiparras en la orilla; el niño **se las pone al revés**, con las lentes en la nuca, y espera la reacción de Iram.
+  - **JUEGA:** una llamada corta: Iram **se ríe** (un resoplido, su primera risa en el juego); el niño se las quita, se las vuelve a poner al revés y espera otra vez. Si no se hace nada, las deja despacio en la hierba. Desde aquí el sapo va sin antiparras.
+- **COSTE:** Iram parpadea un rato con doble párpado: el coste de poseer, que vuelve como mareo si la posesión falla (4.4).
+
+**3.10 Primer parpadeo del bronce**
+- **PASA:** de noche, en la puerta, otro trueno, pero **metálico**, como un nudillo contra una campana. Un segundo de risas lejanas. Grillos.
+
+**Última imagen.** Grillos en negro y, un fotograma, un rectángulo de luz pequeño, como una ventanita.
+
+---
+
+### CAPÍTULO 4 — BAJO LA MESA
+
+**Estado:** Fábula. **Duración:** 24 min. **Dóminus:** egoísta e inquietante; todavía no cruel con las manos.
+
+**Resumen.** Dóminus se aburre de las lecciones inventadas. De noche Iram explora la casa, donde dos pasillos paralelos se encuentran, y mira por la cerradura; con el sapo recupera el aro de la trampilla. En los sótanos halla los dibujos de un niño y un perro y los legajos del padre; al de Euclides le falta un pliego. Enseña lo robado, miente sobre su origen, gana la Semilla y nombra a Eco.
+
+**4.1 Días de nada**
+- **CÁM:** 1ª persona en la mesa, tres cortes con elipsis.
+- **PASA:** los Anitales («Un mono con hojas») y el homúnculo no mueven el platillo. La hoja de la campana no baja. Dóminus tamborilea con los dedos, mira por la ventana mientras Iram habla y, en la tercera elipsis, ya no está: la silla de enfrente se queda vacía y la sopa de su plato, intacta.
+- **TEXTO:** Dóminus, en el segundo corte, sin mirarle: «Eso ya lo había soñado yo».
+- **SON:** el péndulo, un tictac de madera que no corresponde a su vaivén.
+
+**4.2 La casa de noche** *(escena tensa; los pasillos que convergen)*
+- **CÁM:** 3ª persona tensa en las habitaciones; **frontal de espaldas** en los pasillos; un único **corte de composición** a diagonal en el encuentro.
+- **LUGAR:** los pisos altos de madrugada. La luz roja del báculo es la única linterna; quedan cuatro velas encendidas en todo el piso.
+- **Se aprende aquí (regla nueva: la carga):** el rojo dura **40 s**, parpadea a los 10 y **las velas recargan**. **En la casa el cono no aligera** (ausencia de una regla conocida; no se explica).
+- **PASA:** **Dóminus camina dormido**, con los ojos abiertos, siempre por el mismo recorrido, como el péndulo. **Si la luz le da, gira la cabeza despacio hacia la fuente** y, si sigue, echa a andar hacia ella. Iram necesita la luz y no puede dársela a él: esa es toda la escena.
+- **EL HIJO, UNA SOLA VEZ:** por una tabla que falta en el tabique, al fondo del pasillo derecho, el hijo está de pie, de cara a la pared. Si se le ilumina, solo levanta despacio una mano ante la cara. Cuando Iram llega, no hay nadie: dos pisadas de barro pequeñas.
+- **PUZLE (los dos pasillos paralelos; la imagen que el jugador debe recordar):**
+  1. Frontal de espaldas. **Dos pasillos idénticos**, separados por un tabique fino: mismo papel pintado, misma alfombra y, en cada uno, **una hilera de clavos de cabeza de latón** que brilla con el rojo, recta, perdiéndose al fondo. Iram entra por el izquierdo; por la tabla que falta ve en el derecho la única vela encendida de ese extremo, inalcanzable.
+  2. A mitad, una **franja de luna** desde una claraboya. Al pisarla, **corte de composición** a **diagonal alto**, la casa como maqueta: **las dos hileras de clavos se acercan hasta tocarse**, el tabique se adelgaza hasta una línea de lápiz y desaparece, y los pasillos acaban en **una sola puerta**. Sin giro ni esquina: son rectas y se encuentran.
+  3. Vuelta a frontal de espaldas: Iram está en el encuentro, con la vela del otro pasillo al alcance. **Recarga.** Si vuelve atrás, vuelven a ser dos.
+  4. Una vela encendida en un pasillo aparece encendida en el otro: es la única forma de dejar recarga en el tramo de Dóminus y pasar por detrás de él.
+- **Fallo con coste:** si Dóminus alcanza la luz, mira a Iram **sin reconocerle**, **sopla la vela más cercana** y sigue. Iram vuelve al último umbral con una recarga menos. Sin velas, amanece y se reintenta la noche siguiente con una vela más.
+- **TEXTO:** *Los pasillos se juntan sin haber llegado a ninguna parte.*
+- **SON:** la casa respira; las tablas crujen como un pulso. Cada pasillo tiene su gota (dos notas a una cuarta); en el encuentro caen **al unísono**.
+- **SIGNIFICA:** la casa obedece a un niño, no a Euclides. Todavía. *Producción:* clavos y unísono no cambian de aspecto en 7.2, 8.11 ni 10.
+
+**4.3 La cerradura**
+- **CÁM:** 1ª persona por el ojo de la cerradura: una mancha de luz con la forma del agujero sobre negro.
+- **LUGAR:** el pasillo de abajo; al final, la puerta del cuarto de Dóminus, cerrada con llave.
+- **PASA:** corte directo a la 1ª persona (sin animación de arrodillarse). Dóminus dormía en una silla del pasillo, fuera de plano; al rato se le oye levantarse y empezar su recorrido.
+- **JUEGA (sostener la mirada):** el stick mueve el punto de vista **un par de grados**, como si se ladeara la cabeza contra la madera. Lo de dentro se revela por trozos, y cada uno exige quedarse mirando unos segundos mientras **los pasos se acercan**. Soltar es seguro siempre; si se suelta antes de tiempo, la noche siguiente se empieza por el trozo que faltaba. Argos gruñe bajito cuando los pasos están a tres cuerpos: es el aviso.
+- **QUÉ SE VE (en este orden):**
+  1. **La cama**, hecha y vacía. Nadie duerme ahí.
+  2. En la mesa, **un dibujo infantil**: un niño y un perro grande y desgreñado. Es Argos.
+  3. Junto al dibujo, **la argolla de la trampilla, rota, sin el aro**.
+  4. **La ventana**: da a la ciénaga, y en el agua negra brilla algo redondo.
+  5. *(Solo si se mira la llama de la vela de la mesa más de tres segundos:)* un **fotograma** de un hombre atado a un poste entre llamas. No se repite.
+- **SON:** pasos de zapatilla.
+- **SIGNIFICA:** Argos no es de Iram; la trampilla tiene dueño; el aro está en la ciénaga.
+
+**4.4 El sapo y el aro** *(posesión)*
+- **CÁM:** lateral en la orilla → 1ª persona del sapo (capas bajo el agua, tinte verde; sin antiparras, más turbio que en 3.9).
+- **PASA:** por la mañana, el sapo salta del hombro de Iram a la ciénaga y le mira. Iram clava el báculo y se tumba; Argos se tumba junto al cuerpo.
+- **PUZLE (regla nueva: la luz que delata):** el aro está en el fondo, enganchado bajo una raíz. Los buitrepeces **atacan lo que se mueve dentro de los rayos** que entran entre las hojas flotantes. Hay que ir **de sombra en sombra**, esperar a que el viento mueva la luz y tirar del aro en dos tiempos.
+  - **Pedir ayuda** (toque de *llamar* cerca del niño): si Iram no le pegó (3.3), el niño mete los brazos hasta los hombros y **aparta la raíz**; si le pegó, solo viene si se le llama, y la aparta despacio.
+  - **Fallo:** si un buitrepez le muerde, el sapo sale disparado y el peregrino despierta mareado, con el doble párpado un momento.
+
+**4.5 El primer sótano**
+- **CÁM:** frontal de espaldas al bajar la escalera; luego 3ª persona tensa.
+- **LUGAR:** bajo la mesa, por la trampilla del aro. Estanterías comidas por las termitas, caballitos de madera, marionetas colgadas, dibujos a carboncillo clavados en las vigas.
+- **PASA:** las marionetas giran la cabeza hacia la luz roja. Los dibujos: un niño con sus padres bajo un sol desmesurado; un niño corriendo; un niño escondido tras una leñera; **en todos, el perro**; en uno, el niño le lanza un palo. **A la madre le han raspado la cara con una uña** en todos. Argos mueve la cola ante el del palo.
+- **JUEGA:** registrar con la luz (la carga sigue contando); una losa suelta descubre la segunda trampilla.
+- **TEXTO:** *Un niño, un padre, un perro.*
+- *Producción:* **estos dibujos cobran vida en 6.2** y se retocan en 9.6: se dibujan una vez, en capas separables (fondo, figuras, perro). Al menos tres: el palo, el niño corriendo hacia el padre y la leñera.
+
+**4.6 El segundo sótano y el baúl** *(el pliego que falta)*
+- **CÁM:** 3ª persona tensa; 1ª persona sobre los legajos.
+- **LUGAR:** un cuarto angosto; **la oscuridad espesa** se come el cono a un cuerpo.
+- **PASA:** el polvo le hace toser. El baúl tiene un cierre de hierro.
+- **PUZLE:** golpear el cierre con una piedra suelta tres veces. **La piedra se queda con Iram**, en la funda junto al báculo. Dentro, legajos en latín atados con cinta: matemáticas, alquimia, anatomía, botánica, zoología, un bestiario, geometría y unas leyes del movimiento de cierto alquimista inglés.
+- **EL LEGAJO DE EUCLIDES (1ª persona; solo pasar hojas):** los pliegos van cosidos con hilo grueso. Tras el primero, **el hilo está cortado limpio**, dos cabos sueltos, y en el margen **restos de un lacre partido**, rojo oscuro. Falta un pliego entero. Las manos se detienen un segundo sobre los cabos.
+- **TEXTO:** *Falta un pliego.*
+- **SALIDA TENSA:** la trampilla se cierra y unos pasos se detienen encima. Hay que **esperar agachado y a oscuras**. **Si se enciende la luz, el rojo se cuela entre las tablas**: Dóminus lo ve (huella física), **se sienta encima** a leer y hay que esperar el doble oyéndole pasar páginas.
+- **SON:** papel viejo; la tos; arriba, la silla que cruje al recibir su peso.
+- **SIGNIFICA:** siembra del pliego de las paralelas (§1, Euclides). No se explica nada: el jugador se queda con el hilo cortado y el lacre.
+
+**4.7 El nombre de la voz**
+- **CÁM:** lateral en el tercer río, al anochecer.
+- **PASA:** Iram ha leído en el bestiario la historia de la ninfa que solo repetía. En el río grita (*llamar*): «Eco». Ella contesta «…Eco», y su reflejo tiene **por primera vez un contorno**: una cara de luz sin rasgos que dura un segundo más que una onda. Desde aquí, a veces da las pistas con su nombre delante: «Eco: …arriba».
+- **TEXTO:** *Eco. La que solo podía repetir.*
+
+**4.8 La polinización** *(orbe verde)*
+- **CÁM:** 1ª persona en la mesa.
+- **PASA:** por primera vez, **legajos verdaderos** en el platillo. Al acercar «Polinización», la hoja de la campana baja un dedo; al soltarlo, el platillo baja. En las macetas de la sala se abren flores de golpe y una abeja deja polen sobre el orbe: **verde**.
+- **TEXTO:**
+  - Dóminus: «De modo que has decidido colaborar…».
+  - **Elección de la mentira** (sobre de dónde sale este saber): «Lo juré ante mi cofradía, pero te lo daré» / «Lo he recordado esta noche».
+  - Dóminus: «Naciste en este bosque». Iram: «Aquí no hay aldeas». Dóminus: «Se han terminado las preguntas».
+  - *Le enseño lo que le he robado.*
+
+**4.9 La barranca** *(rojo + huella + verde; dos anclajes válidos)*
+- **CÁM:** lateral, abierta para ver las dos orillas y el fondo.
+- **LUGAR:** una barranca de cinco cuerpos de ancho. Enfrente cuelga una enredadera seca. La orilla de Iram, en sombra, tiene dos sitios donde clavar: **al pie del talud** y **en un saliente de roca**, dos cuerpos más arriba. Una flor pequeña gira hacia el cono cada vez que se enciende: enseña sin texto que lo verde busca la luz.
+- **PUZLE (regla nueva: el verde crece hacia la luz; lo demás ya se sabe):**
+  - **Anclaje bajo (rápido y empinado):** clavar el rojo al pie apuntando arriba y enfrente; recuperar (huella de 5 s); al verde, apuntar a la enredadera y mantener. Crece deprisa pero **corta e inclinada**: una rampa que solo se sube saltando dentro de la huella, con el arco lunar. Argos sube flotando si se le clava el rojo al pie.
+  - **Anclaje alto (lento y horizontal):** clavar en el saliente apuntando recto. La luz llega de lado y **una huella no basta**: hay que clavar, recuperar y volver a clavar antes de que se apague la primera. A cambio queda **un paso horizontal** que se cruza andando, con Argos al lado.
+  - Ninguno es el «correcto».
+  - **Fallo:** si la huella se apaga a medio crecer, la enredadera se retrae despacio, sin castigo. **Pista** (dos canales): el agua del fondo dice «…luz» y la flor del plano se gira hacia donde estuvo la huella.
+- **Coste:** al volver, al hijo le han salido **flores pequeñas en el pelo**, entre las raíces. Se las toca sin entender.
+
+**Última imagen.** De madrugada, Iram traduce a la luz de una vela; Argos duerme a sus pies con el palo entre las patas. Sobre la mesa, el legajo de Euclides abierto por los dos cabos del hilo cortado. Por la ventana cae una hoja, por primera vez **porque es otoño**.
+
+---
+
+### CAPÍTULO 5 — EL PÉNDULO
+
+> «Todo lo dispusiste con medida, número y peso.»
+> — Sabiduría 11:21 (traducción propia de la Vulgata)
+
+**Estado:** Fábula → **Peso** (5.7). **Duración:** 26 min. **Dóminus:** la cumbre real de la amistad y, el mismo día, la primera crueldad física.
+
+**Resumen.** Iram y Dóminus se ríen juntos; «hablas como mi padre». El mismo Dóminus cose una cola de pez a un animal vivo, e Iram necesita creer que no sabe lo que hace. Eco dice «Iram»; el hijo pide una cara e intenta ayudar a construir. Con Newton el péndulo se para y el mundo pesa: empujan juntos, y el muro ya no sube.
+
+**5.1 Las semanas** *(la cumbre de la amistad)*
+- **CÁM:** 1ª persona en la mesa, con planos laterales del mundo que cambia.
+- **Lección jugada 1:** uno o dos legajos entre Aritmética («Mi padre usaba los números para predecir el futuro»), Astronomía (esa noche las estrellas se ordenan en constelaciones) y Geometría.
+- **Montaje (40 s, sin control):** **Zoología** (la mitad pez del buitrepez boquea fuera del agua), Álgebra y noches de traducción. Respuestas de Dóminus, una por plano: «Tu oficio es el más antiguo de esta tierra». «Viniste por el camino de las estrellas». «Te esperaba desde hace mucho».
+- **LA RISA PRIVADA (jugada, breve):** Iram traduce del bestiario el *ignis fatuus* palabra por palabra: «fuego tonto». Dóminus repite «fuego… tonto» y se le escapa una carcajada que intenta tapar con la mano. El jugador elige si Iram **se ríe** o **se aguanta**; si se aguanta, Dóminus le señala con el dedo hasta que se le escapa igual. Desde esa noche, Dóminus llama al rojo **«tu fuego tonto»**, con cariño.
+- **Lección jugada 2:** con «Leyes del movimiento» en la mano se abre la ventana: aquí o en 5.7. Dóminus termina una frase de Iram antes que él y se ríe.
+- **TEXTO:** Dóminus: «Hablas como mi padre». Pausa. «Yo nunca le escuchaba». / *Hablo como su padre. Por un momento, quiero serlo.*
+- **SON:** la cuerda pulsada del 3.2, más lenta; las dos risas, que no se pisan.
+- **SIGNIFICA:** el viejo enseña y el de la cara de viejo aprende. La escena más cálida entre los dos de todo el juego: el jugador debe poder creer en Dóminus aquí. «Yo nunca le escuchaba» vuelve en 10.4.
+
+**5.2 La cola de pez** *(la primera costura violeta)*
+- **CÁM:** lateral, en el patio, a pleno sol.
+- **PASA:** tras la zoología, Dóminus ha **corregido** al cabracerdo: le ha cosido la cola del buitrepez con una costura **violeta** de puntadas torpes. Atado a una estaca, golpea el polvo con la cola que no sabe usar. Sigue sonando la música alegre del 3.2. En un banco, una aguja curva y un carrete de hilo violeta.
+- **TEXTO:** Dóminus, encantado, como quien enseña un dibujo: «Así está más completo».
+- **JUEGA (opcional; el blanco brilla en la rueda):** el animal está quieto. Si se le **marca**, la cola **se vuelve piedra, se agrieta y cae**, y el cabracerdo se va cojeando, entero. Dóminus no se enfada: **recoge la cola de piedra con curiosidad**, pasa el pulgar por la costura petrificada y se la lleva (6.6). Si no se marca, el animal la arrastra el resto del capítulo.
+- **EL GESTO DE IRAM (necesita creer):** en el patio queda el palo de Argos; si se coge, la única dirección que el juego sugiere es hacia Dóminus. Argos le deja el palo a los pies; Dóminus duda, lo lanza como en el alba de las quimeras y sonríe. Iram suelta el aire: *Es un niño. No sabe lo que hace.* (Si no se lanza, el pensamiento aparece al salir del patio.)
+- **SIGNIFICA:** cose con la misma alegría con que se reía anoche. Fijar quita lo que sobra: siembra de 7.3 y 9.9. *Dirección:* el jugador ya puede sospechar; Iram no se lo permite, y es el único momento en que se dice.
+
+**5.3 El caballito**
+- **CÁM:** frontal fijo de la mesa.
+- **PASA:** Dóminus sube del sótano un caballito de madera, pintado, gastado en las orejas, y lo deja delante de Iram sin decir nada. Es lo único suyo que regala en todo el juego. **La barriga del caballito está tapada con una cuña de madera**; si se coge y se mueve, dentro roza algo seco, muy bajo (el sonido existe; no se resalta). Dentro va **el pliego de las paralelas**.
+- **JUEGA:** **cogerlo** (va al cuarto de Iram y luego al alféizar del torreón) o **dejarlo** en la mesa (se queda en la sala; Dóminus saca el pliego y lo guarda bajo la campana, 10.2).
+- **SIGNIFICA:** un regalo de niño, sin palabras porque no sabe decirlo; y a la vez se quita de casa lo que más miedo le da. Nada de esto se explica hasta 10.2.
+
+**5.4 El pez y Eco** *(posesión)*
+- **CÁM:** lateral en la orilla → 1ª persona del pez, bajo el agua.
+- **LUGAR:** el tercer río a mediodía; agua clara, luz en ondas.
+- **PASA:** Iram le grita palabras sueltas de los legajos y Eco **las cambia de orden**, jugando. Luego posee un pez; Argos guarda el cuerpo.
+- **JUEGA:** solo dirección. Sin peligro ni prisa.
+- **QUÉ SE VE:** la cara de luz de Eco, desde abajo, rodea al pez, baja con él hasta la piedra-corazón y vuelve. Al salir de la posesión, ella dice una palabra que nadie ha dicho en la escena: **«Iram»**. Una vez.
+- **SON:** bajo el agua, un tarareo sin melodía.
+- **SIGNIFICA:** Eco ya no repite: **elige** (Ley III). *Producción:* la escena más bella del capítulo; merece el gasto (cáusticas y la cara como textura deformada).
+
+**5.5 Pigmalión**
+- **CÁM:** cenital sobre la piedra-corazón; 1ª persona de las manos.
+- **PASA / JUEGA:** con el agua por las rodillas, Iram **talla un rostro** en la piedra-corazón con la piedra del baúl: tres trazos guiados y lentos (ojos y boca), sin fallo. La cara brilla bajo el agua y el reflejo de Eco toma esos rasgos. Escena tranquila, no minijuego.
+- **SON:** piedra contra piedra bajo el agua, amortiguado; el tarareo de 5.4.
+
+**5.6 Argos y la cara de barro** *(primera posesión de Argos; el hijo empuja)*
+- **CÁM:** 1ª persona de Argos, a ras de suelo, mundo desaturado; lateral al encontrar al niño.
+- **PASA:** el hijo lleva un día sin aparecer. Iram posee a Argos. **Nadie guarda el cuerpo**: se oye la lluvia sobre él.
+- **JUEGA:** correr, saltar bajo, **olfatear** (hilos de color sobre el mundo gris) y ladrar. El hilo del cuerpo dormido de Iram es **cálido y del mismo color** que el de los dibujos del sótano.
+- **PUZLE:** tres hilos cruzados: las raíces del hijo (verde), el cabracerdo (violeta, despista) y la arpía (gris y frío). Hay que seguir el verde bajo un tronco caído por donde solo cabe el perro.
+- **QUÉ SE ENCUENTRA:** el niño, sentado en el barro, **dibuja con un palo la cara de Iram**. Cuando llega el peregrino (vuelta al cuerpo; sigue el ladrido), el niño coge barro y **pone su propia cara lisa delante de Iram**, ofreciéndola.
+- **JUEGA:** con el dedo, darle **cejas, nariz o nada** (se verá en 8.8 y 10.6). Si Iram no le pegó, el niño le coge la mano al terminar.
+- **LA PIEDRA:** Iram pone piedras planas para cruzar el lodazal (se estrena **empujar**); las mueve sin esfuerzo, todavía en Fábula. El niño se planta ante una piedra pequeña y empuja con todo el cuerpo. No se mueve. Mira a Iram.
+  - **Ayudarle:** empujar juntos; la piedra se desliza y el niño da **dos palmadas torpes** (2.4).
+  - **No ayudarle:** empuja un rato, se cansa y se sienta encima.
+- **Desde aquí** se puede poseer a Argos cuando se quiera para olfatear (§6); el cuerpo queda sin guardia.
+- **SIGNIFICA:** rima con 5.8: Iram empuja dos veces este capítulo con alguien al lado.
+
+**5.7 Las leyes del movimiento** *(→ Peso)*
+- **CÁM:** 1ª persona en la mesa → frontal fijo del péndulo → lateral de la sala.
+- **PASA:** Newton en el platillo; **la hoja de la campana cae al fondo**, del todo. Dóminus abre un poco la boca, como cuando entiende algo. El péndulo acorta el arco y **se para**. Durante treinta segundos la sala gana peso: el humo cae recto, las motas se posan, una vela que flotaba cae y se apaga, y las rodillas del peregrino se doblan.
+- **JUEGA:** levantarse y andar. El primer paso pesa.
+- **TEXTO:** *Algo ha empezado a contar.*
+- **SON:** silencio total y, por primera vez, **un tictac** que no se ve.
+
+**5.8 Empujar juntos**
+- **CÁM:** lateral de la sala, a la altura del péndulo; un plano corto final de la cara de Dóminus.
+- **PASA / JUEGA:** a la mañana siguiente, Dóminus empuja el péndulo con las dos manos, como quien da cuerda a un juguete, y no puede. Iram se pone a su lado: **empujar tres veces**, cuando el vaivén vuelve hacia ellos (a destiempo no suma; sin fallo). Al tercero, el péndulo anda. **Dóminus se ríe como un niño** y le da una palmada torpe en el hombro.
+- **TEXTO:** Dóminus: «¡Otra vez!». (No hay otra vez: el péndulo ya anda.)
+- **SON:** el tictac invisible, que a partir de aquí siempre está.
+- **SIGNIFICA:** da ternura, y por eso incomoda recordar la cola cosida. En 7.8 el mismo gesto, solo, dará miedo.
+
+**5.9 El muro que ya no sube** *(posesión del oso; salto testigo II)*
+- **CÁM:** lateral, **con el encuadre exacto de 3.5** («Piedras que suben»); 1ª persona del oso (marco de musgo, la pantalla tiembla al empujar); lateral en el tercer río.
+- **LUGAR:** el muro de seis cuerpos con las tres losas al pie. Más allá, un roble viejo se ha desplomado en el cauce río arriba: el agua se ha estancado y **la voz de Eco no llega** al tercer río.
+- **PASA (el muro):** el jugador clava el rojo junto a las losas, como aprendió. **No se mueven.** Salta en el cono y no flota. El báculo **vuelve rodando**. Argos mira el cono y no salta. Sin texto. El camino de arriba queda cerrado para siempre; con *llamar*, Argos olfatea **el rodeo por el cauce**.
+- **PUZLE (el oso de musgo, dos pasos):**
+  1. Junto al roble caído duerme **un oso cubierto de musgo**. El tornasol **rebota en lo dormido** (3.7). Con *llamar*, **Argos le ladra hasta despertarlo**.
+  2. **Poseer al oso** (Argos guarda el cuerpo): andar pesado, **empujar** y un rugido. Empujar el tronco con el hombro hasta que se suelta y el río lo arrastra; queda varado en la orilla del tercer río (el primer tronco de la balsa, 7.5). El agua corre.
+  - **Coste:** si se agota el latido, el oso se asusta y se aleja; Argos tendrá que despertarlo otra vez.
+- **SALTO TESTIGO II:** en el tercer río, el brinco del cap. 2 **acaba en el agua** (la túnica oscurece). Para cruzar hace falta **carrerilla y pisar la piedra-corazón**; llega **jadeando**, y se le pasa en unos segundos. El agua, ya libre, devuelve: «…Iram». Argos lo logra a la segunda y, al sacudirse, se le ve **un pelo blanco** en el hocico que nadie comenta.
+- **TEXTO:** *Antes no tenía rodillas.*
+- **SIGNIFICA:** el oso no es «otra magia»: es el animal grande que mueve lo que Iram ya no puede. *Producción:* primer uso del shader de canas; muy discreto.
+
+**Última imagen.** El péndulo andando otra vez, con el humo cayendo recto. Al pie, en la sombra, el cabracerdo arrastrando la cola cosida; o, si se marcó, nada: la cola de piedra ya no está, porque se la llevó Dóminus.
+
+---
+
+### CAPÍTULO 6 — DOS FLORES DE UNA MISMA RAÍZ
+
+> «Ahora vemos por espejo, en obscuridad; mas entonces veremos cara á cara.»
+> — 1 Corintios 13:12 (Reina-Valera 1909)
+
+**Estado:** Peso. **Duración:** 26 min. **Dóminus:** de amigo a carcelero en un solo capítulo. **Centro del anillo.**
+
+**Resumen.** Iram lo exige todo. Dóminus cuenta su vida y el jugador la juega dentro de los dibujos del sótano. Argos ya no obedece a Dóminus. Mirando al sol, Iram gana la Caverna y, desde una cigüeña, ve que el bosque es un azulejo, la ciudad una pintura y el cielo un techo. En la tormenta, Eco le guía y la arpía resulta ser otra cosa. Dóminus encuentra los legajos: «No eres nadie». Eco dice su primera frase.
+
+**6.1 «Quiero arriesgarme»**
+- **CÁM:** 1ª persona en la mesa; al final, la cámara se acerca a Dóminus hasta que el carboncillo invade la imagen desde los bordes.
+- **JUEGA:** poner **la mano vacía** en el platillo. La balanza no se mueve.
+- **TEXTO** (condensado del relato):
+  - Dóminus: «Ya te advertí que esta clase de conocimientos es necesario recibirlos en pequeñas dosis».
+  - Iram: «¿Qué ocurriría si me contaras ahora mismo todo cuanto quiero saber?»
+  - Dóminus: «Seguramente no me creerías. O tal vez enloquecerías».
+  - Iram: «Quiero arriesgarme».
+  - Dóminus se pone de espaldas, murmura consigo mismo y vuelve con una satisfacción morbosa: «La tuya y la mía están unidas como dos flores de una misma planta subterránea».
+
+**6.2 El niño de carboncillo** *(recuerdo jugable: los dibujos del sótano cobran vida)*
+- **CÁM:** lateral, en **teatro de papel**: los dibujos de 4.5 **animados en capas** (fondo, figuras y perro, parallax suave), 3-4 poses por figura y el trazo que tiembla. Ningún personaje animado nuevo.
+- **REGLA DE LA ESCENA:** el jugador lleva **al niño-dibujo** con **un gesto por lámina**. Sin salto ni carrera libre. Donde el desenlace está escrito, el input expresa **resistencia**.
+- **LÁMINA 1 — El sol desmesurado (lanzar el palo):** el jugador **lanza el palo** en arco de carboncillo; el perro dibujado lo trae. Se puede repetir; el padre se ríe en silencio (su boca, un trazo que se abre). Suena la cuerda pulsada del 3.2, en un instrumento más pobre.
+- **LÁMINA 2 — El anochecer (correr hacia el padre):** el papel se oscurece como si le echaran ceniza. Soldados sin cara atan al padre a un poste. **El fuego es del rojo exacto del orbe**, la única mancha de color de la escena. El jugador **corre hacia el padre** (mantener la dirección): el calor dibujado le empuja y una mano de soldado le agarra; cuanto más se empuja el stick, más se tensa el brazo. No se llega nunca. El padre le mira desde el fuego.
+- **LÁMINA 3 — La leñera (esconderse):** el niño **se esconde** tras la leñera. Funciona unos segundos; una mano entra y le saca. **El perro ladra y se queda fuera**: sale por el margen del papel, al blanco, y desde ahí ladra mientras se llevan al niño.
+- **LÁMINA 4 — La caja (sin input):** mazmorras en dos trazos; una caja de bronce. La tapa se cierra con **un solo trazo negro** que tacha la lámina.
+- **CORTE:** 1ª persona en la caja, **la del ataúd de la intro**: la ventanita, las velas, la luz. Tres segundos. Fuera, risas que se alejan.
+- **TEXTO:** Dóminus, en off, durante la lámina 4: «…me enseñaron que el dolor, como la vida, es pasajero».
+- **SON:** papel que se arruga; fuego en papel; un ladrido que se queda atrás, cada vez más lejos pero sin apagarse del todo.
+- **SIGNIFICA:** el haz, el rojo y el ataúd eran lo mismo; el jugador lo sabe antes que Iram. **El perro real se quedó fuera** (lo necesita el epílogo). *Producción:* reutiliza los dibujos del sótano; si falta tiempo, láminas con voz en off, pero la ventanita se mantiene.
+
+**6.3 El director del teatro** *(la Ley III, dicha sin tecnicismos)*
+- **CÁM:** frontal fijo de la mesa.
+- **PASA:** Dóminus cuenta la creación con orgullo de artesano: el bosque, Argos, la casa, cómo creció hasta tener la cara de su padre, el hijo plantado como una semilla, la madre que le salió ave. Luego llama: «Argos, ven». **Argos no va**: se queda pegado a la pierna de Iram, con las orejas bajas. Otra vez, más bajo. Nada. Dóminus frunce la boca como un niño al que le quitan algo.
+- **TEXTO:**
+  - Iram: «¿Pretendes que crea que todo esto lo has imaginado?»
+  - Dóminus: «Mi padre decía que nada surge de la nada. Me encerraron en una caja de bronce, y en la caja soñé un peregrino, uno de aquellos maestros constructores… Esa es la razón por la que estás aquí».
+  - Dóminus, mirando a Argos: «Al principio todo hacía exactamente lo que yo quería».
+  - *(Iram mira a Argos. Silencio de dos segundos.)*
+  - Dóminus: «Luego empezasteis a aprender cosas que yo no os había enseñado».
+  - *Un niño en una caja. Y yo, su juguete.*
+- **SIGNIFICA:** las leyes I y III dichas sin tecnicismos (la II ya la mostró el péndulo). La desobediencia del perro es una pérdida personal: semilla de 9.5. Lástima inmensa y amenaza a la vez.
+
+**6.4 Mirar al sol** *(orbe dorado; posesión de la cigüeña)*
+- **CÁM:** frontal en el tramo de carrera (sin obstáculos; solo ritmo y aliento); lateral en el claro; 1ª persona de la cigüeña.
+- **LUGAR:** el bosque de día, inestable: cortezas con **las mismas heridas en el mismo sitio**, una armadura colgada de una rama, una campana sin iglesia (Ley I: lo que el niño vio, puesto donde no toca).
+- **PUZLE (mirar):** en un claro, mirar el sol entre las copas (mantener arriba, con el mirar arriba existente) hasta que duela: la pantalla queda casi blanca y vibra; la respiración aparece por el esfuerzo. Al soltar, el orbe es **dorado**, y las cortezas muestran **una costura** donde la textura vuelve a empezar. En el árbol más alto, un nido de cigüeña tan grande como un carro.
+- **POSESIÓN DE LA CIGÜEÑA:** batir, planear y picar; las corrientes se ven como hojas en espiral (las tres familias de 1.6). **Objetivo:** subir. Tres alturas:
+  1. **El bosque-azulejo:** **un azulejo que se repite**, como baldosas de cocina de pueblo, con las mismas heridas en la misma esquina. **En el centro, la casa.**
+  2. **La ciudad pintada:** de cerca, **es una pintura**: tejados como manchas, humo quieto, una torre que es un trazo. Si el ave baja, la tela ondula.
+  3. **El cielo deja de ser cielo:** el azul tiene **pinceladas** y, en un punto, una grieta por la que entra la luz de la ventanita. El ave entra en pánico y la posesión se rompe.
+- **TEXTO:** *Los árboles tienen las mismas heridas. Todos.*
+- **SON:** viento; al llegar al cielo pintado, el viento se apaga como en una habitación cerrada (el zumbido grave del borde del claro, 1.2).
+- **SIGNIFICA:** la luz que enseña primero ciega; la ciudad a la que se quiere huir es un decorado (siembra de 7.7). *Producción:* azulejo = textura repetida en perspectiva por shader; ciudad, una sola ilustración; cielo pintado, la ilustración del cielo con una capa de pinceladas.
+
+**6.5 La tormenta, la arpía y Eco** *(escena tensa; elección)*
+- **CÁM:** lateral en los tramos con decisiones; frontal solo en rectas sin obstáculos.
+- **LUGAR:** noche de tormenta; la tierra llena de charcos, claros de luna entre nubes que corren.
+- **PASA:** la arpía caza desde arriba. No sabe volar: cae a saltos desde las ramas, con las alas como abanicos rotos, y su cara de vieja se ve un instante con cada relámpago.
+- **JUEGA (Eco guía, de charco en charco):** para correr hay que llevar el báculo guardado, sin luz. **Eco aparece en un charco**, dice «…aquí», y se enciende el siguiente claro de luna. Se corre de charco en charco, con jadeo y paradas. Cuando la arpía va a bajar, Eco avisa: «…arriba». Con el **verde** se puede cerrar un claro con zarzas, a costa de sacar el báculo.
+- **Fallo con coste:** si la arpía le alcanza, le arrastra al claro anterior y **las nubes lo tapan**: un refugio menos. Sin muerte.
+- **EL ÚLTIMO CLARO:** la arpía se posa en el borde, jadeando como él. **Si se le apunta con el dorado** (opcional), la imagen se cuartea y, dos segundos, se ve lo que Dóminus usó para hacerla:
+  - **la vieja real**, una mujer de pelo blanco, asomada desde arriba;
+  - **la ventanita** del ataúd, vista desde fuera, con las velas;
+  - y suena **una nana** sin letra, deformada, que la vieja tararea contra el cristal.
+  La arpía ladea la cabeza, como si también la oyera.
+- **ELECCIÓN:**
+  - **Deslumbrarla** (rojo a la cara): chilla, se esconde bajo las alas y huye dando tumbos. Volverá a cazar (en el 8, sobre el bosque de las setas).
+  - **Pasar despacio sin atacarla** (guardar el báculo y cruzar el claro andando, junto a ella): la arpía no se mueve. Cuando Iram está a su lado, estira el cuello y le huele el pelo, como se huele a un niño, y le deja pasar. **Deja de cazar.** Desde aquí reaparece en silencio: en el río seco (7.7), en las setas (8.4), en los entierros (8.8, 9.11) y en la huida final (10.6).
+  - (Si se usa el dorado y luego se la deslumbra, también vale: el juego no castiga haberlo comprendido.)
+- **SON:** lluvia; el aleteo inútil de 2.4; la nana, solo con el dorado.
+- **SIGNIFICA:** la madre que Dóminus no supo imaginar, hecha con la cara de una desconocida que se asomaba a su caja (Ley I). No se la habita: se la comprende o no. La vieja del final B es esta cara.
+
+**6.6 El cuarto vacío**
+- **CÁM:** 3ª persona en el cuarto de Iram (el arcón abierto y vacío) → frontal fijo de la mesa.
+- **PASA:** Iram vuelve empapado. El arcón de su cuarto está abierto y vacío; Argos gime. Abajo, **Dóminus lee los legajos**. Encima, como pisapapeles, **la cola de pez de piedra** (si se marcó en 5.2) o la aguja curva con hilo violeta. No adivinó nada: subió al cuarto y los encontró.
+- **JUEGA:** con el **dorado** se ven **la cuerda del péndulo** colgando de nada, las rayitas de boceto en la cara del hijo (en la escalera) y las vigas pintadas sobre tela. Si se apunta a Dóminus, se tapa la cara: «No».
+- **TEXTO** (condensado del relato):
+  - Iram: «Te contaré mi más preciado secreto a cambio de que me lleves fuera de este bosque».
+  - Dóminus: «Pobre idiota… He subido a tu habitación y he encontrado todos los escritos de mi padre». Según la mentira de 4.8: «Tu cofradía…» / «Tus recuerdos de esta noche…», con una risa corta. «Ya no te necesito».
+  - Iram: «Dime cómo llegar a la ciudad del valle».
+  - Dóminus: «Esa ciudad no es más que una mancha en el paisaje, tan irreal como tú».
+  - Iram: «¡Soy una persona real!»
+  - Dóminus: «No eres más que mi propia imagen reflejada en un espejo deformado. Iram es el nombre de un antiguo maestro constructor. Tú, sencillamente, no eres nadie…».
+  - Al irse Iram, sin levantar la vista: «Y llévate tu fuego tonto».
+- **Desde aquí**, el platillo de Dóminus está vacío: ya no hay trueque. Aparta la campana junto a su codo. En el mando, la balanza deja de responder.
+- **SON:** la lluvia contra la ventana; el péndulo; páginas.
+- **SIGNIFICA:** el chiste privado de 5.1, usado para herir, es lo que más duele.
+
+**6.7 «Tú. Eres. Alguien.»**
+- **CÁM:** lateral en el tercer río, de noche; al final, **el primer plano ilustrado de 2.6** (la cara de Iram), con la cara tallada de Eco bajo el agua a su lado, en el mismo encuadre.
+- **PASA:** Iram se sienta en la orilla, junto a la piedra-corazón. Argos se tumba contra él y le deja el palo en las rodillas.
+- **JUEGA:** gritar al agua (un toque de *llamar*). Solo queda una opción: «No soy nadie».
+- **TEXTO:** Eco, con palabras que él le ha ido dejando: «Tú. Eres. Alguien». Nada más. Iram llora en silencio; Argos le lame la mano.
+- **SON:** la voz de Eco, por primera vez **sin eco**: seca, cercana, como si estuviera sentada al lado.
+- **SIGNIFICA:** **la primera frase realmente nueva de este mundo** (Ley III en estado puro), respuesta exacta al «no eres nadie» de 6.6.
+
+**6.8 Segundo parpadeo del bronce**
+- **PASA:** el reflejo de la luna en el río **parpadea**, como si alguien hubiera pasado por delante de una ventana; en el agua, un instante, el reflejo es metálico.
+- **SON:** un nudillo contra una campana, muy lejos.
+
+**Última imagen.** La cara tallada bajo el agua, a la luz de la luna. El parpadeo. Negro.
+
+---
+
+### CAPÍTULO 7 — EL AGUA SABE BAJAR
+
+> «Nuestras vidas son los ríos / que van a dar en la mar, / que es el morir.»
+> — Jorge Manrique, *Coplas por la muerte de su padre*, III
+
+**Estado:** Peso → **Medida** (7.2). **Duración:** 26 min. **Dóminus:** dios celoso.
+
+**Resumen.** Iram graba su marca para que alguien venga, y el bosque se la copia. Vuelve como traductor. Euclides corrige la casa salvo los dos pasillos. La planta-león hace sangrar al hijo; fijar quita lo imposible. Una mujer llega siguiendo las marcas. Eco dice que el agua sabe bajar y huyen río abajo. Cauce arriba, Dóminus deja de imaginar agua nueva.
+
+**7.1 Las marcas copiadas**
+- **CÁM:** lateral; en cada cruce, un corte a una composición algo más abierta para ver los dos caminos.
+- **LUGAR:** el bosque-módulo a media tarde, con cinco cruces encadenados hasta la linde.
+- **PASA:** Iram graba su marca en troncos, tierra y hojas grandes. En el cruce siguiente aparece **la misma marca en un árbol que nunca tocó**.
+- **PUZLE (el bosque que copia):** solo las marcas verdaderas llevan a la linde. **Dos canales:**
+  - **La verdadera:** relieve (sombra propia que gira con la luz), **polvo de piedra** al pie y, al pasar, el **sonido de guardado**, un cincel corto y limpio.
+  - **La copia:** plana, sin polvo, **muda**; no guarda. Con el **dorado** se ve como una calcomanía de borde despegado.
+  - En los dos últimos de los cinco cruces hay una copia a cada lado y la verdadera queda en sombra: hay que acercarse a oírla. Pista del charco: «…relieve».
+  - **Fallo:** una copia lleva a un claro ya pisado; se reaparece en la última marca **verdadera**.
+- **TEXTO:** *Si no puedo llegar a nadie, que alguien llegue a mí.* Tras la primera copia: *Mi marca. Yo no la hice.*
+- **SON:** el cincel de la verdadera; el silencio de la copia tiene que notarse.
+
+**7.2 El pacto del traductor** *(→ Medida)*
+- **CÁM:** frontal fijo de la mesa (el de 2.1); 1ª persona sobre los pliegos; corte a 3ª tensa en el pasillo.
+- **PASA:** Iram vuelve a la casa. La balanza sigue en la mesa, quieta: el platillo de Dóminus está vacío desde 6.6, y la campana con la hoja caída, junto a su codo.
+- **TEXTO** (condensado del relato):
+  - Dóminus: «¿Es que no te ha quedado claro que no te quiero en mi casa?»
+  - Iram: «Déjame seguir viviendo aquí. Te ofrezco mis servicios de traductor».
+  - Dóminus: «Sabes negociar. Pero puedo adivinar cualquier treta que concibas contra mí, y si la descubro, te haré desaparecer tan rápido como te hice venir».
+- **JUEGA:** la balanza ya no se usa. Cada noche se elige cuál de los tres legajos exigidos se traduce: **Botánica tropical**, **Anatomía** o **Euclides, libro I**. Euclides entra obligatoriamente en una de las dos primeras noches.
+- **EL LEGAJO INCOMPLETO:** al abrir Euclides, la cámara se detiene un segundo en el lomo: **el hilo de costura cortado y una mancha de lacre** donde faltan hojas (el mismo hueco que se vio en 4.6). Iram pasa el dedo por el corte. Nadie lo comenta: basta con que el jugador vea el hueco (§1, Euclides).
+- **Euclides I → Medida.** Esa noche, al subir con la vela, la casa se corrige delante de él, una cosa por plano:
+  1. La escalera infinita termina donde debe, en un rellano.
+  2. Una habitación que era más grande por dentro se encoge con un crujido de tablas.
+  3. Un ángulo imposible del techo se endereza.
+  4. Un pasillo que se estiraba al andar deja de estirarse.
+  5. Y los **dos pasillos paralelos del cap. 4**: Iram entra en el izquierdo, cruza el umbral con la franja de luna y, con el mismo corte de composición, **las dos hileras de clavos siguen juntándose ante una sola puerta**; las dos gotas caen al unísono. La vela que enciende en uno aparece encendida en el otro.
+- **JUEGA:** detenerse ante ellos. Si se sigue, se vuelve al punto de partida, como en el 4.
+- **TEXTO:** *Eso sigue estando mal.*
+- **Desde aquí, Medida** (§1): se estrena **trepar un borde**; las caídas hacen daño y el báculo no vuelve.
+- **SON:** cada corrección es un crujido distinto; ante los pasillos, ninguno: solo las dos gotas en una nota.
+- **SIGNIFICA:** ya no hay trueque, solo servicio. Euclides lo ha corregido todo menos esto; el jugador lo ve antes de entenderlo (si en las pruebas no se recuerda en el 10, reforzar aquí: §10).
+
+**7.3 La planta-león** *(la primera sangre; la regla de Argos)*
+- **CÁM:** lateral; al vendar, 1ª persona de las manos.
+- **PASA:** tras la botánica tropical, el hijo entra con la mano envuelta en una tela **roja**: la primera sangre del juego. Algo le arrancó un dedo al acariciarlo: una planta pulposa, mitad león, que ruge y tira de sus raíces.
+- **PUZLE:**
+  1. La planta muerde lo que se mueve en su radio (la hierba aplastada lo dibuja).
+  2. Con el **verde**, una zarza la ata: hay que quedarse quieto dentro del radio con el báculo en la mano mientras crece.
+  3. Argos ladra al otro lado para distraerla (toque de *llamar*) y el peregrino entra agachado a por **el dedo, que es un brote de raíz**.
+  - **Fallo (Medida):** la mordida hace daño de verdad: tumbado, levantarse lento, cojera.
+- **LA REGLA (ofrecida con insistencia, como la hoja de 1.5):** atada, la planta está quieta y el blanco brilla en la rueda. Si se la **marca**, la mitad de león **se vuelve piedra y se desmorona**; queda una planta carnívora pequeña y real que se cierra sobre una mosca. Si no, sigue rugiendo en su escondrijo hasta el 10.
+- **AL VENDAR:** las manos viejas atan la tela y colocan el brote junto a la herida; prenderá despacio.
+  - **Si Iram no le pegó (3.3):** el niño **le abraza** por primera vez, con la cara lisa contra la túnica. Iram no sabe qué hacer con las manos.
+  - **Si le pegó:** se deja curar sin moverse y se va con la mano pegada al pecho.
+- **TEXTO:** *Aquí ya se sangra.*
+
+**7.4 La mujer de párpados morados** *(elección)*
+- **CÁM:** frontal fijo de la mesa; luego lateral en el bosque.
+- **PASA:** golpes en la puerta: ha seguido **las marcas** una mujer esbelta de lino, párpados morados y un aroma que llena la sala. Dóminus la presenta casi con orgullo, como prueba de que puede hacer «mujeres de verdad». Suben a su cuarto; al rato ella baja huyendo mientras él grita: «¡No conoces tu propio oficio!». Más tarde Iram la encuentra en el bosque, con el gesto de llorar y sin lágrimas: Dóminus no sabía de lágrimas.
+- **ELECCIÓN:** **darle la capa** o **pasar de largo**. Si la recibe, reaparece una vez en 7.6.
+- **SIGNIFICA:** las marcas solo atraen lo que el sueño sabe fabricar. *(Primer recorte, §9.)*
+
+**7.5 El secreto de Eco**
+- **CÁM:** lateral en la orilla; cenital sobre la balsa al terminarla.
+- **PASA:** Iram le cuenta a Eco que no hay salida. Ella calla un rato, algo nuevo en ella.
+- **TEXTO:** Eco: «El agua. Sabe. Bajar». Todos los ríos son uno, y ese uno baja al valle.
+- **JUEGA (la balsa):** **empujar** tres troncos al agua (el primero, el del oso, 5.9), atarlos con el **verde** y poner encima la piedra del baúl como lastre. **Única regla:** cada tronco **paralelo** al anterior; si se tuerce, la balsa gira y el tronco se suelta. Con los tres paralelos, el cenital se detiene un segundo: tres rectas que no se tocan, con el agua entre medias.
+- **SIGNIFICA:** el amor da la idea que no estaba en ningún legajo; el jugador construye con sus manos lo que entenderá en el 10.
+
+**7.6 La huida**
+- **CÁM:** lateral rápida, cámara adelantada. Es la secuencia más luminosa del juego.
+- **LUGAR:** el río al alba, entre rápidos y remansos dorados. Al fondo, **la ciudad**, cada vez más grande.
+- **PASA:** Argos en la proa con las orejas al viento; a su lado, por la superficie, corre **la cara de luz de Eco**.
+- **JUEGA:** inclinarse para gobernar, agacharse bajo ramas, bajar dos veces a empujar sobre un bajío. Si cae al agua, la balsa le espera en el siguiente remanso.
+- **ELECCIONES (tres remansos):** qué decirle a Eco, entre tres frases que flotan sobre el agua:
+  1. «Corre» / «Mira, la ciudad» / «No tengas miedo».
+  2. «No mires atrás» / «Ya casi» / «Estoy aquí».
+  3. «Te quiero» / «No me sueltes» / «Llegaremos».
+  Ella juega con ellas y las devuelve cambiadas de orden. **No cambian el destino: cambian sus últimas palabras.**
+- **Si se dio la capa:** en el segundo remanso, la mujer, en la orilla, se lleva un dedo a los labios, señala la casa y se toca los ojos: **él lo sabe**. Sin ventaja: solo que el jugador lo sabe antes.
+- **SON:** la música más abierta del juego. La única que suena a esperanza.
+
+**7.7 El río se seca**
+- **CÁM:** lateral; al final, 1ª persona de las manos.
+- **PLANO A PLANO:**
+  1. La corriente se amansa. La cámara se retira: cauce arriba **no entra agua nueva**; el nacimiento está quieto, como pintado. El agua que ya había sigue bajando, obediente, y se va.
+  2. En medio del cauce, **sentado en una piedra, Dóminus**, con los ojos cerrados, tarareando. Ningún gesto: **ha dejado de imaginar agua**. La única vez que se le ve fuera de casa.
+  3. La sequía **adelanta a la balsa** en pantalla desde el primer segundo: se lee como inevitable. La balsa encalla.
+  4. Eco salta de charco en charco por delante, cada vez más pequeña: la tormenta del 6.5 al revés.
+- **JUEGA:** correr por el cauce; el aliento se agota a los tres segundos. Sin fallo: **siempre se llega al último charco.**
+- **EL ÚLTIMO CHARCO:** Iram se **arrodilla** (animación nueva). 1ª persona: dos manos viejas recogen el agua con la cara de Eco dentro.
+  - **Sostén cuanto puedas:** mantener cierra las manos y el agua se escurre más despacio; soltar las abre. El mando vibra y tiemblan. **No se la puede retener**: cuanto mejor se sostiene, más veces dice ella su frase.
+  - La cara se encoge repitiendo **la última frase que eligió el jugador**, cada vez más bajo; si se sostuvo bien, añade «…Iram». Queda la mano mojada.
+- **DESPUÉS:** la ciudad está cerca y **no tiene detalle**: tejados como manchas, humo quieto, una torre que es un trazo. Junto a la balsa varada **coge la piedra del baúl**: lo único que se lleva. Argos aúlla. A lo lejos llora la arpía (perdonada, se sienta a dos cuerpos de él).
+- **SON:** la música se corta de golpe. La voz que se apaga, viento seco y, cauce arriba, el tarareo.
+- **PÉRDIDA EN EL MANDO:** desde aquí, **gritar al agua no tiene respuesta**.
+- **SIGNIFICA:** Ley II: el agua sigue sabiendo bajar; se acaba la que él daba. Súbito, en mitad de la esperanza, con la mano que lo hizo a la vista. Eco muere por llegar a una pintura.
+
+**7.8 La mañana del péndulo**
+- **CÁM:** frontal, desde fuera, por la ventana.
+- **PASA:** Iram vuelve con la piedra en la mano. Dentro, Dóminus empuja el péndulo **tarareando la tonada del cauce**. No se gira. Empuja solo; esta vez puede.
+- **TEXTO:** Dóminus, sin mirarle: «Aquí no se va nadie».
+
+**Última imagen.** La mano todavía mojada sobre la mesa, junto a la piedra. Una gota cae al suelo sin ruido.
+
+---
+
+### CAPÍTULO 8 — LA SOPA
+
+> «Todas las cosas son veneno, y nada hay sin veneno; solo la dosis hace que una cosa no sea veneno.»
+> — Paracelso, *Septem Defensiones*, tercera defensa (traducción propia)
+
+**Estado:** Medida. **Duración:** 26 min. **Dóminus:** verdugo.
+
+**Resumen.** Iram quiere matar a Dóminus, por Eco y para saber si existe. La trampa falla porque deja huellas. Estudia el manual de venenos, y el hijo le imita. Un arco sobre la cara de Eco le lleva a las setas. Vierta o no, el niño muere: Dóminus vuelca su sopa en el plato del hijo. Los dos lloran al mismo muerto. Desde Argos, Iram descubre que la casa no tiene cimientos, y pone la primera piedra de la suya.
+
+**8.1 La fosa**
+- **CÁM:** lateral; el paseo, frontal de espaldas con los dos al fondo.
+- **JUEGA:** cavar (1 s a negro con sonido, varias veces) con Argos escarbando al lado; cubrir con ramas. Queda bien, no perfecta: **una rama recién quebrada**, blanca por dentro, y **tierra removida** más oscura en un borde. Se ven si se mira; no se pide arreglarlas.
+- **TEXTO** (el único pensamiento del capítulo antes de la tumba): *Ella dijo que soy alguien. Si él muere y yo sigo aquí, lo seré.*
+- **PASA:** al día siguiente, Dóminus pasea con él hablando de flores. **Se para.** La cámara corta a lo que él mira: **la rama blanca por dentro, la tierra oscura**. Sonríe, rodea la fosa y sigue hablando de flores.
+- **SIGNIFICA:** Dóminus **no lee la mente**: lee el suelo. El plano de lo que mira es obligatorio.
+
+**8.2 El manual de venenos**
+- **CÁM:** 1ª persona sobre las láminas; lateral desde la puerta.
+- **PASA:** entre los legajos, un **catálogo de venenos** del padre, con letra adulta en el margen y, debajo, imitándola, la de un niño. Tres setas con tres señales: **volva**, **anillo**, **sombrero**.
+- **JUEGA:** pasar las láminas y girarlas para ver el pie; ordenar unas setas secas inofensivas, como práctica.
+- **EL HIJO IMITA:** se sienta al otro lado de la mesa, gira una lámina con el mismo gesto de muñeca y separa dos setas por el color; Iram le quita una de la mano y la recoloca. El niño mira dónde la pone.
+- **SIGNIFICA:** el jugador tiene que ver que el niño aprende **el procedimiento**, no un juego.
+
+**8.3 El río mudo** *(salto testigo III: el arco)*
+- **CÁM:** lateral; el puzle, en diagonal.
+- **LUGAR:** el tercer río. **Dóminus ha vuelto a imaginar agua**: corre, pero **no tiene voz** (Eco no era una propiedad del río). La piedra-corazón sigue en el fondo. Las setas crecen en la otra orilla.
+- **PASA:** intenta el salto por costumbre y cae al agua helada. Si grita al agua, nada.
+- **PUZLE (el arco, en tramos cortos):**
+  1. Con el **blanco** se trazan con el compás los apoyos y la curva: marcas en el suelo y una guía de luz en el aire.
+  2. Se **empujan** sillares de una ruina a las marcas **alternando izquierda y derecha**, tres por lado. Dos seguidos en el mismo lado: cruje y el último vuelve rodando.
+  3. Falta la **clave**: solo la piedra-corazón tiene la forma justa. Argos la saca del río con la boca (si Iram no le pegó al hijo, el niño la empuja desde abajo, con la mano vendada en alto).
+  4. Iram la coloca con la cara tallada mirando al agua. El arco aguanta.
+- **JUEGA:** cruzar. Sobre la clave, Iram **se detiene** un instante en reposo, mirando al agua, y sigue (pausa, no animación ralentizada).
+
+**8.4 Las setas**
+- **CÁM:** lateral, en un claro húmedo de la otra orilla.
+- **PASA:** el hijo le sigue creyendo que es el juego de la mesa y le trae setas en la mano vendada, como trajo el sapo, todas con el mismo orgullo.
+- **PUZLE (reconocer; cuatro o cinco setas):** para cada una, **comprobar las tres señales**: girarla para ver **la volva**, buscar **el anillo**, mirar **el sombrero**. Dos son casi iguales por arriba y solo el pie las distingue. **Fallo:** una inofensiva se tira al comparar en casa.
+- **EL NIÑO OBSERVA** cuáles conserva Iram. Al final guarda una de las «buenas» en su bolsillo, a la vista, sin énfasis.
+- **La arpía:** si se la deslumbró (6.5), caza al anochecer y hay que llevar al niño de la mano de claro en claro, sin poder sacar el báculo; si se la perdonó, mira al niño desde una rama.
+
+**8.5 La cocina** *(elección)*
+- **CÁM:** lateral interior, una vela.
+- **JUEGA:** machacar las setas en el mortero (tres golpes). La elección, sobre la olla de Dóminus:
+- **A. Verter:** el veneno va a la olla de Dóminus. Iram se lava las manos dos veces.
+- **B. No verter:** Iram aparta el mortero, **lo vacía en un cuenco aparte** y lo deja en una repisa alta, para tirarlo por la mañana. Sube a dormir.
+  - **Al irse, el hijo entra** y **mira**, en tres planos cortos: **el mortero**; **las láminas** abiertas; **la cesta** con las setas separadas. Se queda quieto, como cuando le enseñaban.
+
+**8.6 La cena** *(el plano del capítulo 2)*
+- **CÁM:** **frontal fijo de la mesa, el encuadre de 2.1 y 2.9.** Dóminus a la izquierda, Iram a la derecha, el hijo en medio, el péndulo al fondo apenas oscilando. El mismo encuadre en las dos ramas. Si en 3.3 se dejó la vara, cuelga en la pared del fondo.
+- **PLANO A PLANO:**
+  1. *(B)* El niño entra el último, muy contento, mira a Iram como quien guarda una sorpresa y, al pasar junto a la olla de Dóminus, **echa dentro un puñado pequeño** de lo que trae en el bolsillo. Plano lejano: no se distingue qué es. *(A: el niño ya está sentado.)*
+  2. Dóminus sorbe como en la bienvenida y coge la cuchara.
+  3. Se la lleva a la boca y **se detiene**. Huele.
+  4. Mira la sopa. Remueve: un trozo de seta.
+  5. Mira a Iram. (En B, Iram no sabe por qué; el jugador empieza a saberlo.)
+  6. **Coge su plato con las dos manos y lo vuelca, despacio, en el del niño.** Se ven trozos de seta en el chorro.
+  7. El niño bebe enseguida, contento de que le den más.
+  8. Deja la cuchara y mira a Iram (a Dóminus, si Iram le pegó).
+- **JUEGA:** solo **sostener la mirada o bajarla**. Si la sostiene, Dóminus sonríe; no cambia nada. No hay acción para levantarse.
+- **QUÉ SABE DÓMINUS:** huele y ve la seta, no quién la puso. Mira a Iram porque las setas son del manual que Iram estudiaba: **una huella**, no una lectura de mente. En B se equivoca a medias de culpable, y no le importa.
+- **SON:** la cuchara contra el plato.
+- **SIGNIFICA:** las ramas convergen por causas distintas: en A, Iram intentó matar; en B, enseñó sin querer.
+
+**8.7 La canción**
+- **CÁM:** lateral, plano fijo, una sola vela.
+- **PASA:** esa noche el niño muere canturreando **la melodía del título**, la de las hojas. Iram, arrodillado, le sostiene la mano vendada. La melodía sigue cuando ya no respira.
+- **JUEGA:** **ninguna entrada.** Solo se escucha.
+
+**8.8 El entierro**
+- **CÁM:** lateral; al final, cenital sobre la tumba.
+- **JUEGA:** Argos escarba la fosa del 8.1, la que nunca se usó. Con el **verde** se planta al niño: se mantiene mientras brota y **el jugador decide cuándo basta**. Sale una mata con la forma vaga de un niño; donde iría la cara asoman, apenas, las cejas o la nariz que le dio en 5.6 (nada, si no le dio nada). De debajo sigue saliendo la canción.
+- **LA MARCA:** sobre la mata se abre una hoja ancha con **la marca de cantero del hijo (2.8)**: completa y cerrada si Iram le corrigió el trazo; abierta, con el último trazo torcido, si la dejó como estaba. No se comenta.
+- **La arpía,** si fue perdonada, se queda velando a dos cuerpos.
+- **TEXTO:** *Me trajo las setas. Creía que jugábamos.*
+- **PÉRDIDA EN EL MANDO:** *pedir ayuda* no vuelve a aparecer.
+
+**8.9 Casi perdón**
+- **CÁM:** frontal fijo del túmulo, de noche; Iram a un lado y Dóminus, que llega después, al otro.
+- **PASA:** Dóminus se sienta a oír la canción. Ninguno mira al otro. Un minuto largo: los dos lloran al mismo muerto.
+- **JUEGA:** nada, o **acercarse un paso**. Si se acerca, Dóminus no se aparta.
+- **TEXTO:** Dóminus, sin mirarle: «Ya tenemos un muerto cada uno». Se va.
+- **SIGNIFICA:** el perdón estaba a un paso, y Dóminus lo convierte en contabilidad.
+
+**8.10 Bajo la casa** *(segunda posesión de Argos)*
+- **CÁM:** 1ª persona de Argos, a ras de suelo y luego bajo tierra.
+- **PASA:** días después, la canción sigue bajo el bosque. Argos gime y escarba junto al túmulo. Iram le posee; nadie guarda el cuerpo.
+- **JUEGA:** olfatear el hilo verde de las raíces del niño y **escarbar** siguiéndolo; cuanto más cerca, más se oye la canción. Van **hacia la casa**.
+- **QUÉ SE ENCUENTRA:** debajo de la casa **no hay nada**: ni cimientos ni roca. **Flota** a un palmo de la tierra, como una maqueta sostenida por una mano invisible. Las raíces cuelgan en el vacío. El ladrido no vuelve.
+- **SIGNIFICA:** para un constructor, aquello no debería sostenerse.
+
+**8.11 El crujido**
+- **CÁM:** frontal fijo de la mesa; corte a 3ª tensa en el pasillo.
+- **PASA:** Dóminus estudia el Euclides traducido, tachando y empezando otra vez. Pasa el dedo por el lomo cortado y lo retira, como si quemara. **Un crujido largo** sacude la casa: el péndulo se agita, cae polvo y, por la ventana, un arbotante se inclina un dedo. La casa se tuerce, pero no cae.
+- **JUEGA:** al subir a dormir, Iram pasa por los dos pasillos. **Las dos hileras de clavos siguen juntándose ante una sola puerta**, y las gotas, al unísono. Ahora, en el punto donde se juntan, las tablas del suelo están rajadas, como si allí se apoyara todo el peso de la casa.
+- **TEXTO:** Iram: «Me construiré una casa junto a la tuya. Echo de menos mi oficio». Dóminus, sin levantar la vista: «Construye lo que quieras».
+- **SIGNIFICA:** la última imposibilidad carga con todo. Dóminus no lo sabe decir; lo sabe con el dedo.
+
+**8.12 Los cimientos** *(primer día del torreón)*
+- **CÁM:** diagonal, con la casa de Dóminus al fondo.
+- **JUEGA:** marcar las cuatro esquinas con el **blanco** (de cada marca cae una línea de luz recta) y nivelar empujando piedras bajo una losa hasta centrar la burbuja. Lento, preciso, sin fallo posible. La primera piedra, **la del baúl**, va en la esquina norte.
+- **SON:** piedra sobre piedra, limpio. La única música del oficio.
+
+**Última imagen.** La piedra del baúl bajo la línea de luz. Detrás, el arbotante inclinado.
+
+---
+
+### CAPÍTULO 9 — TRES VECES MÍO
+
+> «Todo va á un lugar: todo es hecho del polvo, y todo se tornará en el mismo polvo.»
+> — Eclesiastés 3:20 (Reina-Valera 1909)
+
+**Estado:** **Bronce** (9.1). **Duración:** 24 min. **Dóminus:** niño desesperado que mutila lo que ama.
+
+**Resumen.** Dóminus se atraca de legajos: el bosque se llena de injertos y el mundo pesa como el bronce. Iram levanta un torreón que se sostiene, y parece que lo peor ha pasado. Dóminus se lleva a Argos a rastras; vuelve con tres cabezas. Iram lo posee por última vez, lo fija y lo entierra junto al hijo.
+
+**9.1 El atracón** *(→ Bronce)*
+- **CÁM:** frontal fijo de la mesa, de noche; lateral del bosque al amanecer.
+- **PASA:** Dóminus lee todos los legajos a la vez, con tres velas, sin terminar las hojas. Cada mañana el bosque amanece **bullendo** de injertos con costuras violetas: perros tricéfalos, ranas aladas, homúnculos en frascos, un ciervo con patas de mesa. El mundo pesa de golpe.
+- **JUEGA:** saltar levanta **un palmo**; correr no existe; el báculo es un bastón. Un escalón alto basta para que aparezca la respiración, que se va al pararse.
+
+**9.2 Los muros** *(segundo día del torreón)*
+- **CÁM:** diagonal, con la casa de Dóminus al fondo, inclinada.
+- **JUEGA:** colocar sillares a escuadra sobre los cimientos (empujar hasta la marca; encaja con polvo), con una escuadra de luz blanca de guía. Cada hilada fija la anterior.
+  - **Fallo:** con el ángulo mal, el muro cruje **con el mismo sonido que la casa de Dóminus**; Iram lo deshace él mismo.
+- **LA PAUSA:** tras la segunda hilada, el juego **no empuja**. Atardece. Argos trae el palo; se le lanza corto, y él lo trae despacio, con el hocico ya blanco. Iram se sienta en el muro. Un minuto, dos. Pájaros normales. La casa de Dóminus, quieta, con las velas apagadas.
+- **TEXTO:** *Por fin algo que se sostiene.*
+- **SIGNIFICA:** el único sitio donde la física real **ayuda**. La pausa tiene que durar lo bastante para que el jugador piense que lo peor ha pasado.
+
+**9.3 El camino a la cantera** *(escena tensa; a por la clave)*
+- **CÁM:** 3ª persona tensa en penumbra; lateral en el desfiladero.
+- **LUGAR:** el bosque hasta la cantera, donde está la única piedra buena para la clave del arco del torreón.
+- **Reglas de Bronce (todas conocidas):** no se corre ni se salta; el **rojo** dura 20 s, para a las criaturas viejas pero **no a las violetas**, y solo se recarga en las velas que Dóminus deja por el bosque; el **dorado** congela 3 s a un injerto violeta; el **verde** crea coberturas que se pudren enseguida; **Argos** (toque de *llamar*) olfatea y se sienta donde la ruta es segura.
+- **LOS RECUERDOS DEL VIAJE:** las criaturas que Iram habitó **le reconocen** y aparecen una vez cada una, como ayuda que no hay que gestionar ni es obligatoria.
+  - **El sapo** croa en su hombro un segundo antes de que algo se acerque.
+  - **La cigüeña** gira en círculos sobre la dirección correcta en el cruce que más confunde.
+  - **El pez** asoma un instante en un charco imposible, en mitad del camino seco: ahí hay agua, y una vela.
+  - **La hoja**, una dorada, cae despacio junto a un hueco de raíces donde cabe un hombre agachado.
+  - **El oso de musgo** está tumbado a la entrada del desfiladero, como una roca; si Iram pasa pegado a él, los injertos no le ven.
+- **PUZLE (el desfiladero):** dos perros tricéfalos patrullan; al fondo, una vela alta apagada.
+  1. Avanzar de cobertura en cobertura: el oso, luego una zarza de **verde** (que se pudrirá en unos segundos).
+  2. Si un perro se gira, **dorado**: congelado 3 s. Se pasa.
+  3. **Clavar** el rojo bajo la vela alta para encenderla: es la recarga que hará falta a la vuelta. El báculo se queda allí.
+  4. Pasar al otro lado sin luz, guiado por la hoja y el sapo.
+  5. **Recuperar el báculo, una sola vez:** a la vuelta, con la clave, se pasa bajo la vela y se arranca.
+  - **Fallo con coste:** si un injerto le alcanza, muerde: tumbado largo, cojera el resto del camino, y la vela gasta un tercio mientras se levanta.
+- **En la cantera:** la clave, en una carretilla. Argos tira de la cuerda con los dientes; Iram empuja.
+
+**9.4 La clave** *(tercer día del torreón)*
+- **CÁM:** diagonal; en lo alto, lateral abierta.
+- **JUEGA:** **el arco de la puerta**, como el del río (alternando lados), y la clave sin ayuda. Luego, trepar por la escalera interior, de escalones que él mismo hizo un poco altos.
+- **QUÉ SE VE:** desde arriba, el bosque-azulejo y la casa de Dóminus **visiblemente torcida**. Argos sube jadeando, escalón a escalón, y deja el palo a sus pies.
+
+**9.5 Se lo lleva** *(jugable)*
+- **CÁM:** lateral, plano largo, con el torreón a la izquierda y la casa a la derecha. **Se ve todo el recorrido desde el primer segundo**: la distancia, los escalones, la puerta.
+- **PASA:** de noche, al pie del torreón: «Argos, ven» (6.3). **Argos no va**: gruñe junto a Iram, que duerme. Dóminus **lo coge del pescuezo** y lo arrastra. El perro clava las uñas.
+- **JUEGA:** Iram despierta y baja: **no puede correr, salta un palmo y en sus propios escalones tiene que trepar**. Dóminus anda deprisa, arrastrando al perro, y aun así se aleja. Si Iram llama, Argos gira la cabeza y Dóminus tira más fuerte.
+- **NO SE PUEDE ALCANZAR,** con ningún orbe ni atajo. El input es **ir**, no salvar. La trampilla se cierra sobre la cola del perro; cuando Iram llega, la argolla está fría.
+- **SON:** uñas sobre la piedra; la respiración de Iram, que esta vez no se va.
+
+**9.6 Los sótanos retocados**
+- **CÁM:** frontal de espaldas al bajar; 3ª persona tensa con la luz roja muy débil.
+- **PASA:** en el primer sótano, los dibujos **están retocados**: en todos, el perro tiene **tres cabezas**, pintadas con un trazo negro de niño furioso. En el segundo, el bestiario abierto por la lámina de un perro tricéfalo, **pelo en el suelo, una aguja curva e hilo violeta**. Un gemido tras una pared, y luego nada.
+
+**9.7 La puerta guardada**
+- **CÁM:** frontal fijo de la fachada, al amanecer.
+- **PASA:** en la puerta, **un perro con tres cabezas**: en el centro Argos, con **el palo en la boca**; a los lados, **dos ensayos de cachorro sin terminar**, casi sin ojos, como la cara del hijo, con costuras violetas, que le muerden las orejas. Dóminus, en el umbral, con la mano en su lomo.
+- **TEXTO:** Dóminus: «Ahora es perfecto». Pausa. «Tres veces mío».
+- **JUEGA:** si Iram se acerca, las cabezas falsas gruñen y el perro sufre más. Si se va, Argos le sigue gimiendo, al fondo del plano, vaya donde vaya. Todo camino vuelve aquí.
+- **RESPUESTAS DE LOS ORBES** (cada una se ve una vez y dice algo):
+  - **Rojo:** las cabezas falsas se esconden bajo el pelo dos segundos y vuelven a morder más fuerte.
+  - **Verde:** las raíces las sujetan, pero tiran del cuello y el perro gime.
+  - **Blanco:** mientras se agita, la marca le resbala, como en el cap. 2.
+  - **Dorado:** costuras violetas en los cuellos **y otra, blanca y finísima, alrededor de todo Argos**: él también es un recuerdo cosido al sueño. Dóminus se tapa la cara: «No».
+  - **Tornasol:** se puede. Es lo que el juego espera.
+- **SIGNIFICA:** el jugador ya sabe lo que hace el blanco con lo imposible (cola de pez, planta-león) y con lo recordado (frambuesas): aquí se juntan.
+
+**9.8 La última posesión**
+- **CÁM:** 1ª persona de Argos: una sola vista partida en tres franjas por un shader.
+- **JUEGA:** Iram **clava el báculo** y se tumba. **Nadie guarda el cuerpo**: era Argos quien lo guardaba. Las franjas de los lados, emborronadas y con **bordes rojos de dolor**, tiran cada una hacia un lado; solo la del centro está en color. Hay que llevar al perro hasta el cuerpo de Iram y **tumbarse a su lado**; al soltar el stick, la cabeza del centro vuelve a apuntar al cuerpo. Dóminus mira y no hace nada. El hilo de la cara de Iram es cálido, del color del niño de los dibujos.
+- **AL TUMBARSE:** las franjas se callan, el rojo se apaga y llega el alivio. Argos **suelta el palo** junto a la mano de Iram.
+- **TEXTO:** ninguno.
+- **SIGNIFICA:** reconciliación física, no puzle (el Argos de Homero reconoce a su amo bajo el disfraz).
+
+**9.9 Fijar**
+- **PASA:** Iram despierta. Argos está a su lado, **quieto por primera vez en todo el juego**, aunque las cabezas falsas vuelven a morder en cuanto se separan. El blanco brilla en la rueda. Nadie dice nada.
+- **JUEGA:** **trazar la marca de cantero en la frente de Argos**; ahora prende, porque está quieto. **Sin temporizador, flecha ni pista**; no hay castigo por tardar. Se le puede lanzar el palo una última vez: lo trae.
+- **PLANO A PLANO:**
+  1. La marca brilla en la frente.
+  2. Las cabezas de cachorro **se vuelven piedra** y se deshacen en polvo.
+  3. Argos es un solo perro. Sacude la cabeza, aliviado.
+  4. Y envejece, como las frambuesas: el tiempo real le cobra de golpe los años que el sueño le había prestado. El pelo encanece desde el hocico, el cuerpo adelgaza, los ojos se nublan.
+  5. Su 1ª persona por última vez: la cara de Iram, borrosa; un **fotograma**, encima, la cara del niño de los dibujos.
+  6. La oscuridad entra por los lados.
+  7. Lateral. **La cola golpea el suelo una vez.** Respira dos veces y muere en sus brazos.
+- **EL ORBE:** el tornasol se vuelve gris y luego **negro, opaco y pesado**; la garra se inclina.
+- **PÉRDIDA EN EL MANDO:** *llamar* a Argos ya no responde, y **poseer** ya no existe.
+
+**9.10 «Era lo único mío que no inventé»**
+- **PASA:** Dóminus ve al perro y llora de verdad, como un niño, con la boca abierta.
+- **TEXTO:** Dóminus: «Era lo único mío que no inventé».
+- **JUEGA:** cinco segundos sin ninguna acción. Luego vuelve el control.
+
+**9.11 El entierro y el tercer parpadeo del bronce**
+- **CÁM:** lateral fijo; al final, plano detalle de las manos.
+- **PASA:** Iram entierra a Argos junto al hijo, cavando solo, despacio, y pone el palo encima. Si la arpía fue perdonada, vela a dos cuerpos, sin acercarse. Al limpiarse la frente, se huele las manos: **sudor rancio, encierro**. Se las mira.
+- **SON:** grillos y, debajo, un zumbido metálico.
+- **EL TRAMO SILENCIOSO:** sin corte a negro, Iram vuelve al torreón y sube los escalones altos uno a uno. Arriba no hay nada que hacer: mirar la casa torcida, recoger una piedra, sentarse. Sin peligro, música ni pensamiento. El capítulo termina cuando el jugador se sienta o tras un par de minutos: es para procesar la pérdida.
+
+**Última imagen.** Dos tumbas: sobre una, la mata con forma de niño y su marca; sobre la otra, el palo.
+
+---
+
+### CAPÍTULO 10 — EL QUINTO POSTULADO
+
+> «Porque en la mucha sabiduría hay mucha molestia; y quien añade ciencia, añade dolor.»
+> — Eclesiastés 1:18 (Reina-Valera 1909)
+
+**Estado:** Bronce → nada. **Duración:** 14 min. **Dóminus:** elige saber aunque le destruya.
+
+**Resumen.** La plomada comprueba el torreón. Iram encuentra el pliego que Dóminus escondió y entiende lo que ve desde el cap. 4. Lo deja junto a Dóminus o lo quema. Dóminus mira al torreón, lee o recita, y la casa cae. Entre los escombros, la cara es la suya y luego la del niño. Huye mientras el mundo se borra, hasta la hojarasca. Corte al bronce.
+
+**10.1 La plomada**
+- **CÁM:** diagonal, dentro del torreón, de noche.
+- **JUEGA:** Iram ata un hilo al orbe negro: **una plomada**. Sus muros están a plomo menos **un sillar**, desviado un dedo: empujarlo hasta que hilo y piedra quedan paralelos. Nada mágico: la construcción queda recta.
+
+**10.2 Lo que faltaba**
+- **CÁM:** lateral interior; 1ª persona sobre el pergamino.
+- **DÓNDE ESTÁ** (§1, Euclides):
+  - **Si aceptó el caballito (5.3):** está en el alféizar del torreón, donde Iram lo dejó. Al pasar con la plomada, el caballito **se balancea y no se para**: pesa por un lado. Iram lo coge; **la cuña de la barriga** cede con la uña. Dentro, doblado muchas veces, **el pliego**.
+  - **Si no lo aceptó:** el caballito sigue en la sala, con la cuña quitada y la barriga vacía. Dóminus duerme sobre los papeles. **Bajo la campana de la hoja**, junto a su codo, la hoja caída al fondo (5.7) no está plana: hay algo debajo. Iram levanta la campana. Debajo, doblado, **el pliego**.
+  - En los dos casos, **el hilo cortado y el lacre partido** coinciden con el hueco del legajo (4.6, 7.2).
+- **RECUERDO VISUAL, SIN VOZ** (tres planos, 1 s cada uno, desaturados):
+  1. las dos hileras de clavos juntándose ante una sola puerta, con las dos gotas al unísono;
+  2. los tres troncos de la balsa, desde arriba, sin tocarse;
+  3. el torreón a plomo, con el hilo de la plomada al lado.
+- **TEXTO:** *Dos paralelas no deberían encontrarse.*
+- **JUEGA (dibujar):** sobre el pergamino, una recta que corta a otras dos: **trazarlas** con la pluma de modo que los ángulos de un mismo lado sumen dos rectos. La mano tiembla; deprisa, la tinta se corre. Cuando quedan paralelas, la vela parpadea. Luego Iram copia el pliego **con su mejor letra**, traducido.
+- **SIGNIFICA:** el misterio se cierra sin explicar nada. Él y Dóminus son esas dos rectas, y en la casa se encontraban.
+
+**10.3 La casa por última vez** *(elección)*
+- **CÁM:** 3ª persona con la luz roja muy débil, que se apaga cada pocos pasos.
+- **PASA:** Iram cuelga la plomada en la sala: el hilo cae recto y **nada en la casa está recto con él**. Con el dorado, **toda la casa es costura**. Arriba, las dos hileras de clavos siguen juntándose y las tablas rajadas del 8.11 se han abierto un palmo. Dóminus duerme sobre los libros, con la mejilla en el caballito (si Iram no lo cogió) o en la mano.
+- **ELECCIÓN:** **dejar el pliego junto a su mano** o **quemarlo en la vela** y llevarse la ceniza en la palma. Iram le mira y se va.
+- **SON:** la respiración de Dóminus, que es la de Iram.
+
+**10.4 El derrumbe**
+- **CÁM:** desde la ventana del torreón, plano lateral y lejano de la casa entera. La cámara no se mueve.
+- **Si dejó el pliego:** por la mañana, Dóminus lo ve, **levanta la vista hacia el torreón** (sabe lo que es) y lo lee igualmente.
+- **Si lo quemó:** Dóminus toca la ceniza con un dedo, **levanta la vista hacia el torreón**, cierra los ojos y lo recita de memoria, despacio: «Si una recta corta a otras dos… Mi padre me lo enseñó. Yo nunca le escuchaba».
+- **En las dos ramas, elige continuar.** Abre un poco la boca, como cuando entiende algo.
+- **PLANO A PLANO:**
+  1. Dentro, en el corte de composición que el jugador conoce, **los dos pasillos se separan**: las hileras de clavos se abren, el tabique vuelve y las dos gotas caen otra vez en dos notas.
+  2. Desde ahí sale una grieta recta por las tablas rajadas que **corrige todo lo que toca**: el ala que se apoyaba en el encuentro se queda sin apoyo.
+  3. El péndulo, recién empujado, **se para en seco** a mitad del arco.
+  4. Un arbotante cede; los torreones se pliegan hacia el centro como una maqueta de papel mojado.
+  5. Polvo, en silencio.
+- **JUEGA:** nada.
+
+**10.5 La cara**
+- **CÁM:** lateral al bajar; primeros planos ilustrados en los escombros.
+- **JUEGA:** bajar del torreón, ir hasta los escombros y apartar piedras de rodillas tres veces.
+- **PLANO A PLANO:**
+  1. Una mano ensangrentada sobre el pliego con la letra de Iram, o sobre nada, con ceniza en los dedos.
+  2. El rostro sepultado; los labios intentan maldecirle sin sonido.
+  3. La sonrisa.
+  4. **El primer plano ilustrado de 2.6 y 6.7**, con el mismo encuadre: es la cara del reflejo del río.
+  5. El plano **se desplaza** (sin fundido) a otra ilustración con el mismo encuadre: la cara del niño de los dibujos.
+- **SON:** la respiración de Iram se vuelve la de un niño.
+- **LECTURA OBLIGATORIA** (§2, Iram), dicha solo con el orden de las imágenes: dos caras iguales (el padre recordado) y, detrás, el niño.
+
+**10.6 La huida que borra**
+- **CÁM:** lateral; en las rectas, frontal sin obstáculos, con el mundo borrándose detrás.
+- **DURACIÓN:** rápida. Unos 2 min en total; el arrastre, **menos de un minuto**.
+- **PASA (el mundo se deshace al revés de como se hizo):**
+  1. **Las estrellas se apagan** una a una, con un soplo, como velas.
+  2. Los árboles caen hacia atrás **como decorados** y enseñan su revés de tela y bastidor.
+  3. Se desvanecen las criaturas de Dóminus; el bufón hace una última reverencia.
+  4. Tardan más **las que Iram habitó**: la cigüeña, el oso, el sapo le miran hasta el final.
+  5. La tumba del hijo florece con algo parecido a una cara (las cejas o la nariz que le dio en 5.6, del tamaño que la dejó crecer). El palo de Argos sobre la otra.
+  6. La madre-arpía, si fue perdonada: su cara de vieja flota un segundo cuando el cuerpo ya no está.
+  7. El arco del río, con la cara de Eco en la clave. Es lo último que se va. La pequeña planta carnívora, si se fijó; si no, la planta-león rugiendo hasta el último segundo.
+- **JUEGA (se pierden los controles, uno por tramo):** saltar ya no hace nada; la carrera dura dos pasos; se van la sombra de la pared y la de contacto; se van los brazos (máscara: el báculo cae y la plomada rueda); fallan las piernas y acaba **arrastrándose**.
+- **EL ESCARABAJO:** cuando casi no queda nada, un **escarabajo negro** sale de la hojarasca y avanza a su lado, a su ritmo, sin ser de nadie.
+- **TEXTO:** *Se apagan las estrellas. Eran velas.*
+- **SON:** cada cosa que se borra suena como una vela que se apaga; debajo, cada vez más alto, el zumbido del bronce.
+
+**10.7 La hojarasca**
+- **CÁM:** **el encuadre de 1.1**.
+- **PASA:** llega arrastrándose al haz. Las hojas caen como en el cap. 1, y él pesa todo. **Una hoja dorada se le posa en la espalda.** Antes sostenía; ahora pesa. No puede levantarse. El escarabajo se para junto a su mano.
+- **JUEGA:** nada responde. Si pulsa saltar, los dedos se cierran sobre la hojarasca.
+
+**10.8 El bronce**
+- **CÁM:** corte seco a la **1ª persona del ataúd**.
+- **PASA:** oscuridad; la ventanita; las velas. Risas amortiguadas que se alejan. En el haz, el polvo baila **como las hojas del cap. 1**. En la esquina, el hilo de la araña brilla y la araña baja un palmo (mínimo; se le enseña al usuario antes de darlo por bueno). En el cristal, la cucaracha: el jugador reconoce al escarabajo.
+- **JUEGA:** los puños de la intro.
+
+**Última imagen.** No la hay: el capítulo termina en las manos del jugador.
+
+---
+
+## 4. Finales y epílogo
+
+### La regla
+La intro enseñó un reflejo: **en el ataúd se pega**. El final comprueba si el jugador ha aprendido algo. **No hay indicador ni texto** («espera», «elige»). La cucaracha recorre el cristal durante **unos 35 s** antes de encontrar una grieta. Se puede golpear en cualquier momento. *(Modo nuevo del controlador, sin tocar el de la intro.)*
+
+**Señales si no se golpea** (ambientales, sin explicar):
+- **≈10 s:** un roce fuera, contra el metal.
+- **≈20 s:** una vela de las de la ventanita tiembla.
+- **≈30 s:** la cucaracha llega junto a la grieta del borde y **se detiene un instante**.
+
+El juego sugiere que no actuar también es una acción. No lo dice.
+
+### Final A — «Otra vez» (si la aplasta)
+- El puño, el crujido y la luz blanca, como en la intro.
+- **El título**, intacto (créditos y música intocables).
+- Después, **otro peregrino cae del cielo** a la hojarasca y el mundo da la vuelta. Queda tumbado.
+- A lo lejos, un ladrido. Negro, sin texto.
+- **Lectura:** el niño vuelve a elegir el sueño. No se presenta como final malo: es la caverna elegida, y la repetición.
+
+### Final B — «Alguien» (si espera)
+1. La cucaracha se cuela por **la grieta del borde**. Para algo tan pequeño, había salida.
+2. Las risas de fuera se callan. Una vela se apaga.
+3. Pasa un rato. Si ahora golpea, suena el bronce y nada más.
+4. Un roce en el metal. **Una cara se asoma a la ventanita: una vieja**, la de la arpía. El cristal se empaña.
+5. Su voz, amortiguada, es la primera voz real del juego: «¿Hay alguien?».
+6. El niño, con una voz que lleva días sin usar, contesta como Eco: **«…alguien»**.
+7. Negro. Créditos **sin música**. Después, solo **el chirrido de una tapa pesada** que se desliza.
+
+### Epílogo (solo en el final B)
+Plano fijo lateral del claro real, de día, sin haz. Las hojas caen por el otoño y **no flotan**. Donde estaba el báculo hay **un palo**. Un perro desgreñado, de hocico canoso, entra, lo olfatea, **lo coge con la boca**, da una vuelta y **se tumba sujetándolo entre las patas**, mirando al camino, esperando a que alguien se lo lance. Corte.
+- **Lectura:** es el Argos real, que se quedó fuera la noche de la hoguera. Fuera no han pasado años, solo días. Espera.
+
+### Correspondencias
+| Principio | Final |
+|---|---|
+| La cucaracha aplastada abre el sueño | No aplastarla permite salir |
+| La hoja sostiene | La hoja pesa |
+| Las hojas flotan en la luz | El polvo en el mismo haz |
+| El báculo baja como una pluma, con un hilo | La araña baja por su hilo |
+| Salir por un borde y entrar por el otro | El sarcófago cerrado |
+| «¿Hay alguien?» al río; Eco: «…alguien» | «¿Hay alguien?» en la ventanita; el niño: «…alguien» |
+| El reflejo en el río | La cara entre los escombros |
+| Los pasillos paralelos se encuentran (4) | El pliego de las paralelas los separa (10) |
+| La balsa de troncos paralelos huye del sueño | El torreón a plomo lo derriba |
+| La piedra del baúl roba el conocimiento | La piedra del baúl funda el torreón |
+| Dóminus cura los pies | Dóminus seca el río del camino de salida |
+| La melodía de las hojas | La canción del hijo bajo tierra |
+| Argos trae el palo en el primer río | Argos real espera con el palo |
+| Iram no pesa | Iram se arrastra |
+| La marca de cantero que copia el hijo | La misma marca, abierta o cerrada, en su tumba |
+
+---
+
+## 5. Elecciones
+
+El juego no promete un árbol narrativo enorme. **No siempre eliges lo que ocurre; sí eliges qué haces dentro de lo que ocurre.** No hay puntuación moral visible ni indicador de elección.
+1. **Relacionales** — cambian gestos, cercanía e imágenes.
+2. **De culpa** — el acontecimiento converge, pero cambia la responsabilidad.
+3. **De destino** — **solo una**: golpear o no la cucaracha. Solo aquí cambia la salida real del sueño.
+
+| Elección | Clase | Dónde se cobra |
+|---|---|---|
+| El nombre (2.1) | — | Ninguna: siempre «Iram». |
+| Asentir al niño de la cuchara (2.2) | Relacional | Se sienta junto a la silla de Iram o vuelve a los trastos. |
+| Abrir la ventana a Argos (2.3) | Relacional | Duerme a los pies de la cama. |
+| Corregir o no la marca del hijo (2.8) | Relacional | Marca cerrada o abierta en su tumba (8.8). |
+| Dar el palo a Dóminus (3.2) | Relacional | Solo la risa; ninguna mecánica. |
+| **La vara** (3.3): golpear / romper / dejar | Relacional | Ayuda en 4.4 (solo si se le llama, si golpeó); mano en 5.6; abrazo o no en 7.3; ayuda con la clave en 8.3; a quién mira en 8.6; la vara colgada en 8.6 si se dejó. |
+| La infusión; reírse de las antiparras (3.3, 3.9) | Relacional | Gesto. |
+| La mentira (4.8) | Relacional | Una línea de Dóminus en 6.6. |
+| Reírse o aguantarse (5.1); cuándo Newton | — | Ninguna. |
+| Marcar la cola de pez (5.2) | Relacional | Pisapapeles de piedra o aguja con hilo violeta en 6.6; última imagen del cap. 5. |
+| **El caballito** (5.3) | Relacional | Dónde está el pliego (10.2); dónde apoya Dóminus la mejilla (10.3). |
+| Rasgos del hijo: cejas / nariz / nada (5.6) | Relacional | La mata de su tumba (8.8); lo que florece en la huida (10.6). |
+| Ayudarle a empujar (5.6) | Relacional | Las dos palmadas. |
+| **La arpía** (6.5): deslumbrar / pasar despacio | Relacional | Caza en 8.4 o, perdonada, aparece en 7.7, 8.4, 8.8, 9.11 y 10.6. |
+| Orden de traducción (7.2) | — | Ninguna. |
+| Marcar la planta-león (7.3) | De culpa | Planta carnívora pequeña o león rugiendo hasta el final (10.6). |
+| La capa (7.4) | Relacional | La señal muda en la huida (7.6). |
+| Tres frases a Eco (7.6) | Relacional | Sus últimas palabras (7.7). |
+| **Verter o no** (8.5) | De culpa | Causa de la muerte del hijo (8.6). |
+| Sostener la mirada (8.6); cuánto crece el niño (8.8); el paso en la tumba (8.9) | Relacional | Sonrisa de Dóminus; tamaño de la mata en 10.6; Dóminus no se aparta. |
+| Cuándo fijar a Argos (9.9) | De culpa | Sin castigo. |
+| **Dejar o quemar el pliego** (10.3) | De culpa | Lee o recita (10.4); mano sobre el pliego o con ceniza (10.5). |
+| **La cucaracha** | **De destino** | Final A o B. |
+
+---
+
+## 6. Posesiones
+
+Exactamente **seis receptores**. Mecánica en §1 (tornasol).
+
+| Receptor | Dónde | Función | Recuerdo en Bronce (9.3) |
+|---|---|---|---|
+| **Hoja** | 3.7 | Introducir la posesión; ver la gárgola, la espiral de la ciénaga y a Dóminus en la ventana | Cae junto a un refugio |
+| **Sapo** | 3.9, 4.4 | Regalo del hijo; bucear; el boceto de su cara. Desde 3.9 va en el hombro de Iram | Croa antes de un peligro |
+| **Pez** | 5.4 | La escena íntima con Eco: dice «Iram» | Asoma en un charco imposible |
+| **Oso de musgo** | 5.9 | El animal grande que mueve un obstáculo: Argos lo despierta, se le posee, empuja el tronco (dos pasos) | Cobertura viva a la entrada del desfiladero |
+| **Cigüeña** gigante | 6.4 | Ver desde arriba: el bosque es un azulejo con la casa en el centro | Gira sobre la dirección correcta |
+| **Argos** | 5.6, 8.10, 9.8 | Olfato; los cimientos que no existen; el clímax. Desde 5.6 se le puede poseer a voluntad para olfatear (el cuerpo queda sin guardia) | — (vive hasta 9.9) |
+
+**No se poseen** la polilla (fuera del juego; 4.3 es la cerradura) ni la arpía (6.5: se la deslumbra o se la deja pasar). En Bronce las criaturas habitadas aparecen como **recuerdos que ayudan**, nunca obligatorios. Desde 9.9, **poseer** ya no existe.
+
+---
+
+## 7. Animaciones y activos
+
+### Peregrino: cinco animaciones nuevas (vídeo IA)
+*Cada una se pide a la velocidad del juego y se usa entera, sin acelerar, diezmar ni empalmar. Empiezan y acaban en el fotograma de referencia del reposo.*
+| # | Animación | Dónde | Desde |
+|---|---|---|---|
+| 1 | **Clavar / arrancar** (un vídeo; arrancar no es clavar al revés) | Cono, losas, posesiones, desfiladero, última posesión | 1 |
+| 2 | **Empujar** (ciclo cerrado) | Péndulo, balsa, sillares del arco y del torreón, carretilla, sillar torcido | 5 |
+| 3 | **Trepar un borde** | Medida y Bronce; escalones del torreón; 9.5 | 7 |
+| 4 | **Arrodillarse** (entrada y reposo que respira) | Último charco, el hijo, Argos, escombros | 7 |
+| 5 | **Arrastrarse** (ciclo, de lado) | 10.6-10.7 | 10 |
+
+### Argos: cinco vídeos
+1. Reposo, andar, trotar, parar. 2. Correr en ciclo (con arco por código: salto bajo y flotar pataleando). 3. Sentarse, tumbarse, reposo tumbado. 4. Olfatear andando. 5. Ladrar y escarbar.
+**Por código:** cola como capa (incluido el golpe único de 9.9); palo anclado a la cabeza; canas y ojos nublados por shader; pelo blanco del cap. 5; tricéfalo con dos cabezas recortables y costuras violetas por shader; arrastrado por Dóminus (Argos tumbado + desplazamiento + uñas en sonido). Sus cumbres (5.6, 8.10, 9.8) son en 1ª persona y no necesitan animación.
+
+### El resto, con trucos
+- **Dóminus:** NPC facetado como títere (sorber, verter, taparse la cara, empujar el péndulo, sentado en el cauce, arrastrar, llorar).
+- **El hijo:** marioneta (ofrecer, girar una lámina, abrazar, beber, tumbado).
+- **Cavar, tallar, vendar, machacar:** 1 s a negro con sonido, o 1ª persona con las manos del ataúd.
+- **Colocar sillar:** empujar hasta la marca; encaja con polvo.
+- **Perder brazos y sombra:** máscaras por shader. **Vejez:** pausas, respiración, paso corto; nunca animación ralentizada.
+- **El recuerdo del niño (6.2):** **dibujos a carboncillo animados en capas** (los del sótano cobrando vida), con el niño-dibujo controlable en pocos gestos. Ningún personaje animado nuevo.
+- **La mujer, la planta-león, los injertos:** poses fijas con shader de respiración.
+- **Primera persona:** la fórmula del ataúd (ilustración grande, un marco, uno o dos ejes, un shader).
+- **Las tres caras (2.6, 6.7, 10.5):** dos ilustraciones con el mismo encuadre (Iram y el niño); el paso es por desplazamiento, no por fundido.
+
+### Escenarios reutilizados
+El riachuelo de la piedra-corazón (seco en 7.7, mudo en 8.3, con arco en 10.6); los pasillos paralelos (4.2, 7.2, 8.11, 10.3, 10.4: una escena, cinco estados); los sótanos del 4 con la capa de dibujos retocada (9.6); el bosque-módulo (7.1, 9.3); el claro de 1.1 (10.7).
+
+---
+
+## 8. Producción por fases
+- **Fase 0 — Cap. 1 completo:** del ataúd a la puerta. `RealityState`, Pluma, hojas, báculo, clavar/recuperar, cono rojo, Argos básico, guardado, escena envoltorio.
+- **Fase 1 — Rebanada vertical del cap. 3:** mesa, Pluma → Fábula, contar hasta cuatro, piedras que suben, bufón, hoja, ciénaga, sapo, vara. Decide si las reglas se entienden sin texto. Interruptor de depuración Fábula ↔ Peso para el muro y el río.
+- **Fase 2 — Caps. 2, 4 y 5:** vínculo, casa de noche y **pasillos paralelos** (aquí se construye la escena de cinco estados), sótanos con **el legajo de hilo cortado**, verde, Newton, Peso, oso.
+- **Fase 3 — Cap. 6:** carboncillo en capas, dorado, cigüeña, tormenta, ruptura.
+- **Fase 4 — Caps. 7 y 8.** Antes de producirlos, validar con testers que recuerdan los pasillos, que entienden que Eco tiene voluntad y que sienten al hijo como alguien.
+- **Fase 5 — Caps. 9, 10 y finales:** Bronce, torreón, Argos tricéfalo, plomada, pliego, derrumbe, pérdida de controles, modo nuevo de la cucaracha.
+
+Cada fase se graba (movie writer) y la ve el usuario antes de seguir.
+
+---
+
+## 9. Recortes si falta tiempo (en este orden)
+1. Mujer de párpados morados y capa (7.4, 7.6).
+2. Caballito (5.3): el pliego va siempre bajo la campana.
+3. Una de las secuencias de mesa intermedias.
+4. Balsa más corta y casi automática (se mantienen los troncos paralelos y las tres frases).
+5. Carboncillo con menos interacción.
+6. Camino a la cantera reducido a un solo desfiladero.
+7. Torreón en dos jornadas en vez de tres (el arco se queda).
+8. Posesión del pez convertida en secuencia semijugable.
+9. Detalles visuales de las ramas del hijo (salvo la marca en la tumba).
+10. Una quimera secundaria.
+
+**No cortar:** escalera de otoño; Argos en el cap. 1; la mesa; contar hasta cuatro; piedras que suben; Newton y el muro que ya no sube; Eco (nacimiento, «Tú. Eres. Alguien.», el último charco); la vida cotidiana del hijo antes de morir; la cena con sus dos ramas; el torreón como respuesta a la casa; secuestro, tricéfalo y muerte de Argos; los pasillos paralelos y el pliego (4, 7, 8, 10); la cara; el ataúd; la cucaracha y los dos finales.
+
+---
+
+## 10. Pruebas de guion obligatorias
+Sin explicar nada fuera del juego.
+
+**Después del cap. 6:**
+1. ¿Confías en Dóminus? ¿Cuándo empezaste a desconfiar?
+2. ¿Crees que Dóminus controla a Eco? ¿Por qué?
+3. ¿Quién crees que es Iram?
+4. ¿Qué te parece el hijo como persona, no como símbolo?
+
+**Después del cap. 8:**
+5. En la rama sin veneno, ¿entiendes por qué acabaron setas en la sopa?
+6. ¿Sientes que tu decisión fue inútil o que cambió tu responsabilidad?
+7. ¿Cómo supo Dóminus lo de la fosa? ¿Y lo de la sopa?
+
+**Después del cap. 10:**
+8. ¿Quién es Dóminus? ¿Quién es Iram?
+9. ¿Por qué se cae la casa?
+10. ¿Por qué Dóminus lee (o recita) si sabe que es peligroso?
+11. ¿Qué significaban los pasillos paralelos? ¿Dónde estaba el pliego y por qué?
+12. ¿Por qué Eco podía decir algo nuevo?
+
+**Criterios de alarma:**
+- Menos del **70 %** explica bien Iram/Dóminus/niño → reforzar visualmente 10.5 (más tiempo en el desplazamiento, o un tercer encuadre del padre de carboncillo).
+- Más del **30 %** cree que Dóminus lee mentes → alargar el plano de la rama y la tierra en 8.1 y el de la seta en 8.6.
+- Más del **20 %** considera trampa la rama sin veneno → hacer más visible la imitación (8.2, el bolsillo en 8.4, los tres planos de 8.5).
+- Si no recuerdan los pasillos en el 10 → resembrarlos en 7.2 y 8.11 (más tiempo ante ellos, la vela duplicada).
+- Si alguien cree que en 9.5 o 7.7 podía salvar a Argos o a Eco y no supo → la cámara debe enseñar antes la distancia, y el charco no debe sugerir un objetivo.
+- Si más del **30 %** golpea la cucaracha antes de los 10 s sin haberlo pensado → no es un fallo; si nadie espera más de 20 s, revisar las señales.
+
+---
+
+## 11. Qué cuenta realmente el juego
+No es una historia sobre la ciencia como algo malo. **El conocimiento no es el villano.** Destruye el sueño porque el sueño estaba construido sobre contradicciones. Y también permite nombrar, curar, construir, comprender, que nazca Eco, reconocer a Argos y encontrar la salida.
+
+El problema de Dóminus no es querer saber. Es **querer saber sin aceptar que lo que aprende deja de pertenecerle**. Por eso cose, seca, esconde el pliego y se lleva al perro: todo lo que aprende a querer intenta volverlo suyo, y todo lo que se vuelve real deja de serlo.
+
+Iram hace el camino contrario: cuanto más sabe, menos controla. Pierde vuelo, magia, amigos y finalmente cuerpo; pero gana lo que Dóminus nunca tuvo: **dejar existir a algo sin convertirlo en propiedad**.
+
+Por eso el último gesto no es construir el torreón ni derribar la casa. **Es retirar el puño.**
+
+---
+
+## 12. Decisiones abiertas
+
+1. **Título internacional:** *Master Mason* (resonancia con Hiram y el maestro de obra) o *Master Builder* (sin lectura masónica). En pantalla, **El maestro constructor** en ambos casos. *Recomiendo* mantener *Master Mason* como título de trabajo y decidir el internacional tras las pruebas.
+2. **Duración de la espera final:** objetivo 35 s. *Recomiendo* validar entre 25 y 45 s con las señales de 10/20/30 s y fijarla según cuántos testers llegan a esperar más de 20 s.
+3. **Explicitud de la cara (10.5):** ¿bastan las dos ilustraciones o hace falta un tercer encuadre del padre de carboncillo? *Recomiendo* producir solo dos y añadir el tercero únicamente si salta la alarma del 70 % (§10).
+4. **Cuánto se ve al hijo en la rama B (8.4-8.6):** lo bastante para que sea causal (bolsillo, tres miradas, el puñado), no tanto como para arruinar la tensión de la cena. *Recomiendo* el plano lejano actual y ajustar con la alarma del 20 %.
+5. **Argos poseíble a voluntad desde 5.6:** ¿mecánica libre o solo las tres posesiones guionizadas? *Recomiendo* dejarla libre solo para olfatear, sin ningún puzle que la exija, para que el jugador sienta el coste de dejar el cuerpo sin guardia y la pérdida en 9.9.
+
+---
+
+## Anexo. Hilos y objetos
+
+Qué se siembra y dónde se cobra. Si una escena cambia, comprobar aquí sus dos extremos.
+
+| Hilo / objeto | Origen | Dónde se cobra |
+|---|---|---|
+| **Pasillos paralelos** (dos hileras de clavos de latón que se juntan ante una sola puerta; dos gotas al unísono) | 4.2 | 7.2 «Eso sigue estando mal» → 8.11 tablas rajadas → 10.2 recuerdo → 10.3 → 10.4 se separan |
+| **Pliego de las paralelas** (hilo cortado, lacre partido; *Falta un pliego.*) | 4.6 | 7.2 Euclides incompleto → 10.2 en el caballito o bajo la campana → 10.3 dejar/quemar → 10.4-10.5 |
+| **Caballito** (barriga tapada con una cuña; roza algo seco) | 5.3 | Aceptado: alféizar del torreón, pliego dentro (10.2). Rechazado: en la sala, vacío; mejilla de Dóminus (10.3) |
+| **Campana de la hoja** | 3.1 | 4.1 no baja → 5.7 cae al fondo → 6.6 apartada junto al codo → 10.2 pliego debajo (si se rechazó el caballito) |
+| **Piedra del baúl** | 4.6 (abre el baúl; a la funda) | 5.5 talla la cara de Eco → 7.5 lastre de la balsa → 7.7 la recoge de la balsa varada → 7.8 → 8.12 primera piedra del torreón (esquina norte) |
+| **Tronco del oso** | 5.9 (varado en el tercer río) | 7.5 primer tronco de la balsa |
+| **Troncos paralelos de la balsa** | 7.5 | 10.2 recuerdo visual |
+| **Piedra-corazón** | 2.6 | 5.5 cara tallada → 5.9 se pisa → 6.7 → 8.3 clave del arco → 10.6 lo último que se va |
+| **Cola de pez de piedra** | 5.2 (si se marcó) | 6.6 pisapapeles sobre los legajos (si no, aguja e hilo violeta) |
+| **Aguja curva e hilo violeta** | 5.2 | 6.6 → 9.6 en el sótano, junto al pelo de Argos |
+| **Vara** | 3.3 | 8.6 colgada en la pared si se dejó; trozos en el cajón si se rompió |
+| **Marca del hijo** (abierta o cerrada) | 2.8 | 8.8 hoja sobre su tumba → última imagen del 9 |
+| **Rasgos del hijo** | 5.6 | 8.8 la mata → 10.6 lo que florece |
+| **Las dos palmadas del hijo** | 2.4 | 3.2 → 5.6 si se le ayuda a empujar |
+| **Sapo en el hombro** | 3.9 | 4.4 → 9.3 croa antes del peligro → 10.6 mira hasta el final |
+| **Doble párpado** (coste de poseer) | 3.9 | 4.4 al fallar la posesión |
+| **Frambuesas marcadas** (lo recordado envejece) | 3.4 | 9.9 Argos envejece «como las frambuesas» |
+| **Palo de Argos** | 2.4 | 3.2 a tres → 5.2 → 6.2 en el carboncillo → 6.7 → 9.2, 9.4 → 9.8 lo suelta junto a la mano → 9.9 último lanzamiento → 9.11 sobre la tumba → epílogo |
+| **Pelo blanco de Argos** | 5.9 | 9.2 extendido → 9.9 envejece |
+| **Argos no va cuando Dóminus llama** | 6.3 | 9.5 se lo lleva a rastras |
+| **El perro real se quedó fuera** | 6.2 | Epílogo |
+| **Arpía perdonada / deslumbrada** | 2.4, 6.5 | 7.7, 8.4 (caza o mira), 8.8, 9.11, 10.6; su cara, la vieja del final B |
+| **Mentira de Iram** | 4.8 | 6.6 |
+| **«Fuego tonto»** | 5.1 | 6.6, para herir |
+| **«Yo nunca le escuchaba»** | 5.1 | 10.4 |
+| **Melodía del título** | 1.5-1.6 | 8.7 la canta el hijo al morir → 8.8, 8.10 bajo la tierra |
+| **Dibujos del sótano** (capas: palo, correr, leñera) | 4.5 | 6.2 animados → 9.6 retocados con tres cabezas |
+| **El reflejo / la cara** | 2.6 | 6.7 → 10.5 |
+| **Fosa** (rama quebrada, tierra removida) | 8.1 | 8.8 la tumba del hijo |
+| **Escarabajo** | 10.6 | 10.7 → 10.8 la cucaracha → finales |
+| **Parpadeos del bronce** | 3.10 | 6.8 → 9.11 → 10.8 |
