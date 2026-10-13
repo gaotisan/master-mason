@@ -2,8 +2,12 @@ extends Node2D
 ## La caida en la hojarasca, por separado. El cuento empieza con el anciano
 ## poniendose en pie y sacudiendose "la hojarasca que se habia quedado adherida
 ## a sus ropas" en un atardecer de otono: aqui Magnus cae del cielo sobre un
-## monton de hojas bajo un haz de luz calida, las levanta con el golpe, se queda
-## tumbado mientras vuelven a caer, y al levantarse se le van desprendiendo.
+## monton de hojas, a oscuras junto a un haz de luz calida, las levanta con el
+## golpe, se queda tumbado mientras vuelven a caer, y al levantarse se le van
+## desprendiendo. Cae fuera del haz, en el tercio izquierdo (MagnusSpawn,
+## 2026-10-14; antes en el centro): en la luz se flota, y caer de golpe a
+## traves de ella la contradecia justo antes de que el jugador lo descubra
+## (al levantarse ve la columna, va hacia ella y salta: "ligero").
 ## Luego vadea la hojarasca: las piernas abren camino y cada pie levanta hojas.
 ## De arriba, de arboles que no se ven, caen hojas sueltas. El mundo da la
 ## vuelta: lo que sale por un lado entra por el otro.
@@ -199,7 +203,13 @@ extends Node2D
 ## mucho". Lo que las distingue es como caen: las que sirven, despacio y casi
 ## de cara. Al llegar a escalera_hasta dejan de aguantar y caen al
 ## lecho como las demas. Algo mayores que las demas (escalera_escala).
-## Al abrir la escena ya estan repartidas por el haz, como si llevaran un rato.
+## No estan al empezar (2026-10-13, el usuario: "que empiecen a salir cuando
+## salga el baculo, para que un jugador perspicaz se de cuenta"): cuando baja
+## el baculo entran todas por arriba en fila (escalera_entrada px una tras
+## otra, la de mas abajo primero) y planean hasta su sitio de la escalera, que
+## ya va bajando; mientras entran no aguantan. Antes solo caen las sueltas
+## pequenas (las medianas, que se confunden con las de la escalera, tambien
+## esperan al baculo).
 ## Con la gravedad de la luz el salto de parado sube los pies 177 px sobre la
 ## hoja; la siguiente esta 140 px mas arriba y viene bajando (a 26 px/s): se
 ## sube ~110 px por rebote y en 5-6 rebotes se llega al baculo. Con 112 y 32
@@ -220,6 +230,7 @@ extends Node2D
 ## baculo (arriba del todo), pero no se sube mas alla ni se sale por arriba.
 @export var escalera_aguanta: float = 400.0
 @export var escalera_escala: float = 0.38
+@export var escalera_entrada: float = 110.0
 ## Las que no aguantan: cada cuanto entra una por arriba (s, al azar entre los
 ## dos), a cuantos px del eje del haz como mucho, y su tamano: la mayoria
 ## (1 - luz_sueltas_medianas) pequenas, las demas como las del suelo.
@@ -310,6 +321,7 @@ var _baculo_bajando := false
 @onready var _pensar: CanvasLayer = $Pensamientos
 @onready var _baculo: Node2D = $Baculo
 var _hojas_luz: Array[Dictionary] = []  # las que bajan por la luz (las que aguantan)
+var _escalera := false                  # ya bajan (desde que baja el baculo)
 var _hoja_luz_espera := 0.0             # s hasta que entre la siguiente por arriba
 var _hoja_luz_lado := -1.0              # de que lado entra la siguiente
 var _luz_reloj := 0.0                   # el vaiven comun de las que bajan por la luz
@@ -369,17 +381,19 @@ func _ready() -> void:
 	_magnus.cinematica_terminada.connect(_al_levantarse)
 	_pensar.terminado.connect(_al_terminar_pensamiento)
 	_baculo.posado.connect(_al_posar_baculo)
-	# Que ya haya alguna hoja cayendo al abrir, y las de la luz repartidas.
+	# Que ya haya alguna hoja cayendo al abrir, y alguna suelta en la luz (las
+	# de la escalera esperan al baculo).
 	for i in 3:
 		_hoja_de_arriba(randf_range(200.0, 900.0))
-	_repartir_hojas_luz()
 	for i in 6:
 		_hoja_suelta_luz(randf_range(0.0, 1000.0))
 
-## Altura extra (px) del monton donde cae y de dos lomas mas bajas.
+## Altura extra (px) del monton donde cae (en MagnusSpawn) y de dos lomas mas
+## bajas: una bajo el haz y otra a la derecha.
 func _monton(x: float, cuanto: float) -> float:
-	return cuanto * (30.0 * exp(-pow((x - 1456.0) / 260.0, 2.0))
-		+ 8.0 * exp(-pow((x - 1976.0) / 200.0, 2.0)) + 6.0 * exp(-pow((x - 756.0) / 240.0, 2.0)))
+	var caida: float = $MagnusSpawn.position.x
+	return cuanto * (30.0 * exp(-pow(wrapf(x - caida, -ANCHO / 2.0, ANCHO / 2.0) / 260.0, 2.0))
+		+ 6.0 * exp(-pow((x - 1456.0) / 240.0, 2.0)) + 8.0 * exp(-pow((x - 2076.0) / 200.0, 2.0)))
 
 ## Del negro del titulo a la escena: primero la luz, luego cae Magnus. Hasta
 ## entonces no esta (ni se le puede mover).
@@ -678,9 +692,18 @@ func x_haz(y: float) -> float:
 func hojas_de_la_luz() -> Array[Dictionary]:
 	return _hojas_luz
 
-## Al abrir: las de la luz ya repartidas por el haz, como si llevaran un rato
-## entrando por arriba (la de mas arriba, la ultima en entrar).
-func _repartir_hojas_luz() -> void:
+## Empiezan a bajar las de la escalera (con el baculo). entrando: entran por
+## arriba y planean hasta su sitio; si no, ya estan en el (pruebas).
+func empezar_escalera(entrando := true) -> void:
+	if _escalera:
+		return
+	_escalera = true
+	_repartir_hojas_luz(entrando)
+
+## La escalera entera, cada una en su sitio como si llevaran un rato entrando
+## por arriba (la de mas arriba, la ultima en entrar). Entrando, salen de
+## encima de la pantalla en fila, la de mas abajo primero.
+func _repartir_hojas_luz(entrando: bool) -> void:
 	var y := escalera_desde + randf() * escalera_paso
 	var lado := -1.0
 	var ys: Array[float] = []
@@ -688,20 +711,25 @@ func _repartir_hojas_luz() -> void:
 		ys.append(y)
 		y += escalera_paso * randf_range(1.0 - escalera_azar, 1.0 + escalera_azar)
 	for k in ys.size():
-		_hoja_luz(ys[k], lado)
+		var desde := escalera_desde - 60.0 - (ys.size() - 1 - k) * escalera_entrada if entrando else INF
+		_hoja_luz(ys[k], lado, desde)
 		lado = -lado
 	# la siguiente, del otro lado que la de arriba, cuando haya bajado su paso
 	_hoja_luz_lado = 1.0
 	_hoja_luz_espera = maxf((escalera_desde + escalera_paso - ys[0]) / escalera_bajada, 0.0) if ys.size() > 0 else 0.0
 
-## Una hoja de la luz a la altura y, a un lado del eje del haz.
-func _hoja_luz(y: float, lado: float) -> void:
+## Una hoja de la luz a la altura y, a un lado del eje del haz. Con desde_y,
+## entra desde esa altura planeando hasta su sitio.
+func _hoja_luz(y: float, lado: float, desde_y: float = INF) -> void:
 	var dx := lado * escalera_lado * randf_range(0.9, 1.1)
 	var fase := randf_range(-0.5, 0.5)
 	var amp := escalera_vaiven * randf_range(0.7, 1.3)
 	var p := Vector2(x_haz(y) + dx + amp * sin(TAU * _luz_reloj / escalera_vaiven_periodo + fase), y)
 	var esc := escalera_escala * randf_range(0.9, 1.1)
-	var h: Dictionary = (_delante if randf() < 0.6 else _detras).escalon(p, p, esc)
+	var desde := p if is_inf(desde_y) else Vector2(x_haz(desde_y) + dx, desde_y)
+	var h: Dictionary = (_delante if randf() < 0.6 else _detras).escalon(desde, p, esc)
+	if not is_inf(desde_y):
+		h["entrando"] = true
 	h["luz_y"] = y
 	h["luz_dx"] = dx
 	h["luz_amp"] = amp
@@ -719,7 +747,7 @@ func _bajar_hojas_luz(delta: float) -> void:
 		_suelta_espera = randf_range(luz_sueltas_cada_min, luz_sueltas_cada_max)
 		_hoja_suelta_luz(escalera_desde)
 	_hoja_luz_espera -= delta
-	if _hoja_luz_espera <= 0.0:
+	if _escalera and _hoja_luz_espera <= 0.0:
 		_hoja_luz_espera += escalera_paso / escalera_bajada * randf_range(1.0 - escalera_azar, 1.0 + escalera_azar)
 		_hoja_luz(escalera_desde, _hoja_luz_lado)
 		_hoja_luz_lado = -_hoja_luz_lado
@@ -746,7 +774,7 @@ func _bajar_hojas_luz(delta: float) -> void:
 ## aguantan, y dando vueltas).
 func _hoja_suelta_luz(y: float) -> void:
 	var x := x_haz(y) + randf_range(-luz_sueltas_ancho, luz_sueltas_ancho)
-	var r := luz_sueltas_medianas_escala if randf() < luz_sueltas_medianas else luz_sueltas_pequenas
+	var r := luz_sueltas_medianas_escala if _escalera and randf() < luz_sueltas_medianas else luz_sueltas_pequenas
 	var h := _soltar(Vector2(x, y), Vector2(randf_range(-20.0, 20.0), randf_range(10.0, 40.0)), randf() < 0.6,
 			randf_range(r.x, r.y), INF, true)
 	h["no_amontona"] = true
@@ -1014,6 +1042,7 @@ func _bajar_baculo() -> void:
 		return
 	_baculo_bajando = true
 	_baculo.bajar()
+	empezar_escalera()
 	_pensar.decir("asombro")
 
 ## Ya flotando arriba, lo reconoce.

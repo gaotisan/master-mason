@@ -155,7 +155,7 @@ mouse_filter = 2
 
 [node name="Sombra" type="Sprite2D" parent="."]
 modulate = Color(0, 0, 0, 0.62)
-position = Vector2(1456, 1196)
+position = Vector2(950, 1196)
 scale = Vector2(3.4, 0.75)
 texture = ExtResource("9")
 
@@ -169,10 +169,10 @@ alto_hoja = 5.0
 brillo = 0.8
 
 [node name="MagnusSpawn" type="Marker2D" parent="."]
-position = Vector2(1456, 1200)
+position = Vector2(950, 1200)
 
 [node name="Magnus" parent="." instance=ExtResource("2")]
-position = Vector2(1456, 1200)
+position = Vector2(950, 1200)
 
 [node name="Acciones" type="Node2D" parent="."]
 script = ExtResource("acciones")

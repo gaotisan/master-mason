@@ -20,8 +20,9 @@ extends Node2D
 ##
 ## 2026-10-11: sin el halo de la garra (la "luz extra en la punta"). 2026-10-12:
 ## baja ya con la bola encendida (sin chispas) y arriba del todo (y_flotar
-## 165; era 130 y la bola casi se salia por arriba): se llega subiendo por las
-## hojas que bajan por la luz. Bola ambar
+## 200; era 130 y la bola casi se salia por arriba, y con el acercamiento de
+## la camara del bosque, 1,05, otra vez): se llega subiendo por las hojas que
+## bajan por la luz. Bola ambar
 ## (2026-10-12; era roja): "el color ambar que teniamos antes, el de la escena
 ## frontal" (el primero de los de prueba de baston.gd y prueba_frontal.gd).
 
@@ -34,7 +35,7 @@ const HAZ_ORIGEN := Vector2(1620.0, -700.0)
 const HAZ_DESTINO := Vector2(1456.0, 1200.0)
 
 ## Altura (y del centro) a la que se queda flotando, y cuanto tarda en bajar.
-@export var y_flotar: float = 165.0
+@export var y_flotar: float = 200.0
 ## 6,5 s: el pensamiento del asombro ("Algo baja por la luz… despacio, como si
 ## no pesara") tiene que leerse mientras aun baja, no cuando ya flota.
 @export var bajada: float = 6.5

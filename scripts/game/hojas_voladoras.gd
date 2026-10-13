@@ -236,7 +236,8 @@ func soltar(pos: Vector2, vel: Vector2, escala: float = -1.0, giro: float = INF,
 	return h
 
 ## Una hoja de la escalera: entra por `desde` y baja planeando hasta `sitio`,
-## donde se queda flotando. Devuelve la hoja.
+## donde se queda flotando. Devuelve la hoja. Si lleva "entrando" (lo pone
+## quien la crea), no aguanta hasta llegar a su sitio.
 func escalon(desde: Vector2, sitio: Vector2, escala: float) -> Dictionary:
 	var h := _nueva(desde, escala)
 	h["ligera"] = true
@@ -257,7 +258,7 @@ func escalon(desde: Vector2, sitio: Vector2, escala: float) -> Dictionary:
 func apoyo(x: float, y0: float, y1: float, ancho: float, luz_minima: float) -> Dictionary:
 	var mejor := {}
 	for h in _vuelan:
-		if not h.has("sitio") or h["pisada"] or h["desliza"]:
+		if not h.has("sitio") or h["pisada"] or h["desliza"] or h.has("entrando"):
 			continue
 		var p: Vector2 = h["p"]
 		if p.y < y0 or p.y > y1:
@@ -379,6 +380,8 @@ func _flotar_en_sitio(h: Dictionary, delta: float) -> void:
 		if falta.length() < 12.0 and vel.length() < 25.0:
 			h["pisada"] = false
 	else:
+		if falta.length() < 15.0:
+			h.erase("entrando")
 		vel = falta * 2.2
 		if vel.length() > 160.0:
 			vel = vel.normalized() * 160.0

@@ -88,7 +88,7 @@ const PRUEBAS := {
 	"historia_quieto": [1456.0, []],
 }
 ## Lo que el piloto le hace a la escena en cada prueba: [s, "baculo"] lo baja
-## deprisa (y con el, la escalera).
+## deprisa y pone la escalera ya en su sitio (sin la entrada).
 const EXTRAS := {
 	"escalera": [[0.0, "baculo"]],
 	"camino": [[1.0, "camino"]],
@@ -398,6 +398,7 @@ func _physics_process(delta: float) -> void:
 				var b: Node2D = escena.get_node("Baculo")
 				b.bajada = 0.05
 				b.bajar()
+				escena.empezar_escalera(false)
 		_extra += 1
 	if not traza:
 		return
