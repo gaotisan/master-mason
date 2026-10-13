@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3]
+[gd_scene load_steps=43 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/caida_hojarasca.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="2"]
@@ -25,9 +25,14 @@
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_arrastre.wav" id="s_arrastre"]
 [ext_resource type="Script" path="res://scripts/game/baculo.gd" id="baculo"]
 [ext_resource type="Script" path="res://scripts/ui/pensamientos.gd" id="pensamientos"]
-[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_fondo_mj.png" id="bosque_tex"]
+[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_lejos.png" id="bosque_tex"]
 [ext_resource type="Shader" path="res://scripts/game/bosque_fondo.gdshader" id="bosque_shader"]
-[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_camino_mj.png" id="bosque_camino"]
+[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_hojarasca_camino.png" id="bosque_camino"]
+[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_viento.png" id="bosque_viento"]
+[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_ruido.png" id="bosque_ruido"]
+[ext_resource type="Script" path="res://scripts/game/hojas_lejanas.gd" id="hojas_lejanas"]
+[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_cerca.png" id="bosque_cerca"]
+[ext_resource type="Script" path="res://scripts/dev/acciones/acciones_perfil.gd" id="acciones"]
 
 [sub_resource type="AudioStreamRandomizer" id="pasos"]
 random_pitch = 1.08
@@ -64,13 +69,18 @@ shader = ExtResource("3")
 [sub_resource type="ShaderMaterial" id="bosque"]
 shader = ExtResource("bosque_shader")
 shader_parameter/mascara_camino = ExtResource("bosque_camino")
-shader_parameter/horizonte = 0.613
-shader_parameter/suelo_fundido = 0.1
-shader_parameter/exposicion = 0.55
+shader_parameter/viento_m = ExtResource("bosque_viento")
+shader_parameter/capa_cerca = ExtResource("bosque_cerca")
+shader_parameter/ruido = ExtResource("bosque_ruido")
+shader_parameter/horizonte = 0.635
+shader_parameter/suelo_fundido = 0.06
+shader_parameter/exposicion = 0.45
 shader_parameter/ambiente = 0.7
 shader_parameter/en_el_haz = 0.15
-shader_parameter/resplandor = 0.25
+shader_parameter/resplandor = 0.2
 shader_parameter/tinte = Color(0.78, 0.74, 0.76, 1)
+shader_parameter/camino_tapado = 0.2
+shader_parameter/camino_brillo = 1.8
 
 [sub_resource type="ShaderMaterial" id="niebla"]
 shader = ExtResource("4")
@@ -96,6 +106,7 @@ point_count = 2
 
 [node name="CaidaHojarasca" type="Node2D"]
 script = ExtResource("1")
+bosque_de_fondo = true
 
 [node name="Fondo" type="ColorRect" parent="."]
 material = SubResource("fondo")
@@ -108,6 +119,10 @@ visible = false
 material = SubResource("bosque")
 texture = ExtResource("bosque_tex")
 centered = false
+
+[node name="HojasLejanas" type="Node2D" parent="."]
+visible = false
+script = ExtResource("hojas_lejanas")
 
 [node name="Motas" type="CPUParticles2D" parent="."]
 position = Vector2(1530, 650)
@@ -158,6 +173,12 @@ position = Vector2(1456, 1200)
 
 [node name="Magnus" parent="." instance=ExtResource("2")]
 position = Vector2(1456, 1200)
+
+[node name="Acciones" type="Node2D" parent="."]
+script = ExtResource("acciones")
+magnus_ruta = NodePath("../Magnus")
+generico = true
+ayuda = false
 
 [node name="Polvo" type="CPUParticles2D" parent="."]
 position = Vector2(1456, 1190)

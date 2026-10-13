@@ -22,6 +22,11 @@ extends "res://scripts/dev/piloto.gd"
 ## Con traza, cada tick en el aire imprime fotograma, altura, luz y arco.
 
 const PRUEBAS := {
+	# La camara y el paralaje del bosque: anda a la derecha, para, corre a la
+	# izquierda (doble toque) y para.
+	"paralaje": [1300.0, [[0.4, "mover_derecha", true], [3.4, "mover_derecha", false],
+		[4.6, "mover_izquierda", true], [4.68, "mover_izquierda", false],
+		[4.76, "mover_izquierda", true], [7.0, "mover_izquierda", false]]],
 	"centro": [1470.0, [[0.8, "saltar", true], [0.9, "saltar", false],
 		[3.6, "saltar", true], [3.7, "saltar", false]]],
 	# El mismo salto de parado en mitad del haz, mirando a la izquierda.
@@ -76,6 +81,11 @@ const PRUEBAS := {
 	# Con la caida y los pensamientos (escena con caida_al_empezar): salto en la
 	# luz en cuanto se levanta, mientras piensa al despertar.
 	"historia": [1470.0, [[9.5, "saltar", true], [9.6, "saltar", false]]],
+	# La historia entera (con la caida; escena temporal sin caida_al_empezar =
+	# false): andando a la derecha hasta dar la vuelta al mundo (pensamiento
+	# "vuelta" y luego baja el baculo), o quieto mas de un minuto ("explorar").
+	"historia_vuelta": [1456.0, [[11.0, "mover_derecha", true], [30.0, "mover_derecha", false]]],
+	"historia_quieto": [1456.0, []],
 }
 ## Lo que el piloto le hace a la escena en cada prueba: [s, "baculo"] lo baja
 ## deprisa (y con el, la escalera).
@@ -315,9 +325,58 @@ func _contar_monton() -> int:
 			n += capa.cuantas_en(x)
 	return n
 
+## LUZ_HOJAS=1: cuantas hojas del lecho vuelan cerca de Magnus (andando), para
+## medir como responde el lecho al pasar.
+var _hojas_suma := 0.0
+var _hojas_ticks := 0
+
+func _contar_hojas_cerca() -> int:
+	var m := get_node_or_null(personaje)
+	var escena := m.get_parent()
+	var n := 0
+	for capa in [escena.get_node("HojasDelante"), escena.get_node("HojasDetras")]:
+		for h in capa._vuelan:
+			if h.has("sitio") or h.get("ligera", false):
+				continue
+			if absf(h["p"].x - m.position.x) < 260.0 and h["p"].y > 1000.0:
+				n += 1
+	return n
+
 func _physics_process(delta: float) -> void:
 	super(delta)
+	if OS.get_environment("LUZ_HOJAS") != "" and _t > 0.4 and _t < 1.75:
+		_hojas_suma += _contar_hojas_cerca()
+		_hojas_ticks += 1
+		if _t + delta >= 1.75:
+			print("piloto hojas del lecho volando cerca andando: media %.1f" % (_hojas_suma / maxf(_hojas_ticks, 1)))
+	if OS.get_environment("LUZ_VIDA") != "" and int(_t * 4.0) != int((_t - delta) * 4.0):
+		var ev := get_node_or_null(personaje).get_parent()
+		print("piloto %.2f vida: racha %.2f dir %.0f copa %s respira %s zoom %.3f" % [_t, ev._racha, ev._racha_dir,
+				str(ev._copa[2].round()), str(ev._respira.round()), ev._camara.zoom.x])
+	if prueba == "camino" and OS.get_environment("LUZ_LECHO") != "" and int(_t * 2.0) != int((_t - delta) * 2.0) and int(_t) % 5 == 0 and int(_t * 2.0) % 2 == 0:
+		var esc := get_node_or_null(personaje).get_parent()
+		var en_lecho := 0
+		var arriba := 0
+		for capa in [esc.get_node("HojasDelante"), esc.get_node("HojasDetras")]:
+			for c in capa._cols:
+				en_lecho += c.size()
+			for h in capa._vuelan:
+				if h["p"].y < 0.0:
+					arriba += 1
+		print("piloto %.0f s: lecho %d hojas, %d por encima de la pantalla" % [_t, en_lecho, arriba])
 	if prueba == "monton":
+		if int(_t) % 60 == 0 and int(_t - delta) % 60 != 0:
+			var esc := get_node_or_null(personaje).get_parent()
+			var xh: float = esc.x_haz(1150.0)
+			var lig := 0
+			var tot := 0
+			for capa in [esc.get_node("HojasDelante"), esc.get_node("HojasDetras")]:
+				for x in range(int(xh) - 200, int(xh) + 200, 8):
+					for h in capa._cols[capa._c(float(x))]:
+						tot += 1
+						if h.get("ligera", false):
+							lig += 1
+			print("piloto %.0f s: bajo el haz %d de %d hojas del lecho son ligeras" % [_t, lig, tot])
 		if _monton_antes < 0:
 			_monton_antes = _contar_monton()
 		elif int(_t) % 60 == 0 and int(_t - delta) % 60 != 0:

@@ -5,3 +5,4 @@
 [node name="PruebaLuz" instance=ExtResource("1")]
 caida_al_empezar = false
 baculo_al_empezar = true
+bosque_de_fondo = false

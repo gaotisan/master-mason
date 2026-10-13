@@ -395,8 +395,16 @@ func _flotar_en_sitio(h: Dictionary, delta: float) -> void:
 func _posar(h: Dictionary) -> void:
 	if h["esc"] < escala_miga:
 		return
+	# Ya en el lecho es una hoja mas: lo de su caida (ligera en la luz, no
+	# amontonar) se queda en el aire. Si no, las que caen sin parar por el haz
+	# iban sustituyendo a las del lecho bajo la luz y al pisarlas flotaban
+	# despacio en vez de saltar y caer ("el suelo es totalmente distinto",
+	# 2026-10-13).
+	var sin_amontonar: bool = h.get("no_amontona", false)
+	h["ligera"] = false
+	h.erase("no_amontona")
 	_apilar(h)
-	if h.get("no_amontona", false):
+	if sin_amontonar:
 		var c := _c(h["p"].x)
 		if _cols[c].size() > 1:
 			_cols[c].remove_at(0)

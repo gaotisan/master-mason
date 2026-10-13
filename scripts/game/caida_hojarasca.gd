@@ -37,16 +37,22 @@ extends Node2D
 ## Para probar las hojas de la luz: el baculo baja nada mas empezar, sin
 ## esperar a la vuelta.
 @export var baculo_al_empezar: bool = false
-## PRUEBA (2026-10-13): un bosque de fondo (assets/world/hojarasca/
-## bosque_fondo_mj.png, de Midjourney; la primera prueba fue
-## bosque_fondo.jpg, de Gemini) detras del haz, iluminado por el (Bosque,
-## bosque_fondo.gdshader), para ver si da riqueza a la escena o la ensucia.
-## scenes/dev/prueba_bosque.tscn lo enciende.
+## El bosque de fondo (2026-10-13; encendido en la escena del juego): la imagen
+## de Midjourney bosque_hojarasca.png en dos planos (bosque_cerca.png y
+## bosque_lejos.png, de raw/master_mason/hojarasca_bosque/capas.py) detras del
+## haz, en sombra (Bosque, bosque_fondo.gdshader). Antes se probaron
+## bosque_fondo.jpg (Gemini) y bosque_fondo_mj.png (facetada).
+## scenes/dev/prueba_bosque.tscn lo prueba con el baculo ya bajando.
 @export var bosque_de_fondo: bool = false:
 	set(v):
 		bosque_de_fondo = v
 		if is_node_ready():
 			$Bosque.visible = v
+			_poner_haz()
+## Con el bosque, el haz un pelin mas fuerte (por esto la fuerza del dibujo de
+## fondo_haz.gdshader): delante de los arboles tiene que seguir siendo lo que
+## brilla (el usuario, 2026-10-13: "que se vea un pelin mas").
+@export var haz_con_bosque: float = 1.35
 ## Con el bosque: el camino de la derecha esta tapado de hojas (apagado, ver
 ## bosque_fondo.gdshader) y al alcanzar el baculo una racha se las lleva y
 ## aparece en camino_abrir s (_abrir_camino).
@@ -56,6 +62,28 @@ extends Node2D
 ## la gravedad es 900): las levanta y remolinean mientras sopla.
 @export var camino_levante: float = 2300.0
 @export var camino_hojas_fondo: int = 160
+## VIDA DEL BOSQUE (con bosque_de_fondo): el fondo deja de ser una foto plana
+## (bosque_fondo.gdshader). La camara acompana al peregrino: se adelanta hacia
+## donde va (camara_adelanto px corriendo, unas tres cuartas partes andando; por la
+## velocidad y no por la x, asi no salta al dar la vuelta al mundo) y sube
+## hasta camara_subida px cuando el sube por las hojas; ademas respira muy
+## despacio (deriva de camara_deriva px con periodos que no casan). Antes de
+## tener el mando (la caida), solo respira. El suelo y el peregrino se mueven
+## con ella; los troncos de delante algo menos y la niebla de detras casi nada
+## (paralaje: es cuando se mueve la camara cuando se ve que hay fondo).
+## camara_zoom: acercamiento fijo para que al moverse no se vean los bordes
+## (tiene que cubrir adelanto + deriva en x y subida + deriva en y).
+## La copa se mece con el viento: cada racha entra por el lado del que sopla y
+## cruza el bosque a racha_px_s (cinco muelles a lo ancho, con su punta de
+## inclinacion_copa px con la racha a tope); la del baculo lo sacude entero.
+@export var camara_deriva: Vector2 = Vector2(10.0, 4.0)
+@export var camara_adelanto: float = 56.0
+@export var camara_subida: float = 32.0
+@export var camara_zoom: float = 1.05
+@export var inclinacion_copa: Vector2 = Vector2(13.0, 2.5)
+@export var copa_hz: float = 0.35
+@export var copa_amortiguamiento: float = 0.25
+@export var racha_px_s: float = 1100.0
 ## Viento de fondo (dB sobre el fichero) y cuanto tarda en llegar desde el nivel
 ## en que lo deja el titulo (-14).
 @export var viento_db: float = 9.0
@@ -269,6 +297,7 @@ const ANCHO := 2912.0
 var _arbol_espera := 1.0
 var _ultima_x := 0.0
 var _velocidad := 0.0                  # px/s de Magnus en x, suavizada
+var _vx := 0.0                         # lo mismo con signo (para la camara)
 var _temblor := 0.0
 var _roce := 0.0                       # volumen lineal del arrastre
 var _racha := 0.0                      # 0..1, la racha de viento que sopla ahora
@@ -286,6 +315,15 @@ var _hoja_luz_lado := -1.0              # de que lado entra la siguiente
 var _luz_reloj := 0.0                   # el vaiven comun de las que bajan por la luz
 var _suelta_espera := 0.0               # s hasta la siguiente de las que no aguantan
 var _levante := 0.0                     # empuje hacia arriba de la racha del camino (0..1)
+var _vida_t := 0.0                      # reloj de la vida del bosque
+var _vida_brisa := 0.45                 # brisa de fondo 0..1
+var _vida_ruido := FastNoiseLite.new()
+var _vida_historia: Array[Vector2] = [] # (tiempo, racha) para el retraso de la racha por franjas
+var _copa := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+var _copa_v := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+var _respira := Vector2.ZERO            # desplazamiento de la camara (px del mundo)
+var _sigue := Vector2.ZERO              # lo que acompana al peregrino (adelanto, subida)
+var _sigue_obj := Vector2.ZERO          # su objetivo ya suavizado una vez
 var _pies_antes := 0.0                 # y de los pies el tick anterior (para pisar hojas)
 var _luz_del_salto := 0.0              # la mas luz que le ha dado en el salto en curso
 var _en_el_aire := false
@@ -293,8 +331,10 @@ var _ligero_pendiente := false         # ya floto: decir "ligero" en cuanto se p
 var _alcanzado := false
 
 func _ready() -> void:
+	_fondo_mat = $Fondo.material as ShaderMaterial
 	_leer_haz()
 	$Bosque.visible = bosque_de_fondo
+	_poner_haz()
 	_a_baja_resolucion($Fondo, 4)
 	_a_baja_resolucion($NieblaSuelo, 4)
 	WindAmbience.gust_db = 0.0
@@ -389,12 +429,77 @@ func _process(delta: float) -> void:
 		_pensar.decir("ligero")
 	_envolver()
 	_seguir_a_magnus(delta)
+	_vida_del_bosque(delta)
 	if _temblor > 0.0:
 		_temblor = maxf(_temblor - delta, 0.0)
 		var f := temblor_px * (_temblor / 0.35) ** 2
-		_camara.offset = Vector2(randf_range(-f, f) * 0.5, randf_range(-f, f))
+		_camara.offset = _respira + Vector2(randf_range(-f, f) * 0.5, randf_range(-f, f))
 	else:
-		_camara.offset = Vector2.ZERO
+		_camara.offset = _respira
+
+## VIDA DEL BOSQUE (ver camara_deriva): brisa, muelles de la copa, respiracion
+## de la camara y lo que lee bosque_fondo.gdshader. Sin el bosque, la camara
+## quieta como siempre.
+func _vida_del_bosque(delta: float) -> void:
+	if not bosque_de_fondo:
+		_respira = Vector2.ZERO
+		_camara.zoom = Vector2.ONE
+		return
+	_vida_t += delta
+	var t := _vida_t
+	_vida_brisa = 0.45 * (0.8 + 0.45 * _vida_ruido.get_noise_1d(t * 0.06 + 11.0))
+	_vida_historia.append(Vector2(t, _racha))
+	while _vida_historia.size() > 2 and _vida_historia[1].x < t - 4.0:
+		_vida_historia.pop_front()
+	var empuje := PackedVector2Array()
+	var agitacion := PackedFloat32Array()
+	for i in 5:
+		var llega := _racha_en(2912.0 * i / 4.0)
+		var obj := Vector2(inclinacion_copa.x * _racha_dir, inclinacion_copa.y) * minf(llega, 1.8) \
+				+ Vector2(0.7 * _vida_brisa * _racha_dir, 0.0)
+		var w := TAU * copa_hz * (0.9 + 0.05 * i)
+		var n := maxi(1, ceili(delta * 120.0))
+		var h := delta / n
+		for _k in n:
+			_copa_v[i] += ((obj - _copa[i]) * w * w - _copa_v[i] * 2.0 * copa_amortiguamiento * w) * h
+			_copa[i] += _copa_v[i] * h
+		empuje.append(_copa[i])
+		agitacion.append(minf(llega, 1.5))
+	# La camara: sumas de senos lentas con periodos que no casan, y lo que
+	# acompana al peregrino (ver camara_adelanto), suavizado dos veces para que
+	# arranque y pare sin tirones (como un operador, no pegada a el).
+	var d := Vector2(0.6 * sin(TAU * t / 31.0) + 0.4 * sin(TAU * t / 17.3 + 1.3),
+			0.5 * sin(TAU * t / 23.0 + 2.0) + 0.3 * sin(TAU * t / 13.7 + 0.4)) * camara_deriva
+	var obj := Vector2.ZERO
+	if _con_mando >= 0.0 or not caida_al_empezar:
+		var pies_y: float = _magnus.global_position.y - _magnus.altura_pies()
+		obj = Vector2(clampf(_vx / 250.0, -1.0, 1.0) * camara_adelanto,
+				-clampf((1150.0 - pies_y) / 700.0, 0.0, 1.0) * camara_subida)
+	var k := 1.0 - exp(-2.2 * delta)
+	_sigue_obj = _sigue_obj.lerp(obj, k)
+	_sigue = _sigue.lerp(_sigue_obj, k)
+	_respira = d + _sigue
+	_camara.zoom = Vector2.ONE * camara_zoom
+	var m := $Bosque.material as ShaderMaterial
+	m.set_shader_parameter("tiempo", t)
+	m.set_shader_parameter("brisa", _vida_brisa)
+	m.set_shader_parameter("empuje", empuje)
+	m.set_shader_parameter("agitacion", agitacion)
+	m.set_shader_parameter("camara", _respira)
+
+## La racha tal como le llega a la x dada: entra por el lado del que sopla
+## (_racha_dir) y cruza a racha_px_s.
+func _racha_en(x: float) -> float:
+	var retraso := (x if _racha_dir > 0.0 else 2912.0 - x) / racha_px_s
+	var tt := _vida_t - retraso
+	if _vida_historia.is_empty() or tt >= _vida_historia[-1].x:
+		return _racha
+	for i in range(_vida_historia.size() - 1, 0, -1):
+		var a := _vida_historia[i - 1]
+		if a.x <= tt:
+			var b := _vida_historia[i]
+			return lerpf(a.y, b.y, (tt - a.x) / maxf(b.x - a.x, 1e-4))
+	return _vida_historia[0].y
 
 ## Una hoja nueva en el aire, en la capa de delante o en la de detras.
 func _soltar(pos: Vector2, vel: Vector2, delante: bool, escala: float = -1.0, giro: float = INF,
@@ -410,6 +515,7 @@ func _seguir_a_magnus(delta: float) -> void:
 	var dx := wrapf(x - _ultima_x, -ANCHO / 2.0, ANCHO / 2.0)
 	_ultima_x = x
 	_velocidad = lerpf(_velocidad, absf(dx) / delta, 1.0 - exp(-10.0 * delta))
+	_vx = lerpf(_vx, dx / delta, 1.0 - exp(-6.0 * delta))
 	var en_suelo: bool = not _magnus.en_el_aire()
 	if en_suelo and absf(dx) > 0.2 and _velocidad > 25.0:
 		_vadear(x, signf(dx))
@@ -810,6 +916,20 @@ var _haz_apertura := 0.17
 
 ## El haz de la fisica es el que se ve: se leen del material del fondo su
 ## vertice, adonde apunta y su apertura.
+## La fuerza del haz que se dibuja: la del shader, por haz_con_bosque si hay
+## bosque detras.
+var _haz_fuerza_base := -1.0
+var _fondo_mat: ShaderMaterial   # el del Fondo (que luego se va a una SubViewport)
+
+func _poner_haz() -> void:
+	var m := _fondo_mat
+	if m == null:
+		return
+	if _haz_fuerza_base < 0.0:
+		var f: Variant = m.get_shader_parameter("haz_fuerza")
+		_haz_fuerza_base = float(f) if f != null else 0.16
+	m.set_shader_parameter("haz_fuerza", _haz_fuerza_base * (haz_con_bosque if bosque_de_fondo else 1.0))
+
 func _leer_haz() -> void:
 	var m := $Fondo.material as ShaderMaterial
 	if m == null:
