@@ -1,0 +1,57 @@
+PROMPT PARA DESLIZARSE FLOTANDO HACIA DELANTE
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12; 16:9)
+=============================================
+Por que: en la luz se dirige el vuelo con izquierda y derecha para ir de una
+hoja a otra. El juego mueve el cuerpo; esto da la postura de ir hacia delante
+por el aire: algo inclinado, la tunica y las piernas quedandose atras. Del
+tramo del medio, el que avanza parejo, se saca un bucle.
+
+Pose: la de flotar (c_38 del salto parado); ver prompt_flotar.txt.
+
+En Flow, modo de fotogramas a video, 16:9, 1080p, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_avanzar_inicio.png
+  fotograma final:   referencia_avanzar_fin.png    (la misma pose 282 px a la
+                                                    derecha: 0,45 de su alto)
+
+Que mirar en cada toma:
+  1. avanza por el aire a la derecha, sin tocar el suelo ni subir o bajar mucho
+  2. se inclina algo hacia delante y la tunica se queda atras mientras avanza;
+     al pararse se endereza
+  3. no anda en el aire (no mueve las piernas como al andar): se desliza
+  4. de perfil todo el rato, mirando a la derecha
+  5. acaba como el ultimo fotograma; capucha sin pico; camara quieta
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame.
+Flat pure chroma-key green background (#24D732) filling the whole frame, no
+shadows, no floor, no other props, no text, no logos, no on-screen interface or
+player controls. The pilgrim stays full-body in frame, always the same size.
+
+Gliding through the air from a 2D platform video game: the character, floating
+weightless, drifts forward through the air as if carried by a gentle current.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. His hands
+are bare and empty.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he floats in place exactly as in the first frame.
+- 1 to 6 s: he glides slowly and steadily forward to the right through the air,
+  at the same height, without walking: his body leans slightly forward, his
+  cloak and his loose legs trail behind him, rippling, his beard swept back a
+  little. A smooth, even glide.
+- 6 to 7 s: he slows down and straightens up, his cloak swinging forward and
+  settling.
+- 7 to 8 s: he floats in place exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+a soft flutter of the cloak in the air; no music, no words.

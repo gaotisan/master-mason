@@ -1,0 +1,61 @@
+PROMPT PARA FLOTAR EN LA LUZ: EL BUCLE (FLOTA EN EL SITIO)
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12; 16:9)
+==========================================================
+Por que: bajo el haz el peregrino pesa poco y se queda en el aire (salta, se
+apoya en hojas, baja despacio). Hasta ahora en el aire solo tiene los
+fotogramas del salto estirados, que no estan hechos para quedarse arriba. Este
+es el bucle de flotar: quieto en el aire, mecido, la tunica abierta como una
+campana. Es la base de los demas (girar, avanzar, rebote, aterrizar): todos
+empiezan o acaban en la misma pose.
+
+La pose (inicio = fin) es el c_38 del salto parado del juego: el despegue del
+salto llega a ella y la toma de suelo sale de ella, asi que empalma con lo que
+ya hay. Sin baston en el video (el guardado lo pinta el juego).
+
+En Flow, modo de fotogramas a video, 16:9, 1080p, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_flotar_inicio.png
+  fotograma final:   referencia_flotar_fin.png     (la misma: bucle)
+  (en _fuentes/ y en Descargas/referencias_peregrino_flotar_en_la_luz; las hace
+  referencias_flotar.py, aqui al lado)
+
+Que mirar en cada toma:
+  1. no baja ni sube de verdad: flota en el mismo sitio, con un vaiven suave
+  2. la tunica y las piernas se mueven despacio, como en el agua; nada rigido
+  3. de perfil todo el rato, mirando a la derecha
+  4. acaba como empezo (para el bucle)
+  5. capucha sin pico; camara quieta; nada encima (texto, controles)
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no floor, no other props, no text, no logos, no
+on-screen interface or player controls. The pilgrim stays full-body in frame,
+always the same size.
+
+A floating idle from a 2D platform video game: the character hovers weightless
+in the air, as if he weighed nothing, like an astronaut in zero gravity or a
+feather held by a soft warm light.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. His hands
+are bare and empty.
+
+Action, one continuous take, calm and slow:
+- 0 to 8 s: he floats in the air in the same place, never touching the ground.
+  His whole body bobs up and down very gently, a few centimetres, once every two
+  or three seconds. His cloak opens slowly around his legs like a bell and
+  ripples softly, as if under water. His legs hang relaxed and drift a little,
+  his bare feet loose. His arms rest a little away from his body. His beard
+  sways slightly. Calm, peaceful, no effort.
+- At 8 s he is exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+a soft rustle of the cloak and a quiet, slow breath; no music, no words.

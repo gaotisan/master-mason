@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/game/caida_hojarasca.tscn" id="1"]
+
+[node name="PruebaBosque" instance=ExtResource("1")]
+caida_al_empezar = false
+baculo_al_empezar = true
+bosque_de_fondo = true

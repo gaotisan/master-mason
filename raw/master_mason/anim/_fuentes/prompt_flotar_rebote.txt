@@ -1,0 +1,68 @@
+PROMPT PARA IMPULSARSE EN UNA HOJA FLOTANDO (EL REBOTE)
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12; 16:9)
+======================================================
+Por que: en la luz las hojas de la escalera le sostienen: cae sobre una, se
+apoya y sale hacia arriba "como si volviera a saltar". Hoy el juego lo hace con
+los fotogramas del salto puestos al reves; esto es el gesto de verdad: los pies
+tocan la hoja, las rodillas ceden un poco y empuja. Empieza y acaba en la pose
+de flotar, asi que el resto del vuelo sigue con el bucle.
+
+La hoja es de relleno (una del juego, algo mayor que en el juego para que el
+video la entienda): se quita al montar. Pose: la de flotar (c_38 del salto
+parado); ver prompt_flotar.txt.
+
+En Flow, modo de fotogramas a video, 16:9, 1080p, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_rebote_inicio.png  (flotando, los pies justo
+                                                    encima de la hoja)
+  fotograma final:   referencia_rebote_fin.png     (la misma pose 188 px mas
+                                                    arriba: 0,30 de su alto; la
+                                                    hoja algo mas abajo)
+
+Que mirar en cada toma:
+  1. los pies se apoyan en la hoja (no la atraviesan) y empuja con las piernas:
+     un impulso corto, no una sentadilla lenta
+  2. sube despacio, sin peso, como en la Luna, hasta la altura del ultimo
+     fotograma, y se queda ahi flotando
+  3. la hoja cede un poco hacia abajo al empujarla y sigue flotando
+  4. de perfil todo el rato, mirando a la derecha
+  5. capucha sin pico; camara quieta; nada encima
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame.
+Flat pure chroma-key green background (#24D732) filling the whole frame, no
+shadows, no floor, no other props apart from the single leaf, no text, no logos,
+no on-screen interface or player controls. The pilgrim stays full-body in frame,
+always the same size.
+
+A bounce off a floating platform from a 2D platform video game: the character,
+floating weightless, steps onto a single large autumn leaf hovering in the air
+and pushes off it upward, like a jump on the Moon.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. His hands
+are bare and empty. Under his bare feet a single golden-brown autumn leaf floats
+flat in the air, exactly as in the first frame.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 0.4 s: he floats down the last few centimetres and his bare feet touch
+  the floating leaf.
+- 0.4 to 0.9 s: his knees bend softly as the leaf takes his weight and dips a
+  little, then he pushes off it with both legs in one short, light push.
+- 0.9 to 2.5 s: he rises upward slowly and weightlessly, his cloak trailing
+  down around his legs, to the height of the last frame, and comes to a gentle
+  stop there.
+- 2.5 to 8 s: he floats in place exactly as in the last frame, bobbing very
+  gently. The leaf keeps floating where it is, a little lower than at the start.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+a soft crisp rustle of the dry leaf when he pushes off it and the flutter of the
+cloak; no music, no words.

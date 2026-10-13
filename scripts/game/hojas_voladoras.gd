@@ -71,6 +71,21 @@ const HAZ_APERTURA := 0.17
 ## Viento (px/s^2 en x) que empuja a las que vuelan; la escena lo pone con las
 ## rachas. Empuja mas a las que van de cara (mas superficie) y despacio.
 var viento := 0.0
+## Empuje hacia arriba (px/s^2) de una racha muy fuerte (la que destapa el
+## camino): las que vuelan suben remolineando mientras sopla.
+var viento_arriba := 0.0
+## LAS HOJAS DE LA LUZ (2026-10-11). Las que caen de arriba (soltar con
+## `ligera`) pesan poco en la luz, como Magnus: su gravedad se multiplica por
+## lerp(1, gravedad_luz, ligereza(p)) y bajan por el haz despacio. Las que
+## levantan los pies no (el lecho se queda como estaba). La escena pone
+## ligereza y gravedad_luz (las de Magnus).
+## Las de la escalera (escalon(): con un sitio) bajan planeando hasta su sitio
+## y se quedan alli flotando, con un vaiven leve. Son las unicas que aguantan a
+## Magnus: apoyo() busca la que tiene bajo los pies y pisar() la hunde un palmo,
+## girando; la luz la vuelve a subir a su sitio (un muelle amortiguado) y,
+## cuando llega, vuelve a aguantar. Asi la escalera siempre esta.
+var ligereza: Callable
+var gravedad_luz := 0.3
 
 var _vuelan: Array[Dictionary] = []
 var _cols: Array = []                 # N_COL listas de hojas, de abajo a arriba
@@ -147,6 +162,8 @@ func _nueva(pos: Vector2, escala: float) -> Dictionary:
 		"edad": 0.0,
 		"botes": 0,
 		"desliza": false,
+		"ligera": false,
+		"pisada": false,
 	}
 
 ## La hoja se queda encima de su columna. Con `derramar`, si la columna queda
@@ -210,9 +227,56 @@ func lanzar(h: Dictionary, vel: Vector2, giro: float = INF) -> void:
 	h["p"] = Vector2(h["p"].x, h["p"].y - 2.0)
 	_vuelan.append(h)
 
-## Una hoja nueva en el aire. `giro` (rad/s) a INF: al azar.
-func soltar(pos: Vector2, vel: Vector2, escala: float = -1.0, giro: float = INF) -> void:
-	lanzar(_nueva(pos, escala), vel, giro)
+## Una hoja nueva en el aire. `giro` (rad/s) a INF: al azar. `ligera`: de las
+## que caen de arriba (ver LAS HOJAS DE LA LUZ). Devuelve la hoja.
+func soltar(pos: Vector2, vel: Vector2, escala: float = -1.0, giro: float = INF, ligera := false) -> Dictionary:
+	var h := _nueva(pos, escala)
+	h["ligera"] = ligera
+	lanzar(h, vel, giro)
+	return h
+
+## Una hoja de la escalera: entra por `desde` y baja planeando hasta `sitio`,
+## donde se queda flotando. Devuelve la hoja.
+func escalon(desde: Vector2, sitio: Vector2, escala: float) -> Dictionary:
+	var h := _nueva(desde, escala)
+	h["ligera"] = true
+	h["sitio"] = sitio
+	h["fase"] = randf() * TAU
+	# Tumbada (la celda del atlas es una hoja de pie), algo inclinada: se lee
+	# como un sitio donde apoyarse.
+	h["giro_base"] = PI * 0.5 * (1.0 if randf() < 0.5 else -1.0) + randf_range(-0.3, 0.3)
+	h["vuelta"] = randf_range(-0.3, 0.3)
+	h["v"] = Vector2.ZERO
+	_vuelan.append(h)
+	return h
+
+## La hoja de la escalera (sin pisar y con luz de sobra en su sitio) que los
+## pies pueden pisar: dentro de `ancho` px de x a cada lado (mas su medio
+## ancho) y con su y entre y0 y y1 (los pies el tick de antes y ahora, con
+## margen). La mas alta. Vacio si no hay.
+func apoyo(x: float, y0: float, y1: float, ancho: float, luz_minima: float) -> Dictionary:
+	var mejor := {}
+	for h in _vuelan:
+		if not h.has("sitio") or h["pisada"] or h["desliza"]:
+			continue
+		var p: Vector2 = h["p"]
+		if p.y < y0 or p.y > y1:
+			continue
+		var medio: float = h["esc"] * CELDA.y * 0.25
+		if absf(wrapf(p.x - x, -ANCHO / 2.0, ANCHO / 2.0)) > ancho + medio:
+			continue
+		if ligereza.is_valid() and ligereza.call(p) < luz_minima:
+			continue
+		if mejor.is_empty() or p.y < mejor["p"].y:
+			mejor = h
+	return mejor
+
+## La hoja pisada: se hunde de golpe girando; hasta que la luz la devuelve a
+## su sitio no aguanta (ver _flotar_en_sitio).
+func pisar(h: Dictionary, empuje: Vector2) -> void:
+	h["pisada"] = true
+	h["v"] = empuje
+	h["giro"] = randf_range(5.0, 8.0) * (1.0 if randf() < 0.5 else -1.0)
 
 func luz_en(p: Vector2) -> float:
 	var dx := (p.x - x_luz) / 1050.0
@@ -244,6 +308,10 @@ func _physics_process(delta: float) -> void:
 				continue
 			i += 1
 			continue
+		if h.has("sitio"):
+			_flotar_en_sitio(h, delta)
+			i += 1
+			continue
 		h["vuelta"] += h["vuelta_vel"] * delta
 		h["meceo"] += h["meceo_vel"] * delta
 		h["rot"] += h["giro"] * delta
@@ -254,13 +322,17 @@ func _physics_process(delta: float) -> void:
 		# las levanta un palmo. En medio segundo ya planea como las demas.
 		h["edad"] += delta
 		k *= lerpf(lanzada, 1.0, clampf(h["edad"] / 0.55, 0.0, 1.0))
-		v.y += gravedad * delta
+		var g := gravedad
+		if h["ligera"] and ligereza.is_valid():
+			g *= lerpf(1.0, gravedad_luz, ligereza.call(h["p"]))
+		v.y += g * delta
 		v *= exp(-k * delta)
 		# El pendulo: empuje lateral que cambia de lado, mas fuerte cuanto mas
 		# despacio va (recien soltada vuela recta).
 		var lenta := clampf(1.0 - v.length() / 600.0, 0.0, 1.0)
 		v.x += cos(h["meceo"]) * h["meceo_amp"] * lenta * delta * 3.0
 		v.x += viento * (0.4 + 0.6 * plana) * (0.3 + 0.7 * lenta) * delta
+		v.y -= viento_arriba * (0.4 + 0.6 * plana) * (0.5 + 0.5 * sin(h["meceo"] * 0.7)) * delta
 		# Al mecerse se inclina hacia donde se desliza; el giro libre se apaga.
 		h["giro"] = lerpf(h["giro"], -sin(h["meceo"]) * 1.6 * lenta, 1.0 - exp(-1.5 * delta))
 		var p: Vector2 = h["p"] + v * delta
@@ -288,11 +360,47 @@ func _physics_process(delta: float) -> void:
 		_tramos[t].queue_redraw()
 	_sucios.clear()
 
-## Las migas se pierden entre las hojas; las hojas se apilan.
+## Hoja de la escalera: planea hacia su sitio (mas despacio al llegar, meciendose
+## un poco de lado) y alli se queda con un vaiven leve, casi de cara. Pisada,
+## un muelle amortiguado la lleva de vuelta (baja un palmo con el empuje y
+## vuelve en un par de segundos), girando hasta asentarse; ya en su sitio,
+## vuelve a aguantar.
+func _flotar_en_sitio(h: Dictionary, delta: float) -> void:
+	h["edad"] += delta
+	var t: float = h["edad"] + h["fase"]
+	var objetivo: Vector2 = h["sitio"] + Vector2(6.0 * sin(t * 0.8), 4.0 * sin(t * 1.3))
+	var falta: Vector2 = objetivo - h["p"]
+	var vel: Vector2
+	if h["pisada"]:
+		var w := 2.2
+		vel = h["v"] + (falta * w * w - h["v"] * 2.0 * 0.85 * w) * delta
+		h["giro"] = h["giro"] * exp(-1.6 * delta)
+		h["rot"] += h["giro"] * delta
+		if falta.length() < 12.0 and vel.length() < 25.0:
+			h["pisada"] = false
+	else:
+		vel = falta * 2.2
+		if vel.length() > 160.0:
+			vel = vel.normalized() * 160.0
+			vel.x += 40.0 * sin(t * 2.2)
+		h["rot"] = lerp_angle(h["rot"], h["giro_base"] + 0.12 * sin(t * 1.1), 1.0 - exp(-3.0 * delta))
+	h["v"] = vel
+	h["p"] = h["p"] + vel * delta
+	h["vuelta"] = 0.3 * sin(t * 0.6)
+
+## Las migas se pierden entre las hojas; las hojas se apilan. Las que llevan
+## "no_amontona" (las que caen sin parar por la luz: siempre en el mismo sitio)
+## se apilan sin subir el monton: sale la de abajo de esa columna, tapada por
+## las de encima (si no, en unos minutos crecia un monte bajo el haz).
 func _posar(h: Dictionary) -> void:
 	if h["esc"] < escala_miga:
 		return
 	_apilar(h)
+	if h.get("no_amontona", false):
+		var c := _c(h["p"].x)
+		if _cols[c].size() > 1:
+			_cols[c].remove_at(0)
+			_ensuciar(c)
 
 # --- Dibujo ------------------------------------------------------------------
 

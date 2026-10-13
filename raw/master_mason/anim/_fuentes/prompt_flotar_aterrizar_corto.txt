@@ -1,0 +1,67 @@
+PROMPT PARA BAJAR FLOTANDO Y POSARSE, A LA VELOCIDAD DEL JUEGO (CORTO)
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12; 16:9)
+=====================================================================
+Por que: el primer video de bajar flotando (prompt_flotar_aterrizar.txt) baja
+en 3,4 s, a camara lenta, y en el juego un salto en la luz baja en ~1 s: para
+que cupiera habia que pasarlo 4,5 veces mas deprisa saltandose fotogramas, y
+la tunica se veia "tosca, a cortes" (2026-10-12). Lo de siempre: el video,
+pedido a la velocidad del juego y usado entero. Este es el de los saltos
+normales; el lento se queda para las caidas largas (desde las hojas altas).
+
+Pose de salida: la de flotar (c_38 del salto parado), con los pies a la altura
+a la que llegan en un salto en la luz.
+
+En Flow, modo de fotogramas a video, 16:9, 1080p, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_aterrizar_corto_inicio.png  (flotando, los
+                                                             pies a 354 px del
+                                                             suelo)
+  fotograma final:   referencia_aterrizar_corto_fin.png     (el reposo del
+                                                             juego en el suelo)
+
+Que mirar en cada toma:
+  1. BAJA EN UN SEGUNDO, MAS O MENOS: ni camara lenta ni se queda arriba
+     flotando antes de bajar (si tarda mas de dos segundos en tocar, no vale)
+  2. baja parejo y suave, sin peso, la tunica algo levantada; no cae a plomo
+  3. toca el suelo suave, sin golpe, las rodillas apenas ceden; no se agacha
+     del todo ni pone las manos en el suelo
+  4. se endereza y queda como el ultimo fotograma, en el mismo sitio
+  5. de perfil todo el rato, mirando a la derecha; las piernas oscuras como en
+     el primer fotograma (no desnudas); capucha sin pico; camara quieta
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame.
+Flat pure chroma-key green background (#24D732) filling the whole frame, no
+shadows, no cast shadow on the ground, no floor line, no other props, no text,
+no logos, no on-screen interface or player controls. The pilgrim stays
+full-body in frame, always the same size.
+
+A soft landing at the end of a light, floaty jump in a 2D platform video game:
+the character drifts down gently and lands softly on his feet. Real-time game
+speed, no slow motion.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark grey legs and bare feet,
+exactly as in the first frame. His hands are bare and empty.
+
+Action, one continuous take, at real-time speed, no slow motion:
+- 0 to 1 s: from the first frame he drifts down to the ground in one gentle,
+  steady glide that takes about one second, weightless but not slow: his cloak
+  lifts a little around his legs, his legs hang loose and stretch down towards
+  the ground.
+- 1 to 1.4 s: his bare feet touch the ground softly, without any impact: his
+  knees give just a little and his cloak settles down around him.
+- 1.4 to 2.4 s: he straightens up calmly.
+- 2.4 to 8 s: he stands still exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+a soft flutter of the cloak and the very light touch of his bare feet on the
+ground; no music, no words.

@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3]
+[gd_scene load_steps=38 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/caida_hojarasca.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="2"]
@@ -24,8 +24,10 @@
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_levantarse.wav" id="s_levantarse"]
 [ext_resource type="AudioStream" path="res://assets/audio/hojarasca_arrastre.wav" id="s_arrastre"]
 [ext_resource type="Script" path="res://scripts/game/baculo.gd" id="baculo"]
-[ext_resource type="Script" path="res://scripts/game/presas.gd" id="presas"]
 [ext_resource type="Script" path="res://scripts/ui/pensamientos.gd" id="pensamientos"]
+[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_fondo_mj.png" id="bosque_tex"]
+[ext_resource type="Shader" path="res://scripts/game/bosque_fondo.gdshader" id="bosque_shader"]
+[ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_camino_mj.png" id="bosque_camino"]
 
 [sub_resource type="AudioStreamRandomizer" id="pasos"]
 random_pitch = 1.08
@@ -59,6 +61,17 @@ stream_11/weight = 1.0
 [sub_resource type="ShaderMaterial" id="fondo"]
 shader = ExtResource("3")
 
+[sub_resource type="ShaderMaterial" id="bosque"]
+shader = ExtResource("bosque_shader")
+shader_parameter/mascara_camino = ExtResource("bosque_camino")
+shader_parameter/horizonte = 0.613
+shader_parameter/suelo_fundido = 0.1
+shader_parameter/exposicion = 0.55
+shader_parameter/ambiente = 0.7
+shader_parameter/en_el_haz = 0.15
+shader_parameter/resplandor = 0.25
+shader_parameter/tinte = Color(0.78, 0.74, 0.76, 1)
+
 [sub_resource type="ShaderMaterial" id="niebla"]
 shader = ExtResource("4")
 
@@ -89,6 +102,12 @@ material = SubResource("fondo")
 offset_right = 2912.0
 offset_bottom = 1632.0
 mouse_filter = 2
+
+[node name="Bosque" type="Sprite2D" parent="."]
+visible = false
+material = SubResource("bosque")
+texture = ExtResource("bosque_tex")
+centered = false
 
 [node name="Motas" type="CPUParticles2D" parent="."]
 position = Vector2(1530, 650)
@@ -127,9 +146,6 @@ texture = ExtResource("9")
 
 [node name="Baculo" type="Node2D" parent="."]
 script = ExtResource("baculo")
-
-[node name="Presas" type="Node2D" parent="."]
-script = ExtResource("presas")
 
 [node name="HojasDetras" type="Node2D" parent="."]
 script = ExtResource("10")

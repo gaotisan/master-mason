@@ -30,6 +30,32 @@ extends Node2D
 ## Del negro a la escena (s) y cuando empieza a caer Magnus (s desde el inicio).
 @export var entrada: float = 3.0
 @export var espera_caida: float = 1.8
+## A false (scenes/dev/prueba_luz.tscn y piloto_luz.tscn), sin entrada ni
+## caida: Magnus de pie en su sitio y con el mando desde el principio, sin
+## pensamientos.
+@export var caida_al_empezar: bool = true
+## Para probar las hojas de la luz: el baculo baja nada mas empezar, sin
+## esperar a la vuelta.
+@export var baculo_al_empezar: bool = false
+## PRUEBA (2026-10-13): un bosque de fondo (assets/world/hojarasca/
+## bosque_fondo_mj.png, de Midjourney; la primera prueba fue
+## bosque_fondo.jpg, de Gemini) detras del haz, iluminado por el (Bosque,
+## bosque_fondo.gdshader), para ver si da riqueza a la escena o la ensucia.
+## scenes/dev/prueba_bosque.tscn lo enciende.
+@export var bosque_de_fondo: bool = false:
+	set(v):
+		bosque_de_fondo = v
+		if is_node_ready():
+			$Bosque.visible = v
+## Con el bosque: el camino de la derecha esta tapado de hojas (apagado, ver
+## bosque_fondo.gdshader) y al alcanzar el baculo una racha se las lleva y
+## aparece en camino_abrir s (_abrir_camino).
+@export var camino_abrir: float = 3.5
+@export var camino_hojas_lecho: int = 600
+## Lo que la racha del camino empuja hacia arriba en lo mas fuerte (px/s^2;
+## la gravedad es 900): las levanta y remolinean mientras sopla.
+@export var camino_levante: float = 2300.0
+@export var camino_hojas_fondo: int = 160
 ## Viento de fondo (dB sobre el fichero) y cuanto tarda en llegar desde el nivel
 ## en que lo deja el titulo (-14).
 @export var viento_db: float = 9.0
@@ -45,8 +71,14 @@ extends Node2D
 ## al salir por un lado y entrar por el otro la primera vez, se pregunta como ha
 ## vuelto al mismo sitio y si es la luz de antes ("vuelta"); al acabar, baja el
 ## baculo por el haz y se asombra ("asombro": algo baja por la luz, como si no
-## pesara); al quedarse flotando bajan de el las hojas-presa y lo reconoce
-## ("baculo"). Desconcierto, asombro, reconocimiento.
+## pesara); al quedarse flotando arriba lo reconoce ("baculo"). Desconcierto,
+## asombro, reconocimiento.
+## Aparte, antes o despues del baculo: la primera vez que salta en la luz y
+## flota, al volver al suelo se da cuenta de que alli apenas pesa ("ligero").
+## Por la luz bajan hojas despacio, desde el principio (ver Las hojas de la
+## luz): nadie dice que sirvan; rebotando de una en otra, a izquierda y
+## derecha, se sube hasta el baculo. Alcanzarlo, de momento, hace latir la
+## bola (falta la animacion de cogerlo).
 ## El baculo SOLO baja tras la vuelta: es cuando se da cuenta de que no va a
 ## ninguna parte (asi lo quiere el usuario, sin atajo por tiempo; si en un
 ## minuto no ha salido por ningun borde, solo el empujon de "explorar"). Los textos
@@ -105,6 +137,88 @@ extends Node2D
 @export var arrastre_db: float = -10.0
 @export var magnus_pasos_db: float = -14.0
 
+@export_group("La luz")
+## Zona de la luz para jugar (fracciones de la apertura del haz): pesa poco del
+## todo hasta luz_entera y nada desde luz_borde. El haz se pinta entero solo en
+## su centro (0,35) y se apaga en el borde (1): con eso de zona, en los lados
+## del haz iluminado no flotaba y habia que estar casi en el centro.
+@export var luz_entera: float = 0.8
+@export var luz_borde: float = 1.1
+
+@export_group("Las hojas de la luz")
+## En la luz se pesa poco (el salto flota, ver magnus.gd) y por el haz bajan
+## hojas despacio, planeando casi de cara. Solo esas aguantan a Magnus: si cae
+## con los pies sobre una, rebota como si volviera a saltar, y la hoja se hunde
+## un palmo girando y la luz la vuelve a su camino (hojas_voladoras.gd).
+## 2026-10-12: antes eran una escalera fija (seis hojas quietas en zigzag);
+## el usuario: "queda muy facil y feo; mas sutil, que caigan hojas al suelo y
+## sea el jugador quien deduzca que se pueden ir usando; lanzarlas a una
+## frecuencia que parezca esa misma escalera, pero que no este siempre sino que
+## se vayan cayendo al suelo y vayan cayendo otras". Asi: entran por arriba
+## (escalera_desde) una a cada lado del eje del haz por turnos, a escalera_lado
+## px (cada una algo mas cerca o mas lejos), y bajan a escalera_bajada px/s
+## meciendose de lado como una hoja que cae (escalera_vaiven px, inclinandose
+## hacia donde va; todas casi a la vez, como si las meciera el mismo aire: a
+## destiempo, la de enfrente se iba a veces a 190 px y no se llegaba); cada
+## escalera_paso / escalera_bajada s (con azar, escalera_azar) entra otra, asi
+## que en cualquier momento estan mas o menos en zigzag, escalera_paso px una
+## sobre otra: la misma escalera, bajando, pero que se lee como hojas que caen
+## (la primera prueba, con todas igual de tumbadas, a la misma distancia y casi
+## quietas de lado, se veia como una escalera).
+## Y entre ellas caen otras que no aguantan (luz_sueltas_*): de todos los
+## tamanos, sobre todo pequenas, que caen mas deprisa y dando vueltas como
+## cualquier hoja. El usuario: "si pones solo las de la escalera se va a notar
+## mucho". Lo que las distingue es como caen: las que sirven, despacio y casi
+## de cara. Al llegar a escalera_hasta dejan de aguantar y caen al
+## lecho como las demas. Algo mayores que las demas (escalera_escala).
+## Al abrir la escena ya estan repartidas por el haz, como si llevaran un rato.
+## Con la gravedad de la luz el salto de parado sube los pies 177 px sobre la
+## hoja; la siguiente esta 140 px mas arriba y viene bajando (a 26 px/s): se
+## sube ~110 px por rebote y en 5-6 rebotes se llega al baculo. Con 112 y 32
+## (lo de la escalera fija) se subian ~55: diez o doce rebotes seguidos, cada
+## uno con su giro, demasiado. De espaldas no se
+## va en el aire: cada rebote es girarse (magnus.gd, GIRAR EN EL AIRE: 1,05 s)
+## y luego avanzar los 124 px de un lado al otro. Un bot sube hasta el baculo
+## (piloto_luz, prueba "escalera").
+@export var escalera_paso: float = 140.0
+@export var escalera_lado: float = 62.0
+@export var escalera_bajada: float = 26.0
+@export var escalera_azar: float = 0.18
+@export var escalera_vaiven: float = 14.0
+@export var escalera_vaiven_periodo: float = 4.6
+@export var escalera_desde: float = -40.0
+@export var escalera_hasta: float = 1110.0
+## Por encima de esta y aun no aguantan: desde las de mas abajo se llega al
+## baculo (arriba del todo), pero no se sube mas alla ni se sale por arriba.
+@export var escalera_aguanta: float = 400.0
+@export var escalera_escala: float = 0.38
+## Las que no aguantan: cada cuanto entra una por arriba (s, al azar entre los
+## dos), a cuantos px del eje del haz como mucho, y su tamano: la mayoria
+## (1 - luz_sueltas_medianas) pequenas, las demas como las del suelo.
+@export var luz_sueltas_cada_min: float = 0.5
+@export var luz_sueltas_cada_max: float = 1.5
+@export var luz_sueltas_ancho: float = 120.0
+@export var luz_sueltas_pequenas: Vector2 = Vector2(0.12, 0.24)
+@export var luz_sueltas_medianas_escala: Vector2 = Vector2(0.26, 0.34)
+@export var luz_sueltas_medianas: float = 0.3
+## Pisar: px a cada lado de los pies (mas el medio ancho de la hoja), margen
+## por encima de los pies del tick anterior (poco: una hoja que cae sobre las
+## piernas no se pisa, hay que bajar sobre ella) y por debajo de los de ahora, luz
+## minima en la hoja para que aguante, y altura minima de los pies (casi en el
+## suelo, la hoja ya va a posarse).
+@export var pisar_ancho: float = 46.0
+@export var pisar_margen: Vector2 = Vector2(4.0, 10.0)
+@export var pisar_luz: float = 0.35
+@export var pisar_altura: float = 30.0
+## Empuje que se lleva la hoja pisada (px/s hacia abajo) y su crujido (dB).
+@export var pisar_empuje: float = 240.0
+@export var hoja_pisada_db: float = -13.0
+## El baculo se alcanza cuando la parte de arriba del cuerpo (de los hombros a
+## la cabeza: alturas sobre los pies; en el aire, con las piernas recogidas, la
+## cabeza queda a ~270 de los pies) pasa a menos de alcance px de su vara.
+@export var alcance: float = 30.0
+@export var cuerpo_alcance: Vector2 = Vector2(160.0, 270.0)
+
 ## Que levanta cada contacto del pie. Los contactos salen de la senal pisada de
 ## Magnus, en el sprite en que el pie planta (los mismos de sus sonidos):
 ##   n       hojas (min, max) a velocidad_referencia
@@ -129,6 +243,7 @@ const SALTOS := {
 	"saltar":       {13: "despegue", 48: "caida"},
 	"salto_correr": {4: "despegue", 33: "caida"},
 	"salto_parado": {18: "despegue", 47: "caida"},
+	"flotar_posarse": {0: "caida"},
 }
 const PISADA_ANIM := {
 	"andar": "paso", "parada_andar": "paso", "aterrizaje_correr": "zancada",
@@ -137,7 +252,8 @@ const PISADA_ANIM := {
 	"parada_agachado": "paso_suave", "paso_agachado": "paso_suave",
 }
 ## Fuerza de la caida de cada salto (el corriendo cae mas lejos y mas fuerte).
-const FUERZA_SALTO := {"salto_parado": 0.8, "saltar": 1.0, "salto_correr": 1.3}
+## Posarse flotando apenas levanta hojas (llega sin golpe).
+const FUERZA_SALTO := {"salto_parado": 0.8, "saltar": 1.0, "salto_correr": 1.3, "flotar_posarse": 0.35}
 ## Ancho del mundo: lo que sale por un lado entra por el otro.
 const ANCHO := 2912.0
 
@@ -164,9 +280,21 @@ var _con_mando := -1.0                 # 0 desde que se levanta (-1: aun no tien
 var _baculo_bajando := false
 @onready var _pensar: CanvasLayer = $Pensamientos
 @onready var _baculo: Node2D = $Baculo
-@onready var _presas: Node2D = $Presas
+var _hojas_luz: Array[Dictionary] = []  # las que bajan por la luz (las que aguantan)
+var _hoja_luz_espera := 0.0             # s hasta que entre la siguiente por arriba
+var _hoja_luz_lado := -1.0              # de que lado entra la siguiente
+var _luz_reloj := 0.0                   # el vaiven comun de las que bajan por la luz
+var _suelta_espera := 0.0               # s hasta la siguiente de las que no aguantan
+var _levante := 0.0                     # empuje hacia arriba de la racha del camino (0..1)
+var _pies_antes := 0.0                 # y de los pies el tick anterior (para pisar hojas)
+var _luz_del_salto := 0.0              # la mas luz que le ha dado en el salto en curso
+var _en_el_aire := false
+var _ligero_pendiente := false         # ya floto: decir "ligero" en cuanto se pueda
+var _alcanzado := false
 
 func _ready() -> void:
+	_leer_haz()
+	$Bosque.visible = bosque_de_fondo
 	_a_baja_resolucion($Fondo, 4)
 	_a_baja_resolucion($NieblaSuelo, 4)
 	WindAmbience.gust_db = 0.0
@@ -182,16 +310,31 @@ func _ready() -> void:
 	_sprite.material = luz
 	_crear_fantasma()
 	_magnus.pasos_db = magnus_pasos_db
+	# En la luz se pesa poco: sus saltos de parado y andando flotan en el haz.
+	_magnus.ligereza = luz_en
+	for capa in [_delante, _detras]:
+		capa.ligereza = luz_en
+		capa.gravedad_luz = _magnus.gravedad_luz
+	# Pisar hojas mira a Magnus despues de que se mueva en el tick.
+	process_physics_priority = 10
 	_delante.sembrar(hojas_por_columna_delante, _monton.bind(0.6))
 	_detras.sembrar(hojas_por_columna_detras, _monton.bind(0.4))
-	_entrar_desde_negro()
+	if caida_al_empezar:
+		_entrar_desde_negro()
+	else:
+		$Entrada.hide()
+	if baculo_al_empezar:
+		_bajar_baculo.call_deferred()
 	_pensar.x_de = func() -> float: return _magnus.position.x
 	_magnus.cinematica_terminada.connect(_al_levantarse)
 	_pensar.terminado.connect(_al_terminar_pensamiento)
 	_baculo.posado.connect(_al_posar_baculo)
-	# Que ya haya alguna hoja cayendo al abrir.
+	# Que ya haya alguna hoja cayendo al abrir, y las de la luz repartidas.
 	for i in 3:
 		_hoja_de_arriba(randf_range(200.0, 900.0))
+	_repartir_hojas_luz()
+	for i in 6:
+		_hoja_suelta_luz(randf_range(0.0, 1000.0))
 
 ## Altura extra (px) del monton donde cae y de dos lomas mas bajas.
 func _monton(x: float, cuanto: float) -> float:
@@ -230,6 +373,8 @@ func _soplar(delta: float) -> void:
 	var empuje := _racha_dir * racha_empuje * _racha
 	_delante.viento = empuje
 	_detras.viento = empuje
+	_delante.viento_arriba = camino_levante * _levante
+	_detras.viento_arriba = camino_levante * _levante
 
 func _process(delta: float) -> void:
 	_soplar(delta)
@@ -239,6 +384,9 @@ func _process(delta: float) -> void:
 	if _arbol_espera <= 0.0:
 		_arbol_espera = randf_range(arbol_cada_min, arbol_cada_max)
 		_hoja_de_arriba()
+	if _ligero_pendiente and _con_mando >= 0.0 and not _pensar.hablando():
+		_ligero_pendiente = false
+		_pensar.decir("ligero")
 	_envolver()
 	_seguir_a_magnus(delta)
 	if _temblor > 0.0:
@@ -249,8 +397,9 @@ func _process(delta: float) -> void:
 		_camara.offset = Vector2.ZERO
 
 ## Una hoja nueva en el aire, en la capa de delante o en la de detras.
-func _soltar(pos: Vector2, vel: Vector2, delante: bool, escala: float = -1.0, giro: float = INF) -> void:
-	(_delante if delante else _detras).soltar(pos, vel, escala, giro)
+func _soltar(pos: Vector2, vel: Vector2, delante: bool, escala: float = -1.0, giro: float = INF,
+		ligera := false) -> Dictionary:
+	return (_delante if delante else _detras).soltar(pos, vel, escala, giro, ligera)
 
 ## Velocidad, vadeo, sombra de contacto y el lado de la luz para el borde
 ## encendido de Magnus.
@@ -261,7 +410,7 @@ func _seguir_a_magnus(delta: float) -> void:
 	var dx := wrapf(x - _ultima_x, -ANCHO / 2.0, ANCHO / 2.0)
 	_ultima_x = x
 	_velocidad = lerpf(_velocidad, absf(dx) / delta, 1.0 - exp(-10.0 * delta))
-	var en_suelo := _sprite.position.y > -2.0
+	var en_suelo: bool = not _magnus.en_el_aire()
 	if en_suelo and absf(dx) > 0.2 and _velocidad > 25.0:
 		_vadear(x, signf(dx))
 	# El roce sigue a la velocidad, en volumen lineal y sin saltos, para que
@@ -271,7 +420,9 @@ func _seguir_a_magnus(delta: float) -> void:
 	$SonidoArrastre.volume_db = arrastre_db + linear_to_db(maxf(_roce, 0.0001))
 	# Sombra de contacto: se encoge y aclara al subir en un salto; tumbado es
 	# larga (todo el cuerpo).
-	var alto := maxf(-_sprite.position.y, 0.0)
+	# La altura de los pies (en las de flotar el dibujo ya va alto en su casilla:
+	# el arco solo no la dice).
+	var alto: float = _magnus.altura_pies() if _magnus.en_el_aire() else maxf(-_sprite.position.y, 0.0)
 	var tumbado := _sprite.animation in [&"caida", &"tumbado"]
 	var ancho := 5.6 if tumbado else 3.4
 	if _sprite.animation == &"levantarse":
@@ -409,7 +560,208 @@ func _al_cambiar_animacion() -> void:
 func _hoja_de_arriba(y_ya: float = -1.0) -> void:
 	var x := randf_range(150.0, 2760.0)
 	var y := -40.0 if y_ya < 0.0 else y_ya
-	_soltar(Vector2(x, y), Vector2(randf_range(-35.0, 35.0) + _racha_dir * 60.0 * _racha, 40.0), randf() < 0.6)
+	_soltar(Vector2(x, y), Vector2(randf_range(-35.0, 35.0) + _racha_dir * 60.0 * _racha, 40.0), randf() < 0.6,
+			-1.0, INF, true)
+
+## x del eje del haz a una altura y.
+func x_haz(y: float) -> float:
+	var t := (y - _haz_origen.y) / (_haz_destino.y - _haz_origen.y)
+	return lerpf(_haz_origen.x, _haz_destino.x, t)
+
+## Las hojas que bajan por la luz y aguantan (ver Las hojas de la luz).
+func hojas_de_la_luz() -> Array[Dictionary]:
+	return _hojas_luz
+
+## Al abrir: las de la luz ya repartidas por el haz, como si llevaran un rato
+## entrando por arriba (la de mas arriba, la ultima en entrar).
+func _repartir_hojas_luz() -> void:
+	var y := escalera_desde + randf() * escalera_paso
+	var lado := -1.0
+	var ys: Array[float] = []
+	while y < escalera_hasta:
+		ys.append(y)
+		y += escalera_paso * randf_range(1.0 - escalera_azar, 1.0 + escalera_azar)
+	for k in ys.size():
+		_hoja_luz(ys[k], lado)
+		lado = -lado
+	# la siguiente, del otro lado que la de arriba, cuando haya bajado su paso
+	_hoja_luz_lado = 1.0
+	_hoja_luz_espera = maxf((escalera_desde + escalera_paso - ys[0]) / escalera_bajada, 0.0) if ys.size() > 0 else 0.0
+
+## Una hoja de la luz a la altura y, a un lado del eje del haz.
+func _hoja_luz(y: float, lado: float) -> void:
+	var dx := lado * escalera_lado * randf_range(0.9, 1.1)
+	var fase := randf_range(-0.5, 0.5)
+	var amp := escalera_vaiven * randf_range(0.7, 1.3)
+	var p := Vector2(x_haz(y) + dx + amp * sin(TAU * _luz_reloj / escalera_vaiven_periodo + fase), y)
+	var esc := escalera_escala * randf_range(0.9, 1.1)
+	var h: Dictionary = (_delante if randf() < 0.6 else _detras).escalon(p, p, esc)
+	h["luz_y"] = y
+	h["luz_dx"] = dx
+	h["luz_amp"] = amp
+	h["luz_fase"] = fase
+	h["luz_rot"] = h["giro_base"]
+	_hojas_luz.append(h)
+
+## Cada tick: entra la que toca por arriba y todas bajan su camino (su sitio,
+## que la hoja sigue planeando y al que vuelve si la pisan); abajo del todo
+## dejan de aguantar y caen al lecho como las demas.
+func _bajar_hojas_luz(delta: float) -> void:
+	_luz_reloj += delta
+	_suelta_espera -= delta
+	if _suelta_espera <= 0.0:
+		_suelta_espera = randf_range(luz_sueltas_cada_min, luz_sueltas_cada_max)
+		_hoja_suelta_luz(escalera_desde)
+	_hoja_luz_espera -= delta
+	if _hoja_luz_espera <= 0.0:
+		_hoja_luz_espera += escalera_paso / escalera_bajada * randf_range(1.0 - escalera_azar, 1.0 + escalera_azar)
+		_hoja_luz(escalera_desde, _hoja_luz_lado)
+		_hoja_luz_lado = -_hoja_luz_lado
+	var i := 0
+	while i < _hojas_luz.size():
+		var h: Dictionary = _hojas_luz[i]
+		var y: float = h["luz_y"] + escalera_bajada * delta
+		if y > escalera_hasta:
+			h.erase("sitio")
+			h["v"] = Vector2(0.0, escalera_bajada)
+			h["no_amontona"] = true
+			_hojas_luz.remove_at(i)
+			continue
+		h["luz_y"] = y
+		var fase: float = TAU * _luz_reloj / escalera_vaiven_periodo + h["luz_fase"]
+		h["sitio"] = Vector2(x_haz(y) + h["luz_dx"] + h["luz_amp"] * sin(fase), y)
+		# se inclina hacia donde se mece, como una hoja que cae
+		h["giro_base"] = h["luz_rot"] + 0.3 * cos(fase)
+		i += 1
+
+## Una de las que caen por la luz y no aguantan (ver Las hojas de la luz), a
+## la altura y: de cualquier tamano, sobre todo pequena; cae como las demas
+## (ligera: en la luz, mas despacio que fuera, pero mas deprisa que las que
+## aguantan, y dando vueltas).
+func _hoja_suelta_luz(y: float) -> void:
+	var x := x_haz(y) + randf_range(-luz_sueltas_ancho, luz_sueltas_ancho)
+	var r := luz_sueltas_medianas_escala if randf() < luz_sueltas_medianas else luz_sueltas_pequenas
+	var h := _soltar(Vector2(x, y), Vector2(randf_range(-20.0, 20.0), randf_range(10.0, 40.0)), randf() < 0.6,
+			randf_range(r.x, r.y), INF, true)
+	h["no_amontona"] = true
+
+# --- Pisar hojas, flotar y el baculo (cada tick de fisica, despues de Magnus) ---
+
+func _physics_process(delta: float) -> void:
+	_bajar_hojas_luz(delta)
+	var alto: float = _magnus.altura_pies()
+	var pies := Vector2(_magnus.global_position.x, _magnus.global_position.y - alto)
+	if _magnus.cayendo() and alto > pisar_altura:
+		_pisar_hoja(pies)
+	_pies_antes = pies.y
+	_seguir_el_salto()
+	_mirar_baculo(pies)
+
+## Cae con los pies sobre una hoja de la luz: rebota y la hoja se hunde.
+func _pisar_hoja(pies: Vector2) -> void:
+	var y0 := minf(_pies_antes, pies.y) - pisar_margen.x
+	var y1 := pies.y + pisar_margen.y
+	var mejor := {}
+	var capa_mejor: Node2D = null
+	for capa in [_delante, _detras]:
+		var h: Dictionary = capa.apoyo(pies.x, y0, y1, pisar_ancho, pisar_luz)
+		if not h.is_empty() and (mejor.is_empty() or h["p"].y < mejor["p"].y):
+			mejor = h
+			capa_mejor = capa
+	if mejor.is_empty() or mejor["p"].y < escalera_aguanta or not _magnus.rebotar():
+		return
+	capa_mejor.pisar(mejor, Vector2(randf_range(-30.0, 30.0), pisar_empuje))
+	# Unas migas de la hoja y un crujido suave, mas agudo que en el suelo.
+	for i in 3:
+		_soltar(mejor["p"] + Vector2(randf_range(-8.0, 8.0), 0.0),
+				Vector2(randf_range(-60.0, 60.0), randf_range(20.0, 120.0)), randf() < 0.6,
+				randf_range(0.09, 0.13), randf_range(-20.0, 20.0))
+	_sonar($SonidoPaso, hoja_pisada_db, randf_range(1.12, 1.22))
+
+## La primera vez que flota de verdad (le ha dado bien la luz en un salto),
+## al volver al suelo lo piensa: en la luz apenas pesa.
+func _seguir_el_salto() -> void:
+	if _magnus.en_el_aire():
+		_en_el_aire = true
+		_luz_del_salto = maxf(_luz_del_salto, _magnus.luz())
+		return
+	if _en_el_aire and _luz_del_salto >= 0.6 and not _pensar.dicho("ligero"):
+		_ligero_pendiente = true
+	_en_el_aire = false
+	_luz_del_salto = 0.0
+
+## Si la parte de arriba del cuerpo llega a la vara del baculo, lo ha
+## alcanzado (de momento la bola se enciende; falta la animacion de cogerlo).
+func _mirar_baculo(pies: Vector2) -> void:
+	if _alcanzado or not _baculo.flotando():
+		return
+	var a := pies - Vector2(0.0, cuerpo_alcance.x)
+	var b := pies - Vector2(0.0, cuerpo_alcance.y)
+	var vara: Array = _baculo.vara()
+	if _distancia_segmentos(a, b, vara[0], vara[1]) <= alcance:
+		_alcanzado = true
+		_baculo.alcanzado()
+		_abrir_camino()
+
+## PRUEBA del bosque de fondo. Al alcanzar el baculo (de momento, lo que hace
+## de cogerlo) una racha enorme: barre el lecho de izquierda a derecha
+## levantando hojas (camino_hojas_lecho), arrastra las que caen y, en el fondo,
+## se lleva las que tapaban el camino (camino_hojas_fondo: pequenas, que estan
+## lejos), que aparece en camino_abrir s. El usuario: "un mega efecto para que
+## las hojas dejen verlo".
+func _abrir_camino() -> void:
+	if not bosque_de_fondo:
+		return
+	_racha_dir = 1.0
+	_racha_espera = maxf(_racha_espera, camino_abrir + 9.0)   # que no la pise otra
+	var tw := create_tween()
+	tw.tween_property(self, "_racha", 2.6, 0.7).set_trans(Tween.TRANS_SINE)
+	tw.tween_interval(1.6)
+	tw.tween_property(self, "_racha", 0.0, camino_abrir + 1.5).set_trans(Tween.TRANS_SINE)
+	var tl := create_tween()
+	tl.tween_property(self, "_levante", 1.0, 0.6).set_trans(Tween.TRANS_SINE)
+	tl.tween_interval(2.0)
+	tl.tween_property(self, "_levante", 0.0, 2.2).set_trans(Tween.TRANS_SINE)
+	_sonar($SonidoLevantarse, hojas_levantarse_db + 4.0, 0.85)
+	var m := $Bosque.material as ShaderMaterial
+	var tc := create_tween()
+	tc.tween_interval(0.6)
+	tc.tween_method(func(v: float) -> void: m.set_shader_parameter("camino", v),
+			0.0, 1.0, camino_abrir).set_trans(Tween.TRANS_SINE)
+	# el lecho, barrido de izquierda a derecha en 1,4 s
+	var tramos := 28
+	for i in tramos:
+		get_tree().create_timer(0.15 + 1.4 * i / float(tramos)).timeout.connect(
+				_barrer_lecho.bind(2912.0 * i / tramos, 2912.0 * (i + 1) / tramos, camino_hojas_lecho / tramos))
+	# las del camino, en el fondo
+	for i in camino_hojas_fondo:
+		get_tree().create_timer(randf_range(0.3, camino_abrir + 0.5)).timeout.connect(func() -> void:
+			# a lo largo del camino: de abajo a la izquierda a arriba a la derecha;
+			# pequenas (migas: no se apilan al caer, que son del fondo) y algo
+			# claras, que se vean volar en lo oscuro
+			var u := randf()
+			var p := Vector2(lerpf(2280.0, 2900.0, u) + randf_range(-30.0, 30.0),
+					lerpf(1110.0, 850.0, u) + randf_range(-25.0, 25.0))
+			var h: Dictionary = _detras.soltar(p, Vector2(randf_range(160.0, 420.0), -randf_range(80.0, 260.0)),
+					randf_range(0.09, 0.155))
+			h["tono"] = randf_range(1.5, 2.1))
+
+## La racha levanta hojas del lecho entre x0 y x1 (las de arriba, dejando
+## siempre unas pocas en cada columna) y se las lleva hacia la derecha.
+func _barrer_lecho(x0: float, x1: float, n: int) -> void:
+	for capa in [_delante, _detras]:
+		for h in capa.tomar(x0, x1, n / 2 + 1, 3, 0.7):
+			capa.lanzar(h, Vector2(randf_range(300.0, 800.0), -randf_range(500.0, 1100.0)))
+
+## Distancia entre dos segmentos (a-b y c-d) en el plano.
+static func _distancia_segmentos(a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> float:
+	var m := minf(_al_segmento(a, c, d), _al_segmento(b, c, d))
+	return minf(m, minf(_al_segmento(c, a, b), _al_segmento(d, a, b)))
+
+static func _al_segmento(p: Vector2, a: Vector2, b: Vector2) -> float:
+	var ab := b - a
+	var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 0.0001), 0.0, 1.0)
+	return p.distance_to(a + ab * t)
 
 func _sonar(s: AudioStreamPlayer, db: float, tono: float = 1.0) -> void:
 	if s.stream == null:
@@ -450,6 +802,35 @@ func _a_baja_resolucion(rect: ColorRect, factor: int) -> void:
 	add_child(imagen)
 	move_child(imagen, orden)
 
+# --- La luz que aligera ------------------------------------------------------
+
+var _haz_origen := Vector2(1620.0, -700.0)
+var _haz_destino := Vector2(1456.0, 1200.0)
+var _haz_apertura := 0.17
+
+## El haz de la fisica es el que se ve: se leen del material del fondo su
+## vertice, adonde apunta y su apertura.
+func _leer_haz() -> void:
+	var m := $Fondo.material as ShaderMaterial
+	if m == null:
+		return
+	for p in [["haz_origen", "_haz_origen"], ["haz_destino", "_haz_destino"], ["haz_apertura", "_haz_apertura"]]:
+		# Sin valor en el material, el que trae el shader.
+		var valor: Variant = m.get_shader_parameter(p[0])
+		if valor == null and m.shader:
+			valor = RenderingServer.shader_get_parameter_default(m.shader.get_rid(), p[0])
+		if valor != null:
+			set(p[1], valor)
+
+## Cuanta luz del haz hay en un punto de la escena (0..1) para jugar: el cono
+## de fondo_haz.gdshader, entero hasta luz_entera de su apertura y nada desde
+## luz_borde (ver La luz). Es la ligereza de Magnus: donde vale 1, sus saltos
+## flotan del todo.
+func luz_en(p: Vector2) -> float:
+	var eje := (_haz_destino - _haz_origen).normalized()
+	var a := acos(clampf(eje.dot((p - _haz_origen).normalized()), -1.0, 1.0))
+	return 1.0 - smoothstep(_haz_apertura * luz_entera, _haz_apertura * luz_borde, a)
+
 # --- El mundo da la vuelta ---------------------------------------------------
 
 ## Copia del sprite de Magnus que se dibuja al otro lado de la pantalla mientras
@@ -483,6 +864,7 @@ func _envolver() -> void:
 		_fantasma.animation = _sprite.animation
 	_fantasma.frame = _sprite.frame
 	_fantasma.flip_h = _sprite.flip_h
+	_fantasma.offset = _sprite.offset
 	_fantasma.global_position = _sprite.global_position + Vector2(lado, 0.0)
 
 # --- Historia ----------------------------------------------------------------
@@ -514,7 +896,6 @@ func _bajar_baculo() -> void:
 	_baculo.bajar()
 	_pensar.decir("asombro")
 
-## Ya flotando: bajan de el las hojas-presa y lo reconoce.
+## Ya flotando arriba, lo reconoce.
 func _al_posar_baculo() -> void:
-	_presas.aparecer(_baculo.position)
 	get_tree().create_timer(1.2).timeout.connect(_pensar.decir.bind("baculo"))

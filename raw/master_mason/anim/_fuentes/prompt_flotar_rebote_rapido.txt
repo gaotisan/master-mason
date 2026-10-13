@@ -1,0 +1,64 @@
+PROMPT PARA IMPULSARSE EN UNA HOJA FLOTANDO, A LA VELOCIDAD DEL JUEGO (RAPIDO)
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12; 16:9)
+============================================================================
+Por que: el primer rebote (prompt_flotar_rebote.txt) se queda de pie sobre la
+hoja y tarda 1,5 s en empujar y subir; en el juego el rebote es un toque: cae
+sobre la hoja y sale hacia arriba como si volviera a saltar, en medio segundo.
+Acelerar el video se ve a cortes, asi que se pide ya a la velocidad del juego y
+se usa entero. Sustituye al lento.
+
+Mismas imagenes que el rebote lento:
+  fotograma inicial: referencia_rebote_inicio.png  (flotando, los pies justo
+                                                    encima de la hoja)
+  fotograma final:   referencia_rebote_fin.png     (188 px mas arriba)
+
+En Flow, modo de fotogramas a video, 16:9, 1080p, 8 s, con audio, 3-4 tomas.
+
+Que mirar en cada toma:
+  1. UN TOQUE RAPIDO: los pies tocan la hoja y empuja enseguida (todo en menos
+     de medio segundo); no se queda de pie en la hoja ni se agacha despacio
+  2. sale hacia arriba ligero, sin peso, y llega a la altura del ultimo
+     fotograma en menos de un segundo
+  3. la hoja cede un poco hacia abajo y sigue flotando
+  4. de perfil todo el rato, mirando a la derecha; piernas oscuras como en el
+     primer fotograma (no desnudas); capucha sin pico; camara quieta
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame.
+Flat pure chroma-key green background (#24D732) filling the whole frame, no
+shadows, no floor, no other props apart from the single leaf, no text, no logos,
+no on-screen interface or player controls. The pilgrim stays full-body in frame,
+always the same size.
+
+A quick bounce off a floating platform in a 2D platform video game: the
+character, floating weightless, lands on a single large autumn leaf hovering in
+the air and springs off it upward at once, like a light jump on the Moon.
+Real-time game speed, no slow motion.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark grey legs and bare feet,
+exactly as in the first frame. His hands are bare and empty. Under his bare feet
+a single golden-brown autumn leaf floats flat in the air, exactly as in the first
+frame.
+
+Action, one continuous take, at real-time speed, no slow motion:
+- 0 to 0.15 s: his bare feet touch the floating leaf.
+- 0.15 to 0.45 s: his knees bend a little as the leaf dips under him and he
+  springs off it at once with both legs, in one quick light push.
+- 0.45 to 1.2 s: he rises upward weightlessly, his cloak trailing down around
+  his legs, to the height of the last frame, and comes to a gentle stop there.
+- 1.2 to 8 s: he floats in place exactly as in the last frame, bobbing very
+  gently. The leaf keeps floating where it is, a little lower than at the start.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+a soft crisp rustle of the dry leaf when he pushes off it and the flutter of the
+cloak; no music, no words.

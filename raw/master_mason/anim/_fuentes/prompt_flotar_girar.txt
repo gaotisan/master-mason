@@ -1,0 +1,58 @@
+PROMPT PARA GIRARSE EN EL AIRE FLOTANDO (DE DERECHA A IZQUIERDA)
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12; 16:9)
+================================================================
+Por que: en la luz se juega en el aire, saltando de hoja en hoja a izquierda y
+derecha, y hay que poder darse la vuelta sin tocar el suelo. Hoy en el aire no
+se gira: se desliza de espaldas. Como el giro de pie (magnus_giro_simetrico),
+se pide simetrico: empieza en la pose de flotar mirando a la derecha y acaba en
+la misma pose ESPEJADA; la vuelta al otro lado es este video volteado. Pasa por
+delante, de cara a la camara, como el giro de pie.
+
+Pose: la de flotar (c_38 del salto parado); ver prompt_flotar.txt.
+
+En Flow, modo de fotogramas a video, 16:9, 1080p, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_girar_inicio.png  (mirando a la derecha)
+  fotograma final:   referencia_girar_fin.png     (la misma, espejada: mirando
+                                                   a la izquierda)
+
+Que mirar en cada toma:
+  1. se queda flotando en el mismo sitio, sin tocar el suelo
+  2. gira por delante (de cara a la camara), no de espaldas
+  3. el giro dura poco mas de un segundo y es uno solo, sin vueltas de mas
+  4. acaba de perfil mirando a la izquierda, como el ultimo fotograma, y se
+     queda asi
+  5. capucha sin pico; camara quieta; nada encima
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no floor, no other props, no text, no logos, no
+on-screen interface or player controls. The pilgrim stays full-body in frame,
+always the same size.
+
+A turn in mid-air from a 2D platform video game: the character, floating
+weightless, turns around to face the other way without touching the ground.
+
+2D side view. The hooded pilgrim from the first frame floats in the air facing
+RIGHT in strict side profile. His head is covered by the soft grey cloth hood of
+his cloak, exactly the shape of the first frame: part of the cloak, not a hat,
+no tall point, no cone; its deep shadow hides most of his face. Long white
+beard, long brown faceted patchwork cloak in dark maroon, brick red, ochre, warm
+brown and muted grey, thin dark legs and bare feet. His hands are bare and
+empty.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he floats in place exactly as in the first frame, his cloak
+  rippling softly.
+- 1 to 2.3 s: still floating in the same place, he turns his whole body around
+  towards the camera: for a moment he faces the camera, then he keeps turning
+  until he faces LEFT in strict side profile. One smooth turn, no extra spins.
+  His cloak swings around his legs with the turn and settles.
+- 2.3 to 8 s: he floats in place facing left, exactly as in the last frame,
+  bobbing very gently.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+the swish of the cloak as he turns; no music, no words.
