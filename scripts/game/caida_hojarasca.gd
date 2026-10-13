@@ -90,12 +90,12 @@ extends Node2D
 @export var racha_px_s: float = 1100.0
 ## Viento de fondo (dB sobre el fichero) y cuanto tarda en llegar desde el nivel
 ## en que lo deja el titulo (-14).
-@export var viento_db: float = 9.0
+@export var viento_db: float = 0.0
 @export var viento_subida: float = 6.0
 ## Rachas: cada cuanto (s), cuanto suben (dB) y cuanto empujan las hojas (px/s^2).
 @export var racha_cada_min: float = 7.0
 @export var racha_cada_max: float = 16.0
-@export var racha_db: float = 4.5
+@export var racha_db: float = 3.5
 @export var racha_empuje: float = 90.0
 
 @export_group("Historia")
@@ -164,14 +164,29 @@ extends Node2D
 ## El arrastre es un bucle que sube con la velocidad (el roce al vadear) y
 ## calla parado o en el aire. Los pasos propios de Magnus (de suelo duro) se
 ## bajan aqui para que mande el crujido.
-@export var hojas_golpe_db: float = -4.0
-@export var hojas_levantarse_db: float = -6.0
-@export var hojas_paso_db: float = -9.0
-@export var arrastre_db: float = -10.0
-@export var magnus_pasos_db: float = -14.0
+## Equilibrio (2026-10-14, con la musica de fondo; el usuario: las hojas y el
+## viento "ensordecedores"): medido en LUFS como suena en el juego, la musica
+## queda de base (~-28), las pisadas por debajo (~-36 de pico), el arrastre y
+## el viento mas abajo (~-43; ~-40 con racha) y la nota del hilo a la altura de
+## la musica. Antes las pisadas iban 8 dB por encima de la musica y el viento la
+## tapaba en cada racha; se bajaron en tres escalones de 3 dB (con -30/-37 y
+## -33/-40 aun se oian "un pelin demasiado por encima").
+@export var hojas_golpe_db: float = -13.0
+@export var hojas_levantarse_db: float = -15.0
+@export var hojas_paso_db: float = -19.0
+@export var arrastre_db: float = -20.0
+@export var magnus_pasos_db: float = -24.0
 ## La nota del hilo mientras baja el baculo (assets/audio/baculo_hilo.wav, de
 ## raw/master_mason/audio/baculo/hilo.py): por debajo de los pasos en las hojas.
-@export var hilo_db: float = -15.0
+@export var hilo_db: float = -14.0
+## Musica de fondo (2026-10-14): "The Pilgrim's Light", de Flow Music, en bucle
+## sin costura (assets/audio/musica_hojarasca.ogg, de raw/master_mason/audio/
+## musica_hojarasca/bucle.py). Ambiente de base, con las hojas y el viento
+## por debajo (ver Equilibrio en hojas_golpe_db). Entra al levantarse, subiendo en
+## musica_entrada s: la caida suena solo a viento y hojas. Sin caida (pruebas),
+## desde el principio.
+@export var musica_db: float = -14.0
+@export var musica_entrada: float = 8.0
 
 @export_group("La luz")
 ## Zona de la luz para jugar (fracciones de la apertura del haz): pesa poco del
@@ -255,7 +270,7 @@ extends Node2D
 @export var pisar_altura: float = 30.0
 ## Empuje que se lleva la hoja pisada (px/s hacia abajo) y su crujido (dB).
 @export var pisar_empuje: float = 240.0
-@export var hoja_pisada_db: float = -13.0
+@export var hoja_pisada_db: float = -23.0
 ## El baculo se alcanza cuando la parte de arriba del cuerpo (de los hombros a
 ## la cabeza: alturas sobre los pies; en el aire, con las piernas recogidas, la
 ## cabeza queda a ~270 de los pies) pasa a menos de alcance px de su vara.
@@ -379,6 +394,7 @@ func _ready() -> void:
 		_entrar_desde_negro()
 	else:
 		$Entrada.hide()
+		_empezar_musica()
 	if baculo_al_empezar:
 		_bajar_baculo.call_deferred()
 	_pensar.x_de = func() -> float: return _magnus.position.x
@@ -901,6 +917,15 @@ static func _al_segmento(p: Vector2, a: Vector2, b: Vector2) -> float:
 	var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 0.0001), 0.0, 1.0)
 	return p.distance_to(a + ab * t)
 
+## La musica de fondo entra desde el silencio (ver musica_db). Una vez.
+func _empezar_musica() -> void:
+	var m: AudioStreamPlayer = $Musica
+	if m.playing:
+		return
+	m.volume_db = -60.0
+	m.play()
+	create_tween().tween_property(m, "volume_db", musica_db, musica_entrada).set_trans(Tween.TRANS_SINE)
+
 func _sonar(s: AudioStreamPlayer, db: float, tono: float = 1.0) -> void:
 	if s.stream == null:
 		return
@@ -1032,6 +1057,7 @@ func _animar_a_explorar(delta: float) -> void:
 
 func _al_levantarse() -> void:
 	_con_mando = 0.0
+	_empezar_musica()
 	get_tree().create_timer(espera_despertar).timeout.connect(_pensar.decir.bind("despertar"))
 
 ## Acabada la vuelta ("¿Es la luz de antes?"), la luz contesta: baja el baculo

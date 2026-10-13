@@ -3,9 +3,11 @@ extends Node
 ## wind_ambience.gd: asi los fundidos no dependen de que la escena siga viva, y
 ## el tema puede acabar de apagarse mientras la pantalla ya se esta yendo.
 ##
-## Solo suena en el titulo. En el juego no hay musica: manda el viento, que
-## viene sonando desde el sarcofago y sigue despues del cambio de escena. Por eso
-## el tema se apaga del todo antes del negro en vez de dar paso a otra cosa.
+## Solo suena en el titulo, y se apaga del todo antes del negro en vez de dar
+## paso a otra cosa: tras el negro manda el viento, que viene sonando desde el
+## sarcofago y sigue despues del cambio de escena. La hojarasca tiene su propia
+## musica de fondo, que entra mas tarde, al levantarse el peregrino
+## (caida_hojarasca.gd, musica_db).
 ##
 ## Las escenas solo piden los cambios (empezar_titulo, apagar_titulo); los
 ## volumenes y los tweens se llevan aqui.
