@@ -48,3 +48,29 @@ correa, 0 en la mano) segun lo recorrido. 90 y 89 fotogramas (3,7 s).
 EN LA ESCENA (prueba_frontal.gd): B hace la accion de la cara a la que mira si de
 esa cara hay animacion (acciones_espalda.json, ademas de baston_frente.json); si
 no, se da la vuelta y la hace de frente. Andando, termina el paso y se para.
+
+LA BOLA AL LEVANTAR EL BASTON (2026-10-12)
+------------------------------------------
+El usuario: "casi al final la bola deja de estar bien puesta, se va de posicion y se
+reajusta". Con el baston en alto (fotogramas 41-51 de la animacion) la bola se quedaba
+en el palo, 30-40 px por debajo de la garra, y en el 52 volvia a su sitio. Dos causas:
+  - la casilla de 904 cortaba la garra por arriba (en el video sube hasta y = 102 de
+    720p; la casilla empezaba en 121): 41-47 con las puntas cortadas;
+  - garra.py recortaba la ventana de busqueda al borde (max(0, y0)): la plantilla no
+    podia subir de y ~ 54 y la bola se quedaba clavada ahi mientras la garra subia. Y
+    las dos pasadas (1-66 y 192-67) se juntaban en el 66/67 con 38 px de salto.
+Arreglo: montar.py --my 152 (casilla 664x952, hoja 332x476; el guardar sigue en 904),
+garra.py con borde en los mapas (BORDE), seguir_garra.py (las dos pasadas enteras, de
+la una a la otra poco a poco: van paralelas a 8-12 px) y animar.py con la altura de
+casilla por animacion (MY_ANIM). Ahora ningun fotograma por debajo de 0,90; la bola en
+la garra en los 90 fotogramas (comprobado en el juego, de cerca) y sin tirones (cambio
+de velocidad maximo 2,7 px por fotograma).
+Pasos ahora: montar.py magnus_sacar_baston_espalda_v2 --my 152; python seguir_garra.py;
+python animar.py; hoja.ps1 (casilla 332x476; _spriteframes.py la lleva asi).
+
+EL GUARDAR, DEL VIDEO A (2026-10-12)
+------------------------------------
+El usuario: "el baston parece atravesar el cuerpo" (B, aun arreglado). animar.py
+toma ahora el guardar de magnus_guardar_baston_espalda_a (video A con su arreglar.py:
+nuestro baston, siempre con la garra arriba, sube, gira por detras de la espalda y
+cae a la correa), tramo 19-106, 95 fotogramas. Ver ese job.

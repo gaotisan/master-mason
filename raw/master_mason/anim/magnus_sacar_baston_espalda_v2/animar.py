@@ -6,10 +6,12 @@ emborronar, la bola, el giro):
           escena) -> puente -> video 19..100 (este job,
           Pilgrim_drawing_staff_on_green_20261011153220) -> puente -> reposo_espalda_cb
           (base, con la correa vacia como la pone la escena)
-  guardar reposo_espalda_cb (con la correa vacia) -> puente -> video 19..100
-          (magnus_guardar_baston_espalda_b, Pilgrim_slinging_staff_on_back, con su
-          arreglar.py: el baston por encima de la espalda) -> puente -> espalda nueva
-          con el baston en la correa
+  guardar reposo_espalda_cb (con la correa vacia) -> puente -> video 19..106
+          (magnus_guardar_baston_espalda_a, Character_slinging_staff_animation, con
+          su arreglar.py: nuestro baston, siempre con la garra arriba, lo sube, gira
+          por detras de la espalda y cae a la correa; hasta el 2026-10-12 era el video
+          B, magnus_guardar_baston_espalda_b, que atravesaba el cuerpo) -> puente ->
+          espalda nueva con el baston en la correa
 Tramos: los dos empiezan a moverse hacia el 23-29 (en el 19, al 96 % de la silueta
 del reposo de salida) y en el 100 estan al 95 % (sacar: luego solo se balancea) y al
 98 % (guardar) del de llegada. Los dos videos calcan las referencias y no cambian de
@@ -43,19 +45,25 @@ GIRO_CORREA = CB['funda_espalda']['reposo_espalda_cb'][0][2]     # el baston en 
 NUEVA = os.path.join(ANIM, 'magnus_espalda_sin_baston')
 CAPAS = os.path.join(ANIM, 'magnus_sacar_baston_frente')
 CASA_GARRA = 0.90           # por debajo, la garra no se fia: se interpola
+# (2026-10-12) Lo que se agranda la casilla por arriba, por animacion: el sacar sube la
+# garra 29 px por encima de la de 904 (se cortaba): su video va montado con
+# montar.py --my 152 (casilla 664x952, hoja 332x476) y su garra.json sale de
+# seguir_garra.py. El guardar sigue en 904.
+MY_ANIM = {'sacar_baston_espalda': 152, 'guardar_baston_espalda': MY}
 
 
-def reposo(modo):
+def reposo(modo, my=MY):
     """El fotograma base del reposo de espaldas en la casilla grande, con lo que le
     pone la escena encima: sin baston, el baston en la correa (de espaldas va por
-    delante del cuerpo); con baston, la correa vacia."""
-    c = Image.new('RGBA', CAS, (0, 0, 0, 0))
+    delante del cuerpo); con baston, la correa vacia. Las capas (664x904) se hicieron
+    para MY: con otra altura, mas abajo."""
+    c = Image.new('RGBA', (CAS[0], CAS[1] - MY + my), (0, 0, 0, 0))
     if modo == 'sin':
-        c.alpha_composite(Image.open(os.path.join(NUEVA, 'espalda_sin_baston.png')).convert('RGBA'), (MX, MY))
-        c.alpha_composite(Image.open(os.path.join(NUEVA, 'baston_en_correa.png')).convert('RGBA'))
+        c.alpha_composite(Image.open(os.path.join(NUEVA, 'espalda_sin_baston.png')).convert('RGBA'), (MX, my))
+        c.alpha_composite(Image.open(os.path.join(NUEVA, 'baston_en_correa.png')).convert('RGBA'), (0, my - MY))
     else:
-        c.alpha_composite(Image.open(os.path.join(ANIM, 'magnus_secuencia_frontal', '04_limpios', 'reposo_espalda_cb_000.png')).convert('RGBA'), (MX, MY))
-        c.alpha_composite(Image.open(os.path.join(CAPAS, 'funda_vacia_reposo_espalda.png')).convert('RGBA'))
+        c.alpha_composite(Image.open(os.path.join(ANIM, 'magnus_secuencia_frontal', '04_limpios', 'reposo_espalda_cb_000.png')).convert('RGBA'), (MX, my))
+        c.alpha_composite(Image.open(os.path.join(CAPAS, 'funda_vacia_reposo_espalda.png')).convert('RGBA'), (0, my - MY))
     return c
 
 
@@ -77,37 +85,73 @@ def bola_video(job, a, b):
     return np.stack([A.suave(xs), A.suave(ys)], 1), len(ks) - len(bien)
 
 
+def anclar_final(frames, pos, ref_img, ref_bola, umbral=0.93, mezcla=6):
+    """(2026-10-12) Al final, la bola anclada a la garra del reposo de llegada: el
+    seguimiento de garra.py se iba desviando con el baston ya quieto (4-5 px a la
+    izquierda en 69-84) y el puente final la llevaba a su sitio: "se rectifica al final".
+    Desde el final hacia atras, mientras la garra case con la del reposo (>= umbral), la
+    bola va donde la plantilla del reposo (con su bola) cae en el fotograma; se entra en
+    mezcla fotogramas."""
+    m_ref = G.con_borde(G.madera(np.asarray(ref_img)))
+    t, piv = G.plantilla(m_ref, (ref_bola[0] + G.BORDE, ref_bola[1] + G.BORDE))
+    nuevos = {}
+    for k in range(len(frames) - 1, -1, -1):
+        m = G.con_borde(G.madera(np.asarray(frames[k])))
+        r = G.buscar(m, t, piv, (pos[k][0] + G.BORDE, pos[k][1] + G.BORDE), 0.0, radio=24, angs=range(-6, 7, 2))
+        if r is None or r[2] < umbral:
+            break
+        nuevos[k] = (r[0][0] - G.BORDE, r[0][1] - G.BORDE)
+    if len(nuevos) < mezcla + 2:
+        return pos, 0
+    ks = sorted(nuevos)
+    xy = gaussian_filter1d(np.array([nuevos[k] for k in ks], float), 1.0, axis=0, mode='nearest')
+    pos = np.array(pos, float)
+    for i, k in enumerate(ks):
+        w = min(max((k - ks[0]) / float(mezcla), 0.0), 1.0)
+        w = w * w * (3 - 2 * w)
+        pos[k] = pos[k] * (1 - w) + xy[i] * w
+    return pos, ks[0]
+
+
 b_sin, b_con = G.bolas_de_referencia_espalda()
 ANIMS = {
     # nombre: job, tramo, (modo de entrada, bola, escala, giro), (de salida), de, a, puentes
     'sacar_baston_espalda': ('magnus_sacar_baston_espalda_v2', (19, 100),
                              ('sin', b_sin, 1.0, GIRO_CORREA), ('con', b_con, ESCALA_CON, 0.0),
                              'reposo_espalda_sb', 'reposo_espalda_cb', (3, 5)),
-    'guardar_baston_espalda': ('magnus_guardar_baston_espalda_b', (19, 100),
+    # (2026-10-12) el guardar, del video A (el de B atravesaba el cuerpo): ver
+    # ../magnus_guardar_baston_espalda_a/arreglar.py (la garra siempre arriba)
+    'guardar_baston_espalda': ('magnus_guardar_baston_espalda_a', (19, 106),
                                ('con', b_con, ESCALA_CON, 0.0), ('sin', b_sin, 1.0, GIRO_CORREA),
                                'reposo_espalda_cb', 'reposo_espalda_sb', (3, 4)),
 }
 if __name__ == '__main__':
     escena = {'fps': FPS, 'casilla': [CAS[0] // 2, CAS[1] // 2]}
     for nombre, (job, (a, b), ent, sal, de, hacia, (n_ent, n_sal)) in ANIMS.items():
-        R0, R1 = reposo(ent[0]), reposo(sal[0])
+        my = MY_ANIM[nombre]
+        cas = (CAS[0], CAS[1] - MY + my)
+        baja = np.array([0.0, my - MY])               # las bolas de los reposos, en esta casilla
+        R0, R1 = reposo(ent[0], my), reposo(sal[0], my)
         V = capucha(job, a, b)
         frames = [A.mezcla(R0, V[a], k / (n_ent + 1)) for k in range(1, n_ent + 1)]
         frames += [V[k] for k in range(a, b + 1)]
         frames += [A.mezcla(V[b], R1, k / (n_sal + 1)) for k in range(1, n_sal + 1)]
         pv, sin_garra = bola_video(job, a, b)
-        p_ent = [np.array(ent[1]) + (pv[0] - np.array(ent[1])) * k / (n_ent + 1) for k in range(1, n_ent + 1)]
-        p_sal = [pv[-1] + (np.array(sal[1]) - pv[-1]) * k / (n_sal + 1) for k in range(1, n_sal + 1)]
+        b_ent, b_sal = np.array(ent[1]) + baja, np.array(sal[1]) + baja
+        p_ent = [b_ent + (pv[0] - b_ent) * k / (n_ent + 1) for k in range(1, n_ent + 1)]
+        p_sal = [pv[-1] + (b_sal - pv[-1]) * k / (n_sal + 1) for k in range(1, n_sal + 1)]
         pos = np.array(p_ent + list(pv) + p_sal)
+        pos, desde_anclada = anclar_final(frames, pos, R1, b_sal)
+        print('%s: la bola, anclada a la garra del reposo desde el %d' % (nombre, desde_anclada))
         esc = A.giro_mientras_se_mueve(pos, ent[2], sal[2]); gir = A.giro_mientras_se_mueve(pos, ent[3], sal[3])
-        filas = [[round(float(x) / 2 - CAS[0] / 4, 2), round(float(y) / 2 - CAS[1] / 4, 2), round(float(e), 4), round(float(g), 4)]
+        filas = [[round(float(x) / 2 - cas[0] / 4, 2), round(float(y) / 2 - cas[1] / 4, 2), round(float(e), 4), round(float(g), 4)]
                  for (x, y), e, g in zip(pos, esc, gir)]
         carpeta = os.path.join(ANIM, job, '04_limpios'); os.makedirs(carpeta, exist_ok=True)
         for f in glob.glob(os.path.join(carpeta, '*.png')):
             os.remove(f)
         for k, im in enumerate(frames):
-            im.save(os.path.join(carpeta, '%s_%03d.png' % (nombre, k)))
+            A.con_botas(im).save(os.path.join(carpeta, '%s_%03d.png' % (nombre, k)))     # botas.py
         json.dump([[nombre, job, len(frames), FPS, False, list(range(len(frames)))]], open(os.path.join(ANIM, job, 'animaciones.json'), 'w'))
-        escena[nombre] = {'de': de, 'a': hacia, 'orbe': filas}
+        escena[nombre] = {'de': de, 'a': hacia, 'casilla': [cas[0] // 2, cas[1] // 2], 'orbe': filas}
         print(nombre, len(frames), 'fotogramas (%d de puente, video %d-%d, %d de puente); garra interpolada en %d' % (n_ent, a, b, n_sal, sin_garra))
     json.dump(escena, open(os.path.join(PROY, 'assets', 'characters', 'magnus', 'acciones_espalda.json'), 'w'), separators=(',', ':'))

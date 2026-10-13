@@ -36,6 +36,15 @@ spec = importlib.util.spec_from_file_location('puente', os.path.join(ANIM, 'magn
 P = importlib.util.module_from_spec(spec); spec.loader.exec_module(P)
 spec = importlib.util.spec_from_file_location('igualar_capucha', os.path.join(ANIM, 'igualar_capucha.py'))
 IC = importlib.util.module_from_spec(spec); spec.loader.exec_module(IC)
+# (2026-10-12) calzas grises y botas marrones como de perfil (de frente parecia
+# descalzo): se pintan en cada sprite al guardarlo (botas.py); la forma no cambia
+spec = importlib.util.spec_from_file_location('botas', os.path.join(ANIM, 'botas.py'))
+BOT = importlib.util.module_from_spec(spec); spec.loader.exec_module(BOT)
+
+
+def con_botas(im):
+    return Image.fromarray(BOT.botas(np.asarray(im.convert('RGBA'))))
+
 
 # Un video por modo. python secuencia.py [magnus_secuencia_frontal_sin]
 #  con baston  _fuentes/Pilgrim_walking_turning_full_20261008161217.mp4
@@ -427,12 +436,35 @@ hacer(PRE + 'vu_rf', ['vuelta'+SUF, 0], ['reposo_frente'+SUF, REPOSO_ENTRADA], V
 hacer(PRE + 'vu_arrf', ['vuelta'+SUF, 0], ['arranque_frente'+SUF, 0], VF0, anims['arranque_frente'+SUF][0], 4)
 # 153 -> 154 (arranque de espaldas) es seguido en el video: sin puente. Con la vuelta y
 # el andar de videos distintos (TRAMOS) no lo es: puente vu_arrb (la escena lo usa si esta)
+def _dif(A, B):
+    """Diferencia media de dos sprites (146x200, luminancia premultiplicada y alfa)."""
+    a = np.asarray(A.resize((146, 200), Image.BILINEAR)).astype(float)
+    b = np.asarray(B.resize((146, 200), Image.BILINEAR)).astype(float)
+    la, lb = a[..., :3].mean(2) * a[..., 3] / 255, b[..., :3].mean(2) * b[..., 3] / 255
+    return np.abs(la - lb).mean() + 0.5 * np.abs(a[..., 3] - b[..., 3]).mean()
+
+
+A_CORRER = {}    # andar -> {fotograma de pies juntos: puente al arranque de la carrera}
 for _cara, _c in CARRERAS.items():
     _x, _rep = ('f' if _cara == 'frente' else 'b'), 'reposo_%s%s' % (_cara, SUF)   # f / b, como rb_, ab_
     _arr, _cor, _par = 'arranque_correr_%s%s' % (_cara, SUF), 'correr_%s%s' % (_cara, SUF), 'parada_correr_%s%s' % (_cara, SUF)
     hacer(PRE + 'r%s_arrc' % _x, [_rep, 0], [_arr, 0], anims[_rep][0], anims[_arr][0], 4)
     hacer(PRE + 'c%s_pc' % _x, [_cor, _c['sale']], [_par, 0], anims[_cor][_c['sale']], anims[_par][0], 3)
     hacer(PRE + 'pc%s_r%s' % (_x, _x), [_par, len(anims[_par]) - 1], [_rep, REPOSO_ENTRADA], anims[_par][-1], anims[_rep][0], 4)
+    # (2026-10-12) de andar a correr: doble toque andando, como en el perfil. De cada
+    # fotograma de pies juntos del andar, un puente al del arranque de la carrera que ya
+    # va a la velocidad del andar (el primero que la alcanza, +-3) y mas se le parece:
+    # sigue el arranque desde ahi (no se para a arrancar de cero)
+    _and = 'andar_%s%s' % (_cara, SUF)
+    _ks = list(range(_t(_c, _c['arr'][0]), _t(_c, _c['arr'][1]) + 1))
+    _v_and = C['AVANCE_CICLO_B'] / (FRENTE['P'] if _cara == 'frente' else ESPALDA['P'])
+    _i0 = next(i for i, k in enumerate(_ks) if abs(VEL[k]) >= _v_and)
+    for j in (pj_f if _cara == 'frente' else pj_b):
+        _cands = range(max(1, _i0 - 3), min(len(_ks) - 2, _i0 + 3) + 1)
+        _i = min(_cands, key=lambda i: _dif(anims[_and][j], anims[_arr][i]))
+        hacer(PRE + 'a%s%d_arrc' % (_x, j), [_and, j], [_arr, _i], anims[_and][j], anims[_arr][_i], 4)
+        A_CORRER.setdefault(_and, {})[str(j)] = PRE + 'a%s%d_arrc' % (_x, j)
+        print('andar de %s, pies juntos %d -> arranque de la carrera en su %d (velocidad del andar desde el %d)' % (_cara, j, _i, _i0))
 if C.get('TRAMOS'):
     hacer(PRE + 'vu_arrb', ['vuelta'+SUF, len(anims['vuelta'+SUF]) - 1], ['arranque_espalda'+SUF, 0], VF1, anims['arranque_espalda'+SUF][0], N_VB)
 
@@ -658,7 +690,7 @@ for carpeta, job, cuales in _grupos:
     orden_hoja = []
     for nombre in cuales:
         for k, im in enumerate(anims[nombre]):
-            capucha(im, nombre, k).save(os.path.join(carpeta, '%s_%03d.png' % (nombre, k))); orden_hoja.append((nombre, k))
+            con_botas(capucha(im, nombre, k)).save(os.path.join(carpeta, '%s_%03d.png' % (nombre, k))); orden_hoja.append((nombre, k))
     indice = {nk: i for i, nk in enumerate(orden_hoja)}
     for nombre in cuales:
         n = len(anims[nombre])
@@ -724,6 +756,7 @@ for _cara, _c in CARRERAS.items():
     escena['entra_bucle'][_arr] = [_cor, _c['entra']]
     escena.setdefault('a_parada', {})[_cor] = [PRE + 'c%s_pc' % _x, _c['sale']]
     escena['puente_reposo']['reposo_%s%s' % (_cara, SUF)]['arrc'] = PRE + 'r%s_arrc' % _x
+    escena.setdefault('a_correr', {}).update({k: v for k, v in A_CORRER.items() if k == 'andar_%s%s' % (_cara, SUF)})
     print('correr de %s: paso %.5f; arranque %d, bucle %d, parada %d' % (_cara, escena['paso'][_cor], len(anims[_arr]), len(anims[_cor]), len(anims[_par])))
 if C.get('paso_frente_como_espalda'):
     escena['paso']['andar_frente' + SUF] = -escena['paso']['andar_espalda' + SUF] * ESPALDA['P'] / FRENTE['P']
@@ -738,6 +771,17 @@ if True:
     th_vu, CUERPO = giros_vuelta(anims['vuelta' + SUF])
     CUERPO['espalda'] = desfase_espalda(F(BASE_B))
     print('de espaldas, el baston %+.1f px para la funda en la columna' % CUERPO['espalda'])
+    if C.get('ESPALDA_NUEVA'):
+        # (2026-10-12) el reposo de espaldas lleva la fila de la correa vacia del reposo
+        # con baston (abajo); lo calculado (la vuelta, los puentes, el andar, correr)
+        # quedaba ~7 px de hoja a la izquierda y el baston saltaba al pararse y al
+        # arrancar de espaldas. Se corre todo lo de espaldas para que el reposo, calculado
+        # igual, caiga en esa fila.
+        _cb0 = json.load(open(os.path.join(PROY, 'assets', 'characters', 'magnus',
+                                           CONFIG['magnus_secuencia_frontal']['json'])))['funda_espalda']['reposo_espalda_cb'][0]
+        _f0 = baston_espalda([BASE_B_IMG], False, [180.0], CUERPO)[0]
+        CUERPO['espalda'] += 2 * (_cb0[0] - _f0[0])
+        print('   y %+.1f px de hoja mas, para casar con el reposo (fila %.2f, calculado %.2f)' % (_cb0[0] - _f0[0], _cb0[0], _f0[0]))
     escena['giro_vuelta'] = [round(t, 1) for t in th_vu]
     escena['funda_corte'] = round((16.0 + L_BASTON * T_FUNDA) / 229.0, 3)
     for nombre, ims in anims.items():

@@ -35,6 +35,13 @@ spec = importlib.util.spec_from_file_location('garra', os.path.join(AQUI, 'garra
 G = importlib.util.module_from_spec(spec); spec.loader.exec_module(G)
 spec = importlib.util.spec_from_file_location('igualar_capucha', os.path.join(ANIM, 'igualar_capucha.py'))
 IC = importlib.util.module_from_spec(spec); spec.loader.exec_module(IC)
+# (2026-10-12) calzas grises y botas como de perfil, al guardar cada sprite (botas.py)
+spec = importlib.util.spec_from_file_location('botas', os.path.join(ANIM, 'botas.py'))
+BOT = importlib.util.module_from_spec(spec); spec.loader.exec_module(BOT)
+
+
+def con_botas(im):
+    return Image.fromarray(BOT.botas(np.asarray(im.convert('RGBA'))))
 ESTANDAR = IC.medir(IC.estandar())
 MX, MY = 40, 104
 CAS = (584 + 2 * MX, 800 + MY)
@@ -169,7 +176,7 @@ if __name__ == '__main__':
         for f in glob.glob(os.path.join(carpeta, '*.png')):
             os.remove(f)
         for k, im in enumerate(frames):
-            im.save(os.path.join(carpeta, '%s_%03d.png' % (nombre, k)))
+            con_botas(im).save(os.path.join(carpeta, '%s_%03d.png' % (nombre, k)))
         json.dump([[nombre, job, len(frames), FPS, False, list(range(len(frames)))]], open(os.path.join(ANIM, job, 'animaciones.json'), 'w'))
         escena[nombre] = {'de': de, 'a': hacia, 'orbe': filas}
         print(nombre, len(frames), 'fotogramas (%d de puente, video %d-%d, %d de puente)' % (N_ENTRA, a, b, N_SALE))

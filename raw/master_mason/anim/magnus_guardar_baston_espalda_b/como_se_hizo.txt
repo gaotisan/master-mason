@@ -24,3 +24,11 @@ palos), el eje de la garra sola (no sigue el baston al cruzarlo: palo doble junt
 hombro), la textura sacada del c_001 (la cara en sombra: mas oscura) y la cola casi
 transparente de baston.png (alfa 28 bajo la fila 220: se veia verdosa; cortada).
 05_salida: arreglo_veo_vs_nuevo_24fps.mp4 y _6fps.mp4 (Veo a la izquierda).
+
+SUSTITUIDO (2026-10-12)
+-----------------------
+Aun con el arreglo el usuario lo veia atravesar el cuerpo: el fallo es el gesto (el
+baston gira sobre la mano quieta en el hombro y el pie barre la espalda hasta asomar
+por la cadera izquierda). El guardar de espaldas sale ahora del video A con nuestro
+baston: ../magnus_guardar_baston_espalda_a/como_se_hizo.txt. Este job se queda como
+estaba (ya no va en _spriteframes.py).

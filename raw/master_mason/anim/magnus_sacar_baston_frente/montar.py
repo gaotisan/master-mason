@@ -13,6 +13,9 @@ levantado, sube 76 px por encima de la de 800); el suelo, igual de lejos del
 borde de abajo (43 px), y centrada igual. 904 de alto: la hoja (a la mitad)
 tiene que medir multiplos de 4 (empaquetar.py, bloques de la compresion BC7).
     python montar.py <job>       (magnus_sacar_baston_frente | magnus_guardar_baston_frente)
+    python montar.py <job> --my 152   (2026-10-12, el sacar de espaldas: al levantar el
+                                       baston la garra sube 29 px por encima de la casilla
+                                       de 904 y se cortaba; 952 de alto, la hoja 476)
 Escribe <job>/_todos/c_001..c_192.png.
 """
 import glob, os, sys
@@ -22,7 +25,8 @@ ANIM = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 JOB = sys.argv[1] if len(sys.argv) > 1 else 'magnus_sacar_baston_frente'
 D = os.path.join(ANIM, JOB)
 OX, OY, S = 668 * 2 / 3, 286 * 2 / 3, 1.5      # la casilla 584x800 en el video
-MX, MY = 40, 104                                # lo que se agranda la casilla (multiplo de 8: la hoja, de 4)
+MX = 40                                         # lo que se agranda la casilla (multiplo de 8: la hoja, de 4)
+MY = int(sys.argv[sys.argv.index('--my') + 1]) if '--my' in sys.argv else 104
 CAS = (584 + 2 * MX, 800 + MY)
 SAL = os.path.join(D, '_todos'); os.makedirs(SAL, exist_ok=True)
 for f in glob.glob(os.path.join(SAL, '*.png')):

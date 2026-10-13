@@ -276,7 +276,7 @@ ANIMACIONES = [
 import json as _json
 for _d, _cas in (('magnus_secuencia_frontal', (292, 400)), ('magnus_secuencia_frontal_sin', (292, 400)),
                  ('magnus_sacar_baston_frente', (332, 452)), ('magnus_guardar_baston_frente', (332, 452)),
-                 ('magnus_sacar_baston_espalda_v2', (332, 452)), ('magnus_guardar_baston_espalda_b', (332, 452))):
+                 ('magnus_sacar_baston_espalda_v2', (332, 476)), ('magnus_guardar_baston_espalda_a', (332, 452))):
     _SEC = os.path.join(ANIM_RAW, _d, 'animaciones.json')
     if os.path.exists(_SEC):
         for _n, _job, _cnt, _fps, _bucle, _idx in _json.load(open(_SEC)):

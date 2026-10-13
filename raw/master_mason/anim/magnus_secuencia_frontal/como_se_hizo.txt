@@ -261,3 +261,15 @@ el andar). Pies que patinan, simulados con las formulas de la escena (suelo 145,
 unidad de escala, paso por fotograma): de espaldas el pie apoyado se queda quieto
 (-0,27/+0,17 px por fotograma); de frente el andar ~0 y el correr 0 a escala 1 y +1,7 a
 1,5 (el video en el sitio a otro tamano que el suyo: no se nota corriendo).
+
+2026-10-12 (noche): BOTAS EN TODAS LAS DE FRENTE Y ESPALDAS
+-------------------------------------------------------------
+El usuario: de frente/espaldas "parece casi que esta descalzo"; que se parezcan a las de
+perfil, que llevan "como unas botas"; sin rehacer el dibujo, solo el color. Medido en las
+de perfil (magnus_andando, _corriendo, _respirando): calzas gris neutro (~63,60,60) y pie
+marron de un tono (~89,68,62). ../botas.py pinta asi cada sprite al guardarlo: piernas
+(lo fino que cuelga de la tunica; sin el baston, que se quita por lo alto que es y, si va
+pegado a una pierna, por la madera) en gris, y la bota (los ultimos 40 px de cada pierna,
+con un paso de 5) en marron, quitando el detalle fino (las rayas de los dedos) y dejando
+el volumen. Va en secuencia.py (los dos modos), en magnus_sacar_baston_frente/animar.py y
+en el de espaldas; los json de la escena no cambian (comprobado: identicos).

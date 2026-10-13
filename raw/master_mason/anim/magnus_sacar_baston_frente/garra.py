@@ -22,8 +22,14 @@ from PIL import Image
 AQUI = os.path.dirname(os.path.abspath(__file__))
 ANIM = os.path.dirname(AQUI)
 PROY = os.path.abspath(os.path.join(ANIM, '..', '..', '..'))
-MX, MY = 40, 104                      # casilla 664x904 (montar.py): la de 584x800 en (40, 104)
+MX = 40                               # casilla 664x904 (montar.py): la de 584x800 en (40, 104);
+MY = int(sys.argv[sys.argv.index('--my') + 1]) if '--my' in sys.argv else 104   # (--my 152: 664x952)
 REF_ORIGEN = (668 - MX, 286 - MY)     # la casilla en las referencias de 1080p
+# (2026-10-12) Los mapas se buscan con un borde transparente de BORDE px: sin el, junto
+# al borde de la casilla la ventana de busqueda se recortaba a 0 y la plantilla no
+# podia subir (en el sacar de espaldas, con el baston en alto, la bola se quedaba en
+# y = 54 mientras la garra seguia subiendo).
+BORDE = 110
 
 
 def madera(rgba):
@@ -108,21 +114,28 @@ def buscar(mapa, t, piv, cerca, ang0, radio=36, angs=range(-12, 13, 2)):
     return mejor
 
 
+def con_borde(m):
+    return cv2.copyMakeBorder(m, BORDE, BORDE, BORDE, BORDE, cv2.BORDER_CONSTANT, value=0)
+
+
 def seguir(job, ks, inicio_mapa, inicio_bola):
-    """Sigue la garra por los fotogramas ks (en orden) desde la plantilla de inicio."""
-    t0, piv0 = plantilla(inicio_mapa, inicio_bola)
-    pos, ang = inicio_bola, 0.0
+    """Sigue la garra por los fotogramas ks (en orden) desde la plantilla de inicio.
+    Todo sobre los mapas con borde (las posiciones, desplazadas BORDE; se devuelven
+    en las de la casilla)."""
+    b0 = (inicio_bola[0] + BORDE, inicio_bola[1] + BORDE)
+    t0, piv0 = plantilla(con_borde(inicio_mapa), b0)
+    pos, ang = b0, 0.0
     tprev, pivprev, angprev = t0, piv0, 0.0
     out = {}
     for k in ks:
-        m = madera(celda(job, k))
+        m = con_borde(madera(celda(job, k)))
         a = buscar(m, t0, piv0, pos, ang)
         b = buscar(m, tprev, pivprev, pos, 0.0)
         if b is not None:
             b = (b[0], b[1] + angprev, b[2])
         r = max([x for x in (a, b) if x is not None], key=lambda x: x[2])
         pos, ang = r[0], r[1]
-        out[k] = (float(pos[0]), float(pos[1]), float(ang), float(r[2]))
+        out[k] = (float(pos[0]) - BORDE, float(pos[1]) - BORDE, float(ang), float(r[2]))
         tprev, pivprev = plantilla(m, pos)
         angprev = ang
     return out
@@ -132,6 +145,8 @@ if __name__ == '__main__':
     # --espalda: sacar / guardar de espaldas (referencias y bolas de los reposos de espaldas)
     espalda = '--espalda' in sys.argv
     args = [a for a in sys.argv[1:] if a != '--espalda']
+    if '--my' in args:
+        i = args.index('--my'); del args[i:i + 2]
     if espalda:
         b_sin, b_con = bolas_de_referencia_espalda()
         m_sin = madera(referencia('referencia_baston_espalda_espaldas.png'))

@@ -56,6 +56,10 @@ const COLORES: Array[Color] = [
 	Color(1.0, 0.62, 0.18), Color(0.35, 0.75, 1.0), Color(0.55, 1.0, 0.45),
 	Color(0.85, 0.45, 1.0), Color(1.0, 0.3, 0.25)]
 const RECARGA := 0.05            # magia por segundo, como baston.gd
+## Las particulas de la bola (Recarga, Chispas y Estallido), apagadas como en el perfil
+## (baston.gd, particulas = false): aun no se sabe que soltara la bola; queda la bola
+## con su brillo.
+const PARTICULAS := false
 
 ## Por andar: fps, cambio de 1/escala por fotograma y lo que baja el suelo por
 ## unidad de escala. Parejos: los ciclos de dos pasos duran 1,37 s y avanzan lo
@@ -209,6 +213,8 @@ var _reloj := 0.0
 var _tecla_antes := ""
 var _pulsado_en := {}            # cara -> _reloj de su ultima pulsacion
 var _corriendo := false          # doble toque y la tecla sigue pulsada
+var _soltado_en := -10.0         # _reloj al soltar: andando, se espera DOBLE_TOQUE por si vuelve
+var _aviso := 0.0                # s que queda en pantalla "con el baston no se corre"
 var _secuencia: Array = []       # tramos [animacion, desde, hasta] de la vuelta con baston
 var _tras_secuencia: Array = []  # [cara, andar, fotograma] al acabar
 var _cara_final := ""            # hacia donde mira al acabar la vuelta en curso
@@ -225,6 +231,9 @@ var _garra_fundiendo := false     # y la garra pegada (andar_frente) se desvanec
 
 
 func _ready() -> void:
+	# el viento de la intro (el autoload WindAmbience) suena en todas las escenas;
+	# en esta de prueba no pinta nada
+	WindAmbience.stop()
 	# el fondo en su nodo, bien al fondo: asi lo que va detras del personaje
 	# (el baston a la espalda visto de frente) puede ir por debajo del sprite
 	# sin quedar tambien por debajo del fondo
@@ -290,7 +299,8 @@ func _ready() -> void:
 	md.visible = false
 	_bola.get_node("Madera").self_modulate.a = 0.0
 	_bola.get_node("Madera/Funda").modulate.a = 0.0
-	_bola.get_node("Madera/Chispas").emitting = true
+	for n in ["Madera/Recarga", "Madera/Estallido", "Madera/Chispas"]:
+		(_bola.get_node(n) as CPUParticles2D).emitting = false
 	_poner_color()
 	_sprite = AnimatedSprite2D.new()
 	_sprite.sprite_frames = FRAMES
@@ -313,7 +323,7 @@ func _ready() -> void:
 	add_child(capa)
 	var ayuda := Label.new()
 	ayuda.text = "PRUEBA DEL ANDAR DE FRENTE / DE ESPALDAS\n" + \
-		"abajo: hacia la camara (de frente)   arriba: alejandose (de espaldas)   doble toque: correr (sin baston)\n" + \
+		"abajo: hacia la camara (de frente)   arriba: alejandose (de espaldas)   doble toque: correr (sin baston; parado o andando)\n" + \
 		"B: sacar / guardar el baston (de frente o de espaldas; andando, se para antes)   Z: plano general / medio / primer plano\n" + \
 		"M: gastar magia   C: color\n" + \
 		"R: volver al sitio   Esc: salir"
@@ -398,7 +408,8 @@ func _gastar(cuanto: float) -> void:
 		return
 	_magia -= cuanto
 	_destello = 1.0
-	(_bola.get_node("Madera/Estallido") as CPUParticles2D).restart()
+	if PARTICULAS:
+		(_bola.get_node("Madera/Estallido") as CPUParticles2D).restart()
 
 
 func _poner_color() -> void:
@@ -418,8 +429,8 @@ func _magia_bola(delta: float) -> void:
 		var m := (_bola.get_node(n) as Sprite2D).material as ShaderMaterial
 		m.set_shader_parameter("carga", _mostrada)
 		m.set_shader_parameter("destello", _destello)
-	(_bola.get_node("Madera/Recarga") as CPUParticles2D).emitting = _magia < 0.999
-	(_bola.get_node("Madera/Chispas") as CPUParticles2D).emitting = _mostrada > 0.97
+	(_bola.get_node("Madera/Recarga") as CPUParticles2D).emitting = PARTICULAS and _magia < 0.999
+	(_bola.get_node("Madera/Chispas") as CPUParticles2D).emitting = PARTICULAS and _mostrada > 0.97
 
 
 func _process(delta: float) -> void:
@@ -448,10 +459,18 @@ func _process(delta: float) -> void:
 	_reloj += delta
 	if quiere != "" and quiere != _tecla_antes:
 		_corriendo = _reloj - float(_pulsado_en.get(quiere, -10.0)) <= DOBLE_TOQUE
+		# andando (con la tecla ya pulsada), soltar y volver a pulsar enseguida tambien
+		if _cb in ["andar", "arranque"] and quiere == _cara and _reloj - _soltado_en <= DOBLE_TOQUE:
+			_corriendo = true
 		_pulsado_en[quiere] = _reloj
+		if _corriendo and _con_baston:
+			_aviso = 2.5         # con el baston en la mano no se corre (no hay video)
 	elif quiere == "":
 		_corriendo = false
+		if _tecla_antes != "":
+			_soltado_en = _reloj
 	_tecla_antes = quiere
+	_aviso = maxf(_aviso - delta, 0.0)
 	if true:
 		# los dos modos con su secuencia de un solo video (lo de abajo es lo de
 		# antes, con los andares y la vuelta de videos sueltos: ya no se usa)
@@ -500,6 +519,8 @@ func _process(delta: float) -> void:
 	_info.text = "%s  fotograma %d   escala %.2f (2 = el master)   camara x%.1f   %s   magia %d%%" % [
 		_sprite.animation, _sprite.frame, _escala, ZOOMS[_zoom],
 		"con baston" if _con_baston else "sin baston", roundi(_magia * 100.0)]
+	if _aviso > 0.0:
+		_info.text += "      CON EL BASTON EN LA MANO NO SE CORRE: B PARA GUARDARLO"
 
 
 ## Fotogramas por tiempo, y el tamano con cada fotograma. Parando, hasta el
@@ -713,8 +734,18 @@ func _cb_paso(quiere: String) -> void:
 			_cb_escala_tramo(anim)
 		"andar":
 			var pj: Array = _sec["pies_juntos"][anim]
-			if quiere != _cara and _sprite.frame in pj:
-				if quiere == "":
+			# doble toque andando (sin baston, como en el perfil): a correr en los pies
+			# juntos, por su puente al arranque de la carrera (ya a la velocidad del andar)
+			var ac: Dictionary = _sec.get("a_correr", {}).get(anim, {})
+			if quiere == _cara and _corriendo and _sprite.frame in pj and ac.has(str(_sprite.frame)):
+				_cb_puente(String(ac[str(_sprite.frame)]))
+				return
+			# al soltar, un momento por si es el primer toque de un doble: sigue andando
+			var q := quiere
+			if q == "" and _reloj - _soltado_en < DOBLE_TOQUE:
+				q = _cara
+			if q != _cara and _sprite.frame in pj:
+				if q == "":
 					_cb_puente("%sa%s%d_r%s" % [_pre(), c, _sprite.frame, c])
 				else:
 					_cb_puente("%sa%s%d_vu" % [_pre(), c, _sprite.frame])
@@ -734,6 +765,11 @@ func _cb_paso(quiere: String) -> void:
 				_cb = "arranque" if String(a[0]).begins_with("arranque") else "parada"
 				_cb_h0 = float(_sec["h"][a[0]][0])
 				_cb_base = _escala
+				# entrando a mitad (de andar a correr): el avance va acumulado desde el
+				# primer fotograma; la base, la que deja la escala donde esta
+				var av = _sec.get("avance", {}).get(a[0])
+				if av != null and int(a[1]) > 0:
+					_cb_base = 1.0 / (1.0 / _escala - float(av[int(a[1])]))
 			else:
 				_cb = "reposo"
 		"accion":
