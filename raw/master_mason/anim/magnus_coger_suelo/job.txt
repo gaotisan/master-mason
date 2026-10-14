@@ -1,0 +1,11 @@
+﻿job:     magnus_coger_suelo
+creado:  2026-10-12 13:44
+fuente:  Pilgrim_picks_up_pebble_20261012111626.mp4
+nota:    coger del suelo (prompt_coger_suelo.txt)
+
+Flujo:
+  01_frames    fotogramas en bruto (frames.ps1, o PNG tuyos/de IA)
+  02_contacto  mosaicos numerados para elegir (contacto.ps1)
+  03_seleccion los elegidos, renombrados en orden (elegir.ps1)
+  04_limpios   retocados / sin fondo  <- aqui trabajas tu en GIMP
+  05_salida    spritesheet + ficha para Godot (hoja.ps1)

@@ -1,0 +1,12 @@
+﻿animacion:  magnus_trepar
+origen:     04_acciones
+hoja:       magnus_trepar_sheet.png
+casilla:    292 x 420 px
+escala:     1/2   (master en 04_limpios: 584 x 840)
+hframes:    10
+vframes:    12
+fotogramas: 112   (las 8 casillas sobrantes van vacias)
+fps:        24
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 112.

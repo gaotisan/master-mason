@@ -1,0 +1,55 @@
+RECIBIR UN GOLPE (SIN CAERSE)
+(Google Flow, "Frames to Video", 2026-10-12; 16:9)
+=============================
+Un empujon de algo que no se ve (mordisco, bufon, golpe flojo): se echa atras,
+da un paso para no caerse y se recompone. Acaba un paso (75 px) mas atras.
+Contado como reaccion de juego, sin "hit" ni "hurt".
+
+En Flow, 16:9, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_golpe_inicio.png
+  fotograma final:   referencia_golpe_fin.png
+(en _fuentes/ y en Descargas/referencias_peregrino_coger_tirar_tumbarse_golpes; las hace el referencias_*.py de aqui al lado)
+
+Que mirar en cada toma:
+  - se echa atras y da UN paso, no se cae
+  - rapido: todo en ~2 s, a velocidad real
+  - acaba como el ultimo fotograma
+  - de perfil todo el rato; capucha sin pico; camara quieta; nada encima
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame.
+Flat pure chroma-key green background (#24D732) filling the whole frame, no
+shadows, no cast shadow on the ground, no floor line, no other props, no text,
+no logos, no on-screen interface or player controls. The pilgrim stays full-body
+in frame, always the same size.
+
+A classic reaction from a 2D platform video game: something unseen gives the
+character a sudden push, like a gust of wind or a burst of magic, and he recoils
+without falling. Harmless and game-like.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. His hands
+are bare and empty.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 1.4 s: as if pushed from the front by a sudden invisible gust, he
+  flinches: his head and shoulders jerk back, his arms come up a little and his
+  cloak whips back.
+- 1.4 to 2 s: he staggers back one short step to keep his balance.
+- 2 to 3 s: he recovers, straightens up and stands still exactly as in the last
+  frame, one step further back.
+- 3 to 8 s: he stands still.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+a short gasp, the snap of the cloak in the gust and one quick step; no music, no
+words.

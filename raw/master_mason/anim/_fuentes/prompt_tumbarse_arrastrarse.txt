@@ -1,0 +1,62 @@
+TUMBARSE, ARRASTRARSE Y LEVANTARSE
+(Google Flow, "Frames to Video", 2026-10-12; 16:9)
+==================================
+De pie se tumba boca abajo, se queda un momento, se arrastra, para y se levanta:
+del reposo al reposo 439 px mas alla. De perfil entero (el "tumbado" que ya hay
+es de frente, de la caida del cielo, y no vale). Contado como movimiento de
+juego de plataformas para que Flow no lo bloquee. Si el arrastre sale corto para
+hacer el bucle, luego se pide otro con inicio = fin = un fotograma del arrastre.
+
+En Flow, 16:9, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_tumbarse_inicio.png
+  fotograma final:   referencia_tumbarse_fin.png
+(en _fuentes/ y en Descargas/referencias_peregrino_coger_tirar_tumbarse_golpes; las hace el referencias_*.py de aqui al lado)
+
+Que mirar en cada toma:
+  - se tumba boca abajo con la cabeza a la derecha, sin tirarse ni caerse
+  - se arrastra con los antebrazos, dos o tres tirones, sin patinar
+  - se levanta y acaba como el ultimo fotograma
+  - todo a velocidad real
+  - de perfil todo el rato; capucha sin pico; camara quieta; nada encima
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame,
+from left to right. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no cast shadow on the ground, no floor line, no other
+props, no text, no logos, no on-screen interface or player controls. The pilgrim
+stays full-body in frame, always the same size.
+
+A classic move from a 2D platform video game: the character lies down flat on
+the ground and crawls forward, as if passing under a low gap, then gets back up.
+Calm and controlled.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. His hands
+are bare and empty.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- 0 to 0.5 s: he stands still exactly as in the first frame.
+- 0.5 to 2.5 s: he kneels down, places his hands on the ground in front of him
+  and lowers himself until he lies flat on his front, stretched out along the
+  ground with his head to the right.
+- 2.5 to 3 s: he lies still for a moment.
+- 3 to 5.5 s: he crawls forward to the right, keeping low and flat, pulling
+  himself along on his forearms while his legs push behind him: two or three
+  slow, steady pulls.
+- 5.5 to 6 s: he stops and lies still for a moment.
+- 6 to 7.7 s: he pushes himself up onto his hands and knees, brings his feet
+  under him and stands up calmly.
+- 7.7 to 8 s: he stands still exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+the rustle of the cloak against the ground, the soft brush of his hands and
+knees on the floor and his breathing; no music, no words.

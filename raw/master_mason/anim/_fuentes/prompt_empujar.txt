@@ -1,0 +1,100 @@
+PROMPT PARA EMPUJAR UN PESO: ENTRADA, CICLO Y SALIDA EN UN SOLO VIDEO
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-11)
+=====================================================================
+Por que: el guion v4 pide empujar (acciones_del_guion.md, n.o 4: piedras, el
+pendulo, troncos, sillares, la carretilla; colocar sillar = empujar hasta la
+marca). Un solo video que empieza y acaba en nuestro reposo: la entrada (se
+apoya en el peso), el ciclo (empuja andando) y la salida (lo suelta y se queda
+quieto).
+
+Sin baston en el video: el baston guardado lo pinta el juego encima
+(seguir.py), como en andar, correr, agacharse o el giro agachado. Asi la misma
+animacion vale con el baston a la espalda y sin el.
+
+En Flow, modo de fotogramas a video:
+  - fotograma inicial: referencia_empujar_inicio.png  (el reposo del juego,
+    magnus_respirando c_01, mirando a la derecha, con un sillar delante a medio
+    paso: 125 px de la punta del pie a la cara del sillar)
+  - fotograma final:   referencia_empujar_fin.png     (lo mismo 439 px mas a la
+    derecha: lo que lo ha empujado)
+  (las dos aqui en _fuentes/ y copiadas en Descargas; 1920x1080, croma #24D732,
+  sprite de master 1:1, pies en y=1040; las hace referencias_empujar.py, aqui
+  al lado)
+  El sillar es de relleno: 389x345 (0,55 del alto del peregrino, algo por encima
+  de la cintura), piedra clara low-poly para separarlo bien de la tunica. Se
+  quita al montar y el juego pone sus objetos. Las manos van a la altura de su
+  filo: si el objeto del juego va a ser mucho mas alto o mas bajo, rehacer la
+  referencia.
+  439 px en ~4 s de empuje = ~110 px/s de master, unas 3,5 veces menos que
+  andar (384).
+  - 16:9, Veo 3.1 - Quality, 1080p, 8 s, con audio. Sacar 3-4 tomas.
+  El audio, sin ruido de piedra: asi vale para empujar cualquier cosa y el roce
+  lo pone cada objeto.
+
+Que mirar en cada toma, por orden:
+  1. de perfil todo el rato, mirando a la derecha: no se vuelve hacia la camara
+     ni ensena la espalda
+  2. camara quieta: el y el sillar cruzan el cuadro (nada de paneo ni zoom)
+  3. el sillar solo se mueve mientras el empuja, deslizandose recto: sin volcar,
+     girar, saltar ni cambiar de forma o tamano; se para cuando el para
+  4. las manos apoyadas en la cara del sillar, sin atravesarla
+  5. pasos cortos y pesados con el cuerpo inclinado; el pie apoyado no patina
+  6. a velocidad real, sin camara lenta: ~1,5 s para apoyarse, ~4 s empujando,
+     ~1,5 s para soltarlo y quedarse quieto
+  7. la capucha como la del primer fotograma (sin pico de sombrero de mago) y
+     la cara casi tapada por su sombra
+  8. nada encima (controles, marcas de agua, texto): si sale, pedir otra toma
+     pronto
+Si el ciclo no cierra en bucle, despues se pide otro video con inicio = fin = un
+fotograma del empuje, como se hizo con el andar con el baston.
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. The camera does not follow the action: the pilgrim and the
+stone block move across the frame from left to right. Flat pure chroma-key
+green background (#24D732) filling the whole frame, no shadows, no cast shadow
+on the ground, no floor line, no other props, no text, no logos, no on-screen
+interface or player controls. Everything stays full-body in frame, always the
+same size.
+
+2D side view. The old hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon,
+brick red, ochre, warm brown and muted grey, thin dark legs and bare feet. His
+hands are bare and empty.
+
+In front of him, on the floor, stands the large block of pale dressed stone
+from the first frame, a mason's ashlar, a little higher than his waist. It is
+enormously heavy: it only moves while he pushes it with all his weight, sliding
+slowly and evenly along the floor. It never tips, rotates, jumps or bounces,
+never slides on its own, and keeps exactly its shape, size and colour.
+
+Action, one continuous take, at natural real-time speed, no slow motion: the
+weight shows in his posture and his short steps, not in slowing down the video.
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he reaches forward and places both hands flat on the near face of
+  the block, just below its top edge, sets one foot back and leans his whole
+  weight into it: his body tilted forward about 45 degrees, arms bent, head
+  lowered between his shoulders, front knee bent, back leg stretched out behind
+  him on the ball of the foot.
+- 2.5 to 6.5 s: he pushes. The block starts to slide slowly to the right and he
+  follows it with short, slow, heavy steps, about one step per second, digging
+  his bare feet into the floor; his hands stay pressed on the stone and his
+  body stays leaned into it at the same angle. Each planted foot stays fixed on
+  the floor until it lifts: no sliding feet. His hands never sink into the
+  stone. The block moves exactly as fast as he walks.
+- 6.5 to 8 s: he stops pushing and the block stops at once. He pushes himself
+  upright off the stone, takes his hands off it, brings his back foot forward
+  next to the other one and stands still exactly as in the last frame, half a
+  step behind the block, which now rests further to the right.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame for both the pilgrim and the stone, crisp frames with no motion blur,
+soft matte texture, no flicker. Sound: only the old man's strained breathing
+and low grunts of effort, his bare footsteps and the rustle of the heavy cloth;
+the stone itself makes no sound; no music, no words.

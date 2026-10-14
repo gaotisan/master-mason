@@ -22,7 +22,7 @@ de `magnus_comun.txt`.
 | **Perfil, báculo en la mano** | sacar, guardar, reposo, arrancar / andar / parar; usar poder = efectos de la esfera | Piloto; **giro con báculo en curso** (otra sesión) |
 | **De frente y de espaldas** | reposo, andar hacia cámara y alejándose, darse la vuelta, con el báculo en la funda y en la mano | Prueba frontal; falta pasarlo al juego |
 | **Diagonal** | un ciclo de andar | Solo planos de situación |
-| **Perfil, acciones que lo mueven o usan objetos** (2026-10-12) | trepar el muro alto y el sillar mediano, bajar de un saltito, empujar (v1 y v2, una pasada), tirar, coger del suelo y de una mesa, lanzar el palo, arrancar y clavar el báculo, tumbarse / arrastrarse / levantarse, golpe, derribo | Escena de prueba de perfil (`scenes/dev/piloto_baston.tscn`, `scripts/dev/acciones/acciones_perfil.gd`); cómo se hacen: `acciones_perfil.txt` |
+| **Perfil, acciones que lo mueven o usan objetos** (2026-10-12) | trepar el muro alto y el sillar mediano, bajar de un saltito, empujar (v1 y v2, una pasada), tirar, coger del suelo y de una mesa, lanzar el palo, arrancar y clavar el báculo, tumbarse / arrastrarse / levantarse, golpe, derribo | Escena de prueba de perfil (`scenes/dev/piloto_baston.tscn`, `scripts/characters/acciones_perfil.gd`); cómo se hacen: `acciones_perfil.txt` |
 
 ---
 

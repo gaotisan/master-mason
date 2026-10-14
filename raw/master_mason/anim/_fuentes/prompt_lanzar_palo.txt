@@ -1,0 +1,52 @@
+LANZAR EL PALO (ARGOS)
+(Google Flow, "Frames to Video", 2026-10-12; 16:9)
+======================
+El juego con Argos (plan, n.o 7): coge el palo que el perro le deja a los pies y
+lo lanza lejos, fuera del cuadro por la derecha. El vuelo del palo lo hace el
+juego.
+
+En Flow, 16:9, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_lanzar_palo_inicio.png
+  fotograma final:   referencia_lanzar_palo_fin.png
+(en _fuentes/ y en Descargas/referencias_peregrino_coger_tirar_tumbarse_golpes; las hace el referencias_*.py de aqui al lado)
+
+Que mirar en cada toma:
+  - se agacha, coge el palo y lo lanza por encima del hombro hacia la derecha
+  - el palo sale del cuadro
+  - acaba de pie, con la mano vacia, como el ultimo fotograma
+  - de perfil todo el rato; capucha sin pico; camara quieta; nada encima
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame.
+Flat pure chroma-key green background (#24D732) filling the whole frame, no
+shadows, no cast shadow on the ground, no floor line, no other props, no text,
+no logos, no on-screen interface or player controls. The pilgrim stays full-body
+in frame, always the same size.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. His hands
+are bare and empty.
+
+On the floor just in front of his feet lies the wooden stick from the first
+frame.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.2 s: he bends down, picks up the stick with his front hand and
+  straightens up.
+- 2.2 to 3.2 s: in one smooth overarm swing he throws it far ahead to the right,
+  playfully, as one throws a stick for a dog; the stick flies out of the frame.
+- 3.2 to 8 s: he stands still exactly as in the last frame, his hand empty.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+the rustle of the cloak and the whoosh of the stick through the air; no music,
+no words.

@@ -1,0 +1,12 @@
+﻿animacion:  magnus_empujar_v2
+origen:     04_acciones
+hoja:       magnus_empujar_v2_sheet.png
+casilla:    348 x 360 px
+escala:     1/2   (master en 04_limpios: 696 x 720)
+hframes:    10
+vframes:    17
+fotogramas: 169   (las 1 casillas sobrantes van vacias)
+fps:        24
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 169.

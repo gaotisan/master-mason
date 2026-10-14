@@ -1,0 +1,63 @@
+CAER DE ALGO ALTO (Y LEVANTARSE)
+(Google Flow, "Frames to Video", 2026-10-12; 9:16)
+================================
+Las caidas en Medida: desde una plataforma alta (1,8 de su alto) salta abajo,
+aterriza en cuclillas con las manos en el suelo y se levanta. EN VERTICAL. La
+primera version (se sale sin darse cuenta, "far below", "harmless", "unhurt",
+"knees give", "gasp") la bloqueo Flow por politicas; esta es un salto hacia
+abajo a proposito, como los de un juego de plataformas. Si aun asi lo bloquea:
+plan B, prompt_aterrizaje.txt (sin plataforma).
+
+En Flow, EN VERTICAL (9:16), 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_caer_inicio.png
+  fotograma final:   referencia_caer_fin.png
+(en _fuentes/ y en Descargas/referencias_peregrino_coger_tirar_tumbarse_golpes; las hace el referencias_*.py de aqui al lado)
+
+Que mirar en cada toma:
+  - salta hacia delante desde la plataforma y baja en menos de un segundo, sin flotar
+  - aterriza a la altura de la base, en cuclillas con las dos manos en el suelo, sin rebotar
+  - se levanta y acaba como el ultimo fotograma
+  - de perfil todo el rato; capucha sin pico; camara quieta; nada encima
+
+EL PROMPT
+---------
+
+Vertical frame. Locked-off static camera, no camera movement at all: no pan, no
+tilt, no zoom, no dolly, no cuts. The camera does not follow him: he moves
+inside the frame. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no cast shadow on the ground, no floor line, no other
+props, no text, no logos, no on-screen interface or player controls. The pilgrim
+stays full-body in frame, always the same size.
+
+A classic move from a 2D platform video game: the character jumps down from a
+high stone platform to the ground beside it and lands in a deep crouch, then
+rises.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. His hands
+are bare and empty.
+
+He stands on top of the stone platform from the first frame, near its right
+side. To the right of the platform, level with its base, is the ground. The
+platform never moves and never changes.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 1.5 s: he bends his knees and jumps forward off the platform.
+- 1.5 to 2.3 s: he comes down through the air to the ground in under a second,
+  his arms raised and his cloak billowing.
+- 2.3 to 2.8 s: he lands on both bare feet in a deep crouch, both hands touching
+  the ground in front of him, his cloak spreading around him.
+- 2.8 to 4 s: he stays crouched for a moment.
+- 4 to 5.5 s: he rises slowly and stands.
+- 5.5 to 8 s: he stands still exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame for both the pilgrim and the platform, crisp frames with no motion blur,
+soft matte texture, no flicker. Sound: the flutter of the cloak, the thud of his
+feet on the ground and his breathing; no music, no words.

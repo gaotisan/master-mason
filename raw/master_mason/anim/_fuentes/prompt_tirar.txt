@@ -1,0 +1,64 @@
+COGER ALGO Y ARRASTRARLO (TIRAR DE UN SILLAR)
+(Google Flow, "Frames to Video", 2026-10-12; 16:9)
+=============================================
+Agarra la argolla del sillar alto (el del empuje v2) y tira de el andando hacia
+atras. Con las palmas planas no se puede tirar: los bloques que se tiran llevan
+argolla (o cuerda) a la altura de la cadera, y asi este video vale para todos.
+Acaba 439 px a la izquierda, el y el sillar.
+
+En Flow, 16:9, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_tirar_inicio.png
+  fotograma final:   referencia_tirar_fin.png
+(en _fuentes/ y en Descargas/referencias_peregrino_coger_tirar_tumbarse_golpes; las hace el referencias_*.py de aqui al lado)
+
+Que mirar en cada toma:
+  - agarra la argolla con las dos manos y tira hacia atras, de cara al sillar (no se da la vuelta)
+  - el sillar solo se mueve mientras tira, recto, sin volcar ni cambiar de tamano
+  - el pie apoyado no patina
+  - a velocidad real, ~4 s tirando
+  - de perfil todo el rato; capucha sin pico; camara quieta; nada encima
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow the action: the pilgrim and the
+stone block move across the frame from right to left. Flat pure chroma-key green
+background (#24D732) filling the whole frame, no shadows, no cast shadow on the
+ground, no floor line, no other props, no text, no logos, no on-screen interface
+or player controls. Everything stays full-body in frame, always the same size.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. His hands
+are bare and empty.
+
+In front of him stands the tall block of pale dressed stone from the first
+frame, with a big dark iron ring fixed to its near face at the height of his
+hips. It is enormously heavy: it only moves while he pulls it, sliding slowly
+and evenly along the floor. It never tips, rotates, jumps or bounces, never
+slides on its own, and keeps exactly its shape, size and colour.
+
+Action, one continuous take, at natural real-time speed, no slow motion: the
+weight shows in his posture and his short steps, not in slowing down the video.
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he steps up to the block, grips the iron ring with both hands and
+  leans back, putting his whole weight into it: arms straight, knees bent, body
+  tilted backwards.
+- 2.5 to 6.5 s: he pulls. Walking slowly backwards with short, heavy steps,
+  still facing the block, he drags it towards himself, and the block slides
+  slowly to the left after him at exactly his pace. Each planted foot stays
+  fixed on the floor until it lifts: no sliding feet.
+- 6.5 to 8 s: he stops and the block stops at once. He lets go of the ring,
+  straightens up and stands still exactly as in the last frame, an arm's length
+  from the block, which now rests further to the left.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame for both the pilgrim and the stone, crisp frames with no motion blur, soft
+matte texture, no flicker. Sound: strained breathing and low grunts of effort,
+his bare footsteps and the rustle of the heavy cloth; the stone itself makes no
+sound; no music, no words.

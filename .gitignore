@@ -55,3 +55,6 @@ raw/master_mason/anim/*/_vistas/
 raw/master_mason/anim/*/04_limpios_original/
 raw/master_mason/anim/*/hojas_antes/
 raw/master_mason/anim/*/_*/
+# Los fotogramas finales de las acciones de perfil: montar_accion.py los rehace
+# de 04_limpios (con la tabla de cada job); la hoja va en 05_salida.
+raw/master_mason/anim/*/04_acciones/

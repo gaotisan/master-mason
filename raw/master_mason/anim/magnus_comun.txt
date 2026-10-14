@@ -59,6 +59,12 @@ Animaciones disponibles:
   magnus_paso_agachado     95 sprites  60 fps  una pasada     un paso agachado (dos videos de Flow, con magnus_paso_agachado_2); 1,6 s, +39 px
   magnus_giro_pie_rapido   47 sprites  30 fps  una pasada     video 70-112, todos, de espaldas, espejado; 1,6 s
   magnus_giro_agachado_video 65 sprites 24 fps una pasada    video 103-162, todos, por detras; 2,8 s con arranque suave
+  Acciones de perfil que lo mueven o usan objetos (2026-10-12; casilla propia por accion,
+  colocada en la raiz de cada fotograma: el viaje lo hace el nodo, ver acciones_perfil.txt):
+  magnus_trepar 112, magnus_trepar_mediano 91, magnus_bajar 110, magnus_empujar 173,
+  magnus_empujar_v2 169, magnus_tirar 171, magnus_golpe 105, magnus_derribo 143,
+  magnus_coger_suelo 113, magnus_coger_mesa 86, magnus_lanzar_palo 97, magnus_arrancar 93
+  (y clavar, al reves), magnus_tumbarse 180 (tumbarse, arrastrarse, levantarse); todas a 24 fps.
   (magnus_giro, 5 poses de IA; magnus_giro_pie_video, giro lento acelerado; magnus_giro_agachado, 5 vistas de Gemini; magnus_giro_agachado_frente, por delante: ya no se usan)
 
   Caida (casilla propia 760x720 -> 380x360, ver magnus_caida/como_se_hizo.txt):

@@ -1,0 +1,93 @@
+PROMPT PARA BAJAR DE UN MURO DE UN SALTITO: DE PIE ARRIBA A DE PIE ABAJO
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12)
+=======================================================================
+Por que: lo contrario de trepar (prompt_trepar.txt), con el mismo muro. Para
+una altura asi (algo mas que el), casi todos los juegos (Limbo, Inside, el
+Prince of Persia en los pisos bajos) se dejan caer o dan un saltito, caen y
+amortiguan con las rodillas; descolgarse del borde y soltarse se deja para
+alturas mayores. Aqui: un saltito hacia delante, cae, aterriza con las rodillas
+dobladas y una mano al suelo (es viejo) y se levanta. Empieza y acaba en
+nuestro reposo.
+
+OJO (2026-10-12): Flow rechazo la primera version "por politicas de contenido
+danino". Un viejo que se acerca al borde de un muro alto, mira abajo y "cae
+rapido y pesado" con "impacto" suena a tirarse. La de abajo (v2) lo cuenta como
+un movimiento de juego de plataformas: bajar de un saltito de una plataforma y
+aterrizar suave y a salvo. Sin "old", "high wall", "edge", "glances down",
+"drops", "falls", "the fall is quick and heavy", "no floating", "impact",
+"does not fall over", "heavy thud" ni "grunt". Si aun lo bloquea, quitar
+tambien "hops".
+
+Sin baston en el video: el guardado lo pinta el juego encima (seguir.py).
+
+En Flow, modo de fotogramas a video, EN VERTICAL (9:16):
+  - fotograma inicial: referencia_bajar_inicio.png  (el reposo del juego,
+    magnus_respirando c_01, mirando a la derecha, de pie encima del muro junto
+    al borde: 63 px de la punta del pie al borde)
+  - fotograma final:   referencia_bajar_fin.png     (el mismo reposo abajo, el
+    talon a 219 px del pie del muro: donde cae con el saltito)
+  (las dos aqui en _fuentes/ y en Descargas/referencias_peregrino_empujar_trepar_bajar;
+  1080x1920, croma #24D732, sprite de master 1:1, suelo en y=1880; las hace
+  referencias_trepar_bajar.py, aqui al lado)
+  El muro, el de trepar volteado (1,15 del alto del peregrino, 721 px). Caer
+  esa altura lleva ~0,6 s de verdad.
+  - 9:16, 1080p, 8 s, con audio. Sacar 3-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. de perfil todo el rato, mirando a la derecha: no se vuelve hacia la camara
+     ni ensena la espalda
+  2. un saltito hacia delante desde el borde: no un salto grande hacia arriba,
+     ni de espaldas, ni se descuelga del borde
+  3. la caida a velocidad real (~0,6 s), sin flotar ni camara lenta
+  4. aterriza en el suelo al pie del muro (a la altura de la base del muro), con
+     las rodillas dobladas y una mano al suelo; sin rebotar ni caerse
+  5. se levanta y queda quieto como el ultimo fotograma
+  6. camara quieta; el muro no se mueve ni cambia
+  7. la capucha como la del primer fotograma (sin pico de sombrero de mago) y
+     la cara casi tapada por su sombra
+  8. nada encima (controles, marcas de agua, texto): si sale, pedir otra toma
+     pronto
+
+EL PROMPT (v2)
+--------------
+
+Vertical frame. Locked-off static camera, no camera movement at all: no pan, no
+tilt, no zoom, no dolly, no cuts. The camera does not follow him: he moves
+inside the frame. Flat pure chroma-key green background (#24D732) filling the
+whole frame, no shadows, no cast shadow on the ground, no floor line, no other
+props, no text, no logos, no on-screen interface or player controls. The
+pilgrim stays full-body in frame, always the same size.
+
+A classic move from a 2D platform video game: the character hops down from a
+stone platform to the ground beside it and lands softly and safely on his feet.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon,
+brick red, ochre, warm brown and muted grey, thin dark legs and bare feet. His
+hands are bare and empty.
+
+He stands on top of the platform of pale stone blocks from the first frame,
+near its right side. To the right of the platform, level with its base, is the
+ground. The platform never moves and never changes.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 1.5 s: he takes a small step forward and bends his knees, getting ready.
+- 1.5 to 2.3 s: he hops lightly forward off the platform, his arms a little out
+  for balance and his cloak lifting, and comes down to the ground beside the
+  platform in about half a second.
+- 2.3 to 2.7 s: he lands softly on both bare feet on the ground, level with the
+  base of the platform, his knees bending to cushion the landing and one hand
+  briefly touching the ground for balance, his cloak settling around him. He
+  stays steady and balanced.
+- 2.7 to 4 s: he rises smoothly from the crouch.
+- 4 to 8 s: he stands calmly on the ground, exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame for both the pilgrim and the platform, crisp frames with no motion blur,
+soft matte texture, no flicker. Sound: the rustle of the cloak, the soft thud
+of his bare feet on the ground and a short breath; no music, no words.

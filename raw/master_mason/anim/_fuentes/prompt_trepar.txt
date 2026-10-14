@@ -1,0 +1,89 @@
+PROMPT PARA TREPAR UN MURO ALTO: DE PIE ABAJO A DE PIE ARRIBA, EN UN SOLO VIDEO
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12)
+================================================================================
+Por que: el guion v4 pide trepar (acciones_del_guion.md, n.o 1: el talud 1.9,
+la pena 2.5, los escalones altos del torreon 9.4-9.5). El clasico de los
+juegos: pegado a un muro algo mas alto que el, pone las dos manos arriba en el
+filo, se aupa, sube una rodilla, la otra y se pone de pie encima. Empieza y
+acaba en nuestro reposo. Lo contrario, bajar de un saltito, en
+prompt_bajar_saltando.txt.
+
+Sin baston en el video: el guardado lo pinta el juego encima (seguir.py); con
+el baston en la mano no se trepa.
+
+En Flow, modo de fotogramas a video, EN VERTICAL (9:16):
+  - fotograma inicial: referencia_trepar_inicio.png  (el reposo del juego,
+    magnus_respirando c_01, mirando a la derecha, pegado al muro: 50 px de la
+    punta del pie a la cara del muro; el abrigo casi lo toca)
+  - fotograma final:   referencia_trepar_fin.png     (el mismo reposo de pie
+    encima del muro, el talon 138 px dentro del borde)
+  (las dos aqui en _fuentes/ y copiadas en Descargas; 1080x1920, croma #24D732,
+  sprite de master 1:1, suelo en y=1880; las hace referencias_trepar_bajar.py,
+  aqui al lado)
+  En vertical porque abajo y arriba no caben en 16:9 con el personaje a su
+  tamano de master; el video de 720x1280 se escala como los de 16:9 (x1,5108).
+  El muro: 1,15 del alto del peregrino (721 px: algo por encima de la capucha,
+  llega al filo con los brazos en alto), sillares de piedra clara de relleno.
+  Esta quieto: se quita restando su imagen.
+  - 9:16, Veo 3.1 - Quality, 1080p, 8 s, con audio. Sacar 3-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. de perfil todo el rato, mirando a la derecha: no se vuelve hacia la camara
+     ni ensena la espalda
+  2. sube como se pide: las dos manos arriba en el filo, se aupa (un saltito,
+     los pies rascando el muro), una rodilla arriba, la otra pierna y de pie;
+     sin agarres ni escalones inventados en el muro
+  3. a velocidad real, sin camara lenta: unos 3,5 s desde que levanta los brazos
+     hasta que esta de pie arriba
+  4. camara quieta; el muro no se mueve ni cambia de forma o tamano
+  5. el cuerpo no atraviesa el muro (manos y rodillas sobre el filo, no dentro)
+  6. acaba de pie encima, quieto, como el ultimo fotograma
+  7. la capucha como la del primer fotograma (sin pico de sombrero de mago) y
+     la cara casi tapada por su sombra
+  8. nada encima (controles, marcas de agua, texto): si sale, pedir otra toma
+     pronto
+
+EL PROMPT
+---------
+
+Vertical frame. Locked-off static camera, no camera movement at all: no pan, no
+tilt, no zoom, no dolly, no cuts. The camera does not follow him: the pilgrim
+climbs up inside the frame. Flat pure chroma-key green background (#24D732)
+filling the whole frame, no shadows, no cast shadow on the ground, no floor
+line, no other props, no text, no logos, no on-screen interface or player
+controls. The pilgrim stays full-body in frame, always the same size.
+
+2D side view. The old hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon,
+brick red, ochre, warm brown and muted grey, thin dark legs and bare feet. His
+hands are bare and empty.
+
+Right in front of him stands the high wall of pale stone blocks from the first
+frame, a little taller than he is, with a flat top. The wall never moves and
+never changes; it has no handholds, ledges or steps: he climbs it only by its
+top edge.
+
+Action, one continuous take, at natural real-time speed, no slow motion: an old
+man climbing with great effort, but the video is never slowed down.
+- 0 to 1 s: he stands still exactly as in the first frame, close against the
+  wall.
+- 1 to 1.5 s: he raises both arms and places both hands flat on top of the
+  wall, gripping its front edge.
+- 1.5 to 3 s: he hauls himself up with a great effort: a small spring from his
+  legs, his bare feet scrabbling against the face of the wall, his elbows
+  bending as his chest rises above the edge; he swings one knee up onto the top
+  of the wall.
+- 3 to 4.5 s: he brings the other leg up and, from his knees, slowly stands up
+  on top of the wall, a step in from the edge.
+- 4.5 to 8 s: he stands still on top of the wall, catching his breath, exactly
+  as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame for both the pilgrim and the wall, crisp frames with no motion blur, soft
+matte texture, no flicker. Sound: the old man's strained breathing and grunts
+of effort, his hands slapping on the stone, his bare feet scraping the wall and
+the rustle of the heavy cloth; no music, no words.

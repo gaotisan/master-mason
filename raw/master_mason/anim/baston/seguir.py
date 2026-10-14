@@ -65,8 +65,17 @@ ALTO_REPOSO = 320         # punta de la capucha sobre el suelo, de pie
 ALTO_AGACHADO = 248       # idem agachado del todo
 SEPARACION = -15.0        # eje del baston respecto al borde de atras de la capucha (px)
 # fila del suelo dentro de cada casilla: alto/2 - offset del sprite
-SUELO = {"salto_correr": 200 + 185}
+SUELO = {"salto_correr": 200 + 185,
+         # acciones de perfil que lo desplazan (godot-e4, 2026-10-12): casilla
+         # propia con la raiz en la fila raiz_fila/2 (montar_accion.py)
+         "trepar": 366, "trepar_mediano": 347, "bajar": 369, "derribo": 348}
 SUELO_COMUN = 180 + 165
+# Acciones de perfil (godot-e4, 2026-10-12): siempre mirando a la derecha (sin
+# barba a la vista, o con la barba contra el muro, el lado salia al reves) y
+# con los brazos en alto lo mas alto son las manos, no la capucha: se busca la
+# capucha (ver medir).
+ACCIONES_PERFIL = {"trepar", "trepar_mediano", "bajar", "empujar", "empujar_v2",
+                   "golpe", "derribo", "coger_suelo", "coger_mesa", "lanzar_palo", "tirar"}
 SIN_BASTON = {"cayendo", "caida", "tumbado", "levantarse",
               # de frente/espaldas: las coloca baston/frontal.py (frontal.json)
               "andar_frente", "andar_espalda", "vuelta_frontal", "andar_frente_sin",
@@ -81,6 +90,15 @@ SIN_BASTON = {"cayendo", "caida", "tumbado", "levantarse",
 # salian datos sin sentido (y alguna vez NaN).
 FRONTALES_SUFIJO = ("_cb", "_sb")
 FRONTALES_PREFIJO = ("pt_", "ps_", "puente_")
+
+
+# Sin baston a la espalda (godot-e4, 2026-10-12): tumbarse y arrastrarse solo
+# sin el baston encima (decision del usuario) y arrancar/clavar lo llevan en el
+# dibujo o clavado
+SIN_BASTON |= {"tumbarse", "arrastrarse", "levantarse_tumbado", "arrancar", "clavar"}
+# Sacar y guardar de espaldas (vista frontal, como las de frente de arriba): el
+# baston va en el dibujo; medidas como de perfil daban NaN (2026-10-12, godot-e4)
+SIN_BASTON |= {"sacar_baston_espalda", "guardar_baston_espalda"}
 
 
 def sin_baston(nombre):
@@ -143,14 +161,34 @@ def _capucha(c, a, top):
     return m
 
 
-def medir(c, suelo):
+def _tope_capucha(c, a, top):
+    """Con los brazos en alto (trepar) lo mas alto son las manos: la punta de
+    la capucha es la de la mancha gris grande mas alta (las manos son piel y
+    las mangas, tunica)."""
+    rgb = c[..., :3].astype(int)
+    mx, mn, me = rgb.max(2), rgb.min(2), rgb.mean(2)
+    gris = a &(mx - mn < 40) & (me > 95) & (me < 200) & (rgb[..., 2] >= rgb[..., 0] - 5)
+    lab, n = ndi.label(gris)
+    if n == 0:
+        return top
+    tam = ndi.sum(gris, lab, range(1, n + 1))
+    mejor = None
+    for i, s in enumerate(ndi.find_objects(lab)):
+        if tam[i] >= 300 and (mejor is None or s[0].start < mejor):
+            mejor = s[0].start
+    return top if mejor is None else int(mejor)
+
+
+def medir(c, suelo, perfil=False):
     """Mide el fotograma como si mirase a la derecha. Devuelve dict o None.
 
     Ancla: el borde de atras de la capucha (gris, rigido, no lo tapan brazos
     ni capa). Inclinacion: recta del centro de la capucha al de la cadera
     (franja 110-160 px bajo la punta). Medido asi no se lo lleva el brazo
     estirado hacia atras en pleno salto, como pasaba con el borde de la
-    espalda."""
+    espalda.
+    perfil (ACCIONES_PERFIL): siempre mirando a la derecha y la punta de la
+    capucha buscada si lo mas alto no es ella."""
     a = c[..., 3] > 128
     filas = np.where(a.any(1))[0]
     if len(filas) == 0:
@@ -158,15 +196,26 @@ def medir(c, suelo):
     top = int(filas[0])
     n_barba, dx_barba = _barba(c, a)
     lado = (-1 if dx_barba < 0 else 1) if n_barba else 0
+    if perfil:
+        lado = 1
+        if _capucha(c, a, top).sum() < 150:
+            top = _tope_capucha(c, a, top)
     W = c.shape[1]
     cc = c[:, ::-1] if lado == -1 else c
     aa = a[:, ::-1] if lado == -1 else a
     cap = _capucha(cc, aa, top)
     ys, xs = np.where(cap)
+    if perfil and len(xs) == 0:
+        # sin capucha gris a la vista (acciones de perfil): lo de arriba de la silueta
+        ys, xs = np.where(aa[top:top + 52])
+        ys = ys + top
     hx, hy = float(xs.mean()), float(ys.mean())
     banda = aa[top + 110:top + 160]
     by_, bx_ = np.where(banda)
-    px, py = float(bx_.mean()), float(by_.mean()) + top + 110
+    if perfil and len(bx_) == 0:
+        px, py = hx, hy + 135.0                 # sin cadera a la vista: el tronco, recto
+    else:
+        px, py = float(bx_.mean()), float(by_.mean()) + top + 110
     incl = math.degrees(math.atan2(hx - px, py - hy))      # + = tronco hacia delante
     zona = cap[top + 28:top + 50]
     zx = np.where(zona.any(0))[0]
@@ -827,7 +876,7 @@ def seguir_todo():
             datos[nombre] = None
             continue
         suelo = SUELO.get(nombre, SUELO_COMUN)
-        ms = [medir(c, suelo) for c in an["celdas"]]
+        ms = [medir(c, suelo, nombre in ACCIONES_PERFIL) for c in an["celdas"]]
         base = [colocar(m, m0) for m in ms]
         if nombre in GIROS_POR_DELANTE:
             for m, c in zip(ms, an["celdas"]):

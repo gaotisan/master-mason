@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/game/dark_stage.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/dev/baston/piloto_baston.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/characters/acciones_perfil.gd" id="3"]
+
+[node name="PilotoAccionesCogerGrabar" type="Node"]
+
+[node name="DarkStage" parent="." instance=ExtResource("1")]
+caida_al_empezar = false
+
+[node name="Piloto" type="Node" parent="."]
+script = ExtResource("2")
+guion = []
+eventos = []
+x_inicial = 630.0
+ignorar_teclado = true
+personaje = NodePath("../DarkStage/Magnus")
+
+[node name="Acciones" type="Node2D" parent="."]
+script = ExtResource("3")
+objetos = [["mesa", 900.0, 139.0, 144.0, "", "coger_mesa", false]]
+sueltos = [["guijarro", 700.0, "coger_suelo"]]
+eventos = [[0.5, "accion"], [6.0, "accion"]]

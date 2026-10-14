@@ -1,0 +1,51 @@
+ARRANCAR EL BACULO
+(Google Flow, "Frames to Video", 2026-10-12; 16:9)
+==================
+Lo contrario de clavar: del baston clavado al reposo con el baston en la mano
+(las mismas dos imagenes, al reves).
+
+En Flow, 16:9, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_arrancar_inicio.png
+  fotograma final:   referencia_arrancar_fin.png
+(en _fuentes/ y en Descargas/referencias_peregrino_baculo_clavar; las hace el referencias_*.py de aqui al lado)
+
+Que mirar en cada toma:
+  - lo agarra con las dos manos y lo saca de un tiron
+  - acaba sujetandolo con una mano, la punta en el suelo, como el ultimo fotograma
+  - garra vacia, sin bola ni brillo
+  - de perfil todo el rato; capucha sin pico; camara quieta; nada encima
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame.
+Flat pure chroma-key green background (#24D732) filling the whole frame, no
+shadows, no cast shadow on the ground, no floor line, no other props, no text,
+no logos, no on-screen interface or player controls. The pilgrim stays full-body
+in frame, always the same size.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon, brick
+red, ochre, warm brown and muted grey, thin dark legs and bare feet. In front of
+him his long wooden staff stands planted upright in the ground on its own; its
+top is an open claw of curled root fingers, EMPTY: no orb, no ball, no gem, no
+glow, no light. His hands are bare and empty.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame, the staff planted in
+  front of him.
+- 1 to 2.5 s: he reaches out, grips the staff with both hands and pulls it up
+  out of the ground with a firm tug.
+- 2.5 to 3.5 s: he settles, holding it upright in his front hand with its tip
+  resting on the floor, exactly as in the last frame.
+- 3.5 to 8 s: he stands still.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame for both the pilgrim and the staff, crisp frames with no motion blur, soft
+matte texture, no flicker. Sound: the scrape of wood pulled out of hard ground
+and the rustle of the cloak; no music, no words.

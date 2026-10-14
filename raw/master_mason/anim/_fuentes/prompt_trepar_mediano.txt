@@ -1,0 +1,83 @@
+PROMPT PARA SUBIRSE A UN SILLAR MEDIANO: DE PIE ABAJO A DE PIE ENCIMA
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-12)
+====================================================================
+Por que: para los bloques medianos (el sillar del empuje v1: 0,55 del alto del
+peregrino, a la cintura) la subida al muro alto (prompt_trepar.txt) no vale:
+ahi pone las manos por encima de la cabeza y aqui quedarian en el aire. Asi hay
+dos alturas de subida: mediana (este) y alta (el muro, 1,15). Los bloques
+grandes que se empujen, mejor a la altura del muro: el empuje v2 empuja a media
+altura y vale para cualquier alto, y asi se suben con el trepar alto.
+Bajar del mediano: probar primero sin video nuevo (el bajar saltando con menos
+caida, o salir andando y caer con el aterrizaje del salto); si no queda bien,
+un video como el del muro.
+
+Sin baston en el video: el guardado lo pinta el juego encima (seguir.py).
+
+En Flow, modo de fotogramas a video, 16:9 (a esta altura cabe de pie arriba):
+  - fotograma inicial: referencia_trepar_mediano_inicio.png  (el reposo del
+    juego, magnus_respirando c_01, mirando a la derecha, pegado al sillar: 50
+    px de la punta del pie a su cara)
+  - fotograma final:   referencia_trepar_mediano_fin.png     (el mismo reposo de
+    pie encima del sillar, el talon 138 px dentro del borde)
+  (las dos aqui en _fuentes/ y copiadas en Descargas; 1920x1080, croma #24D732,
+  sprite de master 1:1, suelo en y=1040; el sillar es el de
+  referencia_empujar_inicio.png, 389x345; las hace referencias_trepar_bajar.py,
+  aqui al lado)
+  - 16:9, Veo 3.1 - Quality, 1080p, 8 s, con audio. Sacar 3-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. de perfil todo el rato, mirando a la derecha: no se vuelve hacia la camara
+     ni ensena la espalda
+  2. sube como se pide: las dos manos encima del sillar, una rodilla arriba, el
+     otro pie y de pie; sin saltarlo por encima ni sentarse de lado en el
+  3. a velocidad real, sin camara lenta: unos 2,5 s desde que apoya las manos
+     hasta que esta de pie encima
+  4. camara quieta; el sillar no se mueve, no resbala ni cambia de forma o tamano
+  5. el cuerpo no atraviesa el sillar (manos, rodilla y pies encima, no dentro)
+  6. acaba de pie encima, quieto, como el ultimo fotograma
+  7. la capucha como la del primer fotograma (sin pico de sombrero de mago) y
+     la cara casi tapada por su sombra
+  8. nada encima (controles, marcas de agua, texto): si sale, pedir otra toma
+     pronto
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: the pilgrim climbs up inside
+the frame. Flat pure chroma-key green background (#24D732) filling the whole
+frame, no shadows, no cast shadow on the ground, no floor line, no other props,
+no text, no logos, no on-screen interface or player controls. The pilgrim stays
+full-body in frame, always the same size.
+
+2D side view. The old hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point, no cone; its deep shadow hides most of his
+face. Long white beard, long brown faceted patchwork cloak in dark maroon,
+brick red, ochre, warm brown and muted grey, thin dark legs and bare feet. His
+hands are bare and empty.
+
+Right in front of him stands the block of pale dressed stone from the first
+frame, as high as his waist, with a flat top. The block never moves, never
+slides and never changes: he climbs onto it only by its top.
+
+Action, one continuous take, at natural real-time speed, no slow motion: an old
+man climbing with effort, but the video is never slowed down.
+- 0 to 1 s: he stands still exactly as in the first frame, close against the
+  block.
+- 1 to 1.5 s: he leans forward and places both hands flat on top of the block,
+  near its front edge.
+- 1.5 to 2.5 s: leaning on his arms, he lifts one knee up onto the top of the
+  block, pushes himself up and brings the other foot up beside it.
+- 2.5 to 3.5 s: from there he slowly stands up on top of the block, a step in
+  from its edge.
+- 3.5 to 8 s: he stands still on top of the block, catching his breath,
+  exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame for both the pilgrim and the stone, crisp frames with no motion blur,
+soft matte texture, no flicker. Sound: the old man's breathing and a grunt of
+effort, his hands on the stone, his bare feet and the rustle of the heavy
+cloth; no music, no words.
