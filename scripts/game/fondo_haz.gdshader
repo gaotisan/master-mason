@@ -1,9 +1,16 @@
 shader_type canvas_item;
+render_mode blend_disabled;
 // Fondo de la caida en la hojarasca: oscuridad calida con un haz de luz que baja
 // sobre el sitio donde cae Magnus, niebla que se arrastra despacio y el resplandor
 // del suelo, como la luz de la imagen de titulo. Todo bajo: el negro manda.
 // Se calcula a 1/4 de resolucion y se estira (caida_hojarasca.gd): es todo
 // degradado blando y a resolucion completa costaba la mitad de los FPS.
+//
+// LA LUZ DEL BOSQUE (bosque_fondo.gdshader, que lee esta imagen y le suma el
+// bosque) se calcula tambien aqui y va en el alfa: lo que le da el haz, entre
+// LUZ_BOSQUE (sin blend, el alfa se escribe tal cual). Es un degradado blando
+// y a 1/4 sale igual; en el bosque, a resolucion completa, eran 1,4 ms
+// (2026-10-14). Sin el bosque el alfa no se usa (no hay nada debajo).
 
 uniform vec2 pantalla = vec2(2912.0, 1632.0);
 // Vertice del haz (por encima de la pantalla) y punto del suelo al que apunta.
@@ -15,13 +22,24 @@ uniform float y_suelo = 1200.0;
 uniform vec3 color_fondo : source_color = vec3(0.035, 0.022, 0.012);
 uniform vec3 color_luz : source_color = vec3(1.0, 0.70, 0.36);
 uniform float niebla_fuerza = 0.07;
+// Cuanta luz da el haz al bosque: de mas dentro del cono y de mas junto a
+// donde pega en el suelo (caida_hojarasca.gd las baja al apagarse el haz).
+uniform float bosque_en_el_haz = 1.4;
+uniform float bosque_resplandor = 1.6;
+uniform vec2 bosque_resplandor_tam = vec2(900.0, 420.0);
+const float LUZ_BOSQUE = 4.0;  // la misma en bosque_fondo.gdshader
 
-float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+// Ruido de valor: un valor al azar en cada punto de la reticula, fundido con
+// suavidad entre los cuatro de alrededor. Los valores se leen de una imagen
+// (ruido_valor.png, raw/master_mason/hojarasca_bosque/ruido_valor.py): con el
+// filtro lineal, leyendo en i + u, la grafica funde los cuatro en una lectura
+// (2026-10-14; antes eran cuatro hashes de seno por octava, 60 senos por pixel,
+// y el fondo costaba 5 ms aun a 1/4).
+uniform sampler2D azar : filter_linear, repeat_enable;
 float ruido(vec2 p) {
 	vec2 i = floor(p), f = fract(p);
 	vec2 u = f * f * (3.0 - 2.0 * f);
-	return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x),
-			   mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y);
+	return textureLod(azar, (i + u + 0.5) / 256.0, 0.0).r;
 }
 float fbm(vec2 p) {
 	float s = 0.0, a = 0.5;
@@ -56,5 +74,8 @@ void fragment() {
 	float vin = 1.0 - 0.6 * dot(c, c) * 2.2;
 	vec3 col = color_fondo * vin + color_luz * luz;
 	// El grano lo pone el pase final (aqui, a 1/4 de resolucion, saldria a bloques).
-	COLOR = vec4(col, 1.0);
+	float cono = 1.0 - smoothstep(haz_apertura * 0.5, haz_apertura * 1.8, a);
+	vec2 e2 = (px - haz_destino) / bosque_resplandor_tam;
+	float luz_bosque = bosque_en_el_haz * cono + bosque_resplandor * exp(-dot(e2, e2) * 1.2);
+	COLOR = vec4(col, clamp(luz_bosque / LUZ_BOSQUE, 0.0, 1.0));
 }

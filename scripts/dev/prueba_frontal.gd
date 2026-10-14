@@ -26,18 +26,18 @@ extends Node2D
 ## enganche un fundido corto (FUNDIDO) tapa el cambio de textura.
 ##
 ## La bola del baston, como en el de perfil con el baston en la mano: la madera
-## ya viene en el dibujo y la bola es la de scenes/dev/baston.tscn (orbe, luz,
+## ya viene en el dibujo y la bola es la de scenes/characters/baston.tscn (orbe, luz,
 ## chispas) puesta por codigo, por detras del sprite, donde dice frontal.json
 ## (raw/master_mason/anim/baston/frontal.py): en el hueco de la garra.
 ## El baston del video de frente no tiene garra (acababa en pincho): en la hoja
 ## se le ha borrado el pincho y la garra (garra_frente.png, la del baston de
 ## Gemini) va aqui como capa encima del sprite, donde y con la inclinacion que
 ## dice frontal.json; la bola, detras, en su hueco. De espaldas y en la vuelta
-## la garra ya viene en el dibujo. La bola es scenes/dev/baston.tscn sin su
+## la garra ya viene en el dibujo. La bola es scenes/characters/baston.tscn sin su
 ## script (baston.gd va colgado de Magnus).
 
 const FRAMES := preload("res://resources/characters/magnus_frames.tres")
-const BASTON := preload("res://scenes/dev/baston.tscn")
+const BASTON := preload("res://scenes/characters/baston.tscn")
 const FRONTAL := "res://assets/characters/baston/frontal.json"
 ## Con baston: la secuencia de un solo video (reposo, arranque, andar, vuelta y
 ## puentes; raw/master_mason/anim/magnus_secuencia_frontal/secuencia.py).
@@ -870,7 +870,7 @@ func _seguir_vuelta(delta: float) -> void:
 		_sprite.frame = f
 
 
-## Sin baston en la mano: el de scenes/dev/baston.tscn entero (madera, bola,
+## Sin baston en la mano: el de scenes/characters/baston.tscn entero (madera, bola,
 ## luz) a la espalda, por FUERA de la tunica, en diagonal y metido en la funda
 ## de cuero (funda_cuero.py; la idea es el concepto de Gemini). Cada fila de
 ## "baston_espalda": [x, y, giro, corte, ancho]. El baston va en 3D, en un plano

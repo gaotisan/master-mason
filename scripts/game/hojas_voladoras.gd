@@ -34,9 +34,14 @@ extends Node2D
 ## El mundo da la vuelta (ANCHO): lo que sale por un lado entra por el otro, y
 ## junto al borde se dibuja en los dos lados.
 ##
-## Rendimiento: la fisica solo recorre las que se mueven; las posadas se dibujan
-## en TRAMOS de columnas y cada tramo solo se repinta cuando cambia (andando, los
-## dos o tres junto a los pies).
+## Rendimiento: la fisica solo recorre las que se mueven. Las posadas van todas
+## en un MultiMesh por capa (hojas_lecho.gdshader; 2026-10-14): posar o quitar
+## una hoja cambia su instancia y los colores de su columna, nada mas. Antes se
+## dibujaban por tramos de columnas y cada tramo tocado se repintaba entero:
+## cuando la racha del camino dejaba caer cientos de hojas se repintaba casi
+## todo el lecho en cada tick (20-60 ms) y el juego iba a tirones. El orden de
+## las instancias es el de dibujo: las de abajo antes; una hoja nueva va al
+## final (encima) y cuando se llena se rehace todo por niveles (_mm_rehacer).
 
 const ATLAS := preload("res://assets/world/hojarasca/hojas.png")
 const COLS_ATLAS := 8
@@ -45,8 +50,10 @@ const CELDA := Vector2(64, 128)
 const ANCHO := 2912.0
 const COL := 8.0
 const N_COL := 364
-const TRAMOS := 14
-const COLS_TRAMO := 26
+## La luz de una hoja sin el haz (la del claro a oscuras): la base de luz_en y
+## lo que queda con luz_viva a 0.
+const LUZ_OSCURA := 0.28
+const MALLA_SHADER := preload("res://scripts/game/hojas_lecho.gdshader")
 
 ## Donde descansa la hoja de abajo de cada columna (y) y cuanto sube el monton
 ## por hoja. La de delante empieza mas abajo en pantalla (mas cerca).
@@ -59,8 +66,25 @@ const COLS_TRAMO := 26
 @export var y_suelo: float = 1200.0
 @export var x_luz: float = 1456.0
 @export var brillo: float = 1.0
-const HAZ_ORIGEN := Vector2(1620.0, -700.0)
-const HAZ_APERTURA := 0.17
+## El haz: lo pone la escena con poner_haz (el del material del fondo, para que
+## haya una sola geometria del haz); estos son los de fondo_haz por si no.
+var haz_origen := Vector2(1620.0, -700.0)
+var haz_apertura := 0.17
+## Lo que queda del haz (1 entero, 0 apagado: el claro a oscuras). Las posadas
+## lo hacen en su shader; las que vuelan, en luz_en.
+var luz_viva := 1.0:
+	set(v):
+		luz_viva = v
+		if _mm_nodo:
+			(_mm_nodo.material as ShaderMaterial).set_shader_parameter("luz_viva", v)
+
+## El haz de la escena: su vertice, adonde pega en el suelo (x_luz, y_suelo) y
+## su apertura (rad).
+func poner_haz(origen: Vector2, destino: Vector2, apertura: float) -> void:
+	haz_origen = origen
+	x_luz = destino.x
+	y_suelo = destino.y
+	haz_apertura = apertura
 ## Gravedad y rozamiento del aire. Con estos numeros una hoja suelta cae a unos
 ## 150-260 px/s (de canto mas rapido), que a 2912 de ancho es ver caer una hoja.
 @export var gravedad: float = 900.0
@@ -105,20 +129,32 @@ var gravedad_luz := 0.3
 var _vuelan: Array[Dictionary] = []
 var _hundiendo: Array[Dictionary] = []   # de fuera y pequenas, desvaneciendose (ver DE FUERA)
 var _cols: Array = []                 # N_COL listas de hojas, de abajo a arriba
-var _tramos: Array[Node2D] = []
 var _vuelo: Node2D
-var _sucios := {}                     # tramo -> true
+var _sucias := {}                     # columna -> true: repintar sus colores (la sombra va por altura)
+var _mm: MultiMesh                    # las posadas (ver Rendimiento)
+var _mm_nodo: MultiMeshInstance2D
+var _mm_libre := 0                    # siguiente instancia libre (se dibujan en orden)
 
 func _ready() -> void:
 	_cols.resize(N_COL)
 	for c in N_COL:
 		_cols[c] = []
-	for t in TRAMOS:
-		var capa := Node2D.new()
-		capa.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-		capa.draw.connect(_dibujar_tramo.bind(capa, t))
-		add_child(capa)
-		_tramos.append(capa)
+	_mm = MultiMesh.new()
+	_mm.transform_format = MultiMesh.TRANSFORM_2D
+	_mm.use_colors = true
+	_mm.use_custom_data = true
+	_mm.mesh = _malla_hoja()
+	_mm.instance_count = 4096
+	_mm.visible_instance_count = 0
+	_mm_nodo = MultiMeshInstance2D.new()
+	_mm_nodo.multimesh = _mm
+	_mm_nodo.texture = ATLAS
+	_mm_nodo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	var mat := ShaderMaterial.new()
+	mat.shader = MALLA_SHADER
+	mat.set_shader_parameter("luz_viva", luz_viva)
+	_mm_nodo.material = mat
+	add_child(_mm_nodo)
 	_vuelo = Node2D.new()
 	_vuelo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	_vuelo.draw.connect(_dibujar_vuelo)
@@ -130,7 +166,7 @@ func _c(x: float) -> int:
 	return posmod(int(floor(x / COL)), N_COL)
 
 func _ensuciar(c: int) -> void:
-	_sucios[c / COLS_TRAMO] = true
+	_sucias[c] = true
 
 ## Cuantas hojas hay en la columna de x.
 func cuantas_en(x: float) -> int:
@@ -158,8 +194,7 @@ func sembrar(media: float, extra: Callable) -> void:
 			if pasada < cuantas[c]:
 				var x := (c + randf()) * COL
 				_apilar(_nueva(Vector2(x, 0.0), -1.0), false)
-	for t in TRAMOS:
-		_sucios[t] = true
+	_pintar_sucias()
 
 func _nueva(pos: Vector2, escala: float) -> Dictionary:
 	return {
@@ -192,9 +227,11 @@ func _apilar(h: Dictionary, derramar: bool = true) -> void:
 	# Tumbada se ve de cara (o de enves), nunca de canto.
 	var cv := cos(h["vuelta"])
 	h["vuelta"] = acos(signf(cv) * maxf(absf(cv), 0.55))
-	# Quieta no cambia de luz: se calcula una vez (repintar un tramo son cientos).
-	h["luz"] = luz_en(h["p"])
+	# Quieta no cambia de luz: se calcula una vez (la entera: lo que quite el
+	# haz al apagarse lo hace su shader, ver luz_viva).
+	h["luz"] = luz_en(h["p"], false)
 	_cols[c].append(h)
+	_mm_poner(h)
 	_ensuciar(c)
 	if not derramar:
 		return
@@ -202,6 +239,7 @@ func _apilar(h: Dictionary, derramar: bool = true) -> void:
 		var vecina: int = posmod(c + lado, N_COL)
 		if _cols[c].size() - _cols[vecina].size() > derrame:
 			var arriba: Dictionary = _cols[c].pop_back()
+			_mm_quitar(arriba)
 			_ensuciar(c)
 			arriba["desliza"] = true
 			arriba["v"] = Vector2(lado * randf_range(40.0, 90.0), 0.0)
@@ -223,7 +261,9 @@ func tomar(x0: float, x1: float, maximo: int, queda: int = 1, prob: float = 1.0)
 	for c in orden:
 		var col: Array = _cols[c]
 		while col.size() > queda and fuera.size() < maximo and randf() < prob:
-			fuera.append(col.pop_back())
+			var h: Dictionary = col.pop_back()
+			_mm_quitar(h)
+			fuera.append(h)
 			_ensuciar(c)
 		if fuera.size() >= maximo:
 			break
@@ -295,14 +335,18 @@ func pisar(h: Dictionary, empuje: Vector2) -> void:
 	h["v"] = empuje
 	h["giro"] = randf_range(5.0, 8.0) * (1.0 if randf() < 0.5 else -1.0)
 
-func luz_en(p: Vector2) -> float:
+## La luz en p (con luz_viva: lo que quede del haz; sin, la entera).
+func luz_en(p: Vector2, con_viva := true) -> float:
 	var dx := (p.x - x_luz) / 1050.0
 	var dy := (p.y - y_suelo) / 520.0
-	var suelo := 0.28 + 0.87 * exp(-(dx * dx + 0.6 * dy * dy) * 1.6)
-	var eje := (Vector2(x_luz, y_suelo) - HAZ_ORIGEN).normalized()
-	var a := eje.angle_to(p - HAZ_ORIGEN)
-	var haz := 0.28 + 0.8 * (1.0 - smoothstep(HAZ_APERTURA * 0.35, HAZ_APERTURA, absf(a)))
-	return maxf(suelo, haz) * brillo
+	var suelo := LUZ_OSCURA + 0.87 * exp(-(dx * dx + 0.6 * dy * dy) * 1.6)
+	var eje := (Vector2(x_luz, y_suelo) - haz_origen).normalized()
+	var a := eje.angle_to(p - haz_origen)
+	var haz := LUZ_OSCURA + 0.8 * (1.0 - smoothstep(haz_apertura * 0.35, haz_apertura, absf(a)))
+	var l := maxf(suelo, haz)
+	if con_viva:
+		l = lerpf(LUZ_OSCURA, l, luz_viva)
+	return l * brillo
 
 # --- Fisica de las que se mueven ---------------------------------------------
 
@@ -381,9 +425,7 @@ func _physics_process(delta: float) -> void:
 			continue
 		j += 1
 	_vuelo.queue_redraw()
-	for t in _sucios:
-		_tramos[t].queue_redraw()
-	_sucios.clear()
+	_pintar_sucias()
 
 ## Hoja de la escalera: planea hacia su sitio (mas despacio al llegar, meciendose
 ## un poco de lado) y alli se queda con un vaiven leve, casi de cara. Pisada,
@@ -438,32 +480,102 @@ func _posar(h: Dictionary) -> void:
 		_hundiendo.append(h)
 		return
 	var arriba: Dictionary = _cols[c].pop_back()
+	_mm_quitar(arriba)
 	h["p"].y = arriba["p"].y
 	var cv := cos(h["vuelta"])
 	h["vuelta"] = acos(signf(cv) * maxf(absf(cv), 0.55))
-	h["luz"] = luz_en(h["p"])
+	h["luz"] = luz_en(h["p"], false)
 	_cols[c].append(h)
+	_mm_poner(h)
 	_ensuciar(c)
 
 # --- Dibujo ------------------------------------------------------------------
 
-## Las posadas del tramo, por niveles: primero la de abajo de cada columna, luego
-## la segunda... asi las de arriba tapan a las de abajo en todo el tramo. Las de
-## abajo, en la sombra de las de encima.
-func _dibujar_tramo(capa: Node2D, tramo: int) -> void:
-	var c0 := tramo * COLS_TRAMO
-	var c1 := mini(c0 + COLS_TRAMO, N_COL)
+## La hoja del atlas: un cuadro de CELDA centrado, con el uv de la celda entera
+## (el shader le pone la celda de cada instancia).
+func _malla_hoja() -> ArrayMesh:
+	var a := []
+	a.resize(Mesh.ARRAY_MAX)
+	var m := CELDA / 2.0
+	a[Mesh.ARRAY_VERTEX] = PackedVector2Array([Vector2(-m.x, -m.y), Vector2(m.x, -m.y), Vector2(m.x, m.y), Vector2(-m.x, m.y)])
+	a[Mesh.ARRAY_TEX_UV] = PackedVector2Array([Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)])
+	a[Mesh.ARRAY_INDEX] = PackedInt32Array([0, 1, 2, 0, 2, 3])
+	var malla := ArrayMesh.new()
+	malla.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, a)
+	return malla
+
+## Pone una hoja posada en el MultiMesh: al final (encima de todo), y otra copia
+## al otro lado si esta junto a un borde (el mundo da la vuelta).
+func _mm_poner(h: Dictionary) -> void:
+	if _mm_libre + 2 > _mm.instance_count:
+		_mm_rehacer()
+		return
+	var t := _forma(h, true)
+	h["mi"] = _mm_libre
+	_mm.set_instance_transform_2d(_mm_libre, t)
+	_mm_libre += 1
+	var p: Vector2 = h["p"]
+	if p.x < 40.0 or p.x > ANCHO - 40.0:
+		h["mi2"] = _mm_libre
+		_mm.set_instance_transform_2d(_mm_libre, t.translated(Vector2(ANCHO if p.x < 40.0 else -ANCHO, 0.0)))
+		_mm_libre += 1
+	_mm.visible_instance_count = _mm_libre
+	_mm_pintar(h, 1.0)
+
+## Quita una hoja posada del MultiMesh (su instancia se queda vacia).
+func _mm_quitar(h: Dictionary) -> void:
+	for k in ["mi", "mi2"]:
+		if h.has(k):
+			_mm.set_instance_transform_2d(h[k], Transform2D(Vector2.ZERO, Vector2.ZERO, Vector2.ZERO))
+			h.erase(k)
+
+## El color y el dato de la instancia de una hoja posada, con su sombra.
+func _mm_pintar(h: Dictionary, sombra: float) -> void:
+	if not h.has("mi"):
+		return
+	var luz: float = h["luz"]
+	var col := _color(h, luz, true, sombra)
+	var dato := Color(float(h["celda"]), minf(LUZ_OSCURA * brillo / maxf(luz, 0.001), 1.0), 0.0, 0.0)
+	_mm.set_instance_color(h["mi"], col)
+	_mm.set_instance_custom_data(h["mi"], dato)
+	if h.has("mi2"):
+		_mm.set_instance_color(h["mi2"], col)
+		_mm.set_instance_custom_data(h["mi2"], dato)
+
+## Las de abajo, en la sombra de las de encima: la sombra va por la altura en
+## su columna, asi que al cambiar una columna se repintan sus colores.
+func _pintar_sucias() -> void:
+	for c in _sucias:
+		var col: Array = _cols[c]
+		var n := col.size()
+		for nivel in n:
+			_mm_pintar(col[nivel], 0.55 + 0.45 * float(nivel + 1) / n)
+	_sucias.clear()
+
+## Rehace el MultiMesh entero por niveles (primero la de abajo de cada columna):
+## cuando se acaban las instancias libres, y con sitio de sobra.
+func _mm_rehacer() -> void:
+	var total := 0
 	var niveles := 0
-	for c in range(c0, c1):
+	for c in N_COL:
+		total += _cols[c].size()
 		niveles = maxi(niveles, _cols[c].size())
+	var cap := maxi(_mm.instance_count, nearest_po2(total * 2 + 256))
+	if cap != _mm.instance_count:
+		_mm.instance_count = cap
+	_mm_libre = 0
+	_mm.visible_instance_count = 0
 	for nivel in niveles:
-		for c in range(c0, c1):
+		for c in N_COL:
 			var col: Array = _cols[c]
-			if nivel >= col.size():
-				continue
-			var sombra := 0.55 + 0.45 * float(nivel + 1) / col.size()
-			_dibujar_hoja(capa, col[nivel], true, sombra)
-	capa.draw_set_transform_matrix(Transform2D.IDENTITY)
+			if nivel < col.size():
+				var h: Dictionary = col[nivel]
+				h.erase("mi")
+				h.erase("mi2")
+				_mm_poner(h)
+	for c in N_COL:
+		_sucias[c] = true
+	_pintar_sucias()
 
 func _dibujar_vuelo() -> void:
 	for h in _vuelan:
@@ -474,37 +586,41 @@ func _dibujar_vuelo() -> void:
 
 func _dibujar_hoja(capa: Node2D, h: Dictionary, tumbada: bool, sombra: float) -> void:
 	var p: Vector2 = h["p"]
-	var esc: float = h["esc"]
 	var celda: int = h["celda"]
 	var region := Rect2(Vector2(celda % COLS_ATLAS, celda / COLS_ATLAS) * CELDA, CELDA)
-	var luz: float = (h["luz"] if capa != _vuelo else luz_en(p)) * h["tono"] * sombra
-	var c := cos(h["vuelta"])
-	var ex: float
-	if tumbada:
-		ex = esc * signf(c) * maxf(absf(c), 0.55)
-		luz *= 0.92
-	else:
-		ex = esc * c
-		# Casi de canto se ve una raya; con 0 desaparece y parpadea.
-		if absf(ex) < esc * 0.08:
-			ex = esc * 0.08 * (1.0 if c >= 0.0 else -1.0)
-	# Envés: mas apagado y menos saturado.
-	if c < 0.0:
-		luz *= 0.78
-	var col := Color(luz, luz * (0.97 if c >= 0.0 else 0.93), luz * (0.95 if c >= 0.0 else 0.85), h.get("alfa", 1.0))
+	var col := _color(h, luz_en(p), tumbada, sombra)
+	var t := _forma(h, tumbada)
+	capa.draw_set_transform_matrix(t)
+	capa.draw_texture_rect_region(ATLAS, Rect2(-CELDA / 2.0, CELDA), region, col)
 	# Junto a un borde se dibuja tambien al otro lado (el mundo da la vuelta).
-	var copias := [0.0]
-	if p.x < 40.0:
-		copias.append(ANCHO)
-	elif p.x > ANCHO - 40.0:
-		copias.append(-ANCHO)
-	for desplaza in copias:
-		var q := p + Vector2(desplaza, 0.0)
-		if tumbada:
-			# Aplastada en pantalla: se escala el eje y del mundo despues de girar.
-			var t := Transform2D(h["rot"], Vector2(ex, esc), 0.0, Vector2.ZERO)
-			t = Transform2D(Vector2(1, 0), Vector2(0, h["aplastar"]), q) * t
-			capa.draw_set_transform_matrix(t)
-		else:
-			capa.draw_set_transform(q, h["rot"], Vector2(ex, esc))
+	if p.x < 40.0 or p.x > ANCHO - 40.0:
+		capa.draw_set_transform_matrix(t.translated(Vector2(ANCHO if p.x < 40.0 else -ANCHO, 0.0)))
 		capa.draw_texture_rect_region(ATLAS, Rect2(-CELDA / 2.0, CELDA), region, col)
+
+## Donde y como se ve una hoja: girada, de cara o de canto segun su vuelta y,
+## tumbada en el lecho, aplastada en pantalla.
+func _forma(h: Dictionary, tumbada: bool) -> Transform2D:
+	var p: Vector2 = h["p"]
+	var esc: float = h["esc"]
+	var c := cos(h["vuelta"])
+	if tumbada:
+		var ex := esc * signf(c) * maxf(absf(c), 0.55)
+		# Aplastada en pantalla: se escala el eje y del mundo despues de girar.
+		var t := Transform2D(h["rot"], Vector2(ex, esc), 0.0, Vector2.ZERO)
+		return Transform2D(Vector2(1, 0), Vector2(0, h["aplastar"]), p) * t
+	var ex2 := esc * c
+	# Casi de canto se ve una raya; con 0 desaparece y parpadea.
+	if absf(ex2) < esc * 0.08:
+		ex2 = esc * 0.08 * (1.0 if c >= 0.0 else -1.0)
+	return Transform2D(h["rot"], Vector2(ex2, esc), 0.0, p)
+
+## Su color con la luz dada: tumbada algo mas apagada; el enves, mas apagado y
+## menos saturado.
+func _color(h: Dictionary, luz: float, tumbada: bool, sombra: float) -> Color:
+	var c := cos(h["vuelta"])
+	var l: float = luz * h["tono"] * sombra
+	if tumbada:
+		l *= 0.92
+	if c < 0.0:
+		l *= 0.78
+	return Color(l, l * (0.97 if c >= 0.0 else 0.93), l * (0.95 if c >= 0.0 else 0.85), h.get("alfa", 1.0))

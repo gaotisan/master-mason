@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3]
+[gd_scene load_steps=46 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/caida_hojarasca.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="2"]
@@ -32,9 +32,10 @@
 [ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_hojarasca_camino.png" id="bosque_camino"]
 [ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_viento.png" id="bosque_viento"]
 [ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_ruido.png" id="bosque_ruido"]
+[ext_resource type="Texture2D" path="res://assets/comun/ruido_valor.png" id="ruido_valor"]
 [ext_resource type="Script" path="res://scripts/game/hojas_lejanas.gd" id="hojas_lejanas"]
 [ext_resource type="Texture2D" path="res://assets/world/hojarasca/bosque_cerca.png" id="bosque_cerca"]
-[ext_resource type="Script" path="res://scripts/dev/acciones/acciones_perfil.gd" id="acciones"]
+[ext_resource type="Script" path="res://scripts/characters/acciones_perfil.gd" id="acciones"]
 
 [sub_resource type="AudioStreamRandomizer" id="pasos"]
 random_pitch = 1.08
@@ -67,6 +68,9 @@ stream_11/weight = 1.0
 
 [sub_resource type="ShaderMaterial" id="fondo"]
 shader = ExtResource("3")
+shader_parameter/azar = ExtResource("ruido_valor")
+shader_parameter/bosque_en_el_haz = 0.15
+shader_parameter/bosque_resplandor = 0.2
 
 [sub_resource type="ShaderMaterial" id="bosque"]
 shader = ExtResource("bosque_shader")
@@ -78,8 +82,6 @@ shader_parameter/horizonte = 0.635
 shader_parameter/suelo_fundido = 0.06
 shader_parameter/exposicion = 0.45
 shader_parameter/ambiente = 0.7
-shader_parameter/en_el_haz = 0.15
-shader_parameter/resplandor = 0.2
 shader_parameter/tinte = Color(0.78, 0.74, 0.76, 1)
 shader_parameter/camino_tapado = 0.2
 shader_parameter/camino_brillo = 1.8

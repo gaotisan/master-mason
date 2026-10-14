@@ -1,5 +1,5 @@
 extends Node2D
-## Baston a la espalda de Magnus (PRUEBA, scenes/dev/piloto_baston.tscn).
+## Baston de Magnus (a la espalda y en la mano; se prueba en scenes/dev/piloto_baston.tscn).
 ##
 ## Se cuelga como hijo de Magnus, al lado de su Sprite, y en cada fotograma se
 ## coloca con lo que dice baston_seguimiento.json para esa animacion y ese
@@ -286,6 +286,13 @@ func _aplicar_color() -> void:
 func _process(delta: float) -> void:
 	magia = minf(1.0, magia + magia_recarga * delta)
 	_mostrada = lerpf(_mostrada, magia, 1.0 - exp(-magia_suavizado * delta))
+	# SIN MAGIA (sin carga y sin recarga: el baculo recien cogido en la
+	# hojarasca, que se vacia y no recarga) no hay bola: la garra vacia (el
+	# usuario, 2026-10-14: "mejor sin bola"; el guion: la garra se va llenando
+	# con las esferas que se ganan). Con recarga, vacia, la bola sigue ahi.
+	var sin_magia := magia <= 0.0 and magia_recarga <= 0.0
+	_orbe.visible = not sin_magia
+	_luz.visible = not sin_magia
 	_destello = move_toward(_destello, 0.0, destello_caida * delta)
 	for m in [_orbe.material, _luz.material]:
 		(m as ShaderMaterial).set_shader_parameter("carga", _mostrada)

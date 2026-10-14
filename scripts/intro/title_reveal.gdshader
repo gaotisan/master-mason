@@ -135,22 +135,19 @@ float border_dist(vec2 uv, vec4 r) {
 	return length(max(d, vec2(0.0))) + min(max(d.x, d.y), 0.0);
 }
 
-// Ruido de valor, igual que vaho_cristal.gdshader.
-float hash(vec2 p) {
-	p = fract(p * vec2(0.1031, 0.1030));
-	p += dot(p, p + 33.33);
-	return fract((p.x + p.y) * p.x);
-}
-
+// Ruido de valor, como el de vaho_cristal.gdshader. El valor de cada punto de
+// la reticula es el de su hash de siempre, pero horneado en una imagen
+// (assets/intro/title_vaho_azar.png, raw/master_mason/titulo_hojas/vaho_azar.py,
+// los puntos de -128 a 127): leyendo en i + u con filtro lineal, la grafica
+// funde los cuatro de alrededor en una lectura. Antes eran cuatro hashes por
+// llamada, 32 por pixel del vaho (2026-10-14). Los valores son los mismos que
+// daba el hash: con otros, el vaho salia distinto (cubria casi el doble).
+uniform sampler2D azar : filter_linear, repeat_enable;
 float noise(vec2 p) {
 	vec2 i = floor(p);
 	vec2 f = fract(p);
-	float a = hash(i);
-	float b = hash(i + vec2(1.0, 0.0));
-	float c = hash(i + vec2(0.0, 1.0));
-	float d = hash(i + vec2(1.0, 1.0));
 	vec2 u = f * f * (3.0 - 2.0 * f);
-	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+	return textureLod(azar, (i + u + 128.5) / 256.0, 0.0).r;
 }
 
 float fbm(vec2 p) {

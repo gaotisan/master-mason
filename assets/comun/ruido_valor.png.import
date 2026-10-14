@@ -2,29 +2,28 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://166qigb023j5"
-path.bptc="res://.godot/imported/magnus_giro_pie_rapido.png-96eda72924a1d42002fdfcb8748f254b.bptc.ctex"
+uid="uid://bfe33c2kxghli"
+path="res://.godot/imported/ruido_valor.png-99d5e12732f43b1f08f75eaeca2393d8.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/magnus/magnus_giro_pie_rapido.png"
-dest_files=["res://.godot/imported/magnus_giro_pie_rapido.png-96eda72924a1d42002fdfcb8748f254b.bptc.ctex"]
+source_file="res://assets/comun/ruido_valor.png"
+dest_files=["res://.godot/imported/ruido_valor.png-99d5e12732f43b1f08f75eaeca2393d8.ctex"]
 
 [params]
 
-compress/mode=2
-compress/high_quality=true
+compress/mode=0
+compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

@@ -1,8 +1,8 @@
 shader_type canvas_item;
-render_mode blend_add;
-// El bosque de fondo de la hojarasca (bosque_hojarasca.png, de Midjourney con
-// el estilo de camino_bosque; antes probadas bosque_fondo.jpg de Gemini y
-// bosque_fondo_mj.png facetada), sumado a la oscuridad del fondo. Va en dos
+// El bosque de fondo de la hojarasca (la imagen de Midjourney con el estilo de
+// camino_bosque, raw/master_mason/hojarasca_bosque/bosque_hojarasca.png; antes
+// se probaron una de Gemini y una facetada, ya borradas), sumado a la oscuridad
+// del fondo. Va en dos
 // planos (raw/master_mason/hojarasca_bosque/capas.py): la textura del sprite
 // es el de detras (bosque_lejos.png: niebla, troncos lejanos y el camino, con
 // la niebla rellenada debajo de los troncos de delante) y capa_cerca el de
@@ -16,6 +16,12 @@ render_mode blend_add;
 // negro: detras del borde del lecho tiene que haber oscuridad (sus hojas
 // doradas se recortan a contraluz; con la bruma detras el lecho se leia como
 // una franja plana pegada a los arboles).
+//
+// FONDO. El bosque va sumado a la oscuridad del fondo (fondo_haz.gdshader, que
+// se pinta a 1/4 en una SubViewport): se lee aqui su imagen (`fondo`) y se suma
+// en la misma pasada (2026-10-14: antes el fondo se estiraba a pantalla
+// completa y el bosque se sumaba encima con blend_add; cada pasada a pantalla
+// completa son ~4 ms en la grafica del portatil).
 //
 // VIDA (como camino_fondo.gdshader, del que sale esto; mascaras de
 // raw/master_mason/hojarasca_bosque/mascaras.py). No se recorta nada: se
@@ -32,14 +38,11 @@ render_mode blend_add;
 //   una pieza, como un carton).
 
 uniform vec2 pantalla = vec2(2912.0, 1632.0);
-uniform vec2 haz_origen = vec2(1620.0, -700.0);
-uniform vec2 haz_destino = vec2(1456.0, 1200.0);
-uniform float haz_apertura = 0.17;
 uniform float exposicion = 2.2;
-uniform float ambiente = 0.25;        // fuera de la luz
-uniform float en_el_haz = 1.4;        // de mas dentro del cono
-uniform float resplandor = 1.6;       // de mas junto a donde pega en el suelo
-uniform vec2 resplandor_tam = vec2(900.0, 420.0);
+// Fuera de la luz. Lo que le da el haz viene en el alfa del fondo
+// (fondo_haz.gdshader: bosque_en_el_haz, bosque_resplandor).
+uniform float ambiente = 0.25;
+const float LUZ_BOSQUE = 4.0;  // la misma en fondo_haz.gdshader
 uniform vec3 tinte : source_color = vec3(1.0, 0.86, 0.68);
 // v desde la que el bosque se funde a negro (y en cuanto).
 uniform float horizonte = 0.677;
@@ -49,6 +52,9 @@ uniform sampler2D mascara_camino : filter_linear;
 uniform float camino : hint_range(0.0, 1.0) = 0.0;
 uniform float camino_tapado = 0.0;
 uniform float camino_brillo = 1.0;
+// La imagen del fondo (la de la SubViewport; caida_hojarasca.gd), con la luz
+// del haz para el bosque en el alfa.
+uniform sampler2D fondo : filter_linear;
 
 group_uniforms vida;
 // R copa (G troncos y B profundidad ya no se usan: ver paralaje).
@@ -73,22 +79,21 @@ uniform float ramita_racha_px = 3.5;
 uniform vec2 rama_vel = vec2(-0.05, 0.017);
 uniform vec2 ramita_vel = vec2(0.3, -0.22);
 
-// Donde se lee la imagen para el punto q (px de la imagen): la copa se mece.
-vec2 mecer(vec2 q) {
-	float copa = texture(viento_m, q / pantalla).r;
-	if (copa > 0.002) {
-		float f = clamp(q.x / pantalla.x, 0.0, 1.0) * 4.0;
-		int i = min(int(f), 3);
-		float k = smoothstep(0.0, 1.0, f - float(i));
-		vec2 e = mix(empuje[i], empuje[i + 1], k);
-		float ag = mix(agitacion[i], agitacion[i + 1], k);
-		vec2 nr = texture(ruido, q / 700.0 + rama_vel * tiempo).rg - 0.5;
-		vec2 nt = texture(ruido, q / 150.0 + ramita_vel * tiempo).ba - 0.5;
-		q -= copa * (e
-			+ nr * 2.0 * (rama_px * brisa + rama_racha_px * ag)
-			+ nt * 2.0 * (ramita_px * brisa + ramita_racha_px * ag));
-	}
-	return q;
+// Lo que se mece la copa en q (px de la imagen): el muelle de su franja y
+// ramas y ramitas a su aire. Se multiplica por la copa de cada plano. Uno
+// para los dos planos (2026-10-14: antes cada plano leia su ruido; con lo poco
+// que los separa el paralaje no se nota, y son dos lecturas menos por pixel).
+vec2 meneo(vec2 q) {
+	float f = clamp(q.x / pantalla.x, 0.0, 1.0) * 4.0;
+	int i = min(int(f), 3);
+	float k = smoothstep(0.0, 1.0, f - float(i));
+	vec2 e = mix(empuje[i], empuje[i + 1], k);
+	float ag = mix(agitacion[i], agitacion[i + 1], k);
+	vec2 nr = texture(ruido, q / 700.0 + rama_vel * tiempo).rg - 0.5;
+	vec2 nt = texture(ruido, q / 150.0 + ramita_vel * tiempo).ba - 0.5;
+	return e
+		+ nr * 2.0 * (rama_px * brisa + rama_racha_px * ag)
+		+ nt * 2.0 * (ramita_px * brisa + ramita_racha_px * ag);
 }
 
 // La luz de un plano: c leido en uv (el camino se mira donde esta en ese plano).
@@ -104,18 +109,24 @@ void fragment() {
 	vec2 px = UV * pantalla;
 	// Paralaje: el sprite se mueve con el mundo; cada plano vuelve atras lo que
 	// no le toca por estar mas lejos.
-	vec2 uv_l = mecer(px - camara * (1.0 - paralaje_lejos)) / pantalla;
-	vec2 uv_c = mecer(px - camara * (1.0 - paralaje_cerca)) / pantalla;
+	vec2 q_l = px - camara * (1.0 - paralaje_lejos);
+	vec2 q_c = px - camara * (1.0 - paralaje_cerca);
+	// La copa se mece: se lee la imagen algo mas alla.
+	float copa_l = texture(viento_m, q_l / pantalla).r;
+	float copa_c = texture(viento_m, q_c / pantalla).r;
+	if (max(copa_l, copa_c) > 0.002) {
+		vec2 m = meneo(q_c);
+		q_l -= copa_l * m;
+		q_c -= copa_c * m;
+	}
+	vec2 uv_l = q_l / pantalla;
+	vec2 uv_c = q_c / pantalla;
 	vec3 lejos = texture(TEXTURE, uv_l).rgb;
 	vec4 cerca = texture(capa_cerca, uv_c);
 
-	vec2 eje = normalize(haz_destino - haz_origen);
-	float a = acos(clamp(dot(normalize(px - haz_origen), eje), -1.0, 1.0));
-	float cono = 1.0 - smoothstep(haz_apertura * 0.5, haz_apertura * 1.8, a);
-	vec2 e2 = (px - haz_destino) / resplandor_tam;
-	float glow = exp(-dot(e2, e2) * 1.2);
-	float luz = ambiente + en_el_haz * cono + resplandor * glow;
+	vec4 f = texture(fondo, UV);
+	float luz = ambiente + f.a * LUZ_BOSQUE;
 	float suelo_v = smoothstep(horizonte - 0.02, horizonte + suelo_fundido, UV.y);
 	vec3 c = mix(alumbrar(lejos, uv_l, luz, suelo_v), alumbrar(cerca.rgb, uv_c, luz, suelo_v), cerca.a);
-	COLOR = vec4(c, 1.0);
+	COLOR = vec4(f.rgb + c, 1.0);
 }

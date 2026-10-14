@@ -42,16 +42,16 @@ extends Node2D
 ## esperar a la vuelta.
 @export var baculo_al_empezar: bool = false
 ## El bosque de fondo (2026-10-13; encendido en la escena del juego): la imagen
-## de Midjourney bosque_hojarasca.png en dos planos (bosque_cerca.png y
-## bosque_lejos.png, de raw/master_mason/hojarasca_bosque/capas.py) detras del
-## haz, en sombra (Bosque, bosque_fondo.gdshader). Antes se probaron
-## bosque_fondo.jpg (Gemini) y bosque_fondo_mj.png (facetada).
+## de Midjourney (raw/master_mason/hojarasca_bosque/bosque_hojarasca.png) en dos
+## planos (bosque_cerca.png y bosque_lejos.png, de capas.py) detras del haz, en
+## sombra (Bosque, bosque_fondo.gdshader). Antes se probaron una de Gemini y
+## una facetada, ya borradas.
 ## scenes/dev/prueba_bosque.tscn lo prueba con el baculo ya bajando.
 @export var bosque_de_fondo: bool = false:
 	set(v):
 		bosque_de_fondo = v
 		if is_node_ready():
-			$Bosque.visible = v
+			_poner_bosque()
 			_poner_haz()
 ## Con el bosque, el haz un pelin mas fuerte (por esto la fuerza del dibujo de
 ## fondo_haz.gdshader): delante de los arboles tiene que seguir siendo lo que
@@ -108,10 +108,10 @@ extends Node2D
 ## ("baculo"). Desconcierto, silencio, reconocimiento.
 ## Aparte, antes o despues del baculo: la primera vez que salta en la luz y
 ## flota, al volver al suelo se da cuenta de que alli apenas pesa ("ligero").
-## Por la luz bajan hojas despacio, desde el principio (ver Las hojas de la
-## luz): nadie dice que sirvan; rebotando de una en otra, a izquierda y
-## derecha, se sube hasta el baculo. Alcanzarlo, de momento, hace latir la
-## bola (falta la animacion de cogerlo).
+## Por la luz bajan hojas despacio (ver Las hojas de la luz; las que sirven,
+## desde que baja el baculo): nadie dice que sirvan; pisando de una en otra, a
+## izquierda y derecha, se sube hasta el baculo. Alcanzarlo es cogerlo (ver
+## Coger el baculo): destello, racha que abre el camino y baja con el.
 ## El baculo SOLO baja tras la vuelta: es cuando se da cuenta de que no va a
 ## ninguna parte (asi lo quiere el usuario, sin atajo por tiempo; si en un
 ## minuto no ha salido por ningun borde, solo el empujon de "explorar"). Los textos
@@ -200,11 +200,22 @@ extends Node2D
 ## fotograma coger_cae, mientras la bola se descarga (coger_descarga s) y queda
 ## vacia; luego, sin la magia, cae (guion: "la luz pierde su espesor") y el
 ## video aterriza agachado y se incorpora. Al acabar sigue con el baculo en la
-## mano (el sistema del baston, scenes/dev/baston.tscn, con la magia a cero:
-## en la mano solo anda) y la bola vacia.
+## mano (el sistema del baston, scenes/characters/baston.tscn, con la magia a cero
+## y sin recarga: en la mano solo anda) y la garra vacia, sin bola (la de la
+## cinematica se vacia y se va; ver SIN MAGIA en baston.gd).
 @export var coger_cae: int = 40
 @export var coger_flota: float = 0.15
 @export var coger_descarga: float = 1.5
+## LA LUZ SE APAGA (2026-10-14; el usuario: "al coger el baston, con el
+## torbellino, la luz y las hojas que caen por ahi desaparecen y queda el fondo
+## sin la luz, oscuro, cayendo las hojas normales"). Desde luz_apagar_tras s
+## tras el agarre, en luz_apagar s: el haz, su reflejo en el bosque, la mancha
+## de luz del suelo y de las hojas, la niebla calida, las motas, la luz sobre
+## Magnus y lo que aligera (ya no se flota). Las hojas de la escalera se sueltan
+## y caen como las demas, y dejan de bajar las de la luz; las de los arboles
+## siguen. Con el, el peregrino cae (coger_cae): la luz pierde su espesor.
+@export var luz_apagar_tras: float = 0.4
+@export var luz_apagar: float = 2.6
 
 @export_group("La luz")
 ## Zona de la luz para jugar (fracciones de la apertura del haz): pesa poco del
@@ -338,7 +349,25 @@ const FUERZA_SALTO := {"salto_parado": 0.8, "saltar": 1.0, "salto_correr": 1.3, 
 const ANCHO := 2912.0
 const FONDO_Z := -10
 ## El baston en la mano tras cogerlo (ver coger_cae).
-const BASTON_EN_MANO := preload("res://scenes/dev/baston.tscn")
+const BASTON_EN_MANO := preload("res://scenes/characters/baston.tscn")
+## Lo que se carga a mano (las hojas de flotar en magnus.gd _cargar_flotar y las
+## del baston en la mano en baston.gd): con preload son dependencias de la
+## escena y entran en la carga en segundo plano del titulo; si no, se cargaban
+## al abrir la escena o al coger el baculo, con el juego parado.
+const _PRECARGA := [
+	preload("res://assets/characters/magnus/magnus_flotar_bajar.png"),
+	preload("res://assets/characters/magnus/magnus_flotar_posarse.png"),
+	preload("res://assets/characters/magnus/magnus_flotar_girar.png"),
+	preload("res://assets/characters/magnus/magnus_flotar_pisar.png"),
+	preload("res://assets/characters/magnus/magnus_coger_baculo.png"),
+	preload("res://assets/characters/baston/mano_reposo.png"),
+	preload("res://assets/characters/baston/mano_arranque_andar.png"),
+	preload("res://assets/characters/baston/mano_andar.png"),
+	preload("res://assets/characters/baston/mano_parada_andar.png"),
+	preload("res://assets/characters/baston/mano_giro.png"),
+	preload("res://assets/characters/baston/mano_sacar_baston.png"),
+	preload("res://assets/characters/baston/mano_guardar_baston.png"),
+]
 
 @onready var _magnus: Node2D = $Magnus
 @onready var _sprite: AnimatedSprite2D = $Magnus/Sprite
@@ -373,6 +402,12 @@ var _coger_dat: Dictionary = {}
 var _coger_dir := 1.0
 var _coger_alto := 0.0                  # lo que hay que bajar el dibujo hasta el suelo al agarrar
 var _coger_cayo := false
+var _baston_mano: Node2D                # el de la mano, preparado y escondido (ver _preparar_baston)
+var _luz_viva := 1.0                    # lo que queda del haz (ver luz_apagar)
+var _luz_apagada := false               # ya no bajan hojas por la luz
+var _niebla_mat: ShaderMaterial         # el de NieblaSuelo (que se va a una SubViewport)
+var _niebla_base := -1.0
+var _bosque_haz_base := Vector2(-1.0, -1.0)  # la luz del haz en el bosque con la luz entera (bosque_en_el_haz y bosque_resplandor del fondo)
 var _hoja_luz_espera := 0.0             # s hasta que entre la siguiente por arriba
 var _hoja_luz_lado := -1.0              # de que lado entra la siguiente
 var _luz_reloj := 0.0                   # el vaiven comun de las que bajan por la luz
@@ -396,11 +431,13 @@ var _alcanzado := false
 func _ready() -> void:
 	_fondo_mat = $Fondo.material as ShaderMaterial
 	_leer_haz()
-	$Bosque.visible = bosque_de_fondo
+	_repartir_haz()
 	_poner_haz()
 	_a_baja_resolucion($Fondo, 4)
+	_poner_bosque()
+	_niebla_mat = $NieblaSuelo.material as ShaderMaterial
 	_a_baja_resolucion($NieblaSuelo, 4)
-	# El fondo, por debajo de todo: el baston de Magnus (scenes/dev/baston.tscn)
+	# El fondo, por debajo de todo: el baston de Magnus (scenes/characters/baston.tscn)
 	# va con z_index -1 para quedar detras del cuerpo, y con el fondo en 0 se
 	# quedaba tambien detras del fondo (con el baston en la mano no se veia la bola).
 	for nombre in ["FondoImagen", "Bosque", "HojasLejanas", "Motas"]:
@@ -416,8 +453,13 @@ func _ready() -> void:
 	# La luz de la escena sobre Magnus (sin tocar sus hojas ni su escena).
 	var luz := ShaderMaterial.new()
 	luz.shader = preload("res://scripts/game/magnus_luz.gdshader")
+	luz.set_shader_parameter("haz_origen", _haz_origen)
+	luz.set_shader_parameter("haz_destino", _haz_destino)
+	luz.set_shader_parameter("haz_apertura", _haz_apertura)
 	_sprite.material = luz
 	_crear_fantasma()
+	# tras el negro de la entrada (si la hay), el baston de la mano
+	get_tree().create_timer(0.3).timeout.connect(_preparar_baston)
 	_magnus.pasos_db = magnus_pasos_db
 	# En la luz se pesa poco: sus saltos de parado y andando flotan en el haz.
 	_magnus.ligereza = luz_en
@@ -806,7 +848,7 @@ func _hoja_luz(y: float, lado: float, desde_y: float = INF) -> void:
 func _bajar_hojas_luz(delta: float) -> void:
 	_luz_reloj += delta
 	_suelta_espera -= delta
-	if _suelta_espera <= 0.0:
+	if _suelta_espera <= 0.0 and not _luz_apagada:
 		_suelta_espera = randf_range(luz_sueltas_cada_min, luz_sueltas_cada_max)
 		_hoja_suelta_luz(escalera_desde)
 	_hoja_luz_espera -= delta
@@ -898,7 +940,8 @@ func _seguir_el_salto() -> void:
 	_luz_del_salto = 0.0
 
 ## Si la parte de arriba del cuerpo llega a la vara del baculo, lo ha
-## alcanzado (de momento la bola se enciende; falta la animacion de cogerlo).
+## alcanzado: lo coge (coger_baculo; sin esa animacion, solo el destello y el
+## camino).
 func _mirar_baculo(pies: Vector2) -> void:
 	if _alcanzado or not _baculo.flotando():
 		return
@@ -936,6 +979,7 @@ func _coger_baculo() -> void:
 	_baculo.estallar()
 	_baculo.descargar(coger_descarga)
 	_abrir_camino()
+	_apagar_luz()
 	_coger_tick(0.0)
 
 ## Un fotograma de la cinematica: el del video por el tiempo, lo que le queda
@@ -985,16 +1029,27 @@ func _caer_con_baculo() -> void:
 func _acabar_coger() -> void:
 	_cogiendo = false
 	_baculo.visible = false
+	_preparar_baston()
+	_baston_mano.set("puesto", true)
+	_baston_mano.call("poner_en_mano", true)
+	_magnus.soltar_cinematica()
+
+## El baston que tendra en la mano, preparado al abrir la escena (tras el negro
+## de la entrada) y escondido (puesto = false): crearlo al coger el baculo
+## (lee sus json, duplica las SpriteFrames de Magnus y monta las de la mano)
+## paraba el juego ~0,8 s justo al devolver el mando. Sin magia: la bola vacia.
+func _preparar_baston() -> void:
+	if _baston_mano != null:
+		return
 	var b: Node2D = BASTON_EN_MANO.instantiate()
+	b.set("puesto", false)
 	b.set("magia", 0.0)
 	b.set("magia_recarga", 0.0)
 	_magnus.add_child(b)
 	b.set("_mostrada", 0.0)
-	b.call("poner_en_mano", true)
-	_magnus.soltar_cinematica()
+	_baston_mano = b
 
-## PRUEBA del bosque de fondo. Al alcanzar el baculo (de momento, lo que hace
-## de cogerlo) una racha enorme: barre el lecho de izquierda a derecha
+## Al coger el baculo, una racha enorme: barre el lecho de izquierda a derecha
 ## levantando hojas (camino_hojas_lecho), arrastra las que caen y, en el fondo,
 ## se lleva las que tapaban el camino (camino_hojas_fondo: pequenas, que estan
 ## lejos), que aparece en camino_abrir s. El usuario: "un mega efecto para que
@@ -1069,6 +1124,17 @@ func _sonar(s: AudioStreamPlayer, db: float, tono: float = 1.0) -> void:
 	s.pitch_scale = tono
 	s.play()
 
+## Con el bosque, el fondo va dentro de su shader (bosque_fondo.gdshader: lo
+## lee y le suma el bosque en la misma pasada) y no se pinta aparte; sin el,
+## se pinta el fondo solo.
+func _poner_bosque() -> void:
+	var imagen := get_node_or_null("FondoImagen") as Sprite2D
+	if imagen == null:
+		return
+	$Bosque.visible = bosque_de_fondo
+	imagen.visible = not bosque_de_fondo
+	($Bosque.material as ShaderMaterial).set_shader_parameter("fondo", imagen.texture)
+
 ## Pinta un ColorRect con shader en una SubViewport a 1/factor de su tamano y lo
 ## pone en su sitio estirado. Para el fondo y la bruma, que son degradados
 ## blandos: a resolucion completa (2912x1632) se comian la GPU del portatil. Los
@@ -1121,7 +1187,66 @@ func _poner_haz() -> void:
 	if _haz_fuerza_base < 0.0:
 		var f: Variant = m.get_shader_parameter("haz_fuerza")
 		_haz_fuerza_base = float(f) if f != null else 0.16
-	m.set_shader_parameter("haz_fuerza", _haz_fuerza_base * (haz_con_bosque if bosque_de_fondo else 1.0))
+	m.set_shader_parameter("haz_fuerza", _haz_fuerza_base * (haz_con_bosque if bosque_de_fondo else 1.0) * _luz_viva)
+
+## El haz es uno: el del material del fondo (_leer_haz). Se le pasa a lo que
+## lo usa (antes cada uno tenia su copia: cambiar el haz en uno sacaba al
+## baculo del haz o dejaba las hojas mal iluminadas).
+func _repartir_haz() -> void:
+	# (la luz del haz en el bosque la pone el propio fondo: fondo_haz.gdshader)
+	_baculo.poner_haz(_haz_origen, _haz_destino)
+	for capa in [$HojasDelante, $HojasDetras]:
+		capa.poner_haz(_haz_origen, _haz_destino, _haz_apertura)
+	# el suelo pintado del lecho lleva la luz cocida: su shader la quita al
+	# apagarse el haz (ver luz_apagar)
+	var lecho := ShaderMaterial.new()
+	lecho.shader = preload("res://scripts/game/lecho_luz.gdshader")
+	lecho.set_shader_parameter("haz_origen", _haz_origen)
+	lecho.set_shader_parameter("haz_destino", _haz_destino)
+	lecho.set_shader_parameter("haz_apertura", _haz_apertura)
+	$Lecho.material = lecho
+
+## Lleva la luz del haz (0 apagado, 1 entero) a todo lo que la usa (ver
+## luz_apagar).
+func _poner_luz_viva(v: float) -> void:
+	_luz_viva = v
+	_poner_haz()
+	if _bosque_haz_base.x < 0.0:
+		_bosque_haz_base = Vector2(_parametro(_fondo_mat, "bosque_en_el_haz"), _parametro(_fondo_mat, "bosque_resplandor"))
+	_fondo_mat.set_shader_parameter("bosque_en_el_haz", _bosque_haz_base.x * v)
+	_fondo_mat.set_shader_parameter("bosque_resplandor", _bosque_haz_base.y * v)
+	if _niebla_mat:
+		if _niebla_base < 0.0:
+			_niebla_base = _parametro(_niebla_mat, "fuerza")
+		_niebla_mat.set_shader_parameter("fuerza", _niebla_base * lerpf(0.25, 1.0, v))
+	$Motas.modulate.a = v
+	($Lecho.material as ShaderMaterial).set_shader_parameter("luz_viva", v)
+	(_sprite.material as ShaderMaterial).set_shader_parameter("luz_viva", v)
+	for capa in [_delante, _detras]:
+		capa.luz_viva = v
+
+## Un parametro del material, o el del shader si el material no lo pone.
+static func _parametro(m: ShaderMaterial, nombre: String) -> float:
+	var v: Variant = m.get_shader_parameter(nombre)
+	if v == null and m.shader:
+		v = RenderingServer.shader_get_parameter_default(m.shader.get_rid(), nombre)
+	return float(v) if v != null else 0.0
+
+## Al coger el baculo el haz se apaga (ver luz_apagar): las hojas de la
+## escalera caen como las demas y dejan de bajar las de la luz.
+func _apagar_luz() -> void:
+	_luz_apagada = true
+	_escalera = false
+	for h in _hojas_luz:
+		h.erase("sitio")
+		h.erase("entrando")
+		h["ligera"] = false
+		h["de_fuera"] = true
+		h["v"] = Vector2(randf_range(-20.0, 20.0), 30.0)
+	_hojas_luz.clear()
+	var tw := create_tween()
+	tw.tween_interval(luz_apagar_tras)
+	tw.tween_method(_poner_luz_viva, 1.0, 0.0, luz_apagar).set_trans(Tween.TRANS_SINE)
 
 func _leer_haz() -> void:
 	var m := $Fondo.material as ShaderMaterial
@@ -1140,9 +1265,11 @@ func _leer_haz() -> void:
 ## luz_borde (ver La luz). Es la ligereza de Magnus: donde vale 1, sus saltos
 ## flotan del todo.
 func luz_en(p: Vector2) -> float:
+	if _luz_viva <= 0.0:
+		return 0.0
 	var eje := (_haz_destino - _haz_origen).normalized()
 	var a := acos(clampf(eje.dot((p - _haz_origen).normalized()), -1.0, 1.0))
-	return 1.0 - smoothstep(_haz_apertura * luz_entera, _haz_apertura * luz_borde, a)
+	return (1.0 - smoothstep(_haz_apertura * luz_entera, _haz_apertura * luz_borde, a)) * _luz_viva
 
 # --- El mundo da la vuelta ---------------------------------------------------
 

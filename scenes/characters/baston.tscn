@@ -1,12 +1,12 @@
 [gd_scene load_steps=17 format=3]
 
-[ext_resource type="Script" path="res://scripts/dev/baston/baston.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/characters/baston/baston.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/characters/baston/baston.png" id="2"]
-[ext_resource type="Shader" path="res://scripts/dev/baston/orbe.gdshader" id="3"]
+[ext_resource type="Shader" path="res://scripts/characters/baston/orbe.gdshader" id="3"]
 [ext_resource type="Texture2D" path="res://assets/characters/baston/orbe_cuadro.png" id="4"]
-[ext_resource type="Shader" path="res://scripts/dev/baston/luz_orbe.gdshader" id="5"]
+[ext_resource type="Shader" path="res://scripts/characters/baston/luz_orbe.gdshader" id="5"]
 [ext_resource type="Texture2D" path="res://assets/characters/baston/funda.png" id="6"]
-[ext_resource type="Shader" path="res://scripts/dev/baston/corte_madera.gdshader" id="7"]
+[ext_resource type="Shader" path="res://scripts/characters/baston/corte_madera.gdshader" id="7"]
 [ext_resource type="Texture2D" path="res://assets/characters/baston/funda_cuero_atras.png" id="8"]
 [ext_resource type="Texture2D" path="res://assets/characters/baston/funda_cuero_delante.png" id="9"]
 

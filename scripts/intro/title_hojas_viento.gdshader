@@ -46,21 +46,18 @@ uniform float titileo_racha = 0.08;
 
 const vec3 LUMW = vec3(0.3, 0.59, 0.11);
 
-float hash(vec2 p) {
-	p = fract(p * vec2(0.1031, 0.1030));
-	p += dot(p, p.yx + 33.33);
-	return fract((p.x + p.y) * p.x);
-}
-
+// Ruido de valor: el valor al azar de cada punto de la reticula se lee de una
+// imagen (assets/comun/ruido_valor.png; title_screen_controller.gd) y, leyendo
+// en i + f con filtro lineal, la grafica funde los cuatro de alrededor en una
+// lectura. Antes eran cuatro hashes por llamada (20 por pixel de follaje) y en
+// la P520 eso pesaba mas que el resto del shader (2026-10-14). Mismo ruido de
+// aspecto; otro dibujo.
+uniform sampler2D azar : filter_linear, repeat_enable;
 float noise(vec2 p) {
 	vec2 i = floor(p);
 	vec2 f = fract(p);
 	f = f * f * (3.0 - 2.0 * f);
-	float a = hash(i);
-	float b = hash(i + vec2(1.0, 0.0));
-	float c = hash(i + vec2(0.0, 1.0));
-	float d = hash(i + vec2(1.0, 1.0));
-	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+	return textureLod(azar, (i + f + 0.5) / 256.0, 0.0).r;
 }
 
 void fragment() {

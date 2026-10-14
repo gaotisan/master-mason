@@ -23,6 +23,8 @@ uniform float oclusion = 0.4;
 uniform float borde_fuerza = 0.5;
 uniform float borde_px = 3.0;
 uniform float lado_luz = 0.0;   // -1..1 en x de UV del sprite
+// Lo que queda del haz (1 entero, 0 apagado: al coger el baculo se apaga).
+uniform float luz_viva : hint_range(0.0, 1.0) = 1.0;
 
 varying vec2 mundo;
 
@@ -42,18 +44,18 @@ float luz_en(vec2 p) {
 
 void fragment() {
 	vec4 c = texture(TEXTURE, UV);
-	float l = luz_en(mundo);
+	float l = mix(0.28, luz_en(mundo), luz_viva);
 	float t = clamp((l - 0.28) / 0.87, 0.0, 1.0);
 	vec3 col = c.rgb * mix(color_sombra, color_luz, t) * (0.8 + 0.3 * t);
 	// Rebote calido de las hojas: la tunica cerca del suelo.
 	float bajo = smoothstep(y_suelo - 170.0, y_suelo - 20.0, mundo.y);
-	col += color_rebote * c.rgb * rebote_fuerza * bajo * (0.4 + 0.6 * t);
+	col += color_rebote * c.rgb * rebote_fuerza * bajo * (0.4 + 0.6 * t) * luz_viva;
 	// Los pies, metidos en la hojarasca, reciben menos luz.
 	col *= 1.0 - oclusion * smoothstep(y_suelo - 60.0, y_suelo - 4.0, mundo.y);
 	// Borde de luz: pixel opaco cuyo vecino hacia la luz es transparente.
 	vec2 hacia = normalize(vec2(lado_luz * 0.7, -1.0)) * borde_px * TEXTURE_PIXEL_SIZE;
 	float vecino = texture(TEXTURE, UV + hacia).a;
 	float borde = c.a * (1.0 - vecino);
-	col += color_luz * borde * borde_fuerza * (0.25 + 0.75 * t);
+	col += color_luz * borde * borde_fuerza * (0.25 + 0.75 * t) * luz_viva;
 	COLOR = vec4(col, c.a);
 }

@@ -1,5 +1,5 @@
 extends "res://scripts/dev/piloto.gd"
-## Piloto del baston (PRUEBA). Le cuelga a Magnus scenes/dev/baston.tscn sin
+## Piloto del baston (PRUEBA). Le cuelga a Magnus scenes/characters/baston.tscn sin
 ## tocar magnus.tscn. Teclas, ademas de las de Magnus:
 ##   B  baston a la espalda / en la mano
 ##   G  guardarlo del todo / sacarlo (a la espalda)
@@ -8,7 +8,7 @@ extends "res://scripts/dev/piloto.gd"
 ## eventos: como guion pero para el baston, [segundo, "mano"|"baston"|"gastar"|"color"],
 ## para grabarlo con --write-movie sin nadie al teclado.
 
-const BASTON := preload("res://scenes/dev/baston.tscn")
+const BASTON := preload("res://scenes/characters/baston.tscn")
 
 @export var eventos: Array = []
 @export var gasto := 0.25

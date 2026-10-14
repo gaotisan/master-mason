@@ -6,7 +6,7 @@ extends Node2D
 ## es un objeto ligero que el aire sostiene.
 ##
 ## Es el mismo baston que Magnus llevara a la espalda: se instancia su escena
-## (scenes/dev/baston.tscn: madera, bola, halo y chispas) sin su script, que
+## (scenes/characters/baston.tscn: madera, bola, halo y chispas) sin su script, que
 ## lo ata al Sprite de Magnus. Asi el aspecto sale de un solo sitio. Mientras
 ## flota, la bola esta apagada; encender() la enciende.
 ##
@@ -15,8 +15,9 @@ extends Node2D
 ##   bajar()          aparece arriba del todo y desciende; emite `posado`.
 ##   encender(color)  enciende la bola poco a poco.
 ##   vara()           los dos extremos de la vara, en la escena (para tocarlo).
-##   alcanzado()      Magnus ha llegado a el subiendo por las hojas: de momento
-##                    la bola late una vez (falta la animacion de cogerlo).
+##   alcanzado()      la bola late una vez (el destello; ver estallar).
+##   coger() ...      al cogerlo: queda solo la bola, en la garra del dibujo de
+##                    Magnus, y se descarga (ver COGIDO).
 ##
 ## 2026-10-11: sin el halo de la garra (la "luz extra en la punta"). 2026-10-12:
 ## baja ya con la bola encendida (sin chispas) y arriba del todo (y_flotar
@@ -28,11 +29,17 @@ extends Node2D
 
 signal posado
 
-const BASTON := preload("res://scenes/dev/baston.tscn")
+const BASTON := preload("res://scenes/characters/baston.tscn")
 
-## Eje del haz (el de fondo_haz): de su vertice al suelo donde cae Magnus.
-const HAZ_ORIGEN := Vector2(1620.0, -700.0)
-const HAZ_DESTINO := Vector2(1456.0, 1200.0)
+## Eje del haz: de su vertice al suelo donde cae Magnus. Lo pone la escena con
+## poner_haz (el del material del fondo: una sola geometria del haz); estos son
+## los de fondo_haz por si no.
+var _haz_origen := Vector2(1620.0, -700.0)
+var _haz_destino := Vector2(1456.0, 1200.0)
+
+func poner_haz(origen: Vector2, destino: Vector2) -> void:
+	_haz_origen = origen
+	_haz_destino = destino
 
 ## Altura (y del centro) a la que se queda flotando, y cuanto tarda en bajar.
 @export var y_flotar: float = 200.0
@@ -99,9 +106,9 @@ func _ready() -> void:
 	visible = false
 
 ## x del eje del haz a una altura y.
-static func x_haz(y: float) -> float:
-	var t := (y - HAZ_ORIGEN.y) / (HAZ_DESTINO.y - HAZ_ORIGEN.y)
-	return lerpf(HAZ_ORIGEN.x, HAZ_DESTINO.x, t)
+func x_haz(y: float) -> float:
+	var t := (y - _haz_origen.y) / (_haz_destino.y - _haz_origen.y)
+	return lerpf(_haz_origen.x, _haz_destino.x, t)
 
 ## Donde esta la bola (en la garra), en coordenadas de la escena.
 func punta() -> Vector2:
@@ -188,8 +195,12 @@ func descargar(duracion: float) -> void:
 	for s in [_orbe, _luz_orbe]:
 		var m := s.material as ShaderMaterial
 		var c0: float = float(m.get_shader_parameter("carga"))
-		create_tween().tween_method(func(c: float) -> void: m.set_shader_parameter("carga", c),
+		var tw := create_tween()
+		tw.tween_method(func(c: float) -> void: m.set_shader_parameter("carga", c),
 			c0, 0.0, duracion).set_trans(Tween.TRANS_SINE)
+		# y vacia se va: sin magia no hay bola, la garra vacia (ver SIN MAGIA en
+		# baston.gd, que es como sigue en la mano)
+		tw.tween_property(s, "modulate:a", 0.0, 0.6).set_trans(Tween.TRANS_SINE)
 
 func _process(delta: float) -> void:
 	if _estado == 0 or _estado == 3:

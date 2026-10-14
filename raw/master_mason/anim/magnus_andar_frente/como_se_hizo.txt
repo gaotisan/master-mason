@@ -27,7 +27,7 @@ metodo; donde choque, manda esto):
     (1/escala cambia 0,077 por ciclo en los dos).
   - Bola del baston: raw/master_mason/anim/baston/frontal.py ->
     assets/characters/baston/frontal.json; la escena usa la bola de
-    scenes/dev/baston.tscn sin su script. De espaldas en el hueco de la garra
+    scenes/characters/baston.tscn sin su script. De espaldas en el hueco de la garra
     (0,43 anchos bajo las puntas, como en mano_andar; garra 38 px frente a 36);
     M gasta magia, C cambia el color.
   - GARRA DE FRENTE (2026-10-07 noche): el baston de este video NO tiene

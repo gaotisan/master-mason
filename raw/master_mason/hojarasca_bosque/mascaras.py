@@ -30,7 +30,7 @@ import numpy as np
 AQUI = os.path.dirname(os.path.realpath(__file__))
 PROYECTO = os.path.normpath(os.path.join(AQUI, "..", "..", ".."))
 SALIDA = os.path.join(PROYECTO, "assets", "world", "hojarasca")
-FUENTE = os.path.join(SALIDA, "bosque_hojarasca.png")
+FUENTE = os.path.join(AQUI, "bosque_hojarasca.png")   # la fuente, aqui (el juego no la usa)
 W, H = 2912, 1632
 
 # La copa se mueve entera por encima de COPA_Y[0] y nada por debajo de

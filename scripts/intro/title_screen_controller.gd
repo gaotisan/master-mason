@@ -211,6 +211,10 @@ func _ready() -> void:
 	_mat.set_shader_parameter("candle_b", CANDLE_B / IMAGE_SIZE)
 	_mat.set_shader_parameter("sun_pos", SUN / IMAGE_SIZE)
 	_mat.set_shader_parameter("window_rect", WINDOW_RECT)
+	# El azar del ruido de valor: el del vaho, con los valores de su hash de
+	# siempre (title_vaho_azar.png); el de las hojas del fondo, uno cualquiera.
+	_mat.set_shader_parameter("azar", load("res://assets/intro/title_vaho_azar.png"))
+	var azar: Texture2D = load("res://assets/comun/ruido_valor.png")
 	# La mascara mira el brillo del fondo para saber que es letra y que es panel.
 	# Lo lee de la textura del fondo, no de lo que ya hay en pantalla: leer la
 	# pantalla obliga a copiarla entera cada fotograma, y debajo solo hay este
@@ -223,6 +227,7 @@ func _ready() -> void:
 	var mat_hojas := ShaderMaterial.new()
 	mat_hojas.shader = load("res://scripts/intro/title_hojas_viento.gdshader")
 	mat_hojas.set_shader_parameter("leaf_mask", load("res://assets/intro/title_hojas_mascara.png"))
+	mat_hojas.set_shader_parameter("azar", azar)
 	var placa: Texture2D = load("res://assets/intro/title_placa_sin_letras.png")
 	mat_hojas.set_shader_parameter("placa", placa)
 	_mat.set_shader_parameter("placa", placa)

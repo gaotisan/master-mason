@@ -87,7 +87,7 @@ def rellenar(img, peso):
 
 
 def main():
-	src = cv2.imread(os.path.join(SALIDA, "bosque_hojarasca.png"), cv2.IMREAD_COLOR)
+	src = cv2.imread(os.path.join(AQUI, "bosque_hojarasca.png"), cv2.IMREAD_COLOR)   # la fuente, aqui (el juego no la usa)
 	img = src.astype(np.float32) / 255.0
 	m = mascara_cerca(img)
 	alfa = cv2.GaussianBlur(cv2.dilate(m, disco(BORDE_PX)).astype(np.float32), (0, 0), 1.2)
