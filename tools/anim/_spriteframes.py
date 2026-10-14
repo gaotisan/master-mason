@@ -263,6 +263,40 @@ ANIMACIONES = [
     # junta), con el nodo por AVANCE_PASO_AGACHADO. Un toque agachado lo da;
     # ver raw/master_mason/anim/magnus_paso_agachado/como_se_hizo.txt.
     ('paso_agachado',     'magnus_paso_agachado',     95, 10, 60.0, False),   # apagado en magnus.gd
+    # ACCIONES DE PERFIL QUE LO DESPLAZAN (2026-10-12), de videos de Flow con
+    # inicio y fin en el reposo: trepar el muro alto (1,15 de su alto), subirse
+    # al sillar mediano, bajar del muro de un saltito y empujar un sillar (v1:
+    # manos en el filo de uno mediano; v2: manos planas, como una puerta, en uno
+    # alto). Todos sus fotogramas a su ritmo (24 fps). La casilla va colocada en
+    # la RAIZ de cada fotograma (raw/master_mason/anim/raiz.py): el viaje (lo
+    # que sube, baja o avanza) lo hace el nodo con la tabla de
+    # assets/characters/magnus/acciones_perfil.json (montar_accion.py), asi que
+    # cada una tiene su casilla y su offset (el de la tabla). Por ahora solo las
+    # usa la escena de prueba de perfil (scripts/characters/acciones_perfil.gd).
+    ('trepar',            'magnus_trepar',           112, 10, 24.0, False, (292, 420)),
+    ('trepar_mediano',    'magnus_trepar_mediano',    91, 10, 24.0, False, (292, 372)),
+    ('bajar',             'magnus_bajar',            110, 10, 24.0, False, (376, 444)),
+    ('empujar',           'magnus_empujar',          173, 10, 24.0, False),
+    ('empujar_v2',        'magnus_empujar_v2',       169, 10, 24.0, False, (348, 360)),
+    # Segunda tanda (2026-10-12), las mismas reglas: golpe y derribo; coger del
+    # suelo y de una mesa y lanzar el palo (la piedrecita y el palo van en el
+    # dibujo; el juego esconde los suyos mientras dura); arrancar el baculo
+    # clavado y, hasta que haya video, clavar = arrancar al reves (las mismas
+    # casillas en orden inverso); tumbarse, arrastrarse (vuelve a empezar en su
+    # primer fotograma) y levantarse, tres tramos de un mismo video.
+    ('golpe',             'magnus_golpe',            105, 10, 24.0, False, (512, 360)),
+    ('derribo',           'magnus_derribo',          143, 10, 24.0, False, (436, 372)),
+    ('coger_suelo',       'magnus_coger_suelo',      113, 10, 24.0, False),
+    ('coger_mesa',        'magnus_coger_mesa',        86, 10, 24.0, False),
+    ('lanzar_palo',       'magnus_lanzar_palo',       97, 10, 24.0, False, (432, 360)),
+    ('arrancar',          'magnus_arrancar',          93, 10, 24.0, False, (292, 408)),
+    ('clavar',            'magnus_arrancar',          93, 10, 24.0, False, (292, 408), list(range(92, -1, -1))),
+    ('tumbarse',          'magnus_tumbarse',          74, 10, 24.0, False, (460, 360), list(range(0, 74))),
+    ('arrastrarse',       'magnus_tumbarse',          49, 10, 24.0, False, (460, 360), list(range(74, 123))),
+    ('levantarse_tumbado', 'magnus_tumbarse',         57, 10, 24.0, False, (460, 360), list(range(123, 180))),
+    # Tirar del sillar alto por su argolla: anda hacia atras y el sillar va con
+    # las manos (el del video se ladeaba: se quito por color).
+    ('tirar',             'magnus_tirar',            171, 10, 24.0, False),
 ]
 
 
