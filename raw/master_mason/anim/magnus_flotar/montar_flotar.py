@@ -359,6 +359,13 @@ def hoja():
         arriba, cy, abajo = medidas(a)
         salida['_despegue'][salto] = round((690 - (arriba + cy) / 2.0) / 2.0, 1)
     print('cuerpo en el despegue:', salida['_despegue'])
+    # Las que montan otros jobs en este mismo json (flotar_pisar de
+    # magnus_pisar_hoja, coger_baculo de magnus_coger_baculo): se conservan.
+    ruta = os.path.join(JUEGO, 'flotar.json')
+    if os.path.exists(ruta):
+        for k, v in json.load(open(ruta)).items():
+            if k not in salida and k not in ANIMS:
+                salida[k] = v
     json.dump(salida, open(os.path.join(JUEGO, 'flotar.json'), 'w'), indent=1)
     json.dump(salida, open(os.path.join(SALIDA, 'flotar.json'), 'w'), indent=1)
 

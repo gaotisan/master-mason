@@ -107,6 +107,15 @@ extends Node2D
 ##
 ## A false vuelve al flip_h instantaneo de antes.
 @export var giro_activo: bool = true
+## Ritmo de los giros (2026-10-13): los videos a su ritmo duran 2,5 s (de pie),
+## 2,8 (agachado) y 2,9 (con el baston en la mano). El usuario: "vamos a
+## bajarlo, toma como referencia otros juegos parecidos". Prince of Persia
+## (1989; SDLPoP, seqtbl.c, a 12 fps) gira de pie en 8 fotogramas, 0,67 s, y
+## sale corriendo desde el 4.o. Recortarlo no vale: hasta el 56 de 61 la pose
+## esta a mas de 1,8 pasos del final (la capa se asienta), un salto de pose al
+## salir andando. A x2,5 (60 fotogramas por segundo, 1 s) "es un pelin rapido,
+## demasiado": x2, 1,27 s de pie (48 fotogramas por segundo, todos).
+@export var giro_ritmo: float = 2.0
 ## Margen para que dos pulsaciones cuenten como doble y arranque a correr.
 @export var doble_pulsacion: float = 0.30
 ## Fraccion del arranque en la que el personaje todavia no ha movido los pies,
@@ -310,6 +319,20 @@ var ligereza: Callable
 @export var gravedad_luz: float = 0.30
 @export_range(0.0, 1.0) var luz_quita_tiron: float = 1.0
 @export var salto_andando_altura: float = 25.0
+## SALTO ANDANDO FUERA DE LA LUZ (2026-10-13). El usuario: "el salto vertical
+## del andar sube quiza muy poco, no es capaz de subir nada". Con el de arriba los
+## pies llegaban a ~102 px (un tercio de Magnus). En los plataformas como Inside o
+## Limbo el salto salva algo mas de media altura del personaje, y los bloques de
+## media altura se tienen que poder saltar ("ademas de escalarlos"): con 110 los
+## pies llegan a ~187 px (el sillar mediano mide 172) y el cuerpo sube 133. Y con
+## la gravedad de verdad (la del salto de parado, 1841 px/s^2) en vez de la que
+## saldria de meter ese arco en el mismo vuelo (~3700, un brinco seco): el vuelo
+## dura 0,77 s en vez de 0,53, a menos fotogramas por segundo. El corriendo es
+## para saltar lejos (~540 px: pasa por encima de un sillar). En la luz manda
+## salto_andando_altura (lo afinado para flotar); a media luz, a medias.
+## salto_andando_gravedad a 0, como antes.
+@export var salto_andando_altura_oscuro: float = 110.0
+@export var salto_andando_gravedad: float = 1841.0
 @export var deriva_max: float = 170.0
 @export var deriva_aceleracion: float = 520.0
 @export var rebote_hoja: float = 1.0
@@ -470,6 +493,9 @@ const VUELO := {
 ## Se emite cuando la cinematica de entrada deja al personaje en reposo y con
 ## el control devuelto.
 signal cinematica_terminada
+## Acaba de despegar de la hoja en la que se apoyaba (ver PISAR LA HOJA): el
+## nivel la patea entonces.
+signal despega_de_hoja(hoja: Dictionary)
 ## Se emite en el sprite en que el cuerpo da contra el suelo en la caida de
 ## entrada (el mismo del golpe de sonido): el nivel levanta ahi la hojarasca.
 signal impacto
@@ -489,6 +515,69 @@ signal pisada(anim: StringName, sprite: int)
 var control_bloqueado := false
 ## Deja andar pero no saltar: junto a una puerta, arriba es "empujar".
 var salto_bloqueado := false
+## SUELO VARIABLE (2026-10-13). Si el nivel lo da, suelo_en.call(x) es la y del
+## suelo en x (la del nodo cuando pisa ahi: encima de un bloque, su cara de
+## arriba). Sin el, el suelo es siempre la altura de donde despega.
+##   - Andando o corriendo con la tecla hacia un borde, al llegar se deja caer
+##     sin pararse: salta solo justo antes (el salto andando o corriendo de
+##     siempre, despegando en el borde) y aterriza en el suelo de abajo, y con
+##     la tecla pulsada sigue andando. El usuario: "tienes que seguir andando y
+##     de forma natural dejarse caer".
+##   - Saltando, aterriza en el suelo que tenga debajo al bajar, mas bajo que el
+##     despegue (de un bloque al suelo) o mas alto (encima de un bloque, si el
+##     cuerpo llega). En el aire, una cara mas alta que los pies es una pared.
+##     Ver SALTAR ENCIMA.
+## En el aire el nodo sigue a la altura del despegue y el sprite baja por debajo
+## (el arco); al tocar suelo el nodo baja lo que faltaba (_aterrizar_abajo).
+## Por debajo del despegue cae con gravedad_caida (sin luz): con la del salto
+## andando (1465 px/s^2) bajar el muro alto flotaba, mas de un segundo en el aire.
+var suelo_en: Callable
+@export var gravedad_caida: float = 1841.0   # la del salto de parado, medida (~la real a esta escala)
+## Hasta donde llega un salto con suelo variable (las caras las lleva el vuelo):
+## los limites del mundo, que pone el nivel. Sin ellos no hay tope.
+var limites_salto := Vector2(-INF, INF)
+## Este salto es dejarse caer de un borde andando: el saltito del video, sin el
+## arco de mas del salto andando (con el, de una mesa a un escalon pasaba por
+## encima del escalon); por debajo del despegue cae con gravedad_caida.
+var _salto_borde := false
+## SALTAR ENCIMA (2026-10-13). El usuario: "los saltos no valen para nada, no
+## suben nada aunque pudieran" y "los de media altura, ademas de escalarlos,
+## deberiamos poder saltarlos". Con el arco de siempre los pies pasaban del
+## sillar mediano (172 px) solo encogidos: el cuerpo no subia lo bastante para
+## caer encima con la pose de tocar suelo (al pasar la cara tocaba de golpe, un
+## tiron de 30 px hacia arriba), y para llegar habia que pulsar en una ventana
+## de 0,2 s. Como los saltos de contexto de otros plataformas (Inside, Limbo,
+## Another World: se salta a donde se puede subir), al despegar sin luz mira la
+## primera cara mas alta que tenga delante (hasta salto_encima_alcance px) y, si
+## llega, sube lo justo para caer encima (el cuerpo salto_encima_holgura px por
+## encima de lo que pide la pose de tocar suelo alli, sin pasar de
+## salto_andando_altura_max) y avanza lo justo para estar encima antes de que
+## el cuerpo baje de alli: sin dar contra la cara si puede, y como mucho a
+## salto_encima_empuje_max por velocidad_andar. Asi lo hace el andando, y el de
+## parado con la tecla hacia la cara (sin tecla salta en el sitio). La
+## holgura es lo que cae encima: con menos, las piernas bajaban de golpe.
+@export var salto_andando_altura_max: float = 175.0
+@export var salto_encima_alcance: float = 300.0
+@export var salto_encima_holgura: float = 24.0
+@export var salto_encima_empuje_max: float = 1.4
+## Lo que el nodo pasa de la cara antes de que el cuerpo baje de alli.
+const ENCIMA_PASA := 12.0
+## Saltando a algo bajo, el arco no baja de esto por el de siempre (del
+## escalon a la mesa, 49 px, subia 133 px: el salto entero para un escalon).
+const ENCIMA_ARCO_MIN := 0.5
+## En el aire, lo que le puede faltar al cuerpo para caer encima de algo al pasar
+## su cara: lo que sube de golpe al tocar alli.
+const ENCIMA_TIRON := 10.0
+## Bajando, si el suelo sube (pasa por encima de una cara): fotograma y altura
+## del suelo desde donde se reparten los que quedan, y en cuanto tiempo.
+var _ancla_suelo := 0.0
+var _ancla_tau := 0.0
+var _ancla_t := 0.0
+var _ancla_dura := 0.0
+## La altura del cuerpo (sobre el despegue) con la que toca encima de lo que
+## apunta el salto en curso (NAN si no apunta a nada): la bajada se reparte
+## desde el apogeo hasta ahi, y no solo desde que pasa la cara.
+var _encima_suelo := NAN
 ## Deja andar pero no correr: el doble toque (y andar_hasta corriendo, y el
 ## giro corriendo) sale andando. Con el baston en la mano solo se anda.
 var correr_bloqueado := false
@@ -749,6 +838,13 @@ var _f_v0 := 0.0             # velocidad de despegue de este salto (px/s)
 var _deriva := 0.0           # px/s de lado que le ha dado el jugador en el aire, en la luz (ver deriva_max)
 var _vuelo_de := &""         # el salto de este vuelo (su clave en VUELO), aunque se vea otra animacion
 var _flota := false          # baja flotando con las animaciones de flotar (ver FLOTAR CON SUS ANIMACIONES)
+var _pisando := false        # apoyado en una hoja de la luz, antes de despegar de ella (ver PISAR LA HOJA)
+var _cinematica_nivel := false  # el nivel lleva al personaje (ver tomar_cinematica)
+var _pisar_hoja: Dictionary = {}
+var _pisar_t := 0.0
+var _pisar_dx := 0.0         # x del nodo respecto a la hoja al apoyarse
+var _pisar_fuerza := 1.0
+var _pisar_arco := 0.0
 var _flota_iv := 0.0         # por donde va en la bajada flotando (fotograma de la secuencia salto + flotar_bajar)
 var _flotar := {}            # flotar.json (vacio si no esta)
 var _giro_aire := 0.0        # girandose en el aire hacia ahi (-1/1), 0 si no (ver GIRAR EN EL AIRE)
@@ -848,6 +944,7 @@ func _physics_process(delta: float) -> void:
 	# personaje mirando a un sitio con el sprite de otro. Un salto pedido
 	# mientras tanto se guarda vivo y sale al terminar el giro (_al_terminar).
 	if _estado == Estado.GIRO:
+		_sprite.speed_scale = giro_ritmo
 		if _salto_en_espera():
 			_salto_pedido = _reloj
 		return
@@ -936,6 +1033,12 @@ func _physics_process(delta: float) -> void:
 	elif _estado == Estado.ARRANQUE_ANDAR and corte_arranque_andar > 0 and _sprite.frame >= _ultimo_util():
 		_cambiar(Estado.ANDAR)
 
+	# Andando hacia un borde (SUELO VARIABLE): salta solo para despegar en el
+	# borde y dejarse caer al suelo de abajo, sin pararse.
+	if _borde_delante(direccion):
+		_saltar()
+		_salto_borde = true
+
 	# Salto guardado: sale en cuanto se puede. Va despues de lo de arriba a
 	# proposito: con la tecla pulsada, el corte del salto anterior ya ha salido
 	# andando y este sale como salto andando, no como uno de parado en mitad
@@ -953,7 +1056,10 @@ func _physics_process(delta: float) -> void:
 	var velocidad := _velocidad()
 	if velocidad > 0.0:
 		var paso := velocidad * delta
-		position.x += paso * _mirando
+		if _estado == Estado.SALTAR and suelo_en.is_valid():
+			position.x = _avance_en_el_aire(position.x + paso * _mirando)
+		else:
+			position.x += paso * _mirando
 		_recorrido += paso
 		# Solo los bucles mueven la animacion con la distancia. Arranques y
 		# paradas van a fps fijo: ahi el personaje acelera o frena y no hay
@@ -1245,17 +1351,30 @@ func en_el_aire() -> bool:
 	var f := _sprite.frame
 	if _sprite.animation == &"salto_correr":
 		return f >= salto_correr_despegue and f < salto_correr_toca
-	if _sprite.animation == &"flotar_bajar" or _sprite.animation == &"flotar_girar":
+	if _sprite.animation in [&"flotar_bajar", &"flotar_girar", &"flotar_pisar"]:
 		return true
 	var v: Dictionary = VUELO.get(_sprite.animation, {})
 	return not v.is_empty() and f >= v["despegue"] and f < v["toca"]
+
+## Saltando, si ya ha tocado suelo (la cola: se incorpora o sale andando). El
+## nivel vuelve ahi a ponerle sus limites, ya en el suelo nuevo.
+func tras_tocar_suelo() -> bool:
+	if _estado != Estado.SALTAR:
+		return false
+	if _vuelo == 3:
+		return true
+	var f := _sprite.frame
+	if _sprite.animation == &"salto_correr":
+		return f >= salto_correr_toca
+	var v: Dictionary = VUELO.get(_sprite.animation, {})
+	return not v.is_empty() and f >= int(v["toca"])
 
 ## Altura de los pies sobre el suelo en un salto (px): la cocida del
 ## fotograma mas el arco. 0 en el suelo.
 func altura_pies() -> float:
 	if not en_el_aire():
 		return 0.0
-	if _sprite.animation == &"flotar_bajar" or _sprite.animation == &"flotar_girar":
+	if _sprite.animation in [&"flotar_bajar", &"flotar_girar", &"flotar_pisar"]:
 		var pf: Array = _flotar[String(_sprite.animation)]["pies"]
 		return maxf(float(pf[clampi(_sprite.frame, 0, pf.size() - 1)]) - _sprite.position.y, 0.0)
 	var v: Dictionary = VUELO[_sprite.animation]
@@ -1266,7 +1385,7 @@ func altura_pies() -> float:
 ## Bajando en un salto con la fisica del vuelo (en la luz, o el de parado y el
 ## andando en cualquier sitio): lo que puede rebotar en una hoja.
 func cayendo() -> bool:
-	return _estado == Estado.SALTAR and _vuelo == 2
+	return _estado == Estado.SALTAR and _vuelo == 2 and not _pisando and not _cinematica_nivel
 
 ## Luz que aligera donde esta el cuerpo ahora (0..1).
 func luz() -> float:
@@ -1278,12 +1397,84 @@ func luz() -> float:
 ## (la bajada espejada: casi en el suelo, piernas estiradas = recien
 ## despegado; arriba del todo, recogidas = cerca del apogeo). Devuelve si
 ## reboto.
-func rebotar(fuerza: float = 1.0) -> bool:
+func rebotar(fuerza: float = 1.0, hoja: Dictionary = {}) -> bool:
 	if not cayendo():
 		return false
+	if not hoja.is_empty() and _sprite.sprite_frames.has_animation(&"flotar_pisar"):
+		_empezar_pisar(hoja, fuerza)
+		return true
+	return _despegar_de_hoja(fuerza, -1.0)
+
+## PISAR LA HOJA (2026-10-14; video de magnus_pisar_hoja. El usuario: "como
+## pisa las hojas y se impulsa con ellas queda un poco falso"). Con la hoja
+## (rebotar(fuerza, hoja)) no rebota de golpe: se apoya en ella con
+## flotar_pisar (toca, flexiona con la hoja y empuja, ~0,5 s) con los pies
+## encima, siguiendola (la hoja pisada se hunde un palmo y el baja con ella), y
+## al acabar despega como el salto de parado desde su fotograma del despegue
+## (lo de siempre, _despegar_de_hoja), con el cuerpo donde estaba.
+func _empezar_pisar(hoja: Dictionary, fuerza: float) -> void:
+	_pisando = true
+	_pisar_hoja = hoja
+	_pisar_t = 0.0
+	_pisar_fuerza = fuerza
+	_pisar_dx = position.x - float(hoja["p"].x)
+	_flota = false
+	_tras_giro = false
+	# Cae en la hoja a medio girarse: se apoya mirando aun a donde miraba y el
+	# giro queda pedido; tras el impulso vuelve a empezar cuando la pose case.
+	if _giro_aire != 0.0:
+		_giro_aire_pedido = _giro_aire
+		_giro_aire = 0.0
+	_sprite.animation = &"flotar_pisar"
+	_sprite.offset = _offset_flotar(&"flotar_pisar")
+	_sprite.set_frame_and_progress(0, 0.0)
+	_pisar_arco = maxf(position.y - float(hoja["p"].y) - PISAR_EN_HOJA, 0.0)
+	# (como en el rebote: el nivel llama despues del tick de Magnus)
+	_sprite.position.y = -_pisar_arco
+
+## Un tick apoyado en la hoja: el fotograma por el tiempo, el nodo con la
+## hoja y, al acabar, el despegue. Devuelve el arco.
+func _volar_pisando(delta: float) -> float:
+	var d: Dictionary = _flotar["flotar_pisar"]
+	var n := int(d["n"])
+	_pisar_t += delta
+	var f := mini(int(_pisar_t * float(d["fps"])), n - 1)
+	if f != _sprite.frame:
+		_sprite.set_frame_and_progress(f, 0.0)
+	var p: Vector2 = _pisar_hoja.get("p", Vector2(position.x - _pisar_dx, position.y - _pisar_arco - PISAR_EN_HOJA))
+	position.x = p.x + _pisar_dx
+	_pisar_arco = maxf(position.y - p.y - PISAR_EN_HOJA, 0.0)
+	if _pisar_t * float(d["fps"]) < float(n):
+		return _pisar_arco
+	# Despega: el cuerpo del ultimo fotograma de pisar es el del despegue
+	# (misma medida, ver _despegue en flotar.json), en la medida del salto que
+	# traia: _despegar_de_hoja lo pasa al de parado si venia de otro.
+	_pisando = false
+	_vuelo = 2
+	despega_de_hoja.emit(_pisar_hoja)
+	var desp: Dictionary = _flotar["_despegue"]
+	var b0: float = desp.get(String(_vuelo_de), desp["salto_parado"])
+	_vuelo_y = _pisar_arco + float(d["cuerpo"][n - 1]) - b0
+	_despegar_de_hoja(_pisar_fuerza, 1.0, PISAR_DESPEGUE_TAU)
+	return _arco_de_ahora()
+
+## El fotograma del salto de parado por el que sigue al despegar de la hoja: el
+## ultimo de pisar va con las piernas estiradas (cuerpo 245,7 px sobre los
+## pies) y el del despegue (18) agachado (216): los pies subian 29 px de golpe.
+## El 21-22 es el que mas se le parece (240-241).
+const PISAR_DESPEGUE_TAU := 21.5
+## Lo que se hunde el apoyo en la hoja (px): con los pies en su centro la planta
+## quedaba ~5 px por encima de la hoja (grabado: se veia el hueco).
+const PISAR_EN_HOJA := 5.0
+
+## El rebote de siempre (sin pisar, o al acabar de pisar con bajado = 1: desde
+## el fotograma del despegue, o tau_dado). bajado < 0: lo que llevaba bajado.
+func _despegar_de_hoja(fuerza: float, bajado_dado: float, tau_dado: float = -1.0) -> bool:
 	var v: Dictionary = VUELO[_vuelo_de]
 	var bajado := clampf((_vuelo_tau - _f_tau_cima) / maxf(float(v["toca"]) - _f_tau_cima, 0.001), 0.0, 1.0)
-	if _flota:
+	if bajado_dado >= 0.0:
+		bajado = bajado_dado
+	elif _flota:
 		# Bajando flotando: lo bajado de su secuencia, y vuelve a la subida del
 		# salto (hasta que haya el video del rebote).
 		bajado = clampf(_flota_iv / maxf(_flota_largo() - 1.0, 1.0), 0.0, 1.0)
@@ -1313,6 +1504,8 @@ func rebotar(fuerza: float = 1.0) -> bool:
 	var d0 := float(v["despegue"])
 	var t1 := float(v["toca"])
 	var tau := _f_tau_cima - bajado * (_f_tau_cima - d0)
+	if tau_dado >= 0.0:
+		tau = clampf(tau_dado, d0, _f_tau_cima)
 	# Desde una hoja se empuja como desde parado, sin carrerilla: sube lo que
 	# el salto de parado con su gravedad (con la velocidad del corriendo, un
 	# rebote eran 460 px).
@@ -1345,16 +1538,18 @@ func rebotar(fuerza: float = 1.0) -> bool:
 func _arco_de_ahora() -> float:
 	var anim := String(_sprite.animation)
 	var f := _sprite.frame
+	if anim == "flotar_pisar":
+		return _pisar_arco
 	if anim == "flotar_bajar" or anim == "flotar_girar":
 		var d: Dictionary = _flotar[anim]
 		var b0: float = _flotar["_despegue"][String(_vuelo_de)]
-		return maxf((_vuelo_y + b0) - float(d["cuerpo"][f]), -float(d["pies"][f]))
+		return maxf((_vuelo_y + b0) - float(d["cuerpo"][f]), -float(d["pies"][f]) - _desnivel())
 	var v: Dictionary = VUELO.get(_sprite.animation, {})
 	if v.is_empty():
 		return -_sprite.position.y
 	var i := clampi(f - int(v["despegue"]), 0, v["pose"].size() - 1)
 	var cocido := _cocido_vuelo(v, float(i)) + float(v["pose"][i])
-	return maxf(_vuelo_y + (1.0 - luz_quita_tiron * _luz) * _pose_vuelo(v, _vuelo_tau) - cocido, -float(v["pies"][i]))
+	return maxf(_vuelo_y + (1.0 - luz_quita_tiron * _luz) * _pose_vuelo(v, _vuelo_tau) - cocido, -float(v["pies"][i]) - _desnivel())
 
 ## Dirigir el salto en el aire con la luz (ver deriva_max). Fuera del vuelo, la
 ## deriva se apaga.
@@ -1405,8 +1600,12 @@ func _eje() -> float:
 ## Con frenada_limite_* la tecla deja de contar ANTES del limite, lo que tarda
 ## en pararse con el paso que lleve: asi el limite es donde acaba de verdad, y
 ## andando puede acercarse mucho mas que corriendo.
+## Frenando de correr hacia el limite, aun con la de correr (2026-10-13): con la
+## de andar, mas corta, la tecla volvia a contar en cuanto empezaba la parada y
+## salia andando a 192 desde 435 px/s en un tick, a media frenada.
 func _fuera_de_limite(hacia: float) -> bool:
-	var m := frenada_limite_correr if _corriendo() else frenada_limite_andar
+	var corriendo := _corriendo() or (_estado == Estado.PARADA_CORRER and signf(hacia) == _mirando)
+	var m := frenada_limite_correr if corriendo else frenada_limite_andar
 	return (hacia < 0.0 and position.x <= limite_izquierdo + m) or (hacia > 0.0 and position.x >= limite_derecho - m)
 
 ## Un salto hacia un limite no puede llevarle mas alla: se recorta el impulso
@@ -1414,12 +1613,21 @@ func _fuera_de_limite(hacia: float) -> bool:
 ## RECORRIDO_SALTO_*) quepa en lo que queda hasta el limite.
 func _impulso_hasta_limite(impulso: float, a_la_carrera: bool) -> float:
 	var limite := limite_derecho if _mirando > 0.0 else limite_izquierdo
+	if suelo_en.is_valid():
+		# SUELO VARIABLE: las caras las lleva el vuelo (_avance_en_el_aire); el
+		# salto solo se acorta para no pasar los limites del mundo
+		limite = limites_salto.y if _mirando > 0.0 else limites_salto.x
 	if is_inf(limite) or impulso <= 0.0:
 		return impulso
 	var queda := maxf((limite - position.x) * _mirando, 0.0)
 	if a_la_carrera:
 		return minf(impulso, maxf(queda - RESBALE_SALTO_CORRER, 0.0) / _recorrido_salto_correr())
-	return minf(impulso, queda / RECORRIDO_SALTO)
+	# el andando, con lo que dure de mas su vuelo fuera de la luz (salto_andando_gravedad)
+	var v: Dictionary = VUELO[&"saltar"]
+	var fps := _sprite.sprite_frames.get_animation_speed(&"saltar")
+	var n := float(v["toca"] - v["despegue"])
+	var extra := n / _ritmo_salto_andando(v, _arco_salto_andando(0.0), fps, 0.0) - n / fps
+	return minf(impulso, queda / (RECORRIDO_SALTO + maxf(extra, 0.0)))
 
 ## Segundos por px/s que recorre el salto corriendo en curso (ver
 ## RECORRIDO_SALTO_CORRER, medido con el empuje y el ritmo de siempre). Con la
@@ -1497,6 +1705,268 @@ func _puede_saltar() -> bool:
 		return false
 	return _estado != Estado.SALTAR or not _salto_bloquea()
 
+## SUELO VARIABLE: andando o corriendo con la tecla hacia donde mira, el suelo
+## de delante baja justo donde despegaria si saltase ahora (lo que anda hasta el
+## fotograma del despegue): es el momento de saltar para despegar en el borde.
+## Con el control quitado no (andar_hasta va a su sitio, y el nivel lleva sus
+## acciones), ni sin poder saltar (con el baston en la mano: el nivel lo para en
+## el borde).
+func _borde_delante(direccion: float) -> bool:
+	if not suelo_en.is_valid() or control_bloqueado or salto_bloqueado or signf(direccion) != _mirando:
+		return false
+	var v := _velocidad()
+	var anda := _estado == Estado.ANDAR \
+		or (_estado == Estado.ARRANQUE_ANDAR and _sprite.frame > arranque_andar_de_pie)
+	var corre := (_estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER) and v > velocidad_andar
+	if not (anda or corre) or not _puede_saltar():
+		return false
+	var anim := &"salto_correr" if corre else &"saltar"
+	var fps := _sprite.sprite_frames.get_animation_speed(anim)
+	var hasta_despegar := float(VUELO[anim]["despegue"]) / fps * v
+	# (si ya pisa el vacio, al arrancar muy pegado al filo, salta ya: nada de
+	# andar por el aire)
+	var delante: float = suelo_en.call(position.x + _mirando * (hasta_despegar + 1.0))
+	return delante > position.y + 2.0
+
+## SUELO VARIABLE: lo que el suelo de donde esta queda por debajo del nodo (px;
+## negativo si esta mas alto: encima de un bloque al que ha saltado). En el aire
+## el nodo sigue a la altura del despegue: es lo que el suelo de aterrizaje queda
+## bajo el del despegue.
+func _desnivel() -> float:
+	if not suelo_en.is_valid():
+		return 0.0
+	return float(suelo_en.call(position.x)) - position.y
+
+## Solo lo que baja (cayendo por debajo del despegue cae con gravedad_caida).
+func _bajada() -> float:
+	return maxf(_desnivel(), 0.0)
+
+## SUELO VARIABLE, en el aire: una cara mas alta que los pies hace de pared (se
+## para contra ella, mirando por delante del cuerpo, y sigue cayendo), y no pasa
+## de limites_salto (el vuelo a otro suelo dura mas de lo que mide
+## _impulso_hasta_limite). Tambien si los pies pasan pero el cuerpo no va a
+## llegar a caer encima (ver _llega_encima).
+const MEDIO_CUERPO := 28.0
+func _avance_en_el_aire(nx: float) -> float:
+	var delante := _mirando * MEDIO_CUERPO
+	var aqui: float = suelo_en.call(position.x + delante)
+	var alli: float = suelo_en.call(nx + delante)
+	if alli < aqui - 1.0 and not _llega_encima(position.y - alli):
+		nx = position.x
+	return clampf(nx, limites_salto.x, limites_salto.y)
+
+## En el aire, si puede pasar por encima de algo h px mas alto que el despegue:
+## con los pies por encima y, en los saltos con su tabla de vuelo, con el cuerpo
+## (o su apogeo, si aun sube) alto para tocar alli con la pose de tocar suelo
+## (ENCIMA_TIRON de margen). Antes bastaban los pies: encogidos pasaban y al
+## tocar el cuerpo subia de golpe lo que le faltaba.
+func _llega_encima(h: float) -> bool:
+	if _pies_sobre_despegue() < h + 1.0:
+		return false
+	var en_vuelo := _vuelo == 1 or _vuelo == 2
+	var v: Dictionary = VUELO.get(_vuelo_de if en_vuelo else _sprite.animation, {})
+	if v.is_empty():
+		return true
+	var n := int(v["toca"]) - int(v["despegue"])
+	var para_tocar := h + _cocido_vuelo(v, float(n)) - ENCIMA_TIRON
+	if _vuelo == 1:
+		return _vuelo_y + _vuelo_v * _vuelo_v / (2.0 * maxf(_f_g, 1.0)) >= para_tocar
+	if _vuelo == 2:
+		return _vuelo_y >= para_tocar
+	# (el corriendo sin la fisica: su arco llega arriba a media subida; mientras
+	# sube cuenta lo que va a subir)
+	var i := clampi(_sprite.frame - int(v["despegue"]), 0, n)
+	var cuerpo := _cocido_vuelo(v, float(i)) + float(v["pose"][i]) - _sprite.position.y
+	if _sprite.animation == &"salto_correr" and _arco_t >= 0.0 and _arco_t < 0.5:
+		cuerpo = maxf(cuerpo, float(v["alto"]) + _arco_amp)
+	return cuerpo >= para_tocar
+
+## SUELO VARIABLE: la primera cara mas alta que el suelo de aqui a menos de
+## `alcance` px por delante: {x: lo que falta hasta ella, alto: lo que sube,
+## ancho: lo que dura arriba a esa altura}, o {}.
+func _cara_delante(alcance: float) -> Dictionary:
+	var dx := 2.0
+	while dx <= alcance:
+		var y: float = suelo_en.call(position.x + _mirando * dx)
+		if y < position.y - 2.0:
+			var ancho := 0.0
+			while ancho < 1000.0 and absf(float(suelo_en.call(position.x + _mirando * (dx + ancho + 4.0))) - y) < 2.0:
+				ancho += 4.0
+			return {"x": dx, "alto": position.y - y, "ancho": ancho}
+		dx += 2.0
+	return {}
+
+## SALTAR ENCIMA: arco, ritmo y avance (px/s en el aire) para caer encima de la
+## cara de delante, o {} si no hay ninguna a la que llegue (sigue el salto de
+## siempre). Mas deprisa de lo que llevaba no va que salto_encima_empuje_max
+## por velocidad_andar.
+func _salto_encima(v: Dictionary, amp0: float, fps: float, impulso: float, alcance := -1.0) -> Dictionary:
+	var cara := _cara_delante(salto_encima_alcance if alcance < 0.0 else alcance)
+	if cara.is_empty():
+		return {}
+	var dist: float = cara["x"]
+	var alto: float = cara["alto"]
+	var ancho: float = cara["ancho"]
+	var n := int(v["toca"]) - int(v["despegue"])
+	# con el cuerpo a esta altura sobre el despegue toca alli con la pose de tocar
+	# suelo; sube lo que pide (a un escalon, un brinco; al sillar, un salto
+	# grande), pero no menos de ENCIMA_ARCO_MIN del de siempre
+	var para_tocar := alto + _cocido_vuelo(v, float(n))
+	var amp := maxf(para_tocar + salto_encima_holgura - float(v["alto"]), amp0 * ENCIMA_ARCO_MIN)
+	if amp > salto_andando_altura_max:
+		return {}
+	var ritmo := _ritmo_salto_andando(v, amp, fps, 0.0)
+	var vuelo := _vuelo_previsto(v, _parabola_vuelo(v, amp, ritmo), ritmo)
+	var dt := get_physics_process_delta_time()
+	var t_pies := -1.0          # desde aqui los pies pasan por encima de la cara
+	var t_fin := -1.0           # hasta aqui el cuerpo aun puede caer encima
+	for k in vuelo.size():
+		var c: Vector2 = vuelo[k]
+		if t_pies < 0.0 and c.y > alto + 1.0:
+			t_pies = float(k) * dt
+		if c.x >= para_tocar:
+			t_fin = float(k) * dt
+	if t_pies < 0.0 or t_fin <= t_pies:
+		return {}
+	# el nodo pasa la cara antes de t_fin: llegando cuando los pies ya pasan, o
+	# parado contra ella hasta entonces y luego lo que le queda; y en t_fin (toca
+	# encima) aun no ha pasado del otro lado (un escalon estrecho, el salto
+	# corriendo)
+	var minimo := maxf((dist + ENCIMA_PASA) / t_fin, (MEDIO_CUERPO + ENCIMA_PASA) / (t_fin - t_pies))
+	var tope := minf(maxf(impulso, velocidad_andar * salto_encima_empuje_max), (dist + ancho - ENCIMA_PASA) / t_fin)
+	if minimo > tope:
+		return {}
+	var sin_tocar := maxf(dist - MEDIO_CUERPO - 1.0, 0.0) / maxf(t_pies, dt)
+	var imp := clampf(impulso, minimo, tope)
+	if imp > sin_tocar and sin_tocar >= minimo:
+		imp = sin_tocar
+	return {"amp": amp, "ritmo": ritmo, "impulso": imp, "suelo": para_tocar}
+
+## SALTAR ENCIMA, corriendo: en el primer tick en el aire, sin luz, si delante
+## hay donde caer encima, el vuelo pasa ya a la fisica (como en la luz) con el
+## arco y el avance para caer alli, sin el empuje extra de la carrerilla (el
+## avance lo pone la ayuda). Si no, el salto largo de siempre (por encima de un
+## sillar, o corto contra su cara).
+func _encima_corriendo() -> bool:
+	if not suelo_en.is_valid() or control_bloqueado:
+		return false
+	var v: Dictionary = VUELO[&"salto_correr"]
+	if ligereza.is_valid() and float(ligereza.call(global_position + Vector2(0.0, -float(v["centro"])))) > 0.0:
+		return false
+	var fps := _sprite.sprite_frames.get_animation_speed(&"salto_correr")
+	var encima := _salto_encima(v, _arco_amp, fps, _impulso * _salto_impulso, 700.0)
+	if encima.is_empty():
+		return false
+	var ritmo: float = encima["ritmo"]
+	var p := _parabola_vuelo(v, encima["amp"], ritmo)
+	var d0 := int(v["despegue"])
+	var tau := float(_sprite.frame) + _sprite.frame_progress
+	_vuelo_de = &"salto_correr"
+	# desde donde se ve el cuerpo (ya algo subido), con la velocidad que lo lleva
+	# al apogeo previsto: con la de la parabola a esta altura del vuelo se
+	# quedaba 20 px corto, a la altura del bloque, y la bajada se saltaba
+	# fotogramas
+	var y0 := _cocido_vuelo(v, tau - float(d0))
+	var vel := sqrt(maxf(2.0 * p.y * (p.x * p.x / (2.0 * p.y) - y0), 0.0))
+	_empezar_vuelo(tau, y0, vel, p.y, ritmo)
+	_f_v0 = p.x
+	_encima_suelo = encima["suelo"]
+	_salto_impulso = salto_correr_impulso
+	_impulso = float(encima["impulso"]) / salto_correr_impulso
+	return true
+
+## El vuelo que saldria ahora sin luz y en llano, tick a tick como lo lleva
+## _volar: (cuerpo, pies) sobre el despegue, desde el despegue hasta tocar suelo.
+func _vuelo_previsto(v: Dictionary, p: Vector2, ritmo: float) -> Array:
+	var r: Array = []
+	var dt := get_physics_process_delta_time()
+	var d0 := int(v["despegue"])
+	var t1 := int(v["toca"])
+	var g := p.y
+	var vel := p.x
+	var y := 0.0
+	var tau := float(d0)
+	var tau_cima := float(d0) + p.x / g * ritmo
+	var cima := p.x * p.x / (2.0 * g)
+	var suelo := _cocido_vuelo(v, float(t1 - d0))
+	var sube := true
+	for k in 300:
+		if sube and vel - g * dt > 0.0:
+			y += vel * dt - g * dt * dt * 0.5
+			vel -= g * dt
+			tau = float(d0) + (tau_cima - float(d0)) * (1.0 - vel / p.x)
+		else:
+			if sube:
+				var resto := dt - vel / g
+				y = cima - g * resto * resto * 0.5
+				vel = -g * resto
+				sube = false
+			else:
+				var v1 := vel - g * dt
+				y += (vel + v1) * 0.5 * dt
+				vel = v1
+			if y <= suelo + 0.001:
+				break
+			var caido := clampf((cima - y) / maxf(cima - suelo, 0.001), 0.0, 1.0)
+			tau = maxf(tau, tau_cima + (float(t1) - tau_cima) * sqrt(caido))
+		var f := clampi(roundi(tau), d0, t1)
+		var i := f - d0
+		var arco := y + _pose_vuelo(v, tau) - (_cocido_vuelo(v, float(i)) + float(v["pose"][i]))
+		r.append(Vector2(y, float(v["pies"][i]) + maxf(arco, -float(v["pies"][i]))))
+	return r
+
+## Segundos en caer h px desde u px/s hacia abajo, con gravedad g.
+func _tiempo_de_caida(h: float, u: float, g: float) -> float:
+	if h <= 0.0:
+		return 0.0
+	return (-u + sqrt(u * u + 2.0 * g * h)) / maxf(g, 1.0)
+
+## Al tocar suelo, el nodo pasa a ese suelo, arriba o abajo (el sprite ya estaba alli).
+func _aterrizar_abajo() -> void:
+	position.y += _desnivel()
+
+## Altura de los pies sobre el suelo del despegue en el fotograma de ahora (px, sin
+## recortar: negativa si ya baja por debajo). Saltando, una cara mas alta que esto
+## es una pared.
+func _pies_sobre_despegue() -> float:
+	var anim := _sprite.animation
+	if anim == &"flotar_bajar" or anim == &"flotar_girar":
+		var pf: Array = _flotar[String(anim)]["pies"]
+		return float(pf[clampi(_sprite.frame, 0, pf.size() - 1)]) - _sprite.position.y
+	var v: Dictionary = VUELO.get(anim, {})
+	if v.is_empty() or _sprite.frame < int(v["despegue"]):
+		return -_sprite.position.y
+	var pies: Array = v["pies"]
+	return float(pies[clampi(_sprite.frame - int(v["despegue"]), 0, pies.size() - 1)]) - _sprite.position.y
+
+## SUELO VARIABLE: lo mas alto (px sobre el suelo) a lo que llegaria el salto
+## que saldria ahora: el nivel decide con esto si algo se salta o se trepa.
+## Andando, lo mas alto donde cae encima (ver SALTAR ENCIMA); corriendo, donde
+## cae encima con la carrerilla que lleve (el cuerpo alto para tocar alli, ver
+## _llega_encima): al sillar mediano, con mas de un segundo corriendo.
+func altura_salto() -> float:
+	var v := _velocidad()
+	var corre := (_estado == Estado.CORRER or _estado == Estado.ARRANQUE_CORRER) and v > velocidad_andar
+	if corre:
+		var m := _carrerilla if carrerilla_activa else 0.0
+		var vc: Dictionary = VUELO[&"salto_correr"]
+		var nc := int(vc["toca"]) - int(vc["despegue"])
+		return float(vc["alto"]) + lerpf(salto_correr_altura, salto_correr_altura_max, m) \
+			- _cocido_vuelo(vc, float(nc)) + ENCIMA_TIRON
+	var anda := _estado == Estado.ANDAR or (_estado == Estado.ARRANQUE_ANDAR and _sprite.frame > arranque_andar_de_pie) \
+		or _estado == Estado.PARADA_ANDAR
+	if anda:
+		var vs: Dictionary = VUELO[&"saltar"]
+		var n := int(vs["toca"]) - int(vs["despegue"])
+		return salto_andando_altura_max + float(vs["alto"]) - salto_encima_holgura - _cocido_vuelo(vs, float(n))
+	return _pies_max(&"salto_parado")
+
+func _pies_max(anim: StringName) -> float:
+	var mx := 0.0
+	for p in VUELO[anim]["pies"]:
+		mx = maxf(mx, float(p))
+	return mx
+
 ## Arranque de correr aun sin velocidad de correr (quieto hasta el fotograma 5,
 ## 81 px/s en el 6). Tras un doble toque desde parado, o un giro corriendo, se
 ## pasa siempre por ahi, y saltar en esos fotogramas daba un salto de parado y,
@@ -1525,6 +1995,7 @@ func _salto_en_espera() -> bool:
 ## tragaba pero subia el esfuerzo y cambiaba el impulso del salto en curso.
 func _saltar() -> void:
 	_salto_pedido = -99.0
+	_salto_borde = false
 	var relanzar := _estado == Estado.SALTAR
 	# El salto se lleva la velocidad que llevaba: saltar corriendo tiene que
 	# avanzar en el aire, no caer en el sitio. Relanzando, como mucho la de
@@ -1608,7 +2079,7 @@ func _aterrizaje() -> float:
 	match String(_sprite.animation):
 		"salto_correr": return aterrizaje_correr
 		"salto_parado": return aterrizaje_parado
-		"flotar_bajar", "flotar_girar": return 1.0
+		"flotar_bajar", "flotar_girar", "flotar_pisar": return 1.0
 		"flotar_posarse": return 0.0
 	return aterrizaje
 
@@ -1616,7 +2087,7 @@ func _interrumpible() -> float:
 	match String(_sprite.animation):
 		"salto_correr": return salto_correr_interrumpible
 		"salto_parado": return salto_parado_interrumpible
-		"flotar_bajar", "flotar_girar": return 2.0
+		"flotar_bajar", "flotar_girar", "flotar_pisar": return 2.0
 		"flotar_posarse": return 0.55
 	return salto_interrumpible
 
@@ -1697,6 +2168,8 @@ func _mirar(direccion: float) -> void:
 func _cambiar(nuevo: Estado) -> void:
 	if _estado == nuevo:
 		return
+	# Apoyado en una hoja solo se esta dentro de un salto (ver PISAR LA HOJA).
+	_pisando = false
 	# La frenada tiene que partir de la velocidad que llevaba de verdad, no de
 	# la de crucero. Si no, un toque corto -- en el que apenas ha acelerado --
 	# entra a frenar a toda velocidad y el personaje pega un tiron hacia
@@ -1759,7 +2232,35 @@ func _cambiar(nuevo: Estado) -> void:
 			_x_tabla = position.x
 
 func _en_cinematica() -> bool:
-	return _estado in CINEMATICA
+	return _estado in CINEMATICA or _cinematica_nivel
+
+## CINEMATICA DEL NIVEL (2026-10-14; la primera, coger el baculo en
+## caida_hojarasca.gd). El nivel se queda con el personaje: sin fisica, sin
+## control y sin que el sprite avance solo; el pone la animacion, el fotograma,
+## el offset, el arco (_sprite.position.y) y el nodo. Lo que hubiera a medias
+## en el aire (apoyado en una hoja, flotando, girandose) se olvida.
+func tomar_cinematica() -> void:
+	_cinematica_nivel = true
+	_pisando = false
+	_flota = false
+	_tras_giro = false
+	_giro_aire = 0.0
+	_giro_aire_pedido = 0.0
+	_salto_pedido = -99.0
+	_sprite.speed_scale = 0.0
+
+## Devuelve el personaje: de pie en reposo, con los pies en el nodo.
+func soltar_cinematica() -> void:
+	_cinematica_nivel = false
+	_vuelo = 0
+	_impulso = 0.0
+	_deriva = 0.0
+	_sprite.speed_scale = 1.0
+	_sprite.position.y = 0.0
+	if _estado == Estado.REPOSO:
+		_poner("reposo")
+	else:
+		_cambiar(Estado.REPOSO)
 
 func _en_agachado() -> bool:
 	return _estado in AGACHADO
@@ -1911,10 +2412,14 @@ func _actualizar_saltos() -> void:
 	var f := _sprite.frame
 	var en_salto := _estado == Estado.SALTAR
 	var correr := en_salto and _sprite.animation == &"salto_correr"
-	var velocidad := 1.0
+	var velocidad := giro_ritmo if _estado == Estado.GIRO_AGACHADO else 1.0
 	var arco := 0.0
 	if correr and _vuelo != 0:
 		# Le ha dado la luz en este salto: lo lleva la fisica hasta el suelo.
+		arco = _volar(get_physics_process_delta_time())
+		velocidad = 0.0 if _vuelo == 1 or _vuelo == 2 else 1.0
+	elif correr and f >= salto_correr_despegue and f < salto_correr_toca and _arco_t0 < 0.0 and _encima_corriendo():
+		# A caer encima de algo (ver _encima_corriendo): desde ya, la fisica.
 		arco = _volar(get_physics_process_delta_time())
 		velocidad = 0.0 if _vuelo == 1 or _vuelo == 2 else 1.0
 	elif correr and f >= salto_correr_despegue and f < salto_correr_toca:
@@ -1955,12 +2460,27 @@ func _actualizar_saltos() -> void:
 		# En cuanto le da la luz, sigue la fisica desde aqui (FLOTAR EN LA LUZ).
 		if _luz_en_carrera(arco, velocidad):
 			velocidad = 0.0
-	elif en_salto and not correr and (VUELO.has(_sprite.animation) or _flota or _giro_aire != 0.0):
+	elif en_salto and not correr and (VUELO.has(_sprite.animation) or _flota or _giro_aire != 0.0 or _pisando):
 		arco = _volar(get_physics_process_delta_time())
 		# En el aire el fotograma lo pone _volar; el sprite no avanza solo.
 		velocidad = 0.0 if _vuelo == 1 or _vuelo == 2 else 1.0
 	_sprite.speed_scale = velocidad
 	_sprite.position.y = -arco
+
+## El arco del salto andando con esa luz al despegar (ver SALTO ANDANDO FUERA DE LA LUZ).
+func _arco_salto_andando(luz: float) -> float:
+	return lerpf(salto_andando_altura_oscuro, salto_andando_altura, clampf(luz, 0.0, 1.0))
+
+## El ritmo de su vuelo (fotogramas/s) para que caiga con salto_andando_gravedad:
+## _parabola_vuelo da g = ritmo^2 (gc + 8 amp / n^2). En la luz, el de siempre.
+func _ritmo_salto_andando(v: Dictionary, amp: float, fps: float, luz: float) -> float:
+	if salto_andando_gravedad <= 0.0:
+		return fps
+	var n := float(v["toca"] - v["despegue"])
+	var n_cima: float = v["apogeo"] - v["despegue"]
+	var gc: float = 2.0 * v["alto"] / (n_cima * n_cima)
+	var r := sqrt(salto_andando_gravedad / (gc + 8.0 * amp / (n * n)))
+	return lerpf(r, fps, clampf(luz, 0.0, 1.0))
 
 ## Parabola del vuelo que se ve con el ritmo de siempre (sin luz): la cocida del
 ## sprite a `ritmo` fotogramas/s mas un arco anadido de `amp` px atado al vuelo
@@ -2001,6 +2521,8 @@ func _empezar_vuelo(tau: float, y: float, vel: float, g: float, ritmo: float) ->
 	_f_v_ref = vel
 	_f_tau_cima = tau + vel / g * ritmo
 	_f_corte = 1.0
+	_ancla_dura = 0.0
+	_encima_suelo = NAN
 	if vel > 0.0:
 		_vuelo = 1
 	else:
@@ -2013,14 +2535,16 @@ func _empezar_vuelo(tau: float, y: float, vel: float, g: float, ritmo: float) ->
 ## la tecla subiendo (la altura variable) pasa a ser mas gravedad mientras
 ## sube: soltada al despegar, llega a la altura del brinco corto.
 func _luz_en_carrera(arco: float, ritmo: float) -> bool:
-	if not ligereza.is_valid():
-		return false
 	var v: Dictionary = VUELO[&"salto_correr"]
 	var d0: int = v["despegue"]
 	var f := _sprite.frame
 	var cuerpo := _cocido_vuelo(v, float(f - d0)) + float(v["pose"][clampi(f - d0, 0, v["pose"].size() - 1)]) + arco
-	_luz = clampf(ligereza.call(global_position + Vector2(0.0, -(float(v["centro"]) + cuerpo))), 0.0, 1.0)
-	if _luz <= 0.0:
+	_luz = 0.0
+	if ligereza.is_valid():
+		_luz = clampf(ligereza.call(global_position + Vector2(0.0, -(float(v["centro"]) + cuerpo))), 0.0, 1.0)
+	# SUELO VARIABLE: sobre un suelo mas bajo que el despegue (salta desde un
+	# bloque) tambien pasa a la fisica, que lo lleva hasta ese suelo.
+	if _luz <= 0.0 and absf(_desnivel()) <= 0.5:
 		return false
 	var fps := _sprite.sprite_frames.get_animation_speed(_sprite.animation)
 	var r := fps * ritmo
@@ -2045,6 +2569,8 @@ func _luz_en_carrera(arco: float, ritmo: float) -> bool:
 func _volar(delta: float) -> float:
 	if _vuelo == 3:
 		return 0.0
+	if _pisando:
+		return _volar_pisando(delta)
 	if _vuelo == 0:
 		_vuelo_de = _sprite.animation
 	var v: Dictionary = VUELO[_vuelo_de]
@@ -2052,7 +2578,9 @@ func _volar(delta: float) -> float:
 	var t1: int = v["toca"]
 	if _vuelo == 0 and _sprite.frame < d0:
 		return 0.0
-	var suelo := _cocido_vuelo(v, float(t1 - d0))
+	# El suelo de la toma (SUELO VARIABLE: por debajo del despegue lo que baje
+	# el suelo de debajo).
+	var suelo := _cocido_vuelo(v, float(t1 - d0)) - _desnivel()
 	if _vuelo == 0:
 		# Despega: la parabola arranca en el fotograma del despegue, y este
 		# tick ya vuela (a ritmo 1 deja el fotograma siguiente, el de siempre).
@@ -2060,10 +2588,33 @@ func _volar(delta: float) -> float:
 		# entero (al cambiar de fotograma el sprite deja el progreso casi en 1)
 		# y en la luz el cuerpo bajaba 3-5 px de golpe al despegar.
 		var fps := _sprite.sprite_frames.get_animation_speed(_sprite.animation)
-		var amp := salto_andando_altura if _sprite.animation == &"saltar" else 0.0
-		var p := _parabola_vuelo(v, amp, fps)
-		_empezar_vuelo(d0, 0.0, p.x, p.y, fps)
+		var amp := 0.0
+		var ritmo := fps
+		var luz0 := 0.0
+		if ligereza.is_valid():
+			luz0 = clampf(ligereza.call(global_position + Vector2(0.0, -float(v["centro"]))), 0.0, 1.0)
+		if _sprite.animation == &"saltar" and _salto_borde:
+			pass                           # dejarse caer: el saltito del video, a su ritmo
+		elif _sprite.animation == &"saltar":
+			# el andando: fuera de la luz sube mas y con la gravedad de verdad
+			# (salto_andando_altura_oscuro, salto_andando_gravedad); en la luz,
+			# lo afinado para flotar
+			amp = _arco_salto_andando(luz0)
+			ritmo = _ritmo_salto_andando(v, amp, fps, luz0)
+		# SALTAR ENCIMA: sin luz, el andando, y el de parado con la tecla hacia delante
+		var hacia := 0.0 if control_bloqueado else Input.get_axis("mover_izquierda", "mover_derecha")
+		var encima := {}
+		if suelo_en.is_valid() and luz0 <= 0.0 and not _salto_borde and (_sprite.animation == &"saltar" \
+				or (_sprite.animation == &"salto_parado" and signf(hacia) == _mirando)):
+			encima = _salto_encima(v, amp, fps, _impulso)
+			if not encima.is_empty():
+				amp = encima["amp"]
+				ritmo = encima["ritmo"]
+				_impulso = encima["impulso"]
+		var p := _parabola_vuelo(v, amp, ritmo)
+		_empezar_vuelo(d0, 0.0, p.x, p.y, ritmo)
 		_f_v0 = p.x
+		_encima_suelo = encima.get("suelo", NAN)
 	# La luz donde esta el cuerpo (su centro, que sube con el salto).
 	_luz = 0.0
 	if ligereza.is_valid():
@@ -2072,6 +2623,8 @@ func _volar(delta: float) -> float:
 	var ge := _f_g * lerpf(1.0, gravedad_luz, _luz)
 	if _vuelo == 1 and not _salto_mantenido():
 		ge *= _f_corte
+	if _vuelo == 2 and _vuelo_y < 0.0 and _luz <= 0.0 and _bajada() > 0.0:
+		ge = maxf(ge, gravedad_caida)      # SUELO VARIABLE: cae por debajo del despegue
 	if _vuelo == 1:
 		if _vuelo_v - ge * delta > 0.0:
 			_vuelo_y += _vuelo_v * delta - ge * delta * delta * 0.5
@@ -2123,15 +2676,39 @@ func _volar(delta: float) -> float:
 		# empezo a subir (el despegue, o donde reboto) al del apogeo.
 		_vuelo_tau = _f_tau_ref + (_f_tau_cima - _f_tau_ref) * (1.0 - _vuelo_v / _f_v_ref)
 	elif _vuelo_y <= suelo + 0.001:
-		# Toca suelo: el sprite sigue solo desde el fotograma de la toma.
+		# Toca suelo: el sprite sigue solo desde el fotograma de la toma (y el
+		# nodo baja al suelo de abajo, si lo hay).
 		_vuelo = 3
+		_aterrizar_abajo()
 		_sprite.set_frame_and_progress(t1, 0.0)
 		return 0.0
 	else:
 		# Bajando: lo caido sobre lo que hay del apogeo al suelo (sin luz cae
-		# como t^2: el fotograma va con la raiz).
-		var caido := clampf((_vuelo_cima - _vuelo_y) / maxf(_vuelo_cima - suelo, 0.001), 0.0, 1.0)
-		_vuelo_tau = _f_tau_cima + (t1 - _f_tau_cima) * sqrt(caido)
+		# como t^2: el fotograma va con la raiz). Si el suelo baja a media bajada
+		# (pasa un borde cayendo) no vuelve atras: espera a que lo caido le alcance.
+		# (saltando encima de algo, la bajada se reparte ya hasta alli: ver SALTAR ENCIMA)
+		var suelo_mapa := suelo if is_nan(_encima_suelo) else maxf(suelo, _encima_suelo)
+		var caido := clampf((_vuelo_cima - _vuelo_y) / maxf(_vuelo_cima - suelo_mapa, 0.001), 0.0, 1.0)
+		var tau_bajada := _f_tau_cima + (t1 - _f_tau_cima) * sqrt(caido)
+		if not suelo_en.is_valid():
+			_vuelo_tau = tau_bajada
+		else:
+			# SUELO VARIABLE: si el suelo sube a media bajada (pasa por encima de
+			# una cara), lo caido sobre una bajada mas corta se saltaba fotogramas
+			# de golpe: desde ahi los que quedan se reparten en lo que tarde en
+			# tocar. Si cambia otra vez, se vuelve a repartir; si baja, como
+			# siempre (espera a que lo caido le alcance).
+			if _ancla_dura > 0.0 and absf(suelo_mapa - _ancla_suelo) > 0.5:
+				_ancla_dura = 0.0
+			if _ancla_dura <= 0.0 and tau_bajada > _vuelo_tau + 1.5:
+				_ancla_suelo = suelo_mapa
+				_ancla_tau = _vuelo_tau
+				_ancla_t = 0.0
+				_ancla_dura = maxf(_tiempo_de_caida(_vuelo_y - suelo_mapa, -_vuelo_v, ge), delta)
+			if _ancla_dura > 0.0:
+				_ancla_t += delta
+				tau_bajada = _ancla_tau + (float(t1) - _ancla_tau) * clampf(_ancla_t / _ancla_dura, 0.0, 1.0)
+			_vuelo_tau = maxf(_vuelo_tau, tau_bajada)
 	# Fotograma: el mas cercano a tau (con el ritmo de siempre tau es entero en
 	# cada tick y da el fotograma de siempre).
 	var f := clampi(roundi(_vuelo_tau), d0, t1)
@@ -2147,7 +2724,7 @@ func _volar(delta: float) -> float:
 	var i := f - d0
 	var cocido := _cocido_vuelo(v, float(i)) + float(v["pose"][i])
 	var arco := _vuelo_y + (1.0 - luz_quita_tiron * _luz) * _pose_vuelo(v, _vuelo_tau) - cocido
-	return maxf(arco, -float(v["pies"][i]))
+	return maxf(arco, -float(v["pies"][i]) - _desnivel())
 
 ## Bajada flotando (ver FLOTAR CON SUS ANIMACIONES), con la fisica ya
 ## integrada en este tick: elige el fotograma de la secuencia (los del salto
@@ -2159,8 +2736,8 @@ func _volar_flotando() -> float:
 	var cuerpo: Array = fb["cuerpo"]
 	var b0: float = _flotar["_despegue"][String(_vuelo_de)]
 	# El suelo de la fisica (alturas sobre el despegue): el cuerpo cuando los
-	# pies tocan, en el ultimo de flotar_bajar.
-	var suelo: float = float(cuerpo[cuerpo.size() - 1]) - b0
+	# pies tocan, en el ultimo de flotar_bajar (y lo que baje el suelo de debajo).
+	var suelo: float = float(cuerpo[cuerpo.size() - 1]) - b0 - _desnivel()
 	if _vuelo == 2 and _vuelo_y <= suelo + 0.001:
 		_posarse_flotando()
 		return 0.0
@@ -2197,7 +2774,7 @@ func _volar_flotando() -> float:
 	if j != _sprite.frame:
 		_sprite.set_frame_and_progress(j, 0.0)
 	var arco := (_vuelo_y + b0) - float(cuerpo[j])
-	return maxf(arco, -float(fb["pies"][j]))
+	return maxf(arco, -float(fb["pies"][j]) - _desnivel())
 
 ## Segundos hasta que el cuerpo baje h px (hasta el suelo de la bajada), con
 ## la velocidad, la gravedad y el tope de caida de ahora (ver caida_max_luz).
@@ -2230,6 +2807,7 @@ func _flota_largo() -> float:
 ## Toca suelo flotando: pasa a posarse (a su ritmo, hasta el reposo).
 func _posarse_flotando() -> void:
 	_vuelo = 3
+	_aterrizar_abajo()
 	_tras_giro = false
 	_sprite.animation = &"flotar_posarse"
 	_sprite.offset = _offset_flotar(&"flotar_posarse")
@@ -2241,7 +2819,7 @@ func _posarse_flotando() -> void:
 ## flotando: la del cuerpo en el ultimo de flotar_bajar.
 func _suelo_flotar() -> float:
 	var cuerpo: Array = _flotar["flotar_bajar"]["cuerpo"]
-	return float(cuerpo[cuerpo.size() - 1]) - float(_flotar["_despegue"][String(_vuelo_de)])
+	return float(cuerpo[cuerpo.size() - 1]) - float(_flotar["_despegue"][String(_vuelo_de)]) - _desnivel()
 
 ## Tope de la caida ahora (px/s; INF sin luz): caida_max_luz, abierto en el
 ## borde con lo que baja la luz. Girandose en el aire o flotando tras girarse,
@@ -2333,7 +2911,7 @@ func _volar_girando() -> float:
 		_sprite.set_frame_and_progress(f, 0.0)
 	_giro_iv += 1.0
 	var arco := (_vuelo_y + b0) - float(fg["cuerpo"][f])
-	return maxf(arco, -float(fg["pies"][f]))
+	return maxf(arco, -float(fg["pies"][f]) - _desnivel())
 
 ## Acaba el giro en el aire: mira al otro lado y sigue flotando desde la pose de
 ## flotar (el principio de flotar_bajar), ya volteado; sin luz para flotar,

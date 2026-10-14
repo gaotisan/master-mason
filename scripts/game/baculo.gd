@@ -51,6 +51,8 @@ const HAZ_DESTINO := Vector2(1456.0, 1200.0)
 ## Lo que tarda la bola en encenderse del todo (s), y su color.
 @export var encendido: float = 1.6
 @export var color_bola: Color = Color(1.0, 0.62, 0.18)
+## Lo que se abre la luz de la bola en el destello al cogerlo (ver estallar).
+@export var estallido_escala: float = 5.0
 
 var _pivote: Node2D
 var _baston: Node2D
@@ -58,7 +60,7 @@ var _orbe: Sprite2D
 var _luz_orbe: Sprite2D
 var _media_vara := 0.0    # media longitud de la madera (px)
 var _t := 0.0
-var _estado := 0          # 0 oculto, 1 bajando, 2 flotando
+var _estado := 0          # 0 oculto, 1 bajando, 2 flotando, 3 cogido (ver coger)
 var _y := 0.0             # altura sin el vaiven
 
 func _ready() -> void:
@@ -154,8 +156,43 @@ func encender(color: Color, efectos := true) -> void:
 	(madera.get_node("Estallido") as CPUParticles2D).restart()
 	(madera.get_node("Chispas") as CPUParticles2D).emitting = true
 
+## COGIDO (caida_hojarasca.gd, coger el baculo): la madera ya va en el dibujo
+## de Magnus (el video del agarre); aqui queda solo la bola, que el nivel pone
+## en la garra del dibujo (bola_en) y que se descarga (descargar) hasta quedar
+## vacia: un cristal apagado con la brasa del fondo (orbe.gdshader, carga 0).
+## Va delante de Magnus: detras, la cara la tapaba cuando la garra le pasa por
+## delante.
+func coger() -> void:
+	_estado = 3
+	_pivote.rotation = 0.0
+	# toda la madera (tambien MaderaDelante y las fundas: si no, se veian dos
+	# bastones); la bola y su luz, hijas de Madera, siguen
+	for hijo in _baston.get_children():
+		if hijo is Sprite2D:
+			(hijo as Sprite2D).self_modulate.a = 0.0
+	z_index = 1
+
+## Al cogerlo, el destello de magia (el usuario: "el baston suelta un destello
+## de magia"): la bola late (alcanzado) y su luz se abre de golpe y vuelve.
+func estallar() -> void:
+	alcanzado()
+	var s0 := _luz_orbe.scale
+	var tw := create_tween()
+	tw.tween_property(_luz_orbe, "scale", s0 * estallido_escala, 0.16).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(_luz_orbe, "scale", s0, 1.1).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+func bola_en(p: Vector2) -> void:
+	global_position += p - _orbe.global_position
+
+func descargar(duracion: float) -> void:
+	for s in [_orbe, _luz_orbe]:
+		var m := s.material as ShaderMaterial
+		var c0: float = float(m.get_shader_parameter("carga"))
+		create_tween().tween_method(func(c: float) -> void: m.set_shader_parameter("carga", c),
+			c0, 0.0, duracion).set_trans(Tween.TRANS_SINE)
+
 func _process(delta: float) -> void:
-	if _estado == 0:
+	if _estado == 0 or _estado == 3:
 		return
 	_t += delta
 	var x_off := 0.0

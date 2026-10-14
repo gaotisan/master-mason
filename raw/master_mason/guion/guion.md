@@ -326,7 +326,7 @@ Dos momentos muestran que **Iram necesita creer en él**, con un pensamiento cor
 - **PASA:** en el haz, el peregrino sube algo más de lo esperado, se queda arriba un instante y **baja despacio**, con la túnica abierta como una campana. No llega al báculo.
 - **PUZLE (contraste, no puzle):** la raíz se salta con un brinco normal en la sombra y con un arco lento y altísimo en la luz. No hay fallo: es un juguete. *(El arco lunar se escala por código sobre el salto existente.)*
 - **SON:** en la luz el aterrizaje no suena; en la sombra, cruje.
-- **TEXTO** (al volver al suelo tras el primer salto que flota): *Dentro de la luz apenas peso como una hoja. ↵ A ver si la próxima vez caigo por esta luz.* Cae a oscuras junto al haz (1.1), así que es un chiste de viejo; quien llegue al final A (otro peregrino cae a la hojarasca) lo leerá de otra manera. (2026-10-14)
+- **TEXTO** (al volver al suelo tras el primer salto que flota): *Dentro de la luz apenas peso como una hoja. ↵ A ver si la próxima vez caigo por esta luz…* Cae a oscuras junto al haz (1.1), así que es un chiste de viejo; quien llegue al final A (otro peregrino cae a la hojarasca) lo leerá de otra manera. (2026-10-14)
 
 **1.5 La hoja que sostiene**
 - **PASA:** baja, más lenta que las demás, **una hoja grande y dorada** y espera a la altura del pecho. Si cae sobre ella, **aguanta**: se dobla, se hunde un palmo y **se oscurece** durante 2 s; luego se pliega y él sigue cayendo, flotando. Si no salta, se le posa en el hombro y resbala, y a los cinco segundos baja otra.
@@ -353,6 +353,7 @@ Dos momentos muestran que **Iram necesita creer en él**, con un pensamiento cor
 - **Logro:** «Ligero como una hoja», sin aviso en pantalla.
 - **SON:** el golpe de la caída y el remolino.
 - *Producción:* el plano detalle tapa la caída, así que no hace falta caer ni aterrizar con el báculo en la mano: se vuelve a lateral con el reposo con báculo (existe), de pie. No se tumba: un primer logro no se castiga.
+- *Hecha (2026-10-14), sin plano detalle:* con el vídeo del usuario (agarrar el báculo y bajar con él, magnus_coger_baculo). Al alcanzarlo lo agarra en el aire con un **destello** (la luz de la bola se abre), la racha levanta las hojas y **abre el camino**; colgado del báculo aún flota un momento mientras **la bola se descarga** y queda **vacía** (cristal apagado); luego, sin la magia, **cae** (la luz pierde su espesor), aterriza agachado y se incorpora con el báculo en la mano (sistema del bastón, bola vacía: solo anda).
 
 **1.8 El báculo en la mano** *(nueva)*
 - **CÁM:** lateral.

@@ -188,6 +188,24 @@ extends Node2D
 @export var musica_db: float = -14.0
 @export var musica_entrada: float = 8.0
 
+@export_group("Coger el baculo")
+## COGER EL BACULO (2026-10-14; video del usuario, raw/master_mason/anim/
+## magnus_coger_baculo). Al alcanzarlo lo agarra (coger_baculo, de flotar.json,
+## mirando hacia el; el nodo se pone para que la garra del dibujo caiga en la
+## bola) y en ese instante el destello, que tapa el cambio de pose y de baston
+## (el del juego y el del video son el mismo dibujo; desde ahi la madera la
+## lleva el dibujo y solo queda la bola, en su garra). Con el destello, la
+## racha que levanta las hojas y abre el camino (_abrir_camino). Colgado del
+## baculo aun flota: baja solo coger_flota de lo que le queda hasta el
+## fotograma coger_cae, mientras la bola se descarga (coger_descarga s) y queda
+## vacia; luego, sin la magia, cae (guion: "la luz pierde su espesor") y el
+## video aterriza agachado y se incorpora. Al acabar sigue con el baculo en la
+## mano (el sistema del baston, scenes/dev/baston.tscn, con la magia a cero:
+## en la mano solo anda) y la bola vacia.
+@export var coger_cae: int = 40
+@export var coger_flota: float = 0.15
+@export var coger_descarga: float = 1.5
+
 @export_group("La luz")
 ## Zona de la luz para jugar (fracciones de la apertura del haz): pesa poco del
 ## todo hasta luz_entera y nada desde luz_borde. El haz se pinta entero solo en
@@ -270,6 +288,10 @@ extends Node2D
 @export var pisar_altura: float = 30.0
 ## Empuje que se lleva la hoja pisada (px/s hacia abajo) y su crujido (dB).
 @export var pisar_empuje: float = 240.0
+## Lo que cede la hoja al apoyarse en ella (px/s hacia abajo, sin girar): baja
+## con el mientras flexiona y despega (magnus.gd, PISAR LA HOJA); al despegar
+## sale pateada con pisar_empuje, girando.
+@export var pisar_cede: float = 90.0
 @export var hoja_pisada_db: float = -23.0
 ## El baculo se alcanza cuando la parte de arriba del cuerpo (de los hombros a
 ## la cabeza: alturas sobre los pies; en el aire, con las piernas recogidas, la
@@ -314,6 +336,9 @@ const PISADA_ANIM := {
 const FUERZA_SALTO := {"salto_parado": 0.8, "saltar": 1.0, "salto_correr": 1.3, "flotar_posarse": 0.35}
 ## Ancho del mundo: lo que sale por un lado entra por el otro.
 const ANCHO := 2912.0
+const FONDO_Z := -10
+## El baston en la mano tras cogerlo (ver coger_cae).
+const BASTON_EN_MANO := preload("res://scenes/dev/baston.tscn")
 
 @onready var _magnus: Node2D = $Magnus
 @onready var _sprite: AnimatedSprite2D = $Magnus/Sprite
@@ -341,6 +366,13 @@ var _baculo_bajando := false
 @onready var _baculo: Node2D = $Baculo
 var _hojas_luz: Array[Dictionary] = []  # las que bajan por la luz (las que aguantan)
 var _escalera := false                  # ya bajan (desde que baja el baculo)
+var _hoja_pisada_capa: Node2D = null    # la capa de la hoja en la que se apoya (ver pisar_cede)
+var _cogiendo := false                  # en la cinematica de coger el baculo (ver coger_cae)
+var _coger_t := 0.0
+var _coger_dat: Dictionary = {}
+var _coger_dir := 1.0
+var _coger_alto := 0.0                  # lo que hay que bajar el dibujo hasta el suelo al agarrar
+var _coger_cayo := false
 var _hoja_luz_espera := 0.0             # s hasta que entre la siguiente por arriba
 var _hoja_luz_lado := -1.0              # de que lado entra la siguiente
 var _luz_reloj := 0.0                   # el vaiven comun de las que bajan por la luz
@@ -368,12 +400,18 @@ func _ready() -> void:
 	_poner_haz()
 	_a_baja_resolucion($Fondo, 4)
 	_a_baja_resolucion($NieblaSuelo, 4)
+	# El fondo, por debajo de todo: el baston de Magnus (scenes/dev/baston.tscn)
+	# va con z_index -1 para quedar detras del cuerpo, y con el fondo en 0 se
+	# quedaba tambien detras del fondo (con el baston en la mano no se veia la bola).
+	for nombre in ["FondoImagen", "Bosque", "HojasLejanas", "Motas"]:
+		(get_node(nombre) as CanvasItem).z_index = FONDO_Z
 	WindAmbience.gust_db = 0.0
 	WindAmbience.fade_to(viento_db, viento_subida)
 	_magnus.position = $MagnusSpawn.position
 	_ultima_x = _magnus.position.x
 	_magnus.impacto.connect(_al_impacto)
 	_magnus.pisada.connect(_al_pisar)
+	_magnus.despega_de_hoja.connect(_al_despegar_de_hoja)
 	_sprite.animation_changed.connect(_al_cambiar_animacion)
 	# La luz de la escena sobre Magnus (sin tocar sus hojas ni su escena).
 	var luz := ShaderMaterial.new()
@@ -462,7 +500,10 @@ func _process(delta: float) -> void:
 		_ligero_pendiente = false
 		_pensar.decir("ligero")
 	_envolver()
-	_seguir_a_magnus(delta)
+	if _cogiendo:
+		_coger_tick(delta)
+	else:
+		_seguir_a_magnus(delta)
 	_vida_del_bosque(delta)
 	if _temblor > 0.0:
 		_temblor = maxf(_temblor - delta, 0.0)
@@ -700,8 +741,10 @@ func _al_cambiar_animacion() -> void:
 func _hoja_de_arriba(y_ya: float = -1.0) -> void:
 	var x := randf_range(150.0, 2760.0)
 	var y := -40.0 if y_ya < 0.0 else y_ya
-	_soltar(Vector2(x, y), Vector2(randf_range(-35.0, 35.0) + _racha_dir * 60.0 * _racha, 40.0), randf() < 0.6,
+	var h := _soltar(Vector2(x, y), Vector2(randf_range(-35.0, 35.0) + _racha_dir * 60.0 * _racha, 40.0), randf() < 0.6,
 			-1.0, INF, true)
+	# de fuera del lecho: no lo hace crecer (hojas_voladoras.gd, DE FUERA)
+	h["de_fuera"] = true
 
 ## x del eje del haz a una altura y.
 func x_haz(y: float) -> float:
@@ -778,7 +821,7 @@ func _bajar_hojas_luz(delta: float) -> void:
 		if y > escalera_hasta:
 			h.erase("sitio")
 			h["v"] = Vector2(0.0, escalera_bajada)
-			h["no_amontona"] = true
+			h["de_fuera"] = true
 			_hojas_luz.remove_at(i)
 			continue
 		h["luz_y"] = y
@@ -797,7 +840,7 @@ func _hoja_suelta_luz(y: float) -> void:
 	var r := luz_sueltas_medianas_escala if _escalera and randf() < luz_sueltas_medianas else luz_sueltas_pequenas
 	var h := _soltar(Vector2(x, y), Vector2(randf_range(-20.0, 20.0), randf_range(10.0, 40.0)), randf() < 0.6,
 			randf_range(r.x, r.y), INF, true)
-	h["no_amontona"] = true
+	h["de_fuera"] = true
 
 # --- Pisar hojas, flotar y el baculo (cada tick de fisica, despues de Magnus) ---
 
@@ -822,15 +865,25 @@ func _pisar_hoja(pies: Vector2) -> void:
 		if not h.is_empty() and (mejor.is_empty() or h["p"].y < mejor["p"].y):
 			mejor = h
 			capa_mejor = capa
-	if mejor.is_empty() or mejor["p"].y < escalera_aguanta or not _magnus.rebotar():
+	if mejor.is_empty() or mejor["p"].y < escalera_aguanta or not _magnus.rebotar(1.0, mejor):
 		return
-	capa_mejor.pisar(mejor, Vector2(randf_range(-30.0, 30.0), pisar_empuje))
+	# Se apoya en ella: cede con su peso, sin girar; la patada, al despegar.
+	capa_mejor.pisar(mejor, Vector2(0.0, pisar_cede))
+	mejor["giro"] = 0.0
+	_hoja_pisada_capa = capa_mejor
 	# Unas migas de la hoja y un crujido suave, mas agudo que en el suelo.
 	for i in 3:
 		_soltar(mejor["p"] + Vector2(randf_range(-8.0, 8.0), 0.0),
 				Vector2(randf_range(-60.0, 60.0), randf_range(20.0, 120.0)), randf() < 0.6,
 				randf_range(0.09, 0.13), randf_range(-20.0, 20.0))
 	_sonar($SonidoPaso, hoja_pisada_db, randf_range(1.12, 1.22))
+
+## Despega de la hoja en la que se apoyaba: sale pateada, girando.
+func _al_despegar_de_hoja(h: Dictionary) -> void:
+	if _hoja_pisada_capa == null or h.is_empty():
+		return
+	_hoja_pisada_capa.pisar(h, Vector2(randf_range(-30.0, 30.0), pisar_empuje))
+	_hoja_pisada_capa = null
 
 ## La primera vez que flota de verdad (le ha dado bien la luz en un salto),
 ## al volver al suelo lo piensa: en la luz apenas pesa.
@@ -854,8 +907,91 @@ func _mirar_baculo(pies: Vector2) -> void:
 	var vara: Array = _baculo.vara()
 	if _distancia_segmentos(a, b, vara[0], vara[1]) <= alcance:
 		_alcanzado = true
-		_baculo.alcanzado()
-		_abrir_camino()
+		if _sprite.sprite_frames.has_animation(&"coger_baculo"):
+			_coger_baculo()
+		else:
+			_baculo.alcanzado()
+			_abrir_camino()
+
+## Empieza a coger el baculo (ver coger_cae).
+func _coger_baculo() -> void:
+	_coger_dat = _magnus.get("_flotar")["coger_baculo"]
+	_magnus.tomar_cinematica()
+	_cogiendo = true
+	_coger_t = 0.0
+	_coger_cayo = false
+	var punta: Vector2 = _baculo.punta()
+	var dir := signf(punta.x - _magnus.position.x)
+	_coger_dir = dir if dir != 0.0 else _magnus.mirando()
+	_magnus._mirar(_coger_dir)
+	_sprite.animation = &"coger_baculo"
+	_sprite.frame = 0
+	var o: Array = _coger_dat["offset"]
+	_sprite.offset = Vector2(-float(o[0]) if _sprite.flip_h else float(o[0]), float(o[1]))
+	var g: Array = _coger_dat["garra"][0]
+	_magnus.position.x = punta.x - _coger_dir * float(g[0])
+	_ultima_x = _magnus.position.x
+	_coger_alto = maxf(_magnus.position.y + float(g[1]) - punta.y, 0.0)
+	_baculo.coger()
+	_baculo.estallar()
+	_baculo.descargar(coger_descarga)
+	_abrir_camino()
+	_coger_tick(0.0)
+
+## Un fotograma de la cinematica: el del video por el tiempo, lo que le queda
+## por bajar, la bola en la garra y la sombra.
+func _coger_tick(delta: float) -> void:
+	_coger_t += delta
+	var d := _coger_dat
+	var n := int(d["n"])
+	var fps := float(d["fps"])
+	var kf := _coger_t * fps
+	var k := mini(int(kf), n - 1)
+	if _sprite.frame != k:
+		_sprite.frame = k
+	var cae := float(coger_cae)
+	var suelo := float(d["suelo"])
+	var alto := 0.0
+	if kf < cae:
+		var u := kf / cae
+		alto = _coger_alto * (1.0 - coger_flota * u * u * (3.0 - 2.0 * u))
+	elif kf < suelo:
+		var u := (kf - cae) / maxf(suelo - cae, 1.0)
+		alto = _coger_alto * (1.0 - coger_flota) * (1.0 - u * u)
+	elif not _coger_cayo:
+		_coger_cayo = true
+		_caer_con_baculo()
+	_sprite.position.y = -alto
+	var g: Array = d["garra"][k]
+	_baculo.bola_en(_magnus.position + Vector2(_coger_dir * float(g[0]), float(g[1]) - alto))
+	var arriba := clampf((alto + float(d["pies"][k])) / 260.0, 0.0, 1.0)
+	_sombra.position = Vector2(_magnus.position.x, 1196.0)
+	_sombra.scale = Vector2(3.4 * (1.0 - 0.35 * arriba), 0.75 * (1.0 - 0.35 * arriba))
+	_sombra.modulate.a = 0.62 * (1.0 - 0.7 * arriba)
+	if kf >= float(n):
+		_acabar_coger()
+
+## Toca el suelo con el baculo: las hojas de los pies saltan y un golpe sordo.
+func _caer_con_baculo() -> void:
+	var x := _magnus.position.x
+	for capa in [_delante, _detras]:
+		for h in capa.tomar(x - 70.0, x + 70.0, 10, 2, 0.8):
+			capa.lanzar(h, Vector2(randf_range(-260.0, 260.0), -randf_range(250.0, 600.0)))
+	_temblor = 0.2
+	_sonar($SonidoGolpe, hojas_golpe_db - 5.0, 1.15)
+
+## Acaba la cinematica: el baculo queda en la mano (el sistema del baston) con
+## la bola vacia, y el jugador vuelve a tener el mando.
+func _acabar_coger() -> void:
+	_cogiendo = false
+	_baculo.visible = false
+	var b: Node2D = BASTON_EN_MANO.instantiate()
+	b.set("magia", 0.0)
+	b.set("magia_recarga", 0.0)
+	_magnus.add_child(b)
+	b.set("_mostrada", 0.0)
+	b.call("poner_en_mano", true)
+	_magnus.soltar_cinematica()
 
 ## PRUEBA del bosque de fondo. Al alcanzar el baculo (de momento, lo que hace
 ## de cogerlo) una racha enorme: barre el lecho de izquierda a derecha
@@ -1037,6 +1173,9 @@ func _envolver() -> void:
 	_fantasma.visible = lado != 0.0
 	if not _fantasma.visible:
 		return
+	# (con el baston en la mano, Magnus lleva otras SpriteFrames)
+	if _fantasma.sprite_frames != _sprite.sprite_frames:
+		_fantasma.sprite_frames = _sprite.sprite_frames
 	if _fantasma.animation != _sprite.animation:
 		_fantasma.animation = _sprite.animation
 	_fantasma.frame = _sprite.frame

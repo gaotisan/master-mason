@@ -20,6 +20,17 @@ extends Node2D
 ## resbala hacia la baja. Las migas (trozos pequenos) no se apilan: se pierden
 ## entre las hojas al caer.
 ##
+## DE FUERA (2026-10-14): las que llegan de fuera del lecho (marcadas
+## "de_fuera": las de los arboles, las que bajan por la luz) no cambian cuantas
+## hay en cada columna. Las grandes (>= de_fuera_minima) se quedan en el sitio
+## de la de arriba, que se va; las pequenas se hunden entre las demas
+## (hundirse s, desvaneciendose). Las que mueve el peregrino si se apilan: es lo
+## que hace que cada pasada deje el lecho distinto. Antes las de los arboles se
+## apilaban sin fin (el lecho crecia un 20 % cada media hora y en una noche
+## subia ~175 px) y las de la luz quitaban la hoja de abajo de su columna sin
+## bajar las de encima: bajo el haz las columnas se quedaban huecas por debajo
+## (51 px a la media hora: "unos huecazos").
+##
 ## El mundo da la vuelta (ANCHO): lo que sale por un lado entra por el otro, y
 ## junto al borde se dibuja en los dos lados.
 ##
@@ -68,6 +79,10 @@ const HAZ_APERTURA := 0.17
 @export var derrame: int = 3
 ## Tope de hojas en el aire (por si acaso).
 @export var max_vuelan: int = 900
+## Ver DE FUERA: lo que mide una hoja de fuera para quedarse en el lecho, y lo
+## que tarda en hundirse una mas pequena (s).
+@export var de_fuera_minima: float = 0.26
+@export var hundirse: float = 1.4
 ## Viento (px/s^2 en x) que empuja a las que vuelan; la escena lo pone con las
 ## rachas. Empuja mas a las que van de cara (mas superficie) y despacio.
 var viento := 0.0
@@ -88,6 +103,7 @@ var ligereza: Callable
 var gravedad_luz := 0.3
 
 var _vuelan: Array[Dictionary] = []
+var _hundiendo: Array[Dictionary] = []   # de fuera y pequenas, desvaneciendose (ver DE FUERA)
 var _cols: Array = []                 # N_COL listas de hojas, de abajo a arriba
 var _tramos: Array[Node2D] = []
 var _vuelo: Node2D
@@ -356,6 +372,14 @@ func _physics_process(delta: float) -> void:
 		h["p"] = p
 		h["v"] = v
 		i += 1
+	var j := 0
+	while j < _hundiendo.size():
+		var hh: Dictionary = _hundiendo[j]
+		hh["alfa"] -= delta / maxf(hundirse, 0.01)
+		if hh["alfa"] <= 0.0:
+			_hundiendo.remove_at(j)
+			continue
+		j += 1
 	_vuelo.queue_redraw()
 	for t in _sucios:
 		_tramos[t].queue_redraw()
@@ -391,27 +415,35 @@ func _flotar_en_sitio(h: Dictionary, delta: float) -> void:
 	h["p"] = h["p"] + vel * delta
 	h["vuelta"] = 0.3 * sin(t * 0.6)
 
-## Las migas se pierden entre las hojas; las hojas se apilan. Las que llevan
-## "no_amontona" (las que caen sin parar por la luz: siempre en el mismo sitio)
-## se apilan sin subir el monton: sale la de abajo de esa columna, tapada por
-## las de encima (si no, en unos minutos crecia un monte bajo el haz).
+## Las migas se pierden entre las hojas; las hojas se apilan, y las de fuera
+## del lecho ocupan el sitio de la de arriba o se hunden (ver DE FUERA).
 func _posar(h: Dictionary) -> void:
 	if h["esc"] < escala_miga:
 		return
-	# Ya en el lecho es una hoja mas: lo de su caida (ligera en la luz, no
-	# amontonar) se queda en el aire. Si no, las que caen sin parar por el haz
-	# iban sustituyendo a las del lecho bajo la luz y al pisarlas flotaban
-	# despacio en vez de saltar y caer ("el suelo es totalmente distinto",
-	# 2026-10-13).
-	var sin_amontonar: bool = h.get("no_amontona", false)
+	# Ya en el lecho es una hoja mas: lo de su caida (ligera en la luz) se queda
+	# en el aire. Si no, al pisarlas flotaban despacio en vez de saltar y caer
+	# ("el suelo es totalmente distinto", 2026-10-13).
+	var de_fuera: bool = h.get("de_fuera", false)
 	h["ligera"] = false
-	h.erase("no_amontona")
-	_apilar(h)
-	if sin_amontonar:
-		var c := _c(h["p"].x)
-		if _cols[c].size() > 1:
-			_cols[c].remove_at(0)
-			_ensuciar(c)
+	h.erase("de_fuera")
+	if not de_fuera:
+		_apilar(h)
+		return
+	var c := _c(h["p"].x)
+	h["p"] = Vector2(fposmod(h["p"].x, ANCHO), tope(h["p"].x))
+	h["v"] = Vector2.ZERO
+	h["desliza"] = false
+	if h["esc"] < de_fuera_minima or _cols[c].is_empty():
+		h["alfa"] = 1.0
+		_hundiendo.append(h)
+		return
+	var arriba: Dictionary = _cols[c].pop_back()
+	h["p"].y = arriba["p"].y
+	var cv := cos(h["vuelta"])
+	h["vuelta"] = acos(signf(cv) * maxf(absf(cv), 0.55))
+	h["luz"] = luz_en(h["p"])
+	_cols[c].append(h)
+	_ensuciar(c)
 
 # --- Dibujo ------------------------------------------------------------------
 
@@ -436,6 +468,8 @@ func _dibujar_tramo(capa: Node2D, tramo: int) -> void:
 func _dibujar_vuelo() -> void:
 	for h in _vuelan:
 		_dibujar_hoja(_vuelo, h, h["desliza"], 1.0)
+	for h in _hundiendo:
+		_dibujar_hoja(_vuelo, h, true, 1.0)
 	_vuelo.draw_set_transform_matrix(Transform2D.IDENTITY)
 
 func _dibujar_hoja(capa: Node2D, h: Dictionary, tumbada: bool, sombra: float) -> void:
@@ -457,7 +491,7 @@ func _dibujar_hoja(capa: Node2D, h: Dictionary, tumbada: bool, sombra: float) ->
 	# Envés: mas apagado y menos saturado.
 	if c < 0.0:
 		luz *= 0.78
-	var col := Color(luz, luz * (0.97 if c >= 0.0 else 0.93), luz * (0.95 if c >= 0.0 else 0.85))
+	var col := Color(luz, luz * (0.97 if c >= 0.0 else 0.93), luz * (0.95 if c >= 0.0 else 0.85), h.get("alfa", 1.0))
 	# Junto a un borde se dibuja tambien al otro lado (el mundo da la vuelta).
 	var copias := [0.0]
 	if p.x < 40.0:

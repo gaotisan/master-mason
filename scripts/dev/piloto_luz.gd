@@ -61,6 +61,8 @@ const PRUEBAS := {
 	# Dirigir en el aire (parado en el centro, derecha en el aire). Por las
 	# hojas de la luz sube un bot (ver _bot): prueba "escalera".
 	"escalera": [1420.0, []],
+	# La cinematica de coger el baculo, sin subir: baja el baculo y lo coge.
+	"coger": [1380.0, []],
 	# Con el bosque de fondo (LUZ_BOSQUE=1): el viento destapa el camino al
 	# segundo, con Magnus quieto en el centro.
 	"camino": [1470.0, []],
@@ -91,6 +93,7 @@ const PRUEBAS := {
 ## deprisa y pone la escalera ya en su sitio (sin la entrada).
 const EXTRAS := {
 	"escalera": [[0.0, "baculo"]],
+	"coger": [[0.0, "baculo"], [1.5, "coger"]],
 	"camino": [[1.0, "camino"]],
 }
 
@@ -394,6 +397,9 @@ func _physics_process(delta: float) -> void:
 		match e[1]:
 			"camino":
 				escena._abrir_camino()
+			"coger":
+				escena._alcanzado = true
+				escena._coger_baculo()
 			"baculo":
 				var b: Node2D = escena.get_node("Baculo")
 				b.bajada = 0.05
