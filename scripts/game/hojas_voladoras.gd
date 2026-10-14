@@ -110,6 +110,24 @@ func poner_haz(origen: Vector2, destino: Vector2, apertura: float) -> void:
 ## Viento (px/s^2 en x) que empuja a las que vuelan; la escena lo pone con las
 ## rachas. Empuja mas a las que van de cara (mas superficie) y despacio.
 var viento := 0.0
+## EL REMOLINO (2026-10-14, al coger el baculo; guion 1.7: "un remolino recorre
+## el claro, levanta la hojarasca en espiral y se la lleva hacia el borde
+## derecho"). Lo mueve el nivel: remolino (0..1, cuanto hay), remolino_x (su
+## eje, x del mundo) y remolino_vel (lo que avanza, px/s). Las hojas que vuelan a
+## menos de remolino_radio de su eje y por debajo de remolino_alto se quedan en
+## el: suben girando alrededor del eje (una vuelta de radio propio, mas ancha
+## cuanto mas arriba, y mas rapida cuanto mas cerca), y cuando el remolino se
+## apaga salen despedidas hacia la derecha.
+var remolino := 0.0
+var remolino_x := 0.0
+var remolino_vel := 0.0
+@export var remolino_radio: float = 230.0
+@export var remolino_alto: float = 950.0
+@export var remolino_giro: float = 4.5          # rad/s en el borde
+@export var remolino_sube: float = 420.0        # px/s
+## Quietud (s): las hojas se quedan quietas en el aire (el medio segundo de
+## quietud al coger el baculo, guion 1.7).
+var pausa := 0.0
 ## Empuje hacia arriba (px/s^2) de una racha muy fuerte (la que destapa el
 ## camino): las que vuelan suben remolineando mientras sopla.
 var viento_arriba := 0.0
@@ -319,7 +337,9 @@ func apoyo(x: float, y0: float, y1: float, ancho: float, luz_minima: float) -> D
 		var p: Vector2 = h["p"]
 		if p.y < y0 or p.y > y1:
 			continue
-		var medio: float = h["esc"] * CELDA.y * 0.25
+		# lo que mide la hoja de lado desde su centro (a lo largo: tumbada en la
+		# luz se ve casi entera; 2026-10-14, antes un cuarto)
+		var medio: float = h["esc"] * CELDA.y * 0.35
 		if absf(wrapf(p.x - x, -ANCHO / 2.0, ANCHO / 2.0)) > ancho + medio:
 			continue
 		if ligereza.is_valid() and ligereza.call(p) < luz_minima:
@@ -351,6 +371,9 @@ func luz_en(p: Vector2, con_viva := true) -> float:
 # --- Fisica de las que se mueven ---------------------------------------------
 
 func _physics_process(delta: float) -> void:
+	if pausa > 0.0:
+		pausa -= delta
+		return
 	var i := 0
 	while i < _vuelan.size():
 		var h: Dictionary = _vuelan[i]
@@ -396,6 +419,8 @@ func _physics_process(delta: float) -> void:
 		v.y -= viento_arriba * (0.4 + 0.6 * plana) * (0.5 + 0.5 * sin(h["meceo"] * 0.7)) * delta
 		# Al mecerse se inclina hacia donde se desliza; el giro libre se apaga.
 		h["giro"] = lerpf(h["giro"], -sin(h["meceo"]) * 1.6 * lenta, 1.0 - exp(-1.5 * delta))
+		if remolino > 0.0 or h.has("orbita"):
+			v = _en_remolino(h, v, delta)
 		var p: Vector2 = h["p"] + v * delta
 		p.x = fposmod(p.x, ANCHO)
 		var suelo := tope(p.x)
@@ -426,6 +451,38 @@ func _physics_process(delta: float) -> void:
 		j += 1
 	_vuelo.queue_redraw()
 	_pintar_sucias()
+
+## Una hoja en el remolino (ver EL REMOLINO): la recoge si esta a su alcance, la
+## lleva girando alrededor del eje mientras sube, y la suelta hacia la derecha
+## cuando el remolino se apaga o al pasar de arriba.
+func _en_remolino(h: Dictionary, v: Vector2, delta: float) -> Vector2:
+	var p: Vector2 = h["p"]
+	var dx := wrapf(p.x - remolino_x, -ANCHO / 2.0, ANCHO / 2.0)
+	var arriba := y_suelo - p.y
+	if not h.has("orbita"):
+		if remolino < 0.3 or absf(dx) > remolino_radio or arriba > remolino_alto:
+			return v
+		h["orbita"] = remolino_radio * randf_range(0.3, 0.9)
+		h["ang"] = acos(clampf(dx / float(h["orbita"]), -1.0, 1.0)) * (1.0 if randf() < 0.5 else -1.0)
+		h["giro"] = randf_range(6.0, 11.0) * (1.0 if randf() < 0.5 else -1.0)
+	if remolino < 0.15 or arriba > remolino_alto:
+		# se apaga (o la hoja sale por arriba): despedida hacia el borde derecho.
+		# Al caer no se apila (DE FUERA): despedida a la derecha, el mundo da la
+		# vuelta y caia a la izquierda, donde hacia un monton.
+		h.erase("orbita")
+		h["de_fuera"] = true
+		return Vector2(randf_range(320.0, 760.0), -randf_range(60.0, 260.0))
+	var alto := clampf(arriba / remolino_alto, 0.0, 1.0)
+	# dentro del remolino no cae: se le quita la gravedad que ya le sumo el tick
+	v.y -= gravedad * delta
+	var r: float = float(h["orbita"]) * (0.55 + 0.9 * alto)
+	h["ang"] = float(h["ang"]) + remolino_giro * delta * (remolino_radio / maxf(r, 30.0))
+	var objetivo := remolino_x + r * cos(float(h["ang"]))
+	var falta := wrapf(objetivo - p.x, -ANCHO / 2.0, ANCHO / 2.0)
+	var k := 1.0 - exp(-10.0 * delta)
+	v.x = lerpf(v.x, remolino_vel + falta * 9.0, k)
+	v.y = lerpf(v.y, -remolino_sube * remolino * (1.0 - 0.6 * alto), 1.0 - exp(-5.0 * delta))
+	return v
 
 ## Hoja de la escalera: planea hacia su sitio (mas despacio al llegar, meciendose
 ## un poco de lado) y alli se queda con un vaiven leve, casi de cara. Pisada,
@@ -579,17 +636,25 @@ func _mm_rehacer() -> void:
 
 func _dibujar_vuelo() -> void:
 	for h in _vuelan:
+		if h.has("orbita"):
+			# en el remolino, las de detras del eje mas oscuras y pequenas: se lee
+			# la espiral en redondo, no un enjambre plano
+			var delante := 0.5 + 0.5 * sin(float(h["ang"]))
+			_dibujar_hoja(_vuelo, h, false, lerpf(0.45, 1.08, delante), lerpf(0.8, 1.15, delante))
+			continue
 		_dibujar_hoja(_vuelo, h, h["desliza"], 1.0)
 	for h in _hundiendo:
 		_dibujar_hoja(_vuelo, h, true, 1.0)
 	_vuelo.draw_set_transform_matrix(Transform2D.IDENTITY)
 
-func _dibujar_hoja(capa: Node2D, h: Dictionary, tumbada: bool, sombra: float) -> void:
+func _dibujar_hoja(capa: Node2D, h: Dictionary, tumbada: bool, sombra: float, escala := 1.0) -> void:
 	var p: Vector2 = h["p"]
 	var celda: int = h["celda"]
 	var region := Rect2(Vector2(celda % COLS_ATLAS, celda / COLS_ATLAS) * CELDA, CELDA)
 	var col := _color(h, luz_en(p), tumbada, sombra)
 	var t := _forma(h, tumbada)
+	if escala != 1.0:
+		t = t.scaled_local(Vector2(escala, escala))
 	capa.draw_set_transform_matrix(t)
 	capa.draw_texture_rect_region(ATLAS, Rect2(-CELDA / 2.0, CELDA), region, col)
 	# Junto a un borde se dibuja tambien al otro lado (el mundo da la vuelta).

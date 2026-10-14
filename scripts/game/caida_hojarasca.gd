@@ -214,8 +214,40 @@ extends Node2D
 ## Magnus y lo que aligera (ya no se flota). Las hojas de la escalera se sueltan
 ## y caen como las demas, y dejan de bajar las de la luz; las de los arboles
 ## siguen. Con el, el peregrino cae (coger_cae): la luz pierde su espesor.
-@export var luz_apagar_tras: float = 0.4
-@export var luz_apagar: float = 2.6
+@export var luz_apagar_tras: float = 1.5
+@export var luz_apagar: float = 2.4
+## EL FINAL DEL AGARRE (2026-10-14; el usuario eligio "las mejoras": remolino de
+## verdad, el haz se retira y la quietud; las motas de la bola volando al
+## sendero se probaron y se quitaron: "un poco cutres"):
+## agarre_quietud: el medio segundo de quietud del guion (1.7): las hojas se
+##   quedan quietas en el aire y el haz da un destello (agarre_destello: cuanto
+##   se avivan el haz y su luz en el bosque); luego todo se suelta con la racha,
+##   un tiron de camara y el remolino.
+@export var agarre_quietud: float = 0.5
+@export var agarre_destello: float = 1.4
+## El remolino (hojas_voladoras.gd: EL REMOLINO) cruza el claro de remolino_desde
+## a remolino_hasta en remolino_dura s, levantando las hojas del lecho por donde
+## pasa (camino_hojas_lecho en total), y al apagarse las despide a la derecha.
+@export var remolino_desde: float = 250.0
+@export var remolino_hasta: float = 2750.0
+@export var remolino_dura: float = 3.2
+## Hojas del lecho que levanta en total. Con las 600 del barrido de antes
+## llegaban a volar ~1.200 a la vez (las del remolino no caen) y la fisica no
+## daba abasto: el final iba a 5 fps y a camara lenta (2026-10-14).
+@export var remolino_hojas: int = 280
+## LA CAMARA DEL FINAL (2026-10-14; "otra vuelta de tuerca para que quede
+## profesional"): en la quietud se acerca (final_acerca, sobre el zoom de
+## siempre); con el remolino sigue hacia el sendero (final_hacia: px de lado y
+## final_acerca2 de zoom, para que el borde de la imagen no asome) y, ya con el
+## mando, vuelve sola en final_vuelve s.
+@export var final_acerca: float = 0.05
+@export var final_acerca2: float = 0.085
+@export var final_hacia: float = 120.0
+@export var final_vuelve: float = 3.5
+## Sonido del final: la musica baja final_musica dB en la quietud y vuelve con
+## el remolino; la nota del hilo, grave (final_nota de tono), al agarrarlo.
+@export var final_musica: float = -10.0
+@export var final_nota: float = 0.5
 
 @export_group("La luz")
 ## Zona de la luz para jugar (fracciones de la apertura del haz): pesa poco del
@@ -288,15 +320,22 @@ extends Node2D
 @export var luz_sueltas_pequenas: Vector2 = Vector2(0.12, 0.24)
 @export var luz_sueltas_medianas_escala: Vector2 = Vector2(0.26, 0.34)
 @export var luz_sueltas_medianas: float = 0.3
-## Pisar: px a cada lado de los pies (mas el medio ancho de la hoja), margen
+## Pisar: px a cada lado de los pies (mas el medio ancho de la hoja; 2026-10-14:
+## 28, la planta y algo, en vez de 46: "a veces parece que no toca la hoja y
+## rebota"), margen
 ## por encima de los pies del tick anterior (poco: una hoja que cae sobre las
 ## piernas no se pisa, hay que bajar sobre ella) y por debajo de los de ahora, luz
 ## minima en la hoja para que aguante, y altura minima de los pies (casi en el
 ## suelo, la hoja ya va a posarse).
-@export var pisar_ancho: float = 46.0
-@export var pisar_margen: Vector2 = Vector2(4.0, 10.0)
+@export var pisar_ancho: float = 28.0
+@export var pisar_margen: Vector2 = Vector2(4.0, 2.0)
 @export var pisar_luz: float = 0.35
 @export var pisar_altura: float = 30.0
+## Hasta cuanto por debajo de los pies (px) mira la hoja que pisara al bajar
+## flotando (magnus.gd: hoja_debajo; estira las piernas al acercarse), y en
+## cuanto (s, la mitad del camino) se pone la hoja pisada bajo su pie.
+@export var pisar_mira: float = 260.0
+@export var pisar_centrar: float = 0.05
 ## Empuje que se lleva la hoja pisada (px/s hacia abajo) y su crujido (dB).
 @export var pisar_empuje: float = 240.0
 ## Lo que cede la hoja al apoyarse en ella (px/s hacia abajo, sin girar): baja
@@ -307,8 +346,20 @@ extends Node2D
 ## El baculo se alcanza cuando la parte de arriba del cuerpo (de los hombros a
 ## la cabeza: alturas sobre los pies; en el aire, con las piernas recogidas, la
 ## cabeza queda a ~270 de los pies) pasa a menos de alcance px de su vara.
+## (Solo sin la animacion de cogerlo; con ella, ver coger_margen.)
 @export var alcance: float = 30.0
 @export var cuerpo_alcance: Vector2 = Vector2(160.0, 270.0)
+## COGERLO A LA PAR (2026-10-14). El usuario: "se activa solo el coger el
+## baston, que no me parece mal, pero lo hace mucho antes de llegar; hay un
+## mega salto raro; tendria que hacerlo cuando este a la par". Con la vara (que
+## cuelga bajo la bola) lo cogia en cuanto la cabeza la rozaba, y la cinematica
+## le ponia la mano en la bola de golpe: hasta ~120 px de lado y lo que faltara
+## de alto. Ahora lo coge cuando la mano (la de coger_baculo en su primer
+## fotograma, con los pies donde estan) llega a menos de coger_margen de la
+## bola (x de lado, y de alto), y lo que falte lo corrige en coger_ajuste s,
+## con la bola yendo a la mano.
+@export var coger_margen: Vector2 = Vector2(70.0, 36.0)
+@export var coger_ajuste: float = 0.3
 
 ## Que levanta cada contacto del pie. Los contactos salen de la senal pisada de
 ## Magnus, en el sprite en que el pie planta (los mismos de sus sonidos):
@@ -402,8 +453,20 @@ var _coger_dat: Dictionary = {}
 var _coger_dir := 1.0
 var _coger_alto := 0.0                  # lo que hay que bajar el dibujo hasta el suelo al agarrar
 var _coger_cayo := false
+var _coger_x0 := 0.0                    # de donde viene al empezar (ver coger_ajuste)
+var _coger_xt := 0.0
+var _coger_alto0 := 0.0
+var _coger_bola0 := Vector2.ZERO
 var _baston_mano: Node2D                # el de la mano, preparado y escondido (ver _preparar_baston)
 var _luz_viva := 1.0                    # lo que queda del haz (ver luz_apagar)
+var _destello := 0.0                    # el del agarre (ver agarre_destello)
+var _remolino_t := -1.0                 # tiempo del remolino (ver remolino_dura); -1 sin remolino
+var _remolino_x := 0.0
+var _remolino_cuenta := 0.0             # hojas por levantar (fraccion que se arrastra)
+var _cine_lado := 0.0                   # la camara del final: px de lado y zoom de mas
+var _cine_zoom := 0.0
+var _polvo_remolino: CPUParticles2D
+
 var _luz_apagada := false               # ya no bajan hojas por la luz
 var _niebla_mat: ShaderMaterial         # el de NieblaSuelo (que se va a una SubViewport)
 var _niebla_base := -1.0
@@ -463,6 +526,7 @@ func _ready() -> void:
 	_magnus.pasos_db = magnus_pasos_db
 	# En la luz se pesa poco: sus saltos de parado y andando flotan en el haz.
 	_magnus.ligereza = luz_en
+	_magnus.hoja_debajo = _hoja_debajo
 	for capa in [_delante, _detras]:
 		capa.ligereza = luz_en
 		capa.gravedad_luz = _magnus.gravedad_luz
@@ -547,6 +611,7 @@ func _process(delta: float) -> void:
 	else:
 		_seguir_a_magnus(delta)
 	_vida_del_bosque(delta)
+	_alumbrar_baston()
 	if _temblor > 0.0:
 		_temblor = maxf(_temblor - delta, 0.0)
 		var f := temblor_px * (_temblor / 0.35) ** 2
@@ -595,8 +660,8 @@ func _vida_del_bosque(delta: float) -> void:
 	var k := 1.0 - exp(-2.2 * delta)
 	_sigue_obj = _sigue_obj.lerp(obj, k)
 	_sigue = _sigue.lerp(_sigue_obj, k)
-	_respira = d + _sigue
-	_camara.zoom = Vector2.ONE * camara_zoom
+	_respira = d + _sigue + Vector2(_cine_lado, 0.0)
+	_camara.zoom = Vector2.ONE * camara_zoom * (1.0 + _cine_zoom)
 	var m := $Bosque.material as ShaderMaterial
 	m.set_shader_parameter("tiempo", t)
 	m.set_shader_parameter("brisa", _vida_brisa)
@@ -892,14 +957,22 @@ func _physics_process(delta: float) -> void:
 	var pies := Vector2(_magnus.global_position.x, _magnus.global_position.y - alto)
 	if _magnus.cayendo() and alto > pisar_altura:
 		_pisar_hoja(pies)
+	_centrar_hoja_pisada(pies, delta)
 	_pies_antes = pies.y
 	_seguir_el_salto()
 	_mirar_baculo(pies)
+	_mover_remolino(delta)
+
+## Donde quedan los pies (los de altura_pies) bajo el centro de la hoja al
+## apoyarse en ella (magnus.gd: PISAR_EN_HOJA menos lo que levanta el pie en
+## flotar_pisar). Se pisa cuando llegan ahi, no antes: con 10 px de margen por
+## debajo se pisaba antes de tocarla y los pies bajaban de golpe (2026-10-14).
+const PIES_EN_HOJA := 3.5
 
 ## Cae con los pies sobre una hoja de la luz: rebota y la hoja se hunde.
 func _pisar_hoja(pies: Vector2) -> void:
-	var y0 := minf(_pies_antes, pies.y) - pisar_margen.x
-	var y1 := pies.y + pisar_margen.y
+	var y0 := minf(_pies_antes, pies.y) - pisar_margen.x - PIES_EN_HOJA
+	var y1 := pies.y + pisar_margen.y - PIES_EN_HOJA
 	var mejor := {}
 	var capa_mejor: Node2D = null
 	for capa in [_delante, _detras]:
@@ -919,6 +992,29 @@ func _pisar_hoja(pies: Vector2) -> void:
 				Vector2(randf_range(-60.0, 60.0), randf_range(20.0, 120.0)), randf() < 0.6,
 				randf_range(0.09, 0.13), randf_range(-20.0, 20.0))
 	_sonar($SonidoPaso, hoja_pisada_db, randf_range(1.12, 1.22))
+
+## La hoja que pisaria al bajar (la mas alta de las que tiene debajo, a menos de
+## pisar_mira): su y, o INF. La usa magnus.gd para estirar las piernas al llegar.
+func _hoja_debajo(pies: Vector2) -> float:
+	var mejor := {}
+	for capa in [_delante, _detras]:
+		var h: Dictionary = capa.apoyo(pies.x, pies.y - pisar_margen.x, pies.y + pisar_mira, pisar_ancho, pisar_luz)
+		if not h.is_empty() and (mejor.is_empty() or h["p"].y < mejor["p"].y):
+			mejor = h
+	if mejor.is_empty() or mejor["p"].y < escalera_aguanta:
+		return INF
+	return mejor["p"].y
+
+## Apoyado en una hoja, la hoja se pone bajo su pie (el no la sigue de lado:
+## ver PISAR LA HOJA SIN DESCUADRE en magnus.gd).
+func _centrar_hoja_pisada(pies: Vector2, delta: float) -> void:
+	if _hoja_pisada_capa == null or not _magnus.get("_pisando"):
+		return
+	var h: Dictionary = _magnus.get("_pisar_hoja")
+	if h.is_empty():
+		return
+	var dx := wrapf(pies.x - h["p"].x, -ANCHO / 2.0, ANCHO / 2.0)
+	h["p"].x += dx * (1.0 - exp(-delta * 0.693 / maxf(pisar_centrar, 0.001)))
 
 ## Despega de la hoja en la que se apoyaba: sale pateada, girando.
 func _al_despegar_de_hoja(h: Dictionary) -> void:
@@ -945,6 +1041,20 @@ func _seguir_el_salto() -> void:
 func _mirar_baculo(pies: Vector2) -> void:
 	if _alcanzado or not _baculo.flotando():
 		return
+	if _sprite.sprite_frames.has_animation(&"coger_baculo") and not _cogiendo:
+		# COGERLO A LA PAR: la mano del primer fotograma, con los pies donde estan
+		var d: Dictionary = _magnus.get("_flotar")["coger_baculo"]
+		var punta: Vector2 = _baculo.punta()
+		var dir := signf(punta.x - _magnus.position.x)
+		if dir == 0.0:
+			dir = _magnus.mirando()
+		var g: Array = d["garra"][0]
+		var alto_ahora: float = (_magnus.position.y - pies.y) - float(d["pies"][0])
+		var mano := Vector2(_magnus.position.x + dir * float(g[0]), _magnus.position.y + float(g[1]) - alto_ahora)
+		if absf(wrapf(mano.x - punta.x, -ANCHO / 2.0, ANCHO / 2.0)) <= coger_margen.x 				and absf(mano.y - punta.y) <= coger_margen.y:
+			_alcanzado = true
+			_coger_baculo()
+		return
 	var a := pies - Vector2(0.0, cuerpo_alcance.x)
 	var b := pies - Vector2(0.0, cuerpo_alcance.y)
 	var vara: Array = _baculo.vara()
@@ -959,6 +1069,8 @@ func _mirar_baculo(pies: Vector2) -> void:
 ## Empieza a coger el baculo (ver coger_cae).
 func _coger_baculo() -> void:
 	_coger_dat = _magnus.get("_flotar")["coger_baculo"]
+	# de donde parte (COGERLO A LA PAR): los pies donde estan
+	var pies_alto: float = _magnus.altura_pies()
 	_magnus.tomar_cinematica()
 	_cogiendo = true
 	_coger_t = 0.0
@@ -972,13 +1084,21 @@ func _coger_baculo() -> void:
 	var o: Array = _coger_dat["offset"]
 	_sprite.offset = Vector2(-float(o[0]) if _sprite.flip_h else float(o[0]), float(o[1]))
 	var g: Array = _coger_dat["garra"][0]
-	_magnus.position.x = punta.x - _coger_dir * float(g[0])
-	_ultima_x = _magnus.position.x
+	_coger_x0 = _magnus.position.x
+	_coger_xt = _coger_x0 + wrapf(punta.x - _coger_dir * float(g[0]) - _coger_x0, -ANCHO / 2.0, ANCHO / 2.0)
 	_coger_alto = maxf(_magnus.position.y + float(g[1]) - punta.y, 0.0)
+	_coger_alto0 = maxf(pies_alto - float(_coger_dat["pies"][0]), 0.0)
+	_coger_bola0 = punta
 	_baculo.coger()
 	_baculo.estallar()
 	_baculo.descargar(coger_descarga)
-	_abrir_camino()
+	# EL FINAL DEL AGARRE: quietud con destello y, pasada la quietud, la racha y
+	# el remolino (que cruza el haz aun encendido:
+	# la luz se retira despues, ver luz_apagar_tras). Lo que pensaba al verlo
+	# bajar se calla.
+	_pensar.callar()
+	_quietud_del_agarre()
+	get_tree().create_timer(agarre_quietud).timeout.connect(_abrir_camino)
 	_apagar_luz()
 	_coger_tick(0.0)
 
@@ -1005,9 +1125,15 @@ func _coger_tick(delta: float) -> void:
 	elif not _coger_cayo:
 		_coger_cayo = true
 		_caer_con_baculo()
+	# lo que faltaba para la mano en la bola, en coger_ajuste s (COGERLO A LA PAR)
+	var b := smoothstep(0.0, coger_ajuste, _coger_t) if coger_ajuste > 0.0 else 1.0
+	alto = lerpf(_coger_alto0, alto, b)
+	_magnus.position.x = lerpf(_coger_x0, _coger_xt, b)
+	_ultima_x = _magnus.position.x
 	_sprite.position.y = -alto
 	var g: Array = d["garra"][k]
-	_baculo.bola_en(_magnus.position + Vector2(_coger_dir * float(g[0]), float(g[1]) - alto))
+	var mano := _magnus.position + Vector2(_coger_dir * float(g[0]), float(g[1]) - alto)
+	_baculo.bola_en(_coger_bola0.lerp(mano, b))
 	var arriba := clampf((alto + float(d["pies"][k])) / 260.0, 0.0, 1.0)
 	_sombra.position = Vector2(_magnus.position.x, 1196.0)
 	_sombra.scale = Vector2(3.4 * (1.0 - 0.35 * arriba), 0.75 * (1.0 - 0.35 * arriba))
@@ -1033,6 +1159,57 @@ func _acabar_coger() -> void:
 	_baston_mano.set("puesto", true)
 	_baston_mano.call("poner_en_mano", true)
 	_magnus.soltar_cinematica()
+	# al caer con el, lo piensa (el sendero ya esta encendido)
+	get_tree().create_timer(0.8).timeout.connect(_pensar.decir.bind("camino"))
+	# y la camara vuelve sola a lo de siempre
+	var cam := create_tween().set_parallel()
+	cam.tween_property(self, "_cine_lado", 0.0, final_vuelve).set_trans(Tween.TRANS_SINE).set_delay(1.2)
+	cam.tween_property(self, "_cine_zoom", 0.0, final_vuelve).set_trans(Tween.TRANS_SINE).set_delay(1.2)
+
+## B: sacar o guardar el baston a voluntad en cuanto lo tiene (el usuario,
+## 2026-10-14; la misma tecla que en piloto_baston.gd). De parado, con la
+## animacion de sacar o guardar; andando, en el sitio (baston.gd: alternar_mano).
+## Con el baculo clavado no hace nada: el nodo de las acciones, que la ve antes,
+## se la queda.
+func _unhandled_input(event: InputEvent) -> void:
+	var k := event as InputEventKey
+	if k == null or not k.pressed or k.echo or k.keycode != KEY_B:
+		return
+	if _baston_mano == null or not _baston_mano.get("puesto") or _cogiendo:
+		return
+	get_viewport().set_input_as_handled()
+	_baston_mano.call("alternar_mano")
+
+## La luz de la escena sobre el baston a la espalda (2026-10-14; el usuario: "al
+## guardarlo a la espalda se ilumina, estando vacio, no tiene sentido"). En la
+## mano va en el dibujo de Magnus y le da magnus_luz.gdshader; a la espalda son
+## sprites aparte (baston.tscn) y salian con su color de siempre, la garra
+## dorada en el claro a oscuras. Se les tine con lo que ese shader le daria a
+## Magnus donde esta el baston (su tinte, sin el borde ni el rebote).
+const _BASTON_SOMBRA := Color(0.46, 0.37, 0.3)   # color_sombra de magnus_luz.gdshader
+const _BASTON_LUZ := Color(1.0, 0.83, 0.6)       # color_luz
+func _alumbrar_baston() -> void:
+	if _baston_mano == null or not _baston_mano.get("puesto"):
+		return
+	var p: Vector2 = _baston_mano.global_position
+	var dx := (p.x - _haz_destino.x) / 1050.0
+	var dy := (p.y - _haz_destino.y) / 520.0
+	var suelo := 0.28 + 0.87 * exp(-(dx * dx + 0.6 * dy * dy) * 1.6)
+	var eje := (_haz_destino - _haz_origen).normalized()
+	var a := acos(clampf(eje.dot((p - _haz_origen).normalized()), -1.0, 1.0))
+	var haz := 0.28 + 0.8 * (1.0 - smoothstep(_haz_apertura * 0.35, _haz_apertura, a))
+	var l := lerpf(0.28, maxf(suelo, haz), smoothstep(0.68, 0.9, _luz_viva))
+	var t := clampf((l - 0.28) / 0.87, 0.0, 1.0)
+	var c := _BASTON_SOMBRA.lerp(_BASTON_LUZ, t) * (0.8 + 0.3 * t)
+	for ruta in ["Madera", "MaderaDelante", "FundaAtras", "FundaDelante", "Madera/Funda"]:
+		var n := _baston_mano.get_node_or_null(ruta) as CanvasItem
+		if n == null:
+			continue
+		# solo el color: el alfa lo lleva baston.gd (fundidos y cortes)
+		if ruta == "Madera":
+			n.self_modulate = Color(c.r, c.g, c.b, n.self_modulate.a)
+		else:
+			n.modulate = Color(c.r, c.g, c.b, n.modulate.a)
 
 ## El baston que tendra en la mano, preparado al abrir la escena (tras el negro
 ## de la entrada) y escondido (puesto = false): crearlo al coger el baculo
@@ -1048,6 +1225,87 @@ func _preparar_baston() -> void:
 	_magnus.add_child(b)
 	b.set("_mostrada", 0.0)
 	_baston_mano = b
+
+## La quietud del agarre: las hojas y las motas del haz se quedan quietas en el
+## aire agarre_quietud s, el haz da un destello, y al soltarse, un tiron de
+## camara.
+func _quietud_del_agarre() -> void:
+	for capa in [_delante, _detras]:
+		capa.pausa = agarre_quietud
+	$Motas.speed_scale = 0.0
+	# la camara se acerca en la quietud y luego acompana al remolino al sendero
+	var cam := create_tween()
+	cam.tween_property(self, "_cine_zoom", final_acerca, agarre_quietud).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	cam.tween_property(self, "_cine_zoom", final_acerca2, remolino_dura).set_trans(Tween.TRANS_SINE)
+	var lado := create_tween()
+	lado.tween_interval(agarre_quietud)
+	lado.tween_property(self, "_cine_lado", final_hacia, remolino_dura).set_trans(Tween.TRANS_SINE)
+	# los bordes se cierran un poco mientras todo se para
+	var pase := $Gradacion/Pase.material as ShaderMaterial
+	var vineta0 := _parametro(pase, "vineta")
+	var vin := create_tween()
+	vin.tween_method(func(x: float) -> void: pase.set_shader_parameter("vineta", x), vineta0, vineta0 + 0.2, 0.15)
+	vin.tween_interval(agarre_quietud - 0.15)
+	vin.tween_method(func(x: float) -> void: pase.set_shader_parameter("vineta", x), vineta0 + 0.2, vineta0, 1.6).set_trans(Tween.TRANS_SINE)
+	# la musica se aparta y vuelve con el remolino; la nota del hilo, grave
+	var musica: AudioStreamPlayer = $Musica
+	if musica.playing:
+		var mu := create_tween()
+		mu.tween_property(musica, "volume_db", musica_db + final_musica, 0.12)
+		mu.tween_interval(agarre_quietud)
+		mu.tween_property(musica, "volume_db", musica_db, 3.0).set_trans(Tween.TRANS_SINE)
+	_sonar($SonidoHilo, hilo_db, final_nota)
+	var tw := create_tween()
+	tw.tween_method(_poner_destello, 0.0, 1.0, 0.06)
+	tw.tween_interval(agarre_quietud - 0.06)
+	tw.tween_callback(func() -> void:
+		$Motas.speed_scale = 1.0
+		_temblor = 0.22)
+	tw.tween_method(_poner_destello, 1.0, 0.0, 0.6).set_trans(Tween.TRANS_SINE)
+
+## El remolino, cada tick: avanza por el claro, levanta hojas del lecho bajo el
+## y lo pasa a las capas de hojas (ver EL REMOLINO en hojas_voladoras.gd).
+func _mover_remolino(delta: float) -> void:
+	if _remolino_t < 0.0:
+		return
+	_remolino_t += delta
+	var u := clampf(_remolino_t / maxf(remolino_dura, 0.01), 0.0, 1.0)
+	var x := lerpf(remolino_desde, remolino_hasta, u * u * (3.0 - 2.0 * u))
+	var vel := (x - _remolino_x) / maxf(delta, 0.001)
+	_remolino_x = x
+	var f := smoothstep(0.0, 0.12, u) * (1.0 - smoothstep(0.82, 1.0, u))
+	for capa in [_delante, _detras]:
+		capa.remolino = f
+		capa.remolino_x = x
+		capa.remolino_vel = vel
+	# polvo que levanta en la base (el del golpe, sin parar mientras pasa)
+	if _polvo_remolino == null:
+		_polvo_remolino = $Polvo.duplicate() as CPUParticles2D
+		_polvo_remolino.one_shot = false
+		_polvo_remolino.explosiveness = 0.0
+		_polvo_remolino.amount = 60
+		_polvo_remolino.lifetime = 1.8
+		_polvo_remolino.emission_rect_extents = Vector2(95.0, 8.0)
+		_polvo_remolino.initial_velocity_min = 40.0
+		_polvo_remolino.initial_velocity_max = 180.0
+		_polvo_remolino.gravity = Vector2(0.0, -40.0)
+		add_child(_polvo_remolino)
+	_polvo_remolino.position = Vector2(x, $Polvo.position.y)
+	_polvo_remolino.emitting = f > 0.25
+	if f > 0.3:
+		# las que tocan este tick (repartidas por lo que dura con fuerza), a medias
+		# entre las dos capas
+		_remolino_cuenta += float(remolino_hojas) * delta / maxf(remolino_dura * 0.7, 0.01)
+		var n := floori(_remolino_cuenta)
+		_remolino_cuenta -= n
+		for capa in [_delante, _detras]:
+			for h in capa.tomar(x - 110.0, x + 110.0, (n + 1) / 2, 3, 0.8):
+				capa.lanzar(h, Vector2(randf_range(-60.0, 60.0), -randf_range(250.0, 520.0)))
+	if u >= 1.0:
+		_remolino_t = -1.0
+		_polvo_remolino.emitting = false
+		for capa in [_delante, _detras]:
+			capa.remolino = 0.0
 
 ## Al coger el baculo, una racha enorme: barre el lecho de izquierda a derecha
 ## levantando hojas (camino_hojas_lecho), arrastra las que caen y, en el fondo,
@@ -1073,11 +1331,10 @@ func _abrir_camino() -> void:
 	tc.tween_interval(0.6)
 	tc.tween_method(func(v: float) -> void: m.set_shader_parameter("camino", v),
 			0.0, 1.0, camino_abrir).set_trans(Tween.TRANS_SINE)
-	# el lecho, barrido de izquierda a derecha en 1,4 s
-	var tramos := 28
-	for i in tramos:
-		get_tree().create_timer(0.15 + 1.4 * i / float(tramos)).timeout.connect(
-				_barrer_lecho.bind(2912.0 * i / tramos, 2912.0 * (i + 1) / tramos, camino_hojas_lecho / tramos))
+	# el lecho: el remolino lo cruza de izquierda a derecha y se lleva las hojas
+	# (antes, un barrido recto en 1,4 s: ver _barrer_lecho)
+	_remolino_t = 0.0
+	_remolino_x = remolino_desde
 	# las del camino, en el fondo
 	for i in camino_hojas_fondo:
 		get_tree().create_timer(randf_range(0.3, camino_abrir + 0.5)).timeout.connect(func() -> void:
@@ -1187,7 +1444,11 @@ func _poner_haz() -> void:
 	if _haz_fuerza_base < 0.0:
 		var f: Variant = m.get_shader_parameter("haz_fuerza")
 		_haz_fuerza_base = float(f) if f != null else 0.16
-	m.set_shader_parameter("haz_fuerza", _haz_fuerza_base * (haz_con_bosque if bosque_de_fondo else 1.0) * _luz_viva)
+	# al apagarse, el haz se retira hacia arriba (retiro en fondo_haz.gdshader) y
+	# su fuerza solo cae al final; el destello del agarre lo aviva un instante
+	m.set_shader_parameter("haz_fuerza", _haz_fuerza_base * (haz_con_bosque if bosque_de_fondo else 1.0)
+			* smoothstep(0.0, 0.25, _luz_viva) * (1.0 + agarre_destello * _destello))
+	m.set_shader_parameter("retiro", 1.0 - _luz_viva)
 
 ## El haz es uno: el del material del fondo (_leer_haz). Se le pasa a lo que
 ## lo usa (antes cada uno tenia su copia: cambiar el haz en uno sacaba al
@@ -1208,22 +1469,40 @@ func _repartir_haz() -> void:
 
 ## Lleva la luz del haz (0 apagado, 1 entero) a todo lo que la usa (ver
 ## luz_apagar).
+## EL HAZ SE RETIRA (2026-10-14; el usuario: "hazme las mejoras" del final):
+## en vez de apagarse entero a la vez, el haz se recoge de abajo arriba hacia el
+## cielo (retiro = 1 - v en fondo_haz.gdshader). Lo que esta en el suelo (el
+## lecho, sus hojas, la bruma, el peregrino) se queda a oscuras cuando el corte
+## pasa por el suelo, al principio; las motas del haz, a medio camino.
 func _poner_luz_viva(v: float) -> void:
 	_luz_viva = v
+	_aplicar_luz()
+
+## El destello del agarre (0..1, ver agarre_destello): aviva el haz un instante.
+func _poner_destello(d: float) -> void:
+	_destello = d
+	_aplicar_luz()
+
+func _aplicar_luz() -> void:
+	var v := _luz_viva
 	_poner_haz()
 	if _bosque_haz_base.x < 0.0:
 		_bosque_haz_base = Vector2(_parametro(_fondo_mat, "bosque_en_el_haz"), _parametro(_fondo_mat, "bosque_resplandor"))
-	_fondo_mat.set_shader_parameter("bosque_en_el_haz", _bosque_haz_base.x * v)
-	_fondo_mat.set_shader_parameter("bosque_resplandor", _bosque_haz_base.y * v)
+	var aviva := smoothstep(0.0, 0.25, v) * (1.0 + agarre_destello * _destello)
+	_fondo_mat.set_shader_parameter("bosque_en_el_haz", _bosque_haz_base.x * aviva)
+	_fondo_mat.set_shader_parameter("bosque_resplandor", _bosque_haz_base.y * aviva)
+	var suelo := smoothstep(0.68, 0.9, v)
 	if _niebla_mat:
 		if _niebla_base < 0.0:
 			_niebla_base = _parametro(_niebla_mat, "fuerza")
-		_niebla_mat.set_shader_parameter("fuerza", _niebla_base * lerpf(0.25, 1.0, v))
-	$Motas.modulate.a = v
-	($Lecho.material as ShaderMaterial).set_shader_parameter("luz_viva", v)
-	(_sprite.material as ShaderMaterial).set_shader_parameter("luz_viva", v)
+		_niebla_mat.set_shader_parameter("fuerza", _niebla_base * lerpf(0.25, 1.0, suelo))
+	$Motas.modulate.a = smoothstep(0.3, 0.8, v)
+	# y suben con ella: el polvo del haz se va hacia arriba
+	$Motas.gravity = Vector2(3.0, 4.0).lerp(Vector2(0.0, -120.0), 1.0 - v)
+	($Lecho.material as ShaderMaterial).set_shader_parameter("luz_viva", suelo)
+	(_sprite.material as ShaderMaterial).set_shader_parameter("luz_viva", suelo)
 	for capa in [_delante, _detras]:
-		capa.luz_viva = v
+		capa.luz_viva = suelo
 
 ## Un parametro del material, o el del shader si el material no lo pone.
 static func _parametro(m: ShaderMaterial, nombre: String) -> float:
@@ -1341,6 +1620,8 @@ func _bajar_baculo() -> void:
 	empezar_escalera()
 	_sonar($SonidoHilo, hilo_db)
 
-## Ya flotando arriba, lo reconoce.
+## Ya flotando arriba, lo reconoce (si no lo ha cogido ya).
 func _al_posar_baculo() -> void:
-	get_tree().create_timer(1.2).timeout.connect(_pensar.decir.bind("baculo"))
+	get_tree().create_timer(1.2).timeout.connect(func() -> void:
+		if not _alcanzado:
+			_pensar.decir("baculo"))

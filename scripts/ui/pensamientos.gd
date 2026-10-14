@@ -59,6 +59,7 @@ var _ocupado := false
 var _reloj := 0.0
 var _libre_desde := -INF
 var _turno := 0
+var _tw_parte: Tween            # el del texto que se esta diciendo (ver _cortar)
 
 func _ready() -> void:
 	layer = 15
@@ -115,6 +116,10 @@ func _cortar() -> void:
 	_turno += 1
 	_ocupado = false
 	_voz.stop()
+	# el tween del texto que se estaba diciendo, fuera: si aun entraba, seguia
+	# subiendolo despues del fundido y el texto volvia (2026-10-14)
+	if _tw_parte and _tw_parte.is_valid():
+		_tw_parte.kill()
 	var tw := create_tween()
 	tw.tween_property(_etiqueta, "modulate:a", 0.0, 0.3)
 
@@ -146,6 +151,7 @@ func _decir_ya(clave: String) -> void:
 			_voz.play()
 			dura = maxf(_voz.stream.get_length() + 0.4, minimo)
 		var tw := create_tween()
+		_tw_parte = tw
 		tw.tween_property(_etiqueta, "modulate:a", alfa, entrar).set_trans(Tween.TRANS_SINE)
 		tw.tween_interval(dura)
 		tw.tween_property(_etiqueta, "modulate:a", 0.0, salir).set_trans(Tween.TRANS_SINE)

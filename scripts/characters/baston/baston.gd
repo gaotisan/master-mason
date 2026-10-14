@@ -297,7 +297,9 @@ func _process(delta: float) -> void:
 	for m in [_orbe.material, _luz.material]:
 		(m as ShaderMaterial).set_shader_parameter("carga", _mostrada)
 		(m as ShaderMaterial).set_shader_parameter("destello", _destello)
-	_recarga.emitting = particulas and puesto and magia < 0.999
+	# sin magia no recarga: sin las chispas de la recarga (a la espalda se veia
+	# la garra vacia iluminarse; el usuario, 2026-10-14: "no tiene sentido")
+	_recarga.emitting = particulas and puesto and magia < 0.999 and not sin_magia
 	_chispas.emitting = particulas and puesto and _mostrada > 0.97
 	var objetivo := 1.0 if puesto else 0.0
 	_alfa = move_toward(_alfa, objetivo, delta / maxf(fundido, 0.001))

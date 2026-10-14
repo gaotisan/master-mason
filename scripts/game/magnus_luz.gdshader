@@ -43,7 +43,10 @@ float luz_en(vec2 p) {
 }
 
 void fragment() {
-	vec4 c = texture(TEXTURE, UV);
+	// COLOR ya trae la textura por modulate / self_modulate (2026-10-14: antes
+	// se leia la textura a pelo y se ignoraban; el baculo que se coge se
+	// esconde con self_modulate y seguia pintandose, encendido, sobre la mano).
+	vec4 c = COLOR;
 	float l = mix(0.28, luz_en(mundo), luz_viva);
 	float t = clamp((l - 0.28) / 0.87, 0.0, 1.0);
 	vec3 col = c.rgb * mix(color_sombra, color_luz, t) * (0.8 + 0.3 * t);

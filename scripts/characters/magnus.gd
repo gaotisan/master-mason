@@ -316,6 +316,21 @@ const SALTO_CORTO_ENTRADA := 0.06
 ##   fotogramas, su bajada flotando y su giro), y lo que llevaban de lado pasa
 ##   a la deriva.
 var ligereza: Callable
+## PISAR LA HOJA SIN DESCUADRE (2026-10-14). El usuario: "cuando flota y rebota
+## en las hojas hay un descuadre en la animacion donde se activa el rebote y en
+## los pies; a veces parece que no toca la hoja y rebota". Grabado: bajaba
+## flotando con las piernas recogidas y al pisar saltaba de golpe al primer
+## fotograma de flotar_pisar (piernas estiradas, 29 px mas de cuerpo sobre los
+## pies). Ahora:
+## - hoja_debajo (lo pone el nivel: (pies) -> y de la hoja que pisaria al bajar,
+##   o INF): bajando flotando, esa hoja hace de suelo para repartir los
+##   fotogramas, asi que estira las piernas al acercarse y llega a ella con la
+##   pose de tocar suelo, como al posarse;
+## - flotar_pisar empieza en el fotograma cuya altura del cuerpo sobre los pies
+##   mas se parece a la que trae (hasta PISAR_ENTRADA_MAX, antes del impulso);
+## - apoyado no sigue la hoja de lado: la hoja va bajo su pie (el nivel la
+##   lleva) y el no se desliza.
+var hoja_debajo: Callable
 @export var gravedad_luz: float = 0.30
 @export_range(0.0, 1.0) var luz_quita_tiron: float = 1.0
 @export var salto_andando_altura: float = 25.0
@@ -333,6 +348,18 @@ var ligereza: Callable
 ## salto_andando_gravedad a 0, como antes.
 @export var salto_andando_altura_oscuro: float = 110.0
 @export var salto_andando_gravedad: float = 1841.0
+## SALTO DE PARADO MAS ALTO (2026-10-14). El usuario: "el salto en parado es
+## demasiado pequeno, se eleva muy poco en la vertical (cuando no esta la luz);
+## tiene que ser mas o menos comparable a cuando lo hace andando", y "en la luz
+## tenga un salto algo mas potente en parado y facilite un poco el puzle". Como
+## el andando: un arco que se le suma al cocido (el cuerpo subia 48 px), con la
+## gravedad de verdad (salto_andando_gravedad) estirando el vuelo a menos
+## fotogramas por segundo. Fuera de la luz, 85: el cuerpo sube ~133, como el
+## andando (el vuelo dura 0,76 s en vez de 0,45). En la luz, 12: sube
+## (48 + 12) / 0,30 = 200 px en vez de 160. A media luz, a medias. El rebote
+## en la hoja no cambia (sube lo del salto de parado cocido).
+@export var salto_parado_altura_oscuro: float = 85.0
+@export var salto_parado_altura: float = 12.0
 @export var deriva_max: float = 170.0
 @export var deriva_aceleracion: float = 520.0
 @export var rebote_hoja: float = 1.0
@@ -381,10 +408,22 @@ var ligereza: Callable
 ##   que el giro y la bajada flotando entera vayan a un fotograma por tick (la
 ##   tunica fluida, ver caida_max_luz), pero sin bajar mas despacio que esto
 ##   (px/s). Si ni asi cabe, no se gira en el aire.
+## RESPUESTA DEL GIRO EN EL AIRE (2026-10-14). El usuario: "en la luz cuando
+## giramos para un lado... tarda mucho en responder, quiza haya muchos
+## fotogramas iniciales; la velocidad no me desagrada, es mas bien tiempo de
+## respuesta". Medido en la hoja: los primeros 15 fotogramas del giro solo
+## hacen el 17 % del cambio (el video arranca despacio), y se esperaba al 28
+## del salto, cuando la pose ya casa desde el 24.
+## giro_aire_inicio: el giro empieza en este fotograma (antes casi no se mueve).
+## giro_aire_arranque: fotogramas por tick al empezar, que bajan a uno por tick
+##   al llegar a giro_aire_rampa; el resto del giro, a su velocidad de siempre.
 @export var giro_aire_desde: int = 28
 @export var giro_aire_hasta: int = 12
 @export var giro_aire_avanza: int = 24
 @export var giro_aire_caida_min: float = 45.0
+@export var giro_aire_inicio: int = 0
+@export var giro_aire_arranque: float = 2.5
+@export var giro_aire_rampa: int = 24
 const FLOTAR := "res://assets/characters/magnus/flotar.json"
 ## Cinematica de entrada (caer_desde_arriba): cae desde fuera de pantalla, se
 ## estampa, se queda tumbado y se levanta. Mientras dura no se acepta entrada.
@@ -1425,9 +1464,22 @@ func _empezar_pisar(hoja: Dictionary, fuerza: float) -> void:
 	if _giro_aire != 0.0:
 		_giro_aire_pedido = _giro_aire
 		_giro_aire = 0.0
+	# entra por el fotograma que mas se parece a la pose que trae (PISAR LA
+	# HOJA SIN DESCUADRE): la altura del cuerpo sobre los pies
+	var d: Dictionary = _flotar["flotar_pisar"]
+	var f0 := 0
+	var trae := _cuerpo_sobre_pies()
+	if not is_nan(trae):
+		var mejor := INF
+		for f in mini(PISAR_ENTRADA_MAX + 1, int(d["n"])):
+			var dif := absf(float(d["cuerpo"][f]) - float(d["pies"][f]) - trae)
+			if dif < mejor - 0.5:
+				mejor = dif
+				f0 = f
+	_pisar_t = float(f0) / float(d["fps"])
 	_sprite.animation = &"flotar_pisar"
 	_sprite.offset = _offset_flotar(&"flotar_pisar")
-	_sprite.set_frame_and_progress(0, 0.0)
+	_sprite.set_frame_and_progress(f0, 0.0)
 	_pisar_arco = maxf(position.y - float(hoja["p"].y) - PISAR_EN_HOJA, 0.0)
 	# (como en el rebote: el nivel llama despues del tick de Magnus)
 	_sprite.position.y = -_pisar_arco
@@ -1442,7 +1494,7 @@ func _volar_pisando(delta: float) -> float:
 	if f != _sprite.frame:
 		_sprite.set_frame_and_progress(f, 0.0)
 	var p: Vector2 = _pisar_hoja.get("p", Vector2(position.x - _pisar_dx, position.y - _pisar_arco - PISAR_EN_HOJA))
-	position.x = p.x + _pisar_dx
+	# (de lado no la sigue: la hoja va bajo su pie, ver PISAR LA HOJA SIN DESCUADRE)
 	_pisar_arco = maxf(position.y - p.y - PISAR_EN_HOJA, 0.0)
 	if _pisar_t * float(d["fps"]) < float(n):
 		return _pisar_arco
@@ -1466,6 +1518,25 @@ const PISAR_DESPEGUE_TAU := 21.5
 ## Lo que se hunde el apoyo en la hoja (px): con los pies en su centro la planta
 ## quedaba ~5 px por encima de la hoja (grabado: se veia el hueco).
 const PISAR_EN_HOJA := 5.0
+## Ultimo fotograma de flotar_pisar por el que se puede entrar (del 13 en
+## adelante ya empuja hacia arriba).
+const PISAR_ENTRADA_MAX := 12
+## Cuanto antes de llegar a la hoja (s) empieza a estirar las piernas hacia ella.
+const PISAR_ANTICIPA := 0.45
+
+## La altura del cuerpo sobre los pies en el fotograma de ahora, en la medida de
+## flotar.json (NAN si no se sabe): para entrar a pisar con la misma pose.
+func _cuerpo_sobre_pies() -> float:
+	var an := String(_sprite.animation)
+	var f := _sprite.frame
+	if _flotar.has(an) and _flotar[an].has("cuerpo") and _flotar[an].has("pies"):
+		var c: Array = _flotar[an]["cuerpo"]
+		return float(c[clampi(f, 0, c.size() - 1)]) - float(_flotar[an]["pies"][clampi(f, 0, c.size() - 1)])
+	if VUELO.has(_sprite.animation) and _flotar.has("_despegue") and _flotar["_despegue"].has(an):
+		var v: Dictionary = VUELO[_sprite.animation]
+		var i := clampi(f - int(v["despegue"]), 0, (v["pies"] as Array).size() - 1)
+		return _cocido_vuelo(v, float(i)) + float(v["pose"][mini(i, (v["pose"] as Array).size() - 1)]) 				+ float(_flotar["_despegue"][an]) - float(v["pies"][i])
+	return NAN
 
 ## El rebote de siempre (sin pisar, o al acabar de pisar con bajado = 1: desde
 ## el fotograma del despegue, o tau_dado). bajado < 0: lo que llevaba bajado.
@@ -2601,6 +2672,11 @@ func _volar(delta: float) -> float:
 			# lo afinado para flotar
 			amp = _arco_salto_andando(luz0)
 			ritmo = _ritmo_salto_andando(v, amp, fps, luz0)
+		elif _sprite.animation == &"salto_parado":
+			# el de parado, igual (SALTO DE PARADO MAS ALTO): el ritmo sale de la
+			# misma gravedad, con su propio vuelo cocido
+			amp = lerpf(salto_parado_altura_oscuro, salto_parado_altura, luz0)
+			ritmo = _ritmo_salto_andando(v, amp, fps, luz0)
 		# SALTAR ENCIMA: sin luz, el andando, y el de parado con la tecla hacia delante
 		var hacia := 0.0 if control_bloqueado else Input.get_axis("mover_izquierda", "mover_derecha")
 		var encima := {}
@@ -2749,7 +2825,22 @@ func _volar_flotando() -> float:
 	# 87 fotogramas en 45 ticks (4,5 veces el video, saltandose la mitad) y la
 	# tunica se veia "tosca, a cortes" (2026-10-12).
 	var dt := get_physics_process_delta_time()
-	var queda := _tiempo_hasta_suelo(_vuelo_y - suelo)
+	# (PISAR LA HOJA SIN DESCUADRE) bajando, con una hoja debajo, se reparte
+	# hasta ella: llega con los pies estirados, en la pose de tocar. Solo en
+	# lo ultimo (PISAR_ANTICIPA s) y sin un giro pedido: repartir toda la bajada
+	# hasta una hoja cercana corria los fotogramas y cerraba enseguida el giro
+	# en el aire (giro_aire_hasta): pulsando hacia atras solo frenaba, "no
+	# responde" (2026-10-14).
+	var suelo_ritmo := suelo
+	if _vuelo == 2 and hoja_debajo.is_valid() and _giro_aire_pedido == 0.0:
+		var hy: float = hoja_debajo.call(Vector2(global_position.x, global_position.y - altura_pies()))
+		if is_finite(hy):
+			var pies: Array = fb["pies"]
+			var hl := position.y - hy - PISAR_EN_HOJA
+			var suelo_hoja := float(cuerpo[cuerpo.size() - 1]) - b0 + hl - float(pies[pies.size() - 1])
+			if suelo_hoja > suelo and _tiempo_hasta_suelo(_vuelo_y - suelo_hoja) <= PISAR_ANTICIPA:
+				suelo_ritmo = suelo_hoja
+	var queda := _tiempo_hasta_suelo(_vuelo_y - suelo_ritmo)
 	var faltan := (_flota_largo() - 1.0) - _flota_iv
 	_flota_iv += clampf(faltan / maxf(queda / dt, 1.0), 0.0, 2.0)
 	var k := floori(_flota_iv + 0.0001)
@@ -2877,7 +2968,7 @@ func _puede_girar_en_el_aire() -> bool:
 	if _vuelo_v > 0.0:
 		h += _vuelo_v * _vuelo_v / (2.0 * g)
 		t = _vuelo_v / g
-	var faltan := float(_flotar["flotar_girar"]["n"]) - 1.0 + _flota_largo() - 1.0 - de_salto
+	var faltan := float(_flotar["flotar_girar"]["n"]) - 1.0 - float(giro_aire_inicio) + _flota_largo() - 1.0 - de_salto
 	return h >= giro_aire_caida_min * maxf(faltan * get_physics_process_delta_time() - t, 0.0)
 
 ## Empieza a girarse en el aire: el primer fotograma del giro es la pose de
@@ -2885,10 +2976,10 @@ func _puede_girar_en_el_aire() -> bool:
 func _empezar_giro_aire() -> void:
 	_giro_aire = _giro_aire_pedido
 	_giro_aire_pedido = 0.0
-	_giro_iv = 0.0
+	_giro_iv = float(giro_aire_inicio)
 	_sprite.animation = &"flotar_girar"
 	_sprite.offset = _offset_flotar(&"flotar_girar")
-	_sprite.set_frame_and_progress(0, 0.0)
+	_sprite.set_frame_and_progress(giro_aire_inicio, 0.0)
 
 ## Un tick del giro en el aire, con la fisica ya integrada: un fotograma por
 ## tick y el cuerpo donde dice la fisica (como en la bajada flotando). Al
@@ -2909,7 +3000,8 @@ func _volar_girando() -> float:
 		return 0.0
 	if f != _sprite.frame:
 		_sprite.set_frame_and_progress(f, 0.0)
-	_giro_iv += 1.0
+	# deprisa al empezar (RESPUESTA DEL GIRO EN EL AIRE), luego a uno por tick
+	_giro_iv += lerpf(giro_aire_arranque, 1.0, clampf(_giro_iv / maxf(float(giro_aire_rampa), 1.0), 0.0, 1.0))
 	var arco := (_vuelo_y + b0) - float(fg["cuerpo"][f])
 	return maxf(arco, -float(fg["pies"][f]) - _desnivel())
 

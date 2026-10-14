@@ -33,8 +33,8 @@ extends Node2D
 ##   K  clavar el baculo (con el en la mano). La bola va con el: en la garra
 ##      del dibujo al clavarlo y al arrancarlo, y en el clavado. Clavado, B y G
 ##      (sacar y guardar) no hacen nada.
-##   T  tumbarse (sin el baculo encima: clavado o guardado con G); tumbado, la
-##      direccion lo arrastra y T o saltar lo levanta
+##   abajo dos veces seguidas: tumbarse (sin el baculo encima: clavado o
+##      guardado con G); tumbado, la direccion lo arrastra y saltar lo levanta
 ##   1  golpe (empujon)      2  derribo
 ##   R  volver a poner los objetos donde estaban
 ##   V  ritmo del giro (x1, x1,5, x2, x2,5, x3), para probarlo a ojo
@@ -452,7 +452,7 @@ func _physics_process(delta: float) -> void:
 	_volar_palo(delta)
 	if _ayuda:
 		var que := ("[" + _anim + "]") if _modo == Modo.ACCION else ("[tumbado]" if _modo == Modo.TUMBADO else _ultima)
-		var teclas := "T tumbarse   1 golpe   2 derribo   V giro x%s" % str(_magnus.giro_ritmo)
+		var teclas := "abajo x2 tumbarse   1 golpe   2 derribo   V giro x%s" % str(_magnus.giro_ritmo)
 		if _baston() != null:
 			teclas = "K clavar   " + teclas
 		if _obj.is_empty() and _sueltos.is_empty():
@@ -589,12 +589,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _modo == Modo.TUMBADO:
 		var k0 := event as InputEventKey
-		if event.is_action_pressed("saltar") or (k0 and k0.pressed and not k0.echo and k0.keycode == KEY_T):
+		if event.is_action_pressed("saltar"):
 			get_viewport().set_input_as_handled()
 			_levantarse()
 		return
 	if _modo != Modo.LIBRE:
 		return
+	# DOBLE TOQUE ABAJO = TUMBARSE (ver _tumbarse_doble_toque). No se queda la
+	# tecla: el primer toque agacha, como siempre.
+	if event.is_action_pressed("agacharse") and not event.is_echo():
+		var ahora := Time.get_ticks_msec() / 1000.0
+		if ahora - _abajo_t <= DOBLE_TOQUE:
+			_abajo_t = -INF
+			_tumbarse_doble_toque()
+		else:
+			_abajo_t = ahora
 	if event.is_action_pressed("saltar"):
 		_saltar_pegado()
 		return
@@ -604,7 +613,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	match k.keycode:
 		KEY_E: _accion()
 		KEY_K: _clavar()
-		KEY_T: _tumbarse()
 		KEY_1: _sin_mas("golpe")
 		KEY_2: _sin_mas("derribo")
 		KEY_R:
@@ -887,6 +895,21 @@ func _poner_clavado(d: float) -> void:
 		var o: Array = dat["orbe"][0]
 		var ofs := Vector2(float(dat["offset"][0]), float(dat["offset"][1]))
 		_bola.position = _magnus.position + _sprite.position + ofs + Vector2(float(o[0]) * d, float(o[1]))
+
+## DOBLE TOQUE ABAJO = TUMBARSE (2026-10-14; el usuario: "no quiero que sea con
+## una T sino con una doble pulsacion abajo"). Dos toques de agacharse en menos
+## de DOBLE_TOQUE s: el primero ya lo esta agachando, asi que se le deja de pie
+## (reposo) y se tumba desde ahi. Tumbado, saltar lo levanta.
+const DOBLE_TOQUE := 0.3
+var _abajo_t := -INF
+
+func _tumbarse_doble_toque() -> void:
+	if _baston_encima():
+		_ultima = "(tumbarse: solo sin el baculo encima)"
+		return
+	if _estado() in ["AGACHANDO", "AGACHADO", "INCORPORANDO"] and not _magnus.control_bloqueado:
+		_magnus._cambiar(_magnus.Estado.REPOSO)
+	_tumbarse()
 
 func _tumbarse() -> void:
 	if not _listo() or not _datos.has("tumbarse"):

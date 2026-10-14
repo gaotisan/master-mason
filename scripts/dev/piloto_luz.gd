@@ -63,6 +63,7 @@ const PRUEBAS := {
 	"escalera": [1420.0, []],
 	# La cinematica de coger el baculo, sin subir: baja el baculo y lo coge.
 	"coger": [1380.0, []],
+	"coger_b": [1380.0, []],
 	# Con el bosque de fondo (LUZ_BOSQUE=1): el viento destapa el camino al
 	# segundo, con Magnus quieto en el centro.
 	"camino": [1470.0, []],
@@ -94,6 +95,8 @@ const PRUEBAS := {
 const EXTRAS := {
 	"escalera": [[0.0, "baculo"]],
 	"coger": [[0.0, "baculo"], [1.5, "coger"]],
+	# Lo coge y luego B: lo guarda a la espalda y lo vuelve a sacar.
+	"coger_b": [[0.0, "baculo"], [1.5, "coger"], [7.0, "tecla_b"], [12.0, "tecla_b"]],
 	"camino": [[1.0, "camino"]],
 }
 
@@ -400,6 +403,12 @@ func _physics_process(delta: float) -> void:
 			"coger":
 				escena._alcanzado = true
 				escena._coger_baculo()
+			"tecla_b":
+				var tecla := InputEventKey.new()
+				tecla.keycode = KEY_B
+				tecla.pressed = true
+				# directa a la escena: este piloto se come el teclado (ignorar_teclado)
+				escena._unhandled_input(tecla)
 			"baculo":
 				var b: Node2D = escena.get_node("Baculo")
 				b.bajada = 0.05
