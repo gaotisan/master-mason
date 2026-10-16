@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/pruebas_camara/menu_pruebas_camara.gd" id="1"]
+
+[node name="MenuPruebasCamara" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 2912.0
+offset_bottom = 1632.0
+script = ExtResource("1")
+
+[node name="Fondo" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 2912.0
+offset_bottom = 1632.0
+color = Color(0, 0, 0, 1)
+
+[node name="Texto" type="Label" parent="."]
+layout_mode = 0
+offset_left = 400.0
+offset_top = 520.0
+offset_right = 2600.0
+offset_bottom = 1200.0
+theme_override_colors/font_color = Color(0.7, 0.7, 0.72, 1)
+theme_override_font_sizes/font_size = 48
+text = "PRUEBAS DE CAMARA
+
+1   Capas de profundidad  (Inside, Limbo: zoom, paralaje, vertigo, sala fija)
+2   Planos fijos  (Alone in the Dark: picado, contrapicado, isometrico, holandes)
+3   Magnus en 3D  (vitrina con luz: espacio para el giro, flechas cambian de plano)
+
+Dentro: M vuelve aqui, H oculta el texto.   Esc sale."

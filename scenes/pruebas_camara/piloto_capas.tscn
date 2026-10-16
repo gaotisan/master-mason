@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/pruebas_camara/capas_inside.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/dev/piloto.gd" id="2"]
+
+[node name="PilotoCapas" type="Node"]
+
+[node name="CapasInside" parent="." instance=ExtResource("1")]
+
+[node name="Piloto" type="Node" parent="."]
+script = ExtResource("2")
+guion = [[0.5, "mover_derecha", true], [0.6, "mover_derecha", false], [0.7, "mover_derecha", true], [9.0, "saltar", true], [9.1, "saltar", false], [34.0, "mover_derecha", false]]
+x_inicial = 600.0
+personaje = NodePath("../CapasInside/Capas/Accion/Magnus")

@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/pruebas_camara/planos_alone.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/dev/piloto.gd" id="2"]
+
+[node name="PilotoPlanos" type="Node"]
+
+[node name="PlanosAlone" parent="." instance=ExtResource("1")]
+
+[node name="Piloto" type="Node" parent="."]
+script = ExtResource("2")
+guion = [[0.5, "mover_derecha", true], [7.0, "mover_derecha", false], [7.6, "mover_derecha", true], [7.7, "mover_derecha", false], [7.8, "mover_derecha", true], [11.0, "saltar", true], [11.1, "saltar", false], [19.0, "mover_derecha", false]]
+x_inicial = 350.0
+personaje = NodePath("../PlanosAlone/Proyeccion/Magnus")

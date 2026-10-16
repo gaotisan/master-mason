@@ -1,0 +1,80 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/pruebas_camara/planos_fijos.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/pruebas_camara/plano_fijo.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/characters/acciones_perfil.gd" id="acciones"]
+
+[node name="PlanosAlone" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Sala" type="Node2D" parent="."]
+
+[node name="Proyeccion" type="Node2D" parent="."]
+
+[node name="Magnus" parent="Proyeccion" instance=ExtResource("3")]
+position = Vector2(350, 0)
+
+[node name="Acciones" type="Node2D" parent="Proyeccion"]
+script = ExtResource("acciones")
+magnus_ruta = NodePath("../Magnus")
+generico = true
+ayuda_arriba = true
+
+[node name="Delante" type="Node2D" parent="."]
+
+[node name="Planos" type="Node" parent="."]
+
+[node name="Entrada" type="Node" parent="Planos"]
+script = ExtResource("2")
+nombre = "Picado desde la esquina"
+desde = -1000.0
+hasta = 1500.0
+posicion = Vector3(100, 950, -600)
+mirar_a = Vector3(1300, 0, 200)
+focal = 1500.0
+
+[node name="Contrapicado" type="Node" parent="Planos"]
+script = ExtResource("2")
+nombre = "Contrapicado que le sigue con la mirada"
+desde = 1500.0
+hasta = 3000.0
+posicion = Vector3(2400, 70, -650)
+mirar_a = Vector3(2250, 330, 0)
+focal = 1250.0
+seguir = true
+
+[node name="Isometrico" type="Node" parent="Planos"]
+script = ExtResource("2")
+nombre = "Isometrico (sin perspectiva)"
+desde = 3000.0
+hasta = 4500.0
+mirar_a = Vector3(3750, 200, 0)
+ortogonal = true
+escala_orto = 1.1
+
+[node name="Holandes" type="Node" parent="Planos"]
+script = ExtResource("2")
+nombre = "Plano holandes hacia la puerta"
+desde = 4500.0
+hasta = 7000.0
+posicion = Vector3(4250, 620, -620)
+mirar_a = Vector3(5600, 250, 300)
+focal = 1600.0
+alabeo = 9.0
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="Negro" type="ColorRect" parent="Hud"]
+offset_right = 2912.0
+offset_bottom = 1632.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="Texto" type="Label" parent="Hud"]
+offset_left = 48.0
+offset_top = 1500.0
+offset_right = 2800.0
+offset_bottom = 1610.0
+theme_override_colors/font_color = Color(0.6, 0.6, 0.62, 0.8)
+theme_override_font_sizes/font_size = 30
