@@ -72,6 +72,13 @@ ANIMS = {
     # despues). Lo mismo que el giro del suelo (magnus-giro-espejo): con el
     # espejo el ultimo es la pose de flotar espejada, la que pone flip_h.
     'flotar_girar': ('girar', 8, 38, 60.0, False),
+    # FLOTAR QUIETO (2026-10-15; montar_quieto.py, no `casillas`): flota en el
+    # sitio manteniendo la pose de flotar, solo se mueve la tela; video de
+    # prompt_flotar_quieto_v2.txt (la primera toma, descartado_flotar_quieto_*,
+    # juntaba las piernas). Empieza en la pose (el 0) y es un bucle 3..191 (el
+    # 191 calca al 3: 0,34 pasos del giro). En el juego, mientras queda altura
+    # para posarse con flotar_bajar: asi se puede girar a cualquier altura.
+    'flotar_quieto': ('quieto', 0, 191, 24.0, True),
 }
 # Animaciones que siguen con su espejo al reves (sin repetir el del frente).
 ESPEJO = {'flotar_girar'}
@@ -266,6 +273,38 @@ def medidas(a):
     return ys.min(), cy, ys.max()
 
 
+BAJAR_ENTRADA = 13
+
+
+def entradas_a_bajar(datos):
+    def pm(ruta):
+        a = np.asarray(Image.open(ruta).convert('RGBA')).astype(np.float32)
+        return np.dstack([a[..., :3] * a[..., 3:] / 255.0, a[..., 3:]])[::2, ::2]
+
+    def recorte(p):
+        ys, xs = np.nonzero(p[..., 3] > 128)
+        cy, cx = int(ys.mean()), int(xs.mean())
+        c = np.zeros((200, 150, 4), np.float32)
+        y0, x0 = cy - 100, cx - 75
+        sy0, sx0 = max(0, y0), max(0, x0)
+        sy1, sx1 = min(p.shape[0], y0 + 200), min(p.shape[1], x0 + 150)
+        c[sy0 - y0:sy1 - y0, sx0 - x0:sx1 - x0] = p[sy0:sy1, sx0:sx1]
+        return c
+
+    def dist(a, b):
+        return min(float(np.abs(np.roll(np.roll(a, dy, 0), dx, 1) - b).mean())
+                   for dy in range(-6, 7, 2) for dx in range(-6, 7, 2))
+    b0 = datos['anims']['flotar_bajar'][0]
+    B = [recorte(pm(os.path.join(LIMPIOS, 'c_%03d.png' % (b0 + j)))) for j in range(BAJAR_ENTRADA)]
+    q0, q1 = datos['anims']['flotar_quieto']
+    out = []
+    for k in range(q0, q1 + 1):
+        r = recorte(pm(os.path.join(LIMPIOS, 'c_%03d.png' % k)))
+        ds = [dist(r, b) for b in B]
+        out.append(int(np.argmin(ds)))
+    return out
+
+
 def hoja():
     datos = json.load(open(os.path.join(AQUI, 'casillas.json')))
     # El suelo de las casillas: donde estan los pies al final (de pie).
@@ -347,6 +386,13 @@ def hoja():
             print('  recorridos: ' + ', '.join('%s %d' % (k, len(v)) for k, v in recorridos.items()))
         print('%-16s %d fotogramas, cuerpo %.1f -> %.1f, pies %.1f -> %.1f' % (
             nombre, n, cuerpo[0], cuerpo[-1], pies[0], pies[-1]))
+    # FLOTAR QUIETO -> FLOTAR_BAJAR: para cada fotograma del flotar quieto, el
+    # de flotar_bajar (de sus BAJAR_ENTRADA primeros, que siguen en la pose) que
+    # mas se le parece: por ahi entra a posarse sin salto (la forma, con color,
+    # encajada en x/y como en el estudio de 2026-10-15).
+    if 'flotar_quieto' in salida and 'flotar_bajar' in datos['anims']:
+        salida['flotar_quieto']['a_bajar'] = entradas_a_bajar(datos)
+        print('flotar_quieto -> flotar_bajar: entra por', sorted(set(salida['flotar_quieto']['a_bajar'])))
     # La altura del cuerpo (la misma medida) en el despegue de cada salto del
     # juego, en su casilla (suelo en 690): enlaza la fisica del salto (alturas
     # sobre el despegue) con las casillas de aqui (alturas sobre el suelo).

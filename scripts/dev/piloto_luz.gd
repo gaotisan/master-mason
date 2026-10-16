@@ -61,6 +61,11 @@ const PRUEBAS := {
 	# Dirigir en el aire (parado en el centro, derecha en el aire). Por las
 	# hojas de la luz sube un bot (ver _bot): prueba "escalera".
 	"escalera": [1420.0, []],
+	# FLOTAR QUIETO: un salto de parado en la luz al que, subiendo, se le suman
+	# 400 px (como si saltase desde una hoja alta): flota quieto, gira a media
+	# caida y se posa con la bajada de siempre.
+	"flotar_alto": [1456.0, [[0.8, "saltar", true], [0.9, "saltar", false],
+		[4.0, "mover_izquierda", true], [4.15, "mover_izquierda", false]]],
 	# La cinematica de coger el baculo, sin subir: baja el baculo y lo coge.
 	"coger": [1380.0, []],
 	"coger_b": [1380.0, []],
@@ -94,6 +99,7 @@ const PRUEBAS := {
 ## deprisa y pone la escalera ya en su sitio (sin la entrada).
 const EXTRAS := {
 	"escalera": [[0.0, "baculo"]],
+	"flotar_alto": [[1.4, "subir_400"]],
 	"coger": [[0.0, "baculo"], [1.5, "coger"]],
 	# Lo coge y luego B: lo guarda a la espalda y lo vuelve a sacar.
 	"coger_b": [[0.0, "baculo"], [1.5, "coger"], [7.0, "tecla_b"], [12.0, "tecla_b"]],
@@ -400,6 +406,10 @@ func _physics_process(delta: float) -> void:
 		match e[1]:
 			"camino":
 				escena._abrir_camino()
+			"subir_400":
+				# en pleno vuelo (subiendo), 400 px mas alto
+				var mg: Node = escena.get_node("Magnus")
+				mg.set("_vuelo_y", float(mg.get("_vuelo_y")) + 400.0)
 			"coger":
 				escena._alcanzado = true
 				escena._coger_baculo()

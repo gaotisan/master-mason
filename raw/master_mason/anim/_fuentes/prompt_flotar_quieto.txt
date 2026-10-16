@@ -1,0 +1,76 @@
+FLOTAR QUIETO EN LA POSE (el que falta para girar a cualquier altura)
+(Google Flow, "Frames to Video", 2026-10-15; 16:9)
+====================================================================
+Por que: en la luz, el giro en el aire empieza y acaba en la pose de flotar
+(el c_38 del salto parado). La bajada flotando que hay (video aterrizar) solo
+esta cerca de esa pose en sus 8 primeros fotogramas y luego estira las piernas,
+asi que cayendo desde alto no se puede girar. El video de flotar en bucle que
+se pidio el 2026-10-12 tampoco sirve: se mece mucho (se echa hacia atras con
+las piernas adelantadas, como sentado; hasta 6,4 pasos del giro lejos de la
+pose) y saca los pies descalzos color carne en el 85 % de los fotogramas.
+Aqui se pide lo contrario: que MANTENGA la pose y solo se mueva la tela.
+En el juego: flota con este video mientras queda altura (se puede girar en
+cualquier momento) y en el ultimo segundo y pico entra la bajada de siempre,
+que estira las piernas y se posa.
+
+En Flow, 16:9, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_flotar_quieto_inicio.png
+  fotograma final:   referencia_flotar_quieto_fin.png      (la misma: bucle)
+(en _fuentes/ y en Descargas/referencias_peregrino_flotar_quieto; es la pose de
+flotar del juego, la misma de referencia_flotar_inicio.png)
+
+Que mirar en cada toma (por orden de importancia):
+  1. el cuerpo NO cambia de postura: no se echa hacia atras, no se sienta, no
+     adelanta ni levanta las piernas, no mueve los brazos. Si en algun momento
+     se parece a "estar sentado en el aire", no vale
+  2. piernas y pies oscuros siempre (no descalzo, sin piel ni dedos)
+  3. solo se mueve la tela (bajo de la tunica, la campana de atras, mangas),
+     la barba y la capucha, despacio
+  4. sube y baja muy poco (un palmo como mucho), despacio
+  5. de perfil a la derecha todo el rato; acaba como empezo
+  6. camara quieta, nada encima (texto, controles)
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit, no shadows, no floor, no other props, no text, no
+logos, no on-screen interface or player controls. The pilgrim stays full-body
+in frame, always the same size, always in the same place.
+
+A floating idle from a 2D platform video game: the character hangs weightless
+in the air, held up by a soft warm light, perfectly still in his pose while
+his clothes drift around him.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the grey
+cloth hood of his cloak, exactly the shape of the first frame; its shadow
+hides most of his face. Long white beard, long brown faceted patchwork cloak
+in dark maroon, brick red, ochre, warm brown and muted grey, exactly as in the
+first frame. His legs and feet are dark, exactly as in the first frame: thin
+legs in dark hose and soft dark slippers, one single very dark brown from the
+hem of the cloak down to the tips of his feet; he is not barefoot, no bare
+skin and no toes show at any moment. His hands are empty.
+
+He HOLDS THE POSE OF THE FIRST FRAME for the whole video, like a statue: his
+body stays upright and leaning slightly forward exactly as in the first frame,
+his fists stay in front of his chest exactly where they are, his head and hood
+keep the same angle, and his two legs keep hanging bent below the cloak exactly
+as in the first frame. He does not lean back, he does not sit in the air, he
+does not lift or stretch his legs forward, he does not swing his arms, he does
+not breathe heavily. Only his clothes and beard move: the flared back of the
+cloak and its hem ripple and sway slowly, as if a gentle current of warm air
+rose under him; the sleeves flutter softly; the tip of his beard and the edge
+of the hood sway a little. His whole body rises and sinks very gently, no more
+than the height of his hand, in two slow, even cycles over the eight seconds,
+and ends exactly where it started.
+
+Action, one continuous take, calm and slow, at natural real-time speed:
+- 0 to 8 s: he floats in place in the pose of the first frame, as described.
+- At 8 s he is exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+only a soft rustle of the cloak in the air; no breathing, no music, no words.
