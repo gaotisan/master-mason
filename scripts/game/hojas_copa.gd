@@ -17,6 +17,7 @@ extends Node2D
 ## (claro), deja pasar mas. En la sombra sale casi negra.
 
 const ATLAS := preload("res://assets/world/hojarasca/hojas.png")
+const Imagenes := preload("res://scripts/game/imagenes_cache.gd")
 const COLS_ATLAS := 8
 const FILAS_ATLAS := 4
 const CELDA := Vector2(64, 128)
@@ -57,8 +58,8 @@ func _ready() -> void:
 	_ruido.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
 	_ruido.frequency = 1.0
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	_medio = medio.get_image()
-	_prof = profundidad.get_image()
+	_medio = Imagenes.de(medio)
+	_prof = Imagenes.de(profundidad)
 	var f := FileAccess.open(PUNTOS, FileAccess.READ)
 	if f:
 		_puntos = JSON.parse_string(f.get_as_text())

@@ -16,6 +16,8 @@ extends Node2D
 ## ve entonces); con la respiracion de la luz suben y bajan. Una de cada doce
 ## da chispazos al girar (cara plana que pilla la luz de lleno).
 
+const Imagenes := preload("res://scripts/game/imagenes_cache.gd")
+
 ## B luz, G haces con signo (0,5 = nada), a cualquier resolucion.
 @export var mascara: Texture2D
 @export var zona := Rect2(40, 20, 2832, 1592)
@@ -59,7 +61,7 @@ func _ready() -> void:
 	_ruido.seed = _rng.randi()
 	_ruido.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
 	_ruido.frequency = 1.0
-	_mascara = mascara.get_image()
+	_mascara = Imagenes.de(mascara)
 	_escala = Vector2(_mascara.get_width(), _mascara.get_height()) / Vector2(2912, 1632)
 	_tex = _punto()
 	var mezcla := CanvasItemMaterial.new()

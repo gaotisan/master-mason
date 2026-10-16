@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://bbvyx01bdqcli"
+path="res://.godot/imported/medio.png-592d85bda2bd02c987c6bca3f7d66bd1.image"
+
+[deps]
+
+source_file="res://assets/world/camino_bosque/pixeles/medio.png"
+dest_files=["res://.godot/imported/medio.png-592d85bda2bd02c987c6bca3f7d66bd1.image"]
+
+[params]
+

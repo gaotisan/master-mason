@@ -25,6 +25,16 @@ uniform float borde_px = 3.0;
 uniform float lado_luz = 0.0;   // -1..1 en x de UV del sprite
 // Lo que queda del haz (1 entero, 0 apagado: al coger el baculo se apaga).
 uniform float luz_viva : hint_range(0.0, 1.0) = 1.0;
+// El peregrino de frente (PeregrinoFrontal: la salida y la vuelta por el
+// camino) pone copias de este material a su baston a la espalda y su correa,
+// para que tengan la luz del cuerpo (2026-10-15): desde / corte, el tramo de la
+// madera que se dibuja, como corte_madera.gdshader (0 y 1 = entero; solo si se
+// pide: el cuerpo va en un atlas y su UV es de la hoja entera); encima, a 1 en
+// lo que va pegado delante del cuerpo: sin borde de luz (detras tiene la
+// tunica, no el aire).
+uniform float desde : hint_range(0.0, 1.0) = 0.0;
+uniform float corte : hint_range(0.0, 1.0) = 1.0;
+uniform float encima : hint_range(0.0, 1.0) = 0.0;
 
 varying vec2 mundo;
 
@@ -58,7 +68,14 @@ void fragment() {
 	// Borde de luz: pixel opaco cuyo vecino hacia la luz es transparente.
 	vec2 hacia = normalize(vec2(lado_luz * 0.7, -1.0)) * borde_px * TEXTURE_PIXEL_SIZE;
 	float vecino = texture(TEXTURE, UV + hacia).a;
-	float borde = c.a * (1.0 - vecino);
+	float borde = c.a * (1.0 - vecino) * (1.0 - encima);
 	col += color_luz * borde * borde_fuerza * (0.25 + 0.75 * t) * luz_viva;
-	COLOR = vec4(col, c.a);
+	float a = c.a;
+	if (corte < 1.0) {
+		a *= 1.0 - smoothstep(corte - 0.008, corte, UV.y);
+	}
+	if (desde > 0.0) {
+		a *= smoothstep(desde, desde + 0.008, UV.y);
+	}
+	COLOR = vec4(col, a);
 }

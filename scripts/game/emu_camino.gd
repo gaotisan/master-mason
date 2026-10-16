@@ -17,7 +17,18 @@ extends Node2D
 ## Antes de empezar se ve el primer fotograma, quieto: es la penumbra del
 ## fundido de entrada.
 
+## Cuando ya no se ve (se ha salido del encuadre): el peregrino espera a esto.
+signal se_fue
+
 const FICHA := "res://assets/world/camino_bosque/emu.json"
+## Las paginas del atlas, precargadas (con la escena, en segundo plano: cargadas
+## en _ready eran ~75 ms del tiron de entrada). Tantas como "paginas" de la ficha
+## (si construye.py saca mas, se cargan aqui: anadirlas).
+const PAGINAS: Array[Texture2D] = [preload("res://assets/world/camino_bosque/emu_0.png"),
+	preload("res://assets/world/camino_bosque/emu_1.png"), preload("res://assets/world/camino_bosque/emu_2.png"),
+	preload("res://assets/world/camino_bosque/emu_3.png")]
+const MEDIO := preload("res://assets/world/camino_bosque/medio.png")
+const Imagenes := preload("res://scripts/game/imagenes_cache.gd")
 const PANTALLA := Vector2(2912, 1632)
 
 ## Segundos desde el principio de la escena hasta que echa a andar el video.
@@ -30,6 +41,13 @@ const PANTALLA := Vector2(2912, 1632)
 @export var estela := 0.6
 ## Golpe de camara cuando pasa rozando (fuerza; 0 = sin golpe).
 @export var golpe := 1.0
+## Hojas que levanta al pasar rozando (las de primer plano, fuera de foco, y
+## las del suelo de delante); 0 = ninguna.
+@export var hojas_al_pasar := 24
+## Tension de la camara (camino_bosque.gd: se le acerca despacio) desde este
+## fotograma del video hasta que embiste; al embestir se suelta en tension_suelta s.
+@export var tension_desde := 24
+@export var tension_suelta := 0.35
 ## Cuando saliendo ya solo le queda en pantalla esta fraccion de su ancho, se
 ## va del todo en salida_s: si no, quedaba en el borde una franja oscura como un
 ## tablon. Vale para salir por cualquier lado.
@@ -52,6 +70,8 @@ var _acabado := false
 var _golpeado := false
 var _escala_max := 2.0
 var _yendose := -1.0
+var _carga := 1 << 30      # primer fotograma de la embestida (la ventana crece)
+var _soltando := -1.0
 var _sombra: Node2D
 var _tex_sombra: Texture2D
 @onready var _sonido: AudioStreamPlayer2D = $Sonido
@@ -67,8 +87,12 @@ func _ready() -> void:
 	_escala_fin = float(d.escala_fin)
 	for fr in _fotos:
 		_escala_max = maxf(_escala_max, float(fr[13]))
+	for i in _fotos.size():
+		if float(_fotos[i][13]) > _escala_pie * 1.03:
+			_carga = i
+			break
 	for i in int(d.paginas):
-		_paginas.append(load("res://assets/world/camino_bosque/emu_%d.png" % i))
+		_paginas.append(PAGINAS[i] if i < PAGINAS.size() else load("res://assets/world/camino_bosque/emu_%d.png" % i))
 	_sonido.volume_db = emu_db
 	# Sombra de contacto: un ovalo blando por detras del emu.
 	var g := Gradient.new()
@@ -91,7 +115,7 @@ func _ambiente() -> Color:
 	var fr: Array = _fotos[0]
 	var o := Vector2(fr[11], fr[12])
 	var s: float = fr[13]
-	var img: Image = load("res://assets/world/camino_bosque/medio.png").get_image()
+	var img: Image = Imagenes.de(MEDIO)
 	var suma := Color(0, 0, 0)
 	var n := 0
 	for i in 9:
@@ -115,8 +139,7 @@ func _process(delta: float) -> void:
 		# Sin sonido (o ya acabado): por el reloj propio.
 		_foto = int((_t - inicio) * _fps)
 	if _foto >= _fotos.size():
-		_acabado = true
-		visible = false
+		_irse()
 		return
 	var fr: Array = _fotos[_foto]
 	_sonido.position = _a_pantalla(fr, Vector2(fr[9], fr[10]))
@@ -130,15 +153,45 @@ func _process(delta: float) -> void:
 		_yendose += delta
 		modulate.a = 1.0 - clampf(_yendose / salida_s, 0.0, 1.0)
 		if modulate.a <= 0.0:
-			_acabado = true
-			visible = false
+			_irse()
 			return
-	# Golpe de camara al pasar rozando (cuando ya casi llena la pantalla).
+	_tension(delta)
+	# Golpe de camara al pasar rozando (cuando ya casi llena la pantalla), y la
+	# rafaga de hojas que levanta.
 	if not _golpeado and golpe > 0.0 and controlador and float(fr[13]) > _escala_fin * 1.04:
 		_golpeado = true
 		controlador.sacudir(golpe)
+		var hojas := controlador.get_node_or_null("Hojas")
+		if hojas and hojas.has_method("rafaga") and hojas_al_pasar > 0:
+			hojas.rafaga(_a_pantalla(fr, Vector2(fr[9], fr[10])), hojas_al_pasar)
 	queue_redraw()
 	_sombra.queue_redraw()
+
+## Sin emu (ya salio otra vez: solo la primera): ni se ve ni suena.
+func saltar() -> void:
+	_acabado = true
+	visible = false
+	set_process(false)
+
+func _irse() -> void:
+	_acabado = true
+	visible = false
+	if controlador:
+		controlador.tension = 0.0
+	se_fue.emit()
+
+## Mientras te mira, la camara se le acerca (sube la tension); al embestir, se
+## suelta de golpe.
+func _tension(delta: float) -> void:
+	if not controlador:
+		return
+	if _foto < _carga:
+		controlador.tension = smoothstep(float(tension_desde), float(_carga), float(_foto))
+	else:
+		if _soltando < 0.0:
+			_soltando = 0.0
+		_soltando += delta
+		controlador.tension = (1.0 - clampf(_soltando / tension_suelta, 0.0, 1.0)) * 			smoothstep(float(tension_desde), float(_carga), float(_carga))
 
 ## Ventana del fotograma: esquina en pantalla (con la camara de la escena: el
 ## emu esta delante) y escala.

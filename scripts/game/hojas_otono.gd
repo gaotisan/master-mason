@@ -23,9 +23,16 @@ extends Node2D
 ##
 ## Suelo: cuando la racha pasa por el camino levanta hojas de las que hay
 ## tiradas: salen del suelo, dan uno o varios saltitos a favor del viento y se
-## vuelven a posar; alguna sale volando.
+## vuelven a posar; alguna sale volando. Y el peregrino, al pisar, aparta
+## alguna (patear).
+##
+## Profundidad: las hojas van delante de todo (z 6), salvo las que estan mas
+## lejos que el peregrino (corte: su z de hoja), que se pintan en la capa
+## Detras (z -4, por debajo de el): si no, una hoja lejana posada en el camino
+## se veia encima de su tunica.
 
 const ATLAS := preload("res://assets/world/hojarasca/hojas.png")
+const Imagenes := preload("res://scripts/game/imagenes_cache.gd")
 const ATLAS_DESENFOCADO := preload("res://assets/world/camino_bosque/hojas_desenfocadas.png")
 const COLS_ATLAS := 8
 const FILAS_ATLAS := 4
@@ -66,6 +73,9 @@ const BASE := Color(0.657, 0.417, 0.139)
 
 ## La escena: viento_en(x) y brisa.
 var controlador: Node
+## z de hoja del peregrino (las mas lejanas, detras de el); < 0, ninguno.
+var corte := -1.0
+var _detras: Node2D
 
 var _medio: Image
 var _ramas: Image
@@ -81,9 +91,14 @@ func _ready() -> void:
 	_ruido.seed = _rng.randi()
 	_ruido.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
 	_ruido.frequency = 1.0
-	_medio = medio.get_image()
-	_ramas = ramas.get_image()
+	_medio = Imagenes.de(medio)
+	_ramas = Imagenes.de(ramas)
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	_detras = Node2D.new()
+	_detras.z_as_relative = false
+	_detras.z_index = -4
+	_detras.draw.connect(func(): _pintar(_detras, true))
+	add_child(_detras)
 	# Al empezar ya hay alguna en el aire.
 	for i in 6:
 		_soltar(true)
@@ -133,6 +148,52 @@ func _levantar(racha: float) -> void:
 		"suelo": y + (_rng.randf_range(80.0, 300.0) * k if vuela else _rng.randf_range(2.0, 12.0)),
 		"saltos": 0 if vuela else _rng.randi_range(1, 3),
 		"aparece": 0.25,
+	})
+
+## Rafaga de hojas que levanta algo al pasar rozando la camara (el emu): unas
+## del suelo de delante y otras pegadas a la camara (primer plano, fuera de
+## foco), saliendo de `desde` (en pantalla) hacia fuera y hacia arriba.
+func rafaga(desde: Vector2, n: int) -> void:
+	for i in n:
+		if _hojas.size() >= maximo + n:
+			return
+		# unas pegadas a la camara (fuera de foco, salen de cuadro) y la mayoria
+		# del suelo de delante: suben, revolotean y se posan en el camino (lo que
+		# queda despues de que pase)
+		var cerca := _rng.randf() < 0.35
+		var z := _rng.randf_range(1.15, 1.45) if cerca else _rng.randf_range(0.7, 1.0)
+		var k := lerpf(0.16, 1.0, pow(minf(z, 1.0), 1.3)) * (1.4 if cerca else 1.0)
+		var p := desde + Vector2(_rng.randf_range(-420.0, 420.0), _rng.randf_range(-200.0, 260.0))
+		p.x = clampf(p.x, 150.0, PANTALLA.x - 150.0)
+		if controlador:
+			p -= controlador.paralaje(p, z)
+		var lado := signf(p.x - desde.x + _rng.randf_range(-60.0, 60.0))
+		var vel := Vector2(lado * _rng.randf_range(300.0, 600.0), -_rng.randf_range(160.0, 420.0)) if cerca 			else Vector2(lado * _rng.randf_range(120.0, 380.0), -_rng.randf_range(180.0, 460.0))
+		_soltar_en(p, z, {
+			"vel": vel * k,
+			"suelo": PANTALLA.y + 300.0 if cerca else minf(_suelo(z) + _rng.randf_range(-20.0, 60.0), PANTALLA.y - 20.0),
+			"saltos": 0 if cerca else _rng.randi_range(0, 1),
+			"aparece": 0.05,
+		})
+
+## z de hoja de lo que pisa el suelo en la fila y (0 el fondo, 1 cerca).
+func z_del_suelo(y: float) -> float:
+	return clampf(pow(maxf(y - fuga.y, 1.0) / (PANTALLA.y + 120.0 - fuga.y), 1.0 / 1.1), 0.0, 1.0)
+
+## Una hoja que aparta un pie en p (el suelo del camino, sin camara): sale de
+## lado y hacia delante, da un saltito corto y se vuelve a posar un poco mas
+## aca (delante del pie).
+func patear(p: Vector2, fuerza := 1.0) -> void:
+	if _hojas.size() >= maximo:
+		return
+	var z := maxf(z_del_suelo(p.y), 0.05)
+	var k := lerpf(0.16, 1.0, pow(z, 1.3))
+	var lado := 1.0 if _rng.randf() < 0.5 else -1.0
+	_soltar_en(p + Vector2(lado * _rng.randf_range(4.0, 20.0) * k, 0.0), z, {
+		"vel": Vector2(lado * _rng.randf_range(40.0, 120.0), -_rng.randf_range(60.0, 150.0)) * k * fuerza,
+		"suelo": p.y + _rng.randf_range(4.0, 26.0) * k,
+		"saltos": 0,
+		"aparece": 0.12,
 	})
 
 func _soltar(en_el_aire := false) -> void:
@@ -245,10 +306,19 @@ func _process(delta: float) -> void:
 			vivas.append(h)
 	_hojas = vivas
 	queue_redraw()
+	_detras.queue_redraw()
 
 func _draw() -> void:
+	_pintar(self, false)
+
+## Las de delante del peregrino (o todas, sin el) o las de detras, en ci.
+func _pintar(ci: CanvasItem, detras: bool) -> void:
 	for h in _hojas:
 		var z: float = h.z
+		if corte >= 0.0 and (z < corte) != detras:
+			continue
+		if corte < 0.0 and detras:
+			continue
 		# La camara mueve mas lo cercano (las de primer plano, mas que nada).
 		var p: Vector2 = h.pos
 		if controlador:
@@ -293,9 +363,9 @@ func _draw() -> void:
 		if rapidez > 0.0:
 			for j in 2:
 				var atras := vel * (0.012 * (j + 1))
-				draw_set_transform_matrix(Transform2D(xf.x, xf.y, xf.origin - atras))
-				draw_texture_rect_region(atlas, Rect2(-CELDA / 2.0, CELDA), region,
+				ci.draw_set_transform_matrix(Transform2D(xf.x, xf.y, xf.origin - atras))
+				ci.draw_texture_rect_region(atlas, Rect2(-CELDA / 2.0, CELDA), region,
 					Color(mod.r, mod.g, mod.b, a * rapidez * (0.28 if j == 0 else 0.13)))
-		draw_set_transform_matrix(xf)
-		draw_texture_rect_region(atlas, Rect2(-CELDA / 2.0, CELDA), region, mod)
-	draw_set_transform_matrix(Transform2D.IDENTITY)
+		ci.draw_set_transform_matrix(xf)
+		ci.draw_texture_rect_region(atlas, Rect2(-CELDA / 2.0, CELDA), region, mod)
+	ci.draw_set_transform_matrix(Transform2D.IDENTITY)

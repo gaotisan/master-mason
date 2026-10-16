@@ -248,6 +248,40 @@ extends Node2D
 ## el remolino; la nota del hilo, grave (final_nota de tono), al agarrarlo.
 @export var final_musica: float = -10.0
 @export var final_nota: float = 0.5
+## LA SALIDA POR EL CAMINO (2026-10-15; el usuario: "si el usuario avanza y
+## llega a la altura del camino, el juego toma el control (a lo Broken Sword) y
+## el peregrino entra por el camino"). Con el camino abierto, en su boca
+## (salida_x, a la altura del lecho), ARRIBA (2026-10-15; el usuario: "lo ideal
+## seria entrar cuando le demos a la tecla de arriba, ya que no tiene sentido
+## saltar"; antes entraba solo al llegar y, volviendo del camino, costaba volver
+## a entrar): a menos de salida_boca px, arriba no salta (salto_bloqueado de
+## magnus.gd, como junto a una puerta) y el juego toma el mando: se para donde
+## este (magnus.gd: andar_hasta), se vuelve de espaldas y se aleja por el camino
+## con la toma de frente (el baston como lo lleve, en la mano o a la espalda);
+## al adentrarse en la bruma, corte de camara a camino_bosque (que se va
+## cargando desde que se le quita el mando), sin negro: el usuario, "para darle
+## continuidad al mundo" (la vuelta, igual).
+@export var salida_x: float = 2440.0
+@export var salida_boca: float = 170.0
+## Donde se pierde el camino con la camara sin mover (el fondo lejano va con la
+## camara: paralaje_lejos de bosque_fondo.gdshader). Los pies van de donde se
+## para hacia aqui, en linea recta y a la escala de la toma.
+@export var salida_fuga: Vector2 = Vector2(2380.0, 1005.0)
+## La musica se aparta estos s antes del corte (en seco sonaba a golpe; como
+## hace camino_bosque al volver).
+@export var salida_musica: float = 0.6
+## La toma de frente (scenes/characters/peregrino_frontal.tscn, el peregrino de
+## frente de todo el juego): de perfil a espaldas empieza en la vuelta por el
+## fotograma salida_desde de vuelta_cb, a salida_escala y salida_dx px por
+## delante (medido: el perfil con el baston en la mano casa con vuelta_cb 8-12 a
+## 0,98, 4 px adelante). Adentrandose, al bajar de salida_hasta de escala (entra
+## en la bruma), el corte.
+@export var salida_desde: int = 10
+@export var salida_escala: float = 0.98
+@export var salida_dx: float = 4.0
+@export var salida_hasta: float = 0.78
+## Volviendo de camino_bosque, la escala a la que aparece en la bruma.
+@export var salida_entra: float = 0.7
 
 @export_group("La luz")
 ## Zona de la luz para jugar (fracciones de la apertura del haz): pesa poco del
@@ -358,8 +392,14 @@ extends Node2D
 ## fotograma, con los pies donde estan) llega a menos de coger_margen de la
 ## bola (x de lado, y de alto), y lo que falte lo corrige en coger_ajuste s,
 ## con la bola yendo a la mano.
-@export var coger_margen: Vector2 = Vector2(70.0, 36.0)
+## 2026-10-15 (el usuario: "super complicado cogerlo; cuando saltamos y estamos
+## a su altura o un poco mas bajo deberia coger"): por encima de la bola sigue
+## coger_margen.y; por debajo, hasta coger_bajo px. Cuanto mas lejos, mas tarda
+## el ajuste (coger_ajuste mas 1 s por cada coger_ajuste_px), que no de un tiron.
+@export var coger_margen: Vector2 = Vector2(85.0, 36.0)
+@export var coger_bajo: float = 95.0
 @export var coger_ajuste: float = 0.3
+@export var coger_ajuste_px: float = 400.0
 
 ## Que levanta cada contacto del pie. Los contactos salen de la senal pisada de
 ## Magnus, en el sprite en que el pie planta (los mismos de sus sonidos):
@@ -398,6 +438,12 @@ const PISADA_ANIM := {
 const FUERZA_SALTO := {"salto_parado": 0.8, "saltar": 1.0, "salto_correr": 1.3, "flotar_posarse": 0.35}
 ## Ancho del mundo: lo que sale por un lado entra por el otro.
 const ANCHO := 2912.0
+const SALIDA_ESCENA := "res://scenes/game/camino_bosque.tscn"
+const PEREGRINO_FRONTAL := preload("res://scenes/characters/peregrino_frontal.tscn")
+## Como deja al peregrino para la escena siguiente (baston y magia) y de donde
+## viene al entrar; y lo ya hecho en la partida (hojarasca_resuelta).
+const PEREGRINO_ESTADO := preload("res://scripts/characters/peregrino_estado.gd")
+const PARTIDA := preload("res://scripts/game/partida.gd")
 const FONDO_Z := -10
 ## El baston en la mano tras cogerlo (ver coger_cae).
 const BASTON_EN_MANO := preload("res://scenes/characters/baston.tscn")
@@ -410,6 +456,7 @@ const _PRECARGA := [
 	preload("res://assets/characters/magnus/magnus_flotar_posarse.png"),
 	preload("res://assets/characters/magnus/magnus_flotar_girar.png"),
 	preload("res://assets/characters/magnus/magnus_flotar_pisar.png"),
+	preload("res://assets/characters/magnus/magnus_flotar_quieto.png"),
 	preload("res://assets/characters/magnus/magnus_coger_baculo.png"),
 	preload("res://assets/characters/baston/mano_reposo.png"),
 	preload("res://assets/characters/baston/mano_arranque_andar.png"),
@@ -454,6 +501,7 @@ var _coger_dir := 1.0
 var _coger_alto := 0.0                  # lo que hay que bajar el dibujo hasta el suelo al agarrar
 var _coger_cayo := false
 var _coger_x0 := 0.0                    # de donde viene al empezar (ver coger_ajuste)
+var _coger_ajuste_t := 0.3              # lo que dura ese ajuste esta vez
 var _coger_xt := 0.0
 var _coger_alto0 := 0.0
 var _coger_bola0 := Vector2.ZERO
@@ -466,6 +514,26 @@ var _remolino_cuenta := 0.0             # hojas por levantar (fraccion que se ar
 var _cine_lado := 0.0                   # la camara del final: px de lado y zoom de mas
 var _cine_zoom := 0.0
 var _polvo_remolino: CPUParticles2D
+var _camino_abierto := false            # cogido el baculo, su boca lleva a la escena siguiente
+var _en_camino := false                 # en el sector del camino (ver EL SECTOR DEL CAMINO)
+var _retenida := ""                     # llegando del corte: "frente" mientras siga pulsada arriba
+var _lado_suelto := false               # entrando andando: izquierda/derecha no cuentan hasta soltarlas
+var _parando := false                   # de frente hacia la boca: ya pidio parar en ella
+var _parada_e := 0.0                    # la escala a la que se va a parar y la de cuando lo pidio (1/e)
+var _parada_inv := 0.0
+var _volviendo := false                 # en la boca de espaldas, abajo: se da la vuelta y al perfil
+var _al_perfil_ya := false              # pasando al de perfil
+var _cortando := false                  # ya va el corte a camino_bosque
+var _frontal_dir := 1.0                 # el de frente espejado (-1) o no
+var _sec_frontal: Dictionary = {}       # secuencia_frontal[_sin].json (los pies juntos de cada andar)
+var _salida_carga := false              # camino_bosque pedida en segundo plano
+var _cam_quieta := 0.0                  # 1: la camara deja de respirar (salida y entrada por el camino)
+var _cam_fija := Vector2.ZERO
+var _entra_ref := 0.98                  # entrando por el camino: la escala que va en la boca (ver _camino_tick)
+var _frontal: Node2D                    # la toma de frente del sector del camino (PeregrinoFrontal)
+var _resuelta := false                  # ya cogido el baculo en esta partida (ver _poner_resuelta)
+var _en_boca := false                   # en la boca del camino: arriba entra (sin saltar)
+var _frontal_luz: ShaderMaterial        # su magnus_luz (con el suelo donde pisa)
 
 var _luz_apagada := false               # ya no bajan hojas por la luz
 var _niebla_mat: ShaderMaterial         # el de NieblaSuelo (que se va a una SubViewport)
@@ -522,7 +590,10 @@ func _ready() -> void:
 	_sprite.material = luz
 	_crear_fantasma()
 	# tras el negro de la entrada (si la hay), el baston de la mano
-	get_tree().create_timer(0.3).timeout.connect(_preparar_baston)
+	var estado := PEREGRINO_ESTADO.leer(get_tree())
+	_resuelta = estado.get("viene_de", "") == "camino_bosque" or PARTIDA.ya(get_tree(), "hojarasca_resuelta")
+	if not _resuelta:
+		get_tree().create_timer(0.3).timeout.connect(_preparar_baston)
 	_magnus.pasos_db = magnus_pasos_db
 	# En la luz se pesa poco: sus saltos de parado y andando flotan en el haz.
 	_magnus.ligereza = luz_en
@@ -534,7 +605,9 @@ func _ready() -> void:
 	process_physics_priority = 10
 	_delante.sembrar(hojas_por_columna_delante, _monton.bind(0.6))
 	_detras.sembrar(hojas_por_columna_detras, _monton.bind(0.4))
-	if caida_al_empezar:
+	if _resuelta:
+		_poner_resuelta.call_deferred(estado)
+	elif caida_al_empezar:
 		_entrar_desde_negro()
 	else:
 		$Entrada.hide()
@@ -549,8 +622,9 @@ func _ready() -> void:
 	# de la escalera esperan al baculo).
 	for i in 3:
 		_hoja_de_arriba(randf_range(200.0, 900.0))
-	for i in 6:
-		_hoja_suelta_luz(randf_range(0.0, 1000.0))
+	if not _resuelta:
+		for i in 6:
+			_hoja_suelta_luz(randf_range(0.0, 1000.0))
 
 ## Altura extra (px) del monton donde cae (en MagnusSpawn) y de dos lomas mas
 ## bajas: una bajo el haz y otra a la derecha.
@@ -606,6 +680,8 @@ func _process(delta: float) -> void:
 		_ligero_pendiente = false
 		_pensar.decir("ligero")
 	_envolver()
+	_mirar_salida()
+	_camino_tick()
 	if _cogiendo:
 		_coger_tick(delta)
 	else:
@@ -660,7 +736,7 @@ func _vida_del_bosque(delta: float) -> void:
 	var k := 1.0 - exp(-2.2 * delta)
 	_sigue_obj = _sigue_obj.lerp(obj, k)
 	_sigue = _sigue.lerp(_sigue_obj, k)
-	_respira = d + _sigue + Vector2(_cine_lado, 0.0)
+	_respira = (d + _sigue + Vector2(_cine_lado, 0.0)).lerp(_cam_fija, _cam_quieta)
 	_camara.zoom = Vector2.ONE * camara_zoom * (1.0 + _cine_zoom)
 	var m := $Bosque.material as ShaderMaterial
 	m.set_shader_parameter("tiempo", t)
@@ -1051,7 +1127,9 @@ func _mirar_baculo(pies: Vector2) -> void:
 		var g: Array = d["garra"][0]
 		var alto_ahora: float = (_magnus.position.y - pies.y) - float(d["pies"][0])
 		var mano := Vector2(_magnus.position.x + dir * float(g[0]), _magnus.position.y + float(g[1]) - alto_ahora)
-		if absf(wrapf(mano.x - punta.x, -ANCHO / 2.0, ANCHO / 2.0)) <= coger_margen.x 				and absf(mano.y - punta.y) <= coger_margen.y:
+		var bajo := mano.y - punta.y            # + : la mano por debajo de la bola
+		if absf(wrapf(mano.x - punta.x, -ANCHO / 2.0, ANCHO / 2.0)) <= coger_margen.x \
+				and bajo >= -coger_margen.y and bajo <= coger_bajo:
 			_alcanzado = true
 			_coger_baculo()
 		return
@@ -1089,6 +1167,8 @@ func _coger_baculo() -> void:
 	_coger_alto = maxf(_magnus.position.y + float(g[1]) - punta.y, 0.0)
 	_coger_alto0 = maxf(pies_alto - float(_coger_dat["pies"][0]), 0.0)
 	_coger_bola0 = punta
+	var falta := maxf(absf(_coger_xt - _coger_x0), absf(_coger_alto0 - _coger_alto))
+	_coger_ajuste_t = coger_ajuste + falta / maxf(coger_ajuste_px, 1.0)
 	_baculo.coger()
 	_baculo.estallar()
 	_baculo.descargar(coger_descarga)
@@ -1126,7 +1206,7 @@ func _coger_tick(delta: float) -> void:
 		_coger_cayo = true
 		_caer_con_baculo()
 	# lo que faltaba para la mano en la bola, en coger_ajuste s (COGERLO A LA PAR)
-	var b := smoothstep(0.0, coger_ajuste, _coger_t) if coger_ajuste > 0.0 else 1.0
+	var b := smoothstep(0.0, _coger_ajuste_t, _coger_t) if _coger_ajuste_t > 0.0 else 1.0
 	alto = lerpf(_coger_alto0, alto, b)
 	_magnus.position.x = lerpf(_coger_x0, _coger_xt, b)
 	_ultima_x = _magnus.position.x
@@ -1159,6 +1239,9 @@ func _acabar_coger() -> void:
 	_baston_mano.set("puesto", true)
 	_baston_mano.call("poner_en_mano", true)
 	_magnus.soltar_cinematica()
+	_camino_abierto = bosque_de_fondo
+	_resuelta = true
+	PARTIDA.marcar(get_tree(), "hojarasca_resuelta")
 	# al caer con el, lo piensa (el sendero ya esta encendido)
 	get_tree().create_timer(0.8).timeout.connect(_pensar.decir.bind("camino"))
 	# y la camara vuelve sola a lo de siempre
@@ -1174,6 +1257,12 @@ func _acabar_coger() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	var k := event as InputEventKey
 	if k == null or not k.pressed or k.echo or k.keycode != KEY_B:
+		return
+	if _en_camino:
+		# en el camino, el de frente (saca o guarda con su animacion)
+		if _frontal and not _cortando and not _al_perfil_ya:
+			get_viewport().set_input_as_handled()
+			_frontal.call("cambiar_baston", not bool(_frontal.get("lleva_baston")))
 		return
 	if _baston_mano == null or not _baston_mano.get("puesto") or _cogiendo:
 		return
@@ -1564,13 +1653,351 @@ func _crear_fantasma() -> void:
 	add_child(_fantasma)
 	move_child(_fantasma, _magnus.get_index() + 1)
 
+## EL SECTOR DEL CAMINO (2026-10-15). En la boca del camino (salida_x) el
+## peregrino pasa a la toma de frente (PeregrinoFrontal) y ahi lo lleva el
+## jugador como en camino_bosque (el usuario: "ese sector haria que lo moviera
+## el usuario tambien, para delante y para atras, para que quede siempre de la
+## misma forma"):
+##   arriba     se adentra de espaldas; al entrar en la bruma (salida_hasta),
+##              corte de camara a camino_bosque
+##   abajo      vuelve hacia la camara y en la boca sigue el de perfil con la
+##              segunda mitad de su giro (ENTRADA_GIRO); de espaldas en la boca,
+##              se da la vuelta y lo mismo
+##   izq./der.  en la boca, al perfil (de espaldas, por la vuelta del de frente)
+##   B          saca o guarda el baston (con sus animaciones de frente/espaldas)
+## Se entra desde el perfil en la boca: la primera vez solo, al llegar andando
+## (el usuario: "la primera vez que se meta solo en el camino, que no haga falta
+## darle a arriba, luego ya normal"), y luego con arriba (ahi no salta:
+## salto_bloqueado). Se para donde este, se da la vuelta de espaldas y se queda
+## en posicion. Volviendo de camino_bosque aparece en la bruma (salida_entra) de
+## frente y quieto; si llega con arriba pulsada (la que lo metio en la bruma
+## alli), anda hacia la camara hasta soltarla: tras el corte de camara la tecla
+## que se mantiene sigue llevandolo hacia donde iba.
+const _DE_PIE := [&"reposo", &"arranque_andar", &"andar", &"parada_andar",
+	&"arranque_correr", &"correr", &"parada_correr"]
+
+## De perfil, en la boca del camino: la primera vez entra solo; despues, arriba.
+func _mirar_salida() -> void:
+	var falta := wrapf(salida_x - _magnus.position.x, -ANCHO / 2.0, ANCHO / 2.0)
+	var boca := _camino_abierto and not _en_camino and not _cogiendo and absf(falta) <= salida_boca
+	if boca != _en_boca:
+		_en_boca = boca
+		_magnus.salto_bloqueado = boca
+	if not boca or _magnus.control_bloqueado or not _sprite.animation in _DE_PIE:
+		return
+	var primera := not PARTIDA.ya(get_tree(), "hojarasca_camino")
+	var llega: bool = primera and _sprite.animation != &"reposo" and signf(falta) == _magnus.mirando()
+	if llega or Input.is_action_just_pressed("saltar"):
+		_entrar_al_camino()
+
+## Se para donde este (en marcha, tras su parada: ir al centro de la boca no se
+## puede afinar, con el baston en la mano la parada recorre 160-230 px), se da la
+## vuelta de espaldas con la toma de frente y se queda en posicion.
+func _entrar_al_camino() -> void:
+	_en_camino = true
+	_en_boca = false
+	_magnus.salto_bloqueado = false
+	_pensar.callar()
+	PARTIDA.marcar(get_tree(), "hojarasca_camino")
+	_pedir_camino()
+	_magnus.andar_hasta(_magnus.position.x)
+	await _magnus.llegado
+	_cam_fija = _respira
+	_cam_quieta = 1.0
+	var dir: float = _magnus.mirando()
+	var en_mano := bool(_baston_mano.get("en_mano"))
+	var f := _crear_frontal(en_mano, salida_escala, dir,
+			Vector2(_magnus.position.x + salida_dx * dir, _magnus.position.y))
+	# con el baston en la mano, por el fotograma medido (salida_desde); a la
+	# espalda, por el del perfil exacto de su vuelta (el del componente)
+	f.call("girar_desde_perfil", "espalda", salida_desde if en_mano else -1)
+	_magnus.visible = false
+
+## Volviendo de camino_bosque: en la bruma del camino, de frente.
+func _llegar_del_camino(con_baston: bool) -> void:
+	_en_camino = true
+	_magnus.visible = false
+	_magnus.control_bloqueado = true
+	var pies0 := Vector2(salida_x, _magnus.position.y)
+	# el de perfil (escondido) ya en la boca: la camara y lo que lo sigue no
+	# esperan a un sitio que no es
+	_magnus.position = pies0
+	_ultima_x = pies0.x
+	_cam_fija = _respira
+	_cam_quieta = 1.0
+	_pedir_camino()
+	_crear_frontal(con_baston, salida_entra, 1.0, pies0)
+	_retenida = "frente" if Input.is_action_pressed("saltar") else ""
+
+## La toma de frente en el sitio del de perfil (justo tras el en el arbol: las
+## hojas de delante le tapan los pies como a el), espejada si dir es -1, con el
+## baston como lo lleve (recien cogido, sin magia: sin bola, la garra vacia).
+## Los pies van de pies0 a la fuga del camino, en recta, segun la escala.
+func _crear_frontal(con_baston: bool, escala: float, dir: float, pies0: Vector2) -> Node2D:
+	var f: Node2D = PEREGRINO_FRONTAL.instantiate()
+	f.set("con_baston", con_baston)
+	f.set("magia", _baston_mano.get("magia"))
+	f.set("magia_recarga", _baston_mano.get("magia_recarga"))
+	f.set("cara", "frente")
+	f.set("escala_inicial", escala)
+	# sus pisadas: las de la hojarasca, al nivel de las de aqui en la boca (el
+	# componente las baja con la distancia: a pasos_db en pasos_escala_ref)
+	f.set("pasos", ($SonidoPaso as AudioStreamPlayer).stream)
+	f.set("pasos_db", hojas_paso_db + linear_to_db(float(f.get("pasos_escala_ref")) / salida_escala))
+	_frontal_luz = (_sprite.material as ShaderMaterial).duplicate() as ShaderMaterial
+	f.material = _frontal_luz
+	f.scale.x = dir
+	f.position = pies0
+	var fuga := _fuga_del_camino() - pies0
+	fuga.x *= dir
+	_entra_ref = salida_escala
+	f.set("perspectiva", func(e: float) -> Vector2: return fuga * (1.0 - e / _entra_ref))
+	f.connect("colocado", _al_colocar_frontal)
+	_frontal = f
+	_frontal_dir = dir
+	_parando = false
+	_volviendo = false
+	_al_perfil_ya = false
+	_cortando = false
+	_lado_suelto = false
+	_sec_frontal.clear()
+	for con in [true, false]:
+		_sec_frontal[con] = JSON.parse_string(FileAccess.open("res://assets/characters/magnus/secuencia_frontal%s.json"
+				% ("" if con else "_sin"), FileAccess.READ).get_as_text())
+	add_child(f)
+	move_child(f, _magnus.get_index() + 1)
+	_sombra.visible = true
+	return f
+
+func _pedir_camino() -> void:
+	if not _salida_carga and not OS.has_feature("nothreads"):
+		_salida_carga = ResourceLoader.load_threaded_request(SALIDA_ESCENA, "", true) == OK
+
+## Cada fotograma en el sector del camino: las teclas al de frente, la parada en
+## la boca, el paso al perfil y el corte a camino_bosque.
+func _camino_tick() -> void:
+	if not _en_camino or _frontal == null or _al_perfil_ya:
+		return
+	var f := _frontal
+	var arriba := Input.is_action_pressed("saltar")
+	var abajo := Input.is_action_pressed("agacharse")
+	var lado := Input.get_axis("mover_izquierda", "mover_derecha")
+	if not _lado_suelto:
+		_lado_suelto = is_zero_approx(lado)
+		lado = 0.0
+	if _retenida != "" and not arriba:
+		_retenida = ""
+	var quiere := ""
+	if _retenida != "":
+		quiere = _retenida
+	elif arriba and not abajo:
+		quiere = "espalda"
+	elif abajo and not arriba:
+		quiere = "frente"
+	var e := float(f.get("escala"))
+	var mira := String(f.get("mirando"))
+	var est := String(f.get("estado"))
+	if _cortando:
+		f.set("quiere", "espalda")
+		return
+	# adentrandose: en la bruma, el corte
+	if mira == "espalda" and est in ["arranque", "andar"] and e <= salida_hasta:
+		_cortando = true
+		f.set("quiere", "espalda")
+		_cortar_a_camino()
+		return
+	var en_boca := e >= salida_escala - 0.02
+	# de frente hacia la boca: se para en ella; mientras, la boca y el tamano se
+	# ajustan a donde se va a parar (ver _prever_parada) y alli, al perfil
+	if _parando:
+		f.set("quiere", "")
+		var u := clampf((_parada_inv - 1.0 / e) / maxf(_parada_inv - 1.0 / _parada_e, 1e-5), 0.0, 1.0)
+		_entra_ref = lerpf(salida_escala, _parada_e, u)
+		f.scale = Vector2(_frontal_dir, 1.0) * lerpf(1.0, salida_escala / _parada_e, u)
+		if est == "reposo":
+			_al_perfil()
+		return
+	# de espaldas en la boca, abajo: la vuelta (y quieto de frente, al perfil)
+	if _volviendo:
+		f.set("quiere", "frente" if est == "reposo" and mira == "espalda" else "")
+		if est == "reposo" and mira == "frente":
+			_al_perfil()
+		return
+	if en_boca and est == "reposo":
+		if mira == "frente" and (quiere == "frente" or lado != 0.0):
+			_al_perfil()
+			return
+		if mira == "espalda" and quiere == "frente":
+			_volviendo = true
+			f.set("quiere", "frente")
+			return
+		if mira == "espalda" and lado != 0.0 and quiere == "":
+			_al_perfil()
+			return
+	if quiere == "frente" and mira == "frente" and est == "andar":
+		var prev := _prever_parada(f)
+		if not prev.is_empty() and absf(float(prev[0]) - salida_escala) <= absf(float(prev[1]) - salida_escala) \
+				and float(prev[0]) >= salida_escala - 0.03:
+			_parando = true
+			_parada_e = prev[0]
+			_parada_inv = 1.0 / e
+			f.set("quiere", "")
+			return
+	f.set("quiere", quiere)
+
+## Andando de frente, la escala a la que se pararia con los pies juntos si se
+## soltase ahora y si se soltase en el paso siguiente: [e_a, e_b]. Solo se para
+## con los pies juntos (dos veces por ciclo) y al soltar aun anda el margen del
+## doble toque (0,3 s, ~8 fotogramas).
+func _prever_parada(f: Node2D) -> Array:
+	var anim := String(f.get("animacion"))
+	var sec: Dictionary = _sec_frontal[bool(f.get("lleva_baston"))]
+	if not sec["pies_juntos"].has(anim):
+		return []
+	var frames: SpriteFrames = load("res://resources/characters/magnus_frames.tres")
+	var n := frames.get_frame_count(anim)
+	var fr := int(f.get("fotograma"))
+	var faltan: Array = []
+	for pj in sec["pies_juntos"][anim]:
+		var k := posmod(int(pj) - fr, n)
+		faltan.append(k if k >= 8 else k + n)
+	faltan.sort()
+	var paso: float = f.call("paso_andar", "frente")
+	var inv := 1.0 / float(f.get("escala"))
+	var f_a: int = faltan[0]
+	var f_b: int = faltan[1] if faltan.size() > 1 and int(faltan[1]) > f_a else f_a + n / 2
+	return [1.0 / (inv - paso * f_a), 1.0 / (inv - paso * f_b)]
+
+## Del de frente al de perfil, en la boca. De frente: el cambio de frente a
+## frente y la segunda mitad del giro del de perfil (el usuario, 2026-10-15: de
+## frente a perfil con la vuelta del video de frente quedaba "muy muy rara").
+## Sin espejar acaba mirando a la izquierda (al claro); espejado, a la derecha.
+## De espaldas: la vuelta del de frente hasta su perfil (girar_a_perfil) y ahi
+## el de perfil, mirando hacia donde quedo.
+## Fotograma del giro (con el baston en la mano: mano_giro de baston.gd; sin el,
+## el giro de siempre) que casa con el reposo de frente del peregrino de frente
+## y cuantos px va el de perfil a su lado (medido: 0,85 y 0,87 de silueta comun
+## a escala 0,98).
+const ENTRADA_GIRO := {true: [33, -8.0], false: [24, 0.0]}
+
+func _al_perfil() -> void:
+	_al_perfil_ya = true
+	_parando = false
+	_volviendo = false
+	var f := _frontal
+	f.set("quiere", "")
+	var con := bool(f.get("lleva_baston"))
+	_baston_mano.call("poner_en_mano", con)
+	var pies: Vector2 = f.to_global(f.get("pies"))
+	var y := _magnus.position.y
+	if String(f.get("mirando")) == "frente":
+		var giro: Array = ENTRADA_GIRO[con]
+		_magnus.position = Vector2(pies.x + float(giro[1]) * _frontal_dir, y)
+		_ultima_x = _magnus.position.x
+		_frontal = null
+		f.queue_free()
+		_magnus.call("_mirar", _frontal_dir)
+		_magnus.visible = true
+		_magnus.call("_empezar_giro", -_frontal_dir, false)
+		_sprite.frame = int(giro[0])
+		while _sprite.animation == &"giro":
+			await get_tree().process_frame
+			if not is_inside_tree():
+				return
+	else:
+		f.call("girar_a_perfil")
+		await f.en_perfil
+		pies = f.to_global(f.get("pies"))
+		_magnus.position = Vector2(pies.x - salida_dx * _frontal_dir, y)
+		_ultima_x = _magnus.position.x
+		_magnus.call("_mirar", _frontal_dir)
+		_frontal = null
+		f.queue_free()
+		_magnus.visible = true
+	_magnus.control_bloqueado = false
+	_en_camino = false
+	_al_perfil_ya = false
+	create_tween().tween_property(self, "_cam_quieta", 0.0, 1.5).set_trans(Tween.TRANS_SINE)
+
+## LA HOJARASCA YA RESUELTA (2026-10-15; el usuario, volviendo de camino_bosque:
+## "tiene que volver a la escena pero ya habiendo pasado todo, volveria por el
+## caminito y ya esta, con todos los puzles pasados"). Si viene del camino
+## (PeregrinoEstado) o ya cogio el baculo en esta partida (Partida,
+## "hojarasca_resuelta"): sin negro ni caida (del camino se llega con un corte de
+## camara), el baculo ya cogido (el baston como lo traiga), el haz apagado, el
+## sendero abierto y sin los pensamientos de la historia. Del camino aparece en
+## el (_llegar_del_camino); si no, de pie en su sitio y con el mando.
+func _poner_resuelta(estado: Dictionary) -> void:
+	$Entrada.hide()
+	_empezar_musica()
+	_alcanzado = true
+	_baculo_bajando = true
+	_baculo.visible = false
+	_luz_apagada = true
+	_poner_luz_viva(0.0)
+	($Bosque.material as ShaderMaterial).set_shader_parameter("camino", 1.0)
+	_camino_abierto = bosque_de_fondo
+	_con_mando = 0.0
+	_preparar_baston()
+	_baston_mano.set("magia", float(estado.get("magia", 0.0)))
+	_baston_mano.set("magia_recarga", float(estado.get("magia_recarga", 0.0)))
+	_baston_mano.set("puesto", true)
+	_baston_mano.call("poner_en_mano", bool(estado.get("baston_en_mano", true)))
+	if estado.get("viene_de", "") == "camino_bosque" and bosque_de_fondo:
+		_llegar_del_camino(bool(estado.get("baston_en_mano", true)))
+
+## La fuga del camino donde se ve ahora (con la camara quieta).
+func _fuga_del_camino() -> Vector2:
+	var lejos := _parametro($Bosque.material as ShaderMaterial, "paralaje_lejos")
+	return salida_fuga + _cam_fija * (1.0 - lejos)
+
+## Cada vez que se coloca la toma de frente: su sombra y su suelo (la luz de
+## magnus_luz oscurece los pies y les da el rebote junto a y_suelo).
+func _al_colocar_frontal() -> void:
+	if _frontal == null:
+		return
+	var pies: Vector2 = _frontal.to_global(_frontal.get("pies"))
+	var u := float(_frontal.get("escala")) / salida_escala
+	_sombra.position = pies + Vector2(0.0, -4.0 * u)
+	_sombra.scale = Vector2(3.4, 0.75) * u
+	_sombra.modulate.a = 0.62 * smoothstep(0.6, 0.95, u)
+	_frontal_luz.set_shader_parameter("y_suelo", pies.y)
+
+## Corte de camara a camino_bosque (sin negro): en cuanto este cargada (si aun
+## no, sigue andando mientras tanto), la musica se aparta salida_musica s y se
+## cambia de escena en seco.
+func _cortar_a_camino() -> void:
+	_pedir_camino()
+	while _salida_carga and ResourceLoader.load_threaded_get_status(SALIDA_ESCENA) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		await get_tree().process_frame
+		if not is_inside_tree():
+			return
+	var musica: AudioStreamPlayer = $Musica
+	if musica.playing:
+		create_tween().tween_property(musica, "volume_db", -60.0, salida_musica).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await get_tree().create_timer(salida_musica).timeout
+	WindAmbience.gust_db = 0.0
+	var ps: PackedScene = null
+	if _salida_carga and ResourceLoader.load_threaded_get_status(SALIDA_ESCENA) == ResourceLoader.THREAD_LOAD_LOADED:
+		ps = ResourceLoader.load_threaded_get(SALIDA_ESCENA) as PackedScene
+	_salida_carga = false
+	# la escena siguiente lee con que baston llega (el del de frente: en el
+	# camino se puede sacar o guardar), su magia y de donde viene
+	var con: bool = bool(_frontal.get("lleva_baston")) if _frontal else bool(_baston_mano.get("en_mano"))
+	PEREGRINO_ESTADO.dejar(get_tree(), con, float(_baston_mano.get("magia")),
+			float(_baston_mano.get("magia_recarga")), "caida_hojarasca")
+	if ps:
+		get_tree().change_scene_to_packed(ps)
+	else:
+		get_tree().change_scene_to_file(SALIDA_ESCENA)
+
 ## Si Magnus pasa de un borde, aparece por el otro (el centro del nodo manda), y
 ## la copia pinta la parte que aun asoma por el lado contrario.
 func _envolver() -> void:
 	var x := _magnus.position.x
 	if x < 0.0 or x >= ANCHO:
 		_magnus.position.x = fposmod(x, ANCHO)
-		if _con_mando >= 0.0:
+		if _con_mando >= 0.0 and not _resuelta:
 			_vueltas += 1
 			if _vueltas == 1:
 				_pensar.decir("vuelta", true)
@@ -1594,7 +2021,7 @@ func _envolver() -> void:
 ## Si en un minuto no ha salido por ningun borde, una vez: "No puedo quedarme
 ## aqui..."
 func _animar_a_explorar(delta: float) -> void:
-	if _con_mando < 0.0 or _vueltas > 0 or _pensar.dicho("explorar"):
+	if _con_mando < 0.0 or _vueltas > 0 or _resuelta or _pensar.dicho("explorar"):
 		return
 	_con_mando += delta
 	if _con_mando > explorar_tras and not _pensar.hablando():

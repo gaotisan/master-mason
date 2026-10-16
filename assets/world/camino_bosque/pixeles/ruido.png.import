@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://cghb8jxgbug5p"
+path="res://.godot/imported/ruido.png-3fb1c1c51f21459df14287d2481edd67.image"
+
+[deps]
+
+source_file="res://assets/world/camino_bosque/pixeles/ruido.png"
+dest_files=["res://.godot/imported/ruido.png-3fb1c1c51f21459df14287d2481edd67.image"]
+
+[params]
+

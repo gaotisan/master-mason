@@ -28,6 +28,19 @@ extends Node2D
 ## SACUDIDA. sacudir() da un golpe de camara que se amortigua (el emu al pasar
 ## rozando): mueve camara, asi que tiembla todo con su paralaje.
 ##
+## EL PEREGRINO (peregrino_camino.gd), de frente y LO LLEVA EL JUGADOR. Entra
+## desde la bruma del fondo del camino: la primera vez, cuando se va el emu (el
+## emu sale solo esa vez: Partida "camino_emu"); las demas, enseguida. Al
+## llegar delante se para y la escena funde a negro (aun no hay la escena de la
+## camara de detras). Si se aleja hacia la bruma, CORTE a la escena de antes
+## (escena_anterior), sin negro, como un cambio de camara (el usuario: "para
+## darle continuidad al mundo"; se carga desde que tiene el mando), diciendole
+## como va (PeregrinoEstado, con viene_de "camino_bosque": por ahi sabe que
+## vuelve por el camino con todo ya hecho, sin la caida). Es el
+## componente del juego (PeregrinoFrontal); como llega (baston, magia) lo dice
+## la escena de antes. Usa z de -3 a 5: lo que va delante de el (emu, hojas,
+## polvo) va en z 6 y el fondo en -10.
+##
 ## CAMARA (2.5D). Respira despacio: deriva y se acerca un pelin, con periodos
 ## que no se repiten, y cada punto se mueve segun su distancia
 ## (profundidad.png): el fondo con paralaje y oclusion en camino_fondo.gdshader;
@@ -42,9 +55,25 @@ const FRANJAS := 17
 const MUELLES := 5
 const VIENTO_MASCARA := preload("res://assets/world/camino_bosque/viento.png")
 const RUIDO := preload("res://assets/world/camino_bosque/ruido.png")
+const Imagenes := preload("res://scripts/game/imagenes_cache.gd")
+## Con preload (no por su class_name): asi no dependen de la cache de clases.
+const Estado := preload("res://scripts/characters/peregrino_estado.gd")
+const PartidaHechos := preload("res://scripts/game/partida.gd")
 
 ## Entrada desde negro (s); 0 = sin fundido.
 @export var fundido_entrada := 3.0
+
+@export_group("Peregrino")
+## La escena de la que viene por el camino y a la que vuelve si se aleja.
+@export_file("*.tscn") var escena_anterior := "res://scenes/game/caida_hojarasca.tscn"
+## Segundos tras irse el emu (o tras entrar, sin emu) hasta que asoma.
+@export var tras_emu := 0.3
+@export var sin_emu_espera := 1.2
+## Lo que tarda el fundido a negro al llegar delante.
+@export var negro_s := 1.6
+## Lo que tarda en irse la musica antes del corte a la escena de antes (la de
+## alli es otra: cortada en seco sonaba a golpe).
+@export var corte_musica_s := 0.6
 
 @export_group("Sonido")
 ## Nivel de la musica (dB) y lo que sube con el claro de sol a tope.
@@ -60,13 +89,25 @@ const RUIDO := preload("res://assets/world/camino_bosque/ruido.png")
 @export var sacudida_s := 0.7
 
 @export_group("Camara")
-## Lo que deriva lo mas cercano (px); 0 = camara quieta.
-@export var camara_px := 22.0
-## Acercamiento maximo (0,005 = 0,5 %).
-@export var camara_acercamiento := 0.018
+## Lo que deriva lo mas cercano (px, en horizontal; en vertical, algo mas de la
+## mitad); 0 = camara quieta. Con 22 px y ciclos de 14 a 41 s (lo de antes) el
+## paralaje no se notaba (el usuario, 2026-10-15): ahora ±55 px y ciclos de 10
+## a 20 s; probado en los extremos (±60): los cantos de los troncos aguantan.
+@export var camara_px := 55.0
+## Cuanto mas rapida va la deriva (1 = los periodos de _mover_camara).
+@export var camara_ritmo := 1.0
+## Acercamiento maximo (0,005 = 0,5 %): lo cercano crece mas que el fondo.
+@export var camara_acercamiento := 0.03
+## TENSION (la pone el emu mientras te mira, 0..1): la camara se le acerca
+## despacio (acercamiento de mas, centrado en el: el emu se queda quieto en
+## pantalla y lo demas se abre a su alrededor) y la deriva se calma; al
+## embestir se suelta de golpe.
+@export var tension_acercamiento := 0.035
+@export var tension_hacia := Vector2(930.0, 1150.0)
 ## Ampliacion de toda la escena: margen para que el paralaje no deje ver el
-## borde de la imagen (con 22 px y 1,8 % hace falta ~1,05).
-@export var sobre := 1.05
+## borde de la imagen (con 55 px y 3 %, 98 px en el borde; mas el golpe del
+## emu, hasta 16: 1,08).
+@export var sobre := 1.08
 
 @export_group("Luz")
 ## Segundos entre un claro y el siguiente, y su fuerza 0..1.
@@ -102,6 +143,8 @@ var brisa := 0.45
 ## los shaders, las hojas y las motas.
 var camara := Vector2.ZERO
 var acercamiento := 0.0
+## Tension 0..1 (la pone el emu: ver tension_acercamiento).
+var tension := 0.0
 ## Claro 0..1 (el sol se abre paso) y respiracion de la luz -1..1: los leen el
 ## polvo y las hojas para encenderse con la luz.
 var claro := 0.0
@@ -132,6 +175,7 @@ var _mascara_viento: Image
 var _ruido_img: Image
 var _param := {}
 var _musica_nivel := 0.0   # 0..1 de la entrada
+var _cargando_anterior := false
 var _sacudida := 0.0
 var _c_inicio := -100.0
 var _c_sube := 4.0
@@ -150,8 +194,8 @@ func _ready() -> void:
 	scale = Vector2(sobre, sobre)
 	position = -(sobre - 1.0) * PANTALLA * 0.5
 	_mf.set_shader_parameter("niebla", _aire_vista.get_texture())
-	_mascara_viento = VIENTO_MASCARA.get_image()
-	_ruido_img = RUIDO.get_image()
+	_mascara_viento = Imagenes.de(VIENTO_MASCARA)
+	_ruido_img = Imagenes.de(RUIDO)
 	var sh := _mf.shader.get_rid()
 	for n in ["rama_px", "rama_racha_px", "ramita_px", "ramita_racha_px", "rama_vel", "ramita_vel", "foco"]:
 		var v = _mf.get_shader_parameter(n)
@@ -161,7 +205,7 @@ func _ready() -> void:
 	_copa_v.resize(MUELLES)
 	_hasta_racha = _rng.randf_range(1.5, 4.0)
 	_hasta_claro = _rng.randf_range(6.0, 12.0)
-	for n in ["Hojas", "HojasCopa", "Motas", "Pajaro", "Emu"]:
+	for n in ["Hojas", "HojasCopa", "Motas", "Pajaro", "Emu", "Peregrino"]:
 		var nodo := get_node_or_null(n)
 		if nodo:
 			nodo.set("controlador", self)
@@ -176,16 +220,92 @@ func _ready() -> void:
 	var viento := get_node_or_null("/root/WindAmbience")
 	if viento:
 		viento.fade_to(viento_db, musica_entrada)
+	# viniendo por el camino de otra escena: corte de camara, sin negro (el
+	# usuario: corte "para darle continuidad al mundo")
+	if str(Estado.leer(get_tree()).get("viene_de", "")) != "":
+		fundido_entrada = 0.0
 	if fundido_entrada > 0.0:
 		var negro := ColorRect.new()
 		negro.color = Color.BLACK
 		negro.size = PANTALLA
 		negro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		negro.z_index = 100     # por encima de todo (el emu, las hojas y el polvo van en 6)
 		add_child(negro)
 		var tw := create_tween()
 		tw.tween_interval(0.4)
 		tw.tween_property(negro, "modulate:a", 0.0, fundido_entrada).set_trans(Tween.TRANS_SINE)
 		tw.tween_callback(negro.queue_free)
+	_montar_peregrino()
+
+## El emu solo la primera vez; el peregrino entra tras el o enseguida.
+func _montar_peregrino() -> void:
+	var peregrino := get_node_or_null("Peregrino")
+	if peregrino == null:
+		return
+	peregrino.llego.connect(_al_llegar)
+	peregrino.se_va.connect(_volver)
+	peregrino.al_mando.connect(_cargar_anterior)
+	var emu := get_node_or_null("Emu")
+	var forzar_emu := "emu" in OS.get_cmdline_user_args()
+	if emu and (forzar_emu or not PartidaHechos.ya(get_tree(), "camino_emu")):
+		emu.se_fue.connect(func():
+			PartidaHechos.marcar(get_tree(), "camino_emu")
+			peregrino.entrar(tras_emu))
+	else:
+		if emu:
+			emu.saltar()
+		peregrino.entrar(sin_emu_espera)
+
+## Un negro por encima de todo que entra en negro_s (la musica se va con el).
+func _a_negro() -> Tween:
+	var negro := ColorRect.new()
+	negro.color = Color.BLACK
+	negro.size = PANTALLA * 1.2
+	negro.position = -PANTALLA * 0.1
+	negro.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	negro.z_index = 100
+	negro.modulate.a = 0.0
+	add_child(negro)
+	var tw := create_tween().set_parallel()
+	tw.tween_property(negro, "modulate:a", 1.0, negro_s).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(self, "_musica_nivel", 0.0, negro_s).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	return tw
+
+## Delante: a negro y ahi se queda (aun no hay la escena de la camara de detras).
+func _al_llegar() -> void:
+	_a_negro()
+
+## En segundo plano, para que el corte a la escena de antes sea al instante.
+func _cargar_anterior() -> void:
+	if escena_anterior != "" and not _cargando_anterior:
+		_cargando_anterior = true
+		ResourceLoader.load_threaded_request(escena_anterior)
+
+## Se aleja hacia la bruma: corte a la escena de antes (la musica se va un
+## momento antes). Si la carga aun no ha acabado, sigue andando mientras; si
+## tarda, a negro.
+func _volver() -> void:
+	if escena_anterior == "":
+		return
+	_cargar_anterior()
+	create_tween().tween_property(self, "_musica_nivel", 0.0, corte_musica_s).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	var t := 0.0
+	var negro := false
+	while t < corte_musica_s or ResourceLoader.load_threaded_get_status(escena_anterior) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		await get_tree().process_frame
+		if not is_inside_tree():
+			return
+		t += get_process_delta_time()
+		if t > 2.0 and not negro:
+			negro = true
+			_a_negro()
+	var p: PeregrinoFrontal = $Peregrino.peregrino
+	Estado.dejar(get_tree(), p.lleva_baston, p.magia, p.magia_recarga, "camino_bosque")
+	var ps := ResourceLoader.load_threaded_get(escena_anterior) as PackedScene
+	if ps:
+		get_tree().change_scene_to_packed(ps)
+	else:
+		get_tree().change_scene_to_file(escena_anterior)
 
 func _exit_tree() -> void:
 	var sonido := get_node_or_null("/root/WindAmbience")
@@ -349,11 +469,18 @@ func _racha_hace(retraso: float) -> float:
 ## Deriva de la camara: sumas de senos lentas con periodos que no casan (no
 ## se nota que se repite) y acercamiento que va y viene en ~40 s.
 func _mover_camara() -> void:
-	var t := _t
+	var t := _t * camara_ritmo
 	camara = Vector2(
-		0.6 * sin(TAU * t / 29.0) + 0.4 * sin(TAU * t / 17.3 + 1.1),
-		0.5 * sin(TAU * t / 23.0 + 2.0) + 0.3 * sin(TAU * t / 13.7 + 0.4)) * camara_px
-	acercamiento = camara_acercamiento * (0.5 - 0.5 * cos(TAU * t / 41.0))
+		0.6 * sin(TAU * t / 19.0) + 0.4 * sin(TAU * t / 11.3 + 1.1),
+		(0.5 * sin(TAU * t / 15.0 + 2.0) + 0.3 * sin(TAU * t / 9.7 + 0.4)) * 0.6) * camara_px
+	acercamiento = camara_acercamiento * (0.5 - 0.5 * cos(TAU * t / 27.0))
+	# tension: la deriva se calma y se acerca al emu (centrado en el)
+	if tension > 0.0:
+		var k := smoothstep(0.0, 1.0, tension)
+		var foco: Vector2 = _param.get("foco", Vector2(1440.0, 900.0))
+		camara *= 1.0 - 0.7 * k
+		acercamiento = acercamiento * (1.0 - 0.7 * k) + tension_acercamiento * k
+		camara -= (tension_hacia - foco) * tension_acercamiento * k
 	# Golpe: temblor rapido que se apaga (al cuadrado: corta al final sin saltos).
 	if _sacudida > 0.0:
 		var k := _sacudida * _sacudida * sacudida_px

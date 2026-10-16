@@ -140,11 +140,15 @@ void fragment() {
 	float hacia_luz = clamp(dot(n, normalize(luz_dir)) * 0.5 + 0.5, 0.0, 1.0);
 	// Contraluz: filo fino, sobre todo del lado de la luz, con el color de
 	// detras (solo si detras hay luz).
+	// En las puntas finas (las plumas erizadas) ni filo ni envoltura: el canto
+	// dentado salia como un engranaje con un aro claro, de recortable (como en
+	// peregrino_camino.gdshader).
+	float fina = 1.0 - smoothstep(0.5, 0.72, abierto_w);
 	float filo = smoothstep(0.05, 0.4, abierto_f) * mix(filo_sombra, 1.0, hacia_luz * hacia_luz);
-	g += m.rgb * filo * contraluz * smoothstep(0.08, 0.4, lm) * (1.0 - 0.5 * cerca);
+	g += m.rgb * filo * contraluz * smoothstep(0.08, 0.4, lm) * (1.0 - 0.5 * cerca) * fina;
 	// Envoltura: la luz del fondo se come el canto, mas ancho y suave.
 	float canto = clamp(abierto_w * 1.6, 0.0, 1.0);
-	g = mix(g, m.rgb * 1.05, clamp(canto * envolver * smoothstep(0.05, 0.35, lm), 0.0, 1.0));
+	g = mix(g, m.rgb * 1.05, clamp(canto * envolver * smoothstep(0.05, 0.35, lm) * fina, 0.0, 1.0));
 
 	// --- Bruma en los pies y niebla de su distancia, hacia el color de ahi.
 	float pies = smoothstep(pies_y - bruma_alto, pies_y + 10.0, local.y) * bruma_pies;

@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://b25on3a1y8tc0"
+path="res://.godot/imported/aire.png-d1303816397358a9745a40b219ccf1a6.image"
+
+[deps]
+
+source_file="res://assets/world/camino_bosque/pixeles/aire.png"
+dest_files=["res://.godot/imported/aire.png-d1303816397358a9745a40b219ccf1a6.image"]
+
+[params]
+

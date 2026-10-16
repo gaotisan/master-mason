@@ -62,6 +62,11 @@ import numpy as np
 AQUI = os.path.dirname(os.path.realpath(__file__))
 PROYECTO = os.path.normpath(os.path.join(AQUI, "..", "..", ".."))
 SALIDA = os.path.join(PROYECTO, "assets", "world", "camino_bosque")
+# Las mascaras que la escena lee por pixel, ademas en pixeles/ (importadas en
+# Godot como Image, no como textura): se cargan con la escena en segundo plano;
+# leerlas de la textura (get_image) en _ready sumaba al tiron de entrada.
+# scripts/game/imagenes_cache.gd las usa.
+PIXELES = {"profundidad.png", "viento.png", "medio.png", "aire.png", "ruido.png"}
 W, H = 2912, 1632
 
 # --- Medidas sobre la imagen (px) -------------------------------------------
@@ -151,6 +156,9 @@ def guardar(nombre, canales, escala):
 	else:
 		img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 	cv2.imwrite(os.path.join(SALIDA, nombre), img)
+	if nombre in PIXELES:
+		os.makedirs(os.path.join(SALIDA, "pixeles"), exist_ok=True)
+		cv2.imwrite(os.path.join(SALIDA, "pixeles", nombre), img)
 	print("  ", nombre, img.shape)
 
 

@@ -1,17 +1,22 @@
 """El emu del principio del camino: del video con croma a fotogramas para Godot.
 
-Fuente: anim/_fuentes/Emu_charges_forward_aggressively_20261015011458.mp4
-(1280x720, 24 fps, 10 s, croma verde liso, con sonido). Es la tercera version;
-el usuario la eligio por el tono (pardo oscuro y saturado, mas pajaro) y porque
-el sonido es mas amenazador. Que pasa en el video:
+Fuente: anim/_fuentes/Emu_charges_forward_aggressively_20261015123240.mp4
+(1280x720, 24 fps, 10 s, croma verde liso, con sonido). Cuarta version
+(2026-10-15), hecha por el usuario desde el mismo fotograma de partida que la
+tercera (..._20261015011458, el tono que eligio: pardo oscuro y saturado, y el
+sonido mas amenazador): la tercera embestia como una bola de plumas con ojos de
+buho; en esta, al pasar rozando gira la cabeza de lado (cuello y pico: se lee
+como un emu). Los tiempos casi calcan los de la tercera (toca abajo en 155,
+arriba en 183, la izquierda en 187; a 209 no queda nada): la ventana de abajo
+sirve tal cual. Que pasa en el video:
 
     1-4      la imagen de partida, gris (se quitan: el video IA arranca de
              ahi y en 4 fotogramas vira al pardo oscuro, saturacion 0,20->0,30)
     5-56     de perfil, mira; gira hacia la camara y da un paso
     57-150   de frente, mira; graznido fuerte en 115-127 (el del sonido)
-    152-     carga hacia la camara: toca el borde de abajo (156), el de arriba
-             (183) y el de la izquierda (187) y sale por la IZQUIERDA (las dos
-             versiones anteriores salian por la derecha); a 209 ya no queda nada
+    152-     carga hacia la camara: toca el borde de abajo (155), el de arriba
+             (183) y el de la izquierda (187), gira la cabeza de lado (184-190)
+             y sale por la IZQUIERDA; a 209 ya no queda nada
 
 Versiones anteriores (en _fuentes): Emu_charges_at_camera_... (gris; buena
 carga, sale por la derecha) y Emu_glaring_and_rushing_camera_... (final malo:
@@ -73,7 +78,7 @@ import numpy as np
 AQUI = os.path.dirname(os.path.realpath(__file__))
 PROYECTO = os.path.normpath(os.path.join(AQUI, "..", "..", "..", ".."))
 FFMPEG = os.path.join(PROYECTO, "tools", "ffmpeg", "bin", "ffmpeg.exe")
-VIDEO = os.path.join(PROYECTO, "raw", "master_mason", "anim", "_fuentes", "Emu_charges_forward_aggressively_20261015011458.mp4")
+VIDEO = os.path.join(PROYECTO, "raw", "master_mason", "anim", "_fuentes", "Emu_charges_forward_aggressively_20261015123240.mp4")
 SALIDA = os.path.join(PROYECTO, "assets", "world", "camino_bosque")
 AUDIO = os.path.join(PROYECTO, "assets", "audio", "emu_camino.ogg")
 
@@ -100,7 +105,10 @@ TONO_GANANCIA = (1.0, 1.0, 1.0)
 PIES = (930.0, 1615.0)   # primer plano, a la izquierda del camino
 ESCALA_PIE = 1.47        # ~980 px de alto: un emu de 1,77 m ahi (camara a 1,1 m)
 EMBESTIDA = (150, 180)   # la ventana crece (antes de tocar arriba (183) y la izquierda (187))
-VEL_CARGA = 1.6          # desde EMBESTIDA[0], los fotogramas van a esta velocidad
+# Desde EMBESTIDA[0], los fotogramas van a esta velocidad (con la tercera, 1,6:
+# el final emborronado dejaba ver las costuras; con esta, a 1,6 el giro de
+# cabeza al pasar, lo mejor, duraba 0,15 s).
+VEL_CARGA = 1.3
 # Salida: de este fotograma a este la ventana se va a un lado (x: negativo, a
 # la izquierda; y: un pelin abajo) y se acerca, acelerando (ease-in: se va cada
 # vez mas deprisa, como algo que te pasa rozando; con un deslizamiento a
@@ -108,7 +116,11 @@ VEL_CARGA = 1.6          # desde EMBESTIDA[0], los fotogramas van a esta velocid
 EMPUJE = (188, 206, -1500.0, 160.0)
 ESCALA_SALIDA = 3.0
 ESCALA_FIN = 2.45
-CENTRO_X = 1700.0        # desde donde crece (abajo, a la derecha: echa el borde izquierdo fuera)
+# Desde donde crece (abajo): con 1700 (a la derecha) echaba el borde izquierdo
+# fuera muy pronto y, con la cuarta, el giro de cabeza (arriba a la izquierda
+# del video, 184-192) quedaba fuera de la pantalla; en 1250 viene mas por el
+# centro y el borde izquierdo del video sigue fuera cuando el emu lo toca.
+CENTRO_X = 1250.0
 HOLGURA = 30.0           # px que deben quedar fuera los bordes que toca (camara)
 
 

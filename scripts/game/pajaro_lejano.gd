@@ -15,6 +15,8 @@ extends Node2D
 ## lado (fundidos), y se funden con el color de su zona. Lejos: casi no se
 ## mueven con la camara.
 
+const Imagenes := preload("res://scripts/game/imagenes_cache.gd")
+
 ## RGB color medio de la zona (medio.png).
 @export var medio: Texture2D
 ## Segundos hasta el primero y entre un paso y el siguiente.
@@ -67,7 +69,7 @@ func _ready() -> void:
 	_rng.randomize()
 	_ruido.seed = _rng.randi()
 	_ruido.frequency = 1.0
-	_medio = medio.get_image()
+	_medio = Imagenes.de(medio)
 	_hasta = _rng.randf_range(primero.x, primero.y)
 
 func _process(delta: float) -> void:
