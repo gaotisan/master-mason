@@ -84,6 +84,17 @@ pre.prompt .p{color:var(--mist)}
 .ref .fn{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);word-break:break-all}
 .ref .btn{width:100%}
 .path{color:var(--muted);font-size:13px;margin:10px 0 0}
+.tag.N{color:#cbb6e6;border-color:#cbb6e655}
+.chip-g{color:var(--ember);border-color:color-mix(in srgb,var(--ember) 55%,transparent)}
+.grupo{margin-top:34px;padding:22px 20px;background:linear-gradient(180deg,#0b0a0f 0%,var(--panel) 100%);border:1px solid var(--line);border-radius:6px;display:grid;gap:10px}
+.g-title{font-size:clamp(32px,5vw,44px);line-height:1;margin:0}
+.grupo .cat-desc{margin:0}
+.g-controls{display:flex;flex-wrap:wrap;gap:14px;align-items:end}
+.g-controls .field{width:min(320px,100%)}
+.g-nav{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px}
+.g-nav a{color:var(--mist);text-decoration:none;border-bottom:1px solid transparent}
+.g-nav a:hover{border-bottom-color:var(--mist)}
+.g-nav span{color:var(--muted);font-variant-numeric:tabular-nums}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ember);color:#1b130c;padding:8px 16px;border-radius:4px;font-weight:500;font-size:14px}
 .empty{color:var(--muted);padding:40px 0;text-align:center}
 @media (prefers-reduced-motion:no-preference){.card{transition:opacity .2s}}
@@ -184,12 +195,18 @@ const DEFAULTS = {
   suf_A: "2D game asset, isolated on a flat plain off-white background, clean readable silhouette, painterly texture, muted slate blue, mauve and peach palette",
   suf_M: "aged medieval manuscript page, iron gall ink and faded watercolor washes, Latin marginalia, foxing stains, crumbling vellum edges, scholarly illustration",
   integ: "the character is fully integrated into the scene, lit by the same light as the environment, the scene's color grade and atmospheric haze over him, soft cast shadow on the ground, same paper grain and brush texture on him as on the background",
-  mixI: "1",
+  mixI: "1", dirV: "sueno", keepSrefV: false,
   sw: 200, ow: 75, stylize: "", chaos: "", extra: "", useSuf: true, v: 2
 };
 
 const CATS = [
  ["biblia","Biblia visual","Key art, pósters y estudios de color para fijar el tono antes de producir. Saca muchas de estas primero y quédate con las que definan el juego."],
+ ["v-nada","La nada","Cómo interpreta Midjourney la nada y qué atmósfera le pone. Los de estilo Libre van sin referencias ni coletilla y con caos alto: es su lectura, no la tuya."],
+ ["v-caida","La caída","Iram cae del cielo a la nada, sin bastón, aterriza sobre nada y se levanta."],
+ ["v-pisadas","Lo que nace al pisar","Cada paso crea suelo: losas de luz que se hacen piedra y se deshacen, y otras ideas para la misma mecánica."],
+ ["v-baculo","El báculo y el sol","El báculo clavado en la nada es lo primero que existe; al arrancarlo nace el sol."],
+ ["v-formas","Trazar formas: el acertijo","El arco que solo se enciende construyendo encima y su reflejo en el agua negra que cierra el círculo."],
+ ["v-conjunto","Key art y storyboard","El capítulo entero en una imagen, en viñetas o en guion de color."],
  ["despertar","El despertar","El anciano se levanta entre la hojarasca un atardecer de otoño y ve, lejos, los humos de una ciudad sin nombre."],
  ["bosque","El bosque y el camino","Senderos sin tránsito, el calvero, el camino de estrellas, los riachuelos repetidos y el bosque que no se acaba."],
  ["casa","La casa imposible","La ciudadela en miniatura que no debería sostenerse en pie, y el torreón cuerdo que Iram levanta al lado."],
@@ -201,7 +218,6 @@ const CATS = [
  ["puente","Puente de estilo","Fondos dibujados con el lenguaje de Iram: planos facetados, bordes duros, el ocre y el granate de su capa con sombras pizarra. Usan su imagen como referencia de estilo principal. Saca muchos, elige los 2 o 3 que casen con él y pon uno como estilo Sueño: todo lo demás saldrá ya en su idioma."],
  ["escena","Iram en escena","El personaje metido en sitios, poses y luces para ver cómo queda y cómo jugar con la iluminación. Casi todos llevan permutaciones: un envío, varias luces."],
  ["lecciones","Lecciones y visiones","El viaje de conocimiento: cada lección se materializa sobre el bosque y vuelve el mundo un poco más real."],
- ["vacio","Capítulo 1 · El vacío","Lo de la maqueta: bastón clavado, nace el sol, losas de luz que se vuelven piedra y el arco reflejado en el abismo."],
  ["carnaval","Carnaval de pesadillas","Cuando Dóminus tiene los libros, el bosque bulle cada mañana de creaciones maravillosas y espeluznantes."],
  ["recuerdos","Recuerdos de Dóminus","El mundo real: la cabaña, el padre brujo, los soldados, la mazmorra. Usa el estilo Real."],
  ["ataud","El sarcófago","El niño encerrado en bronce, la ventana, la cucaracha. Encaja con la intro que ya tienes."],
@@ -211,6 +227,88 @@ const CATS = [
 
 // cat | ar | estilo (S sueño, R real, A recurso, M manuscrito) | oref (I, D o vacío) | título | prompt | nota | extra
 const RAW = `
+v-nada|91:51|N||Nada pura|nothingness before the world was dreamed|Prompt mínimo: que Midjourney decida.|--chaos 60 --stylize 800
+v-nada|91:51|N||Una mente sin memoria|the void inside a mind that has forgotten everything, faint shapes trying to form and failing||--chaos 50 --stylize 700
+v-nada|91:51|N||Dentro de un ojo cerrado|what you see with your eyes closed in total darkness, phosphenes, drifting specks of colored light||--stylize 600
+v-nada|91:51|N||Silencio visible|silence made visible||--chaos 70 --stylize 900 --exp 25
+v-nada|91:51|S||La oscuridad del sarcófago|absolute darkness imagined by a child locked in a bronze sarcophagus, the first faint glimmer of something alive behind the silence|«algo vivo retozaba tras el estremecedor silencio»|
+v-nada|91:51|S||La nada hecha de…|an infinite empty void made of {deep black ink, blank white paper, dense grey fog, a starless night ocean, dark velvet, slow drifting dust}|Seis materiales para la nada.|
+v-nada|91:51|S||Degradado sin horizonte|endless void with no ground and no horizon, only a vertical gradient from {pure black to deep indigo, black to bronze green, ash grey to white, deep violet to ember}||
+v-nada|91:51|S||Agua negra al fondo|far below, a still black water that reflects nothing, the void above it, a single slow ripple|El abismo del acertijo, desde el principio.|
+v-nada|91:51|S||Cosas aún sin imaginar|a dark void where faint ghost outlines of trees, hills and a small house float like pencil sketches not yet imagined||
+v-nada|91:51|S||Un rayo con polvo|a single thin shaft of light falling into an immense darkness, dust specks floating in it|Eco de la ventanita del sarcófago.|
+v-nada|91:51|S||El cielo como tapa|a void whose sky is faintly textured like the inside of an old bronze lid, verdigris barely visible in the dark|Pista sutil de dónde está de verdad.|
+v-nada|91:51|S||Telón en la nada|heavy theater curtains hanging in an endless void, slightly parted, a sliver of warm light behind|«gruesas cortinas que ocultaban el escenario de mis recuerdos»|
+v-nada|91:51|S||Un punto de luz lejano|an immense empty void with a single tiny point of warm light very far away, overwhelming scale||
+v-nada|91:51|S||El olor del bosque|the scent of a forest imagined as color in a dark void, faint green and amber wisps rising and curling|«fue el aroma del bosque… el que terminó por pintar los árboles»|
+v-nada|91:51|S||Niebla que respira|slow breathing fog in an endless dark void, layers of mist rising and falling like a sleeping body||
+v-nada|91:51|S||Paleta de la nada|abstract color study of an empty void, palette of {cold blue and black, bronze and green-black, warm sepia darkness, violet night}||
+v-nada|91:51|S||Estrellas que se recuerdan|an empty void where faint stars are just starting to appear one by one, very dim, as if being remembered||
+v-nada|3:1|A||Capas de la nada|three separate horizontal bands of dark drifting fog and dust for a void background, layered for 2D parallax, on flat black|Para montar el fondo en Godot.|
+v-caida|91:51|S|I|Cae por la nada|the old hooded pilgrim falling slowly through an endless dark void, cloak flaring upward, beard floating, empty hands, no staff|Cae sin bastón, como en el juego.|
+v-caida|91:51|S|I|Cuatro cámaras|the old hooded pilgrim falling through a dark void, {seen from above looking down into the abyss, seen from below as a small silhouette against a faint light, side view for a 2D game, extreme close-up of his face with the beard flying upward}||
+v-caida|91:51|S|I|Como una hoja|the old hooded pilgrim drifting down through the dark like a falling leaf, slow and weightless, a few autumn leaves falling with him|Enlaza con el despertar entre la hojarasca.|
+v-caida|2:3|S|I|Desde la rendija de luz|a thin crack of light high above in the darkness, and the small figure of the old hooded pilgrim falling from it into the void|La ventanita del sarcófago vista desde el sueño.|
+v-caida|91:51|S|I|Estela de estrella fugaz|the old hooded pilgrim falling through the void leaving a faint trail of light behind him like a shooting star||
+v-caida|91:51|S|I|Entre capas de niebla|the old hooded pilgrim falling through successive layers of mist and dim clouds, each layer a different muted color||
+v-caida|91:51|S|I|Entre recuerdos|the old hooded pilgrim falling past drifting fragments of memory in the dark: a wooden toy horse, a charcoal child's drawing, a scallop shell, a page of geometry||
+v-caida|91:51|S|I|Aterriza sobre nada|the old hooded pilgrim landing on one knee on invisible ground in a dark void, a ring of faint light spreading outward from the impact like a ripple on water||
+v-caida|91:51|S|I|Agua que no moja|the old hooded pilgrim falling feet first into black still water in the void, it ripples in rings but does not splash||
+v-caida|91:51|S|I|Encogido en la nada|the old hooded pilgrim lying curled up on his side on nothing in a dark void, like a sleeping child|Rima visual con el niño del sarcófago.|
+v-caida|91:51|S|I|Se levanta|the old hooded pilgrim slowly getting up in an empty void, one hand on the invisible ground, looking around with fear||
+v-caida|91:51|S|I|Solo y pequeño|the old hooded pilgrim standing tiny in the center of an immense dark void, no ground, no horizon, no shadow||
+v-caida|91:51|S|I|Captura: la caída|side-scrolling 2D game screenshot mockup, the old hooded pilgrim falling down the middle of a dark void, faint light from above, no UI||
+v-caida|91:51|A|I|Storyboard de la caída|storyboard sheet of six panels: the old hooded pilgrim falling from a crack of light, tumbling, drifting, landing on nothing, curled up, standing up||
+v-pisadas|91:51|S|I|Qué brota bajo sus pies|the old hooded pilgrim walking through a dark void, under each footstep appears {glowing stone tiles, moss and grass, a carpet of autumn leaves, ripples of light like water, mosaic tesserae, twisting roots, small white flowers, golden geometric lines like a mason's plan}|Ocho ideas para la mecánica de un tirón.|
+v-pisadas|91:51|S|I|Luz que se hace piedra|the old hooded pilgrim walking on floating tiles of light that turn into stone under his feet and crumble behind him into the abyss|La mecánica de la maqueta.|
+v-pisadas|91:51|S|I|Miedo al primer paso|the old hooded pilgrim hesitating at the edge of a single glowing tile, one bare foot over the darkness, testing the nothing with his toe|El primer paso, tímido.|
+v-pisadas|1:1|S||Huellas de luz|top-down view of glowing footprints of light left on nothing by bare feet, each one fading slowly into the dark||
+v-pisadas|91:51|S|I|El camino se deshace detrás|the old hooded pilgrim walking forward on a short path of stone tiles in the void, the tiles behind him crumbling into dust and falling into the abyss||
+v-pisadas|91:51|S|I|Corriendo|the old hooded pilgrim running across a dark void, a trail of tiles appearing under each stride and collapsing behind him||
+v-pisadas|91:51|S|I|Salto en el aire|the old hooded pilgrim jumping in a dark void, a tile of light appearing in midair exactly where his foot will land||
+v-pisadas|91:51|S|I|Escalera que nace|the old hooded pilgrim climbing upward in a dark void on stairs of light that appear one step at a time under his feet||
+v-pisadas|91:51|S|I|Material de las losas|the old hooded pilgrim stepping on floating tiles made of {marble, sandstone, bronze, glass, old wood, ice} in a dark void||
+v-pisadas|91:51|S||Losas hechas de recuerdo|floating tiles in a dark void that are fragments of a remembered forest floor: leaves, moss, roots and pebbles cut into square pieces|«Nada surge de la nada»: el suelo sale del recuerdo del bosque.|
+v-pisadas|1:1|S||Marca de cantero|close-up of a floating stone tile in a dark void with a mason's mark freshly engraved on it, the mark glowing||
+v-pisadas|1:1|S||El pie y la losa|extreme close-up of an old bare foot stepping onto a tile of light that hardens into stone at the touch, sparks of light||
+v-pisadas|91:51|S|I|El rastro desde arriba|aerial view of the winding path the old hooded pilgrim has walked in the void, a line of mosaic tiles, part glowing, part stone, part already gone||
+v-pisadas|91:51|A||Ciclo de la losa|sprite sheet of one floating floor tile in five stages: faint light outline, glowing light tile, light turning into stone, solid stone, cracked stone crumbling|Referencia para animarla.|
+v-pisadas|1:1|A||Losas variadas|sheet of floating stone tiles of different shapes for a 2D platformer: square, hexagonal, triangular, broken, mossy, engraved||
+v-baculo|91:51|S||El báculo solo|a gnarled wooden staff standing upright, planted in nothing, alone in an immense dark void, a faint glow at its tip|Lo primero que existe en el mundo.|
+v-baculo|91:51|S|I|Lo descubre|the old hooded pilgrim seeing a wooden staff planted upright in the void far ahead, the only object in the world, he walks toward it||
+v-baculo|1:1|S||La mano en el báculo|close-up of an old hand closing around a gnarled wooden staff planted in nothing, light gathering under the fingers||
+v-baculo|91:51|S|I|Arranca y nace el sol|the old hooded pilgrim pulling the wooden staff out of the void and a sun bursting into existence above him, warm light flooding the darkness for the first time||
+v-baculo|91:51|S|I|¿Cómo es ese sol?|the old hooded pilgrim holding up his staff as {a giant warm disc, a golden sacred geometry sun, a sun embroidered like a medieval tapestry, a sun drawn by a child with long straight rays, an alchemical sun with a calm face, an eclipse opening like an eye} rises in a dark void|Seis soles distintos.|
+v-baculo|91:51|S||Sol de dibujo de niño|an enormous childish sun with long straight rays rising over an empty void, drawn with crayon over darkness, wonder|«bajo un sol desmesurado», como los dibujos del sótano.|
+v-baculo|91:51|S|I|Su primera sombra|the old hooded pilgrim looking down at his own long shadow appearing for the first time on the floating stone under him, new sunlight||
+v-baculo|91:51|S||Lo que la luz revela|the first sunrise in an empty void reveals {a sea of black water far below, endless layers of mist, a faint distant horizon, floating stone fragments, the outline of a far away house}||
+v-baculo|91:51|S||La luna aparcada|a pale moon resting low at the edge of the void, waiting, dim and patient, while a new sun rises on the other side||
+v-baculo|91:51|S|I|Rayos desde el báculo|light rays radiating from the tip of the staff held high by the old hooded pilgrim, cutting through the darkness like spokes of a wheel||
+v-baculo|91:51|S|I|El primer color|the old hooded pilgrim in a black and white void, the first color of the world spreading out from the sun behind him, warm gold bleeding into grey||
+v-baculo|91:51|S|I|Silueta contra el sol|the old hooded pilgrim as a dark silhouette with his staff raised against a huge newborn sun in an empty void||
+v-baculo|91:51|S|I|Clavar el báculo|the old hooded pilgrim driving his staff down into the nothing, cracks of light spreading from that point like on thin ice||
+v-baculo|1:1|A||Báculos que brillan|sheet of gnarled wooden pilgrim staffs glowing at the tip in different ways: ember, starlight, sunlight, moonlight, golden thread||
+v-formas|91:51|S||El arco y su reflejo|a luminous stone arch over a dark abyss, its reflection in the black water below completing a perfect circle|«trazar un círculo fija el primer camino»|
+v-formas|91:51|S|I|Construyendo el arco|the old hooded pilgrim walking up a half-built arch of glowing stone over a dark abyss, each new block lighting only where he steps, its reflection in the black water below|La regla: un tramo solo se enciende construyendo encima.|
+v-formas|91:51|S||El reflejo va por delante|a stone arch over black water whose reflection is already complete while the real arch is only half built, a hint of what to do|Pista visual del acertijo.|
+v-formas|91:51|S||¿Qué figura se cierra?|a path of light over a dark abyss and its reflection in black water together forming a perfect {circle, vesica piscis, square, triangle, spiral, eight-pointed star}|Otras figuras para acertijos futuros.|
+v-formas|91:51|S||Trazos de compás en el aire|glowing construction lines drawn in the air of a dark void like a mason's compass drawing, arcs and radii, a circle being traced||
+v-formas|91:51|S|I|El compás del cielo|a gigantic mason's compass made of light hovering over the void, its point resting near the old hooded pilgrim, its arm sweeping an arc||
+v-formas|91:51|S||El círculo se cierra|the moment a circle of light closes over black water in a void, a flash running along the ring, stone forming along it||
+v-formas|91:51|S||Anillo sobre el agua|wide view of a perfect ring of stone and light floating over still black water in an immense void, its reflection doubling it||
+v-formas|91:51|S|I|En lo alto del arco|the old hooded pilgrim standing at the top of a stone arch over the abyss, looking down at his reflection standing upside down in the water||
+v-formas|91:51|S||Arco torcido que cae|a crooked unfinished arch of light over a dark abyss cracking and crumbling into the water because it is not true|Cuando se traza mal.|
+v-formas|91:51|S||Geometría sagrada|sacred geometry floating in a dark void, flower of life, circles and triangles in thin golden lines over black water||
+v-formas|91:51|S|I|Camino hacia la casa|a stone path newly fixed across the void leading to a faint impossible house at the far end, the old hooded pilgrim at its beginning||
+v-formas|91:51|S|I|Captura del acertijo|side-scrolling 2D game screenshot mockup, the old hooded pilgrim on half of a glowing arch over black water, the reflection showing the missing half as a faint outline, no UI||
+v-formas|1:1|A||Piezas del arco|sheet of arch building blocks for a 2D game: voussoirs, keystone, springer stones, each glowing at its edges||
+v-formas|91:51|M||Plano del acertijo|mason's construction drawing on parchment showing an arch and its reflection forming a circle, compass marks, Latin notes||
+v-conjunto|91:51|S|I|Key art del capítulo|the old hooded pilgrim holding a staff on a glowing arch over a black abyss, a newborn sun behind him, floating stone tiles, the reflection completing a circle||
+v-conjunto|2:3|S|I|Póster del vacío|vertical poster: black darkness at the top, a newborn sun in the middle, an arch of light and its reflection in black water at the bottom, a tiny pilgrim on the arch||
+v-conjunto|3:1|S||Guion de color|color script of a game chapter in eight small frames side by side: total darkness, a falling figure, a lonely staff, a sun being born, glowing tiles, an arch, a circle of light, a path to a distant house|Cómo cambia la luz a lo largo del capítulo.|
+v-conjunto|91:51|A|I|Storyboard completo|storyboard sheet of twelve panels: the old hooded pilgrim falling in a void, landing, getting up, first steps on light, finding a staff, pulling it out, sunrise, building an arch, closing the circle, walking toward a distant house||
+v-conjunto|91:51|S|I|Antes y después|split image: on the left the old hooded pilgrim alone in total darkness, on the right the same place with a sun, a stone path, an arch and its reflection||
+v-conjunto|91:51|A||Tarjeta del capítulo I|chapter title card ornament for chapter one, Roman numeral I, a compass arc and a rising sun, empty space for text, gold on black||
 biblia|91:51|S|I|Key art principal|a lone hooded old pilgrim with a long white beard and a tall wooden staff stands at the edge of an endless autumn forest, far away an impossible miniature citadel house glows with trembling candlelight, a giant pendulum shadow sweeps across the misty sky|La imagen que resume el juego.|
 biblia|2:3|S|I|Póster vertical|tiny hooded old pilgrim at the bottom of the frame, above him an impossible tower of chaotic turrets and flying buttresses rises into a river of stars, autumn leaves drifting upward|Para portada de tienda o pantalla de carga.|
 biblia|91:51|S||El sueño dentro del bronce|a sleeping boy curled inside a dark bronze sarcophagus seen in cross-section, from his head grows a whole misty forest with a tiny lit house and a winding path, dream and prison in one image|El concepto del relato en una sola imagen.|
@@ -436,15 +534,6 @@ lecciones|91:51|S||Las órbitas de Kepler|ellipses of planets drawn in light acr
 lecciones|91:51|S||La circulación de la sangre|landscape where rivers branch like veins and arteries from a heart-shaped lake, red and blue streams|
 lecciones|91:51|S||El arca|wooden ark on a hill in the rain, animals in pairs walking up the ramp|
 lecciones|91:51|S|I|La lección se vuelve real|old pilgrim speaking while the forest behind him changes, the left half blurry and painterly, the right half solid and detailed|El mundo se afianza con cada lección.|
-vacio|91:51|S|I|El vacío|old hooded pilgrim standing on nothing in a vast dark void, faint mist, no ground, no horizon|
-vacio|91:51|S|I|El bastón clavado|old pilgrim's wooden staff planted upright in nothing, faint light gathering around its tip, the pilgrim reaching for it|
-vacio|91:51|S|I|Nace el sol|old pilgrim pulling his staff out of the void and a sun bursting into being above him, warm light flooding the darkness|
-vacio|91:51|S||La luna aparcada|a pale moon resting low at the edge of a void, waiting, dim and patient|
-vacio|91:51|S|I|Losas de luz|old pilgrim walking on floating tiles of light that turn into stone under his feet and crumble behind him into the abyss|
-vacio|1:1|A||Mosaico luz-piedra|floating floor tile transforming from glowing light to rough stone, three stages side by side|
-vacio|91:51|S||El arco y su reflejo|a luminous arch bridge over an abyss, its reflection in black water below completing a perfect circle|«trazar un círculo fija el primer camino»|
-vacio|91:51|S||El agua del abismo|black mirror-like water deep below, stars and light reflected on it, ripples|
-vacio|91:51|S|I|Primer camino a la casa|a stone path newly fixed across the void leading to a faint impossible house at the far end, the pilgrim at the beginning|
 carnaval|91:51|S||Carnaval de pesadillas|the forest teeming with new creations at morning, marvelous and frightening, hybrid creatures everywhere, ribbons, masks, lanterns|«asemejándose poco a poco a un delirante carnaval de pesadillas»|
 carnaval|91:51|S||Mañana maravillosa|the forest one morning full of strange beautiful new flowers and gentle creatures, bright and wonderful|
 carnaval|91:51|S||Mañana espeluznante|the forest one morning full of horrifying new creatures half-hidden in the fog, everything a little wrong|
@@ -524,12 +613,39 @@ let cfg = Object.assign({}, DEFAULTS, store.get("cfg", {}));
 if (cfg.v !== 2){ if (String(cfg.ow) === "150") cfg.ow = DEFAULTS.ow; cfg.v = 2; store.set("cfg", cfg); }
 let done = new Set(store.get("done", []));
 let activeCat = store.get("cat", "all");
+// v3: la seccion del vacio es nueva; abrir en ella la primera vez
+if (cfg.v3 !== true){ activeCat = "g:vacio"; cfg.v3 = true; store.set("cfg", cfg); store.set("cat", activeCat); }
+if (activeCat!=="all" && activeCat!=="g:vacio" && !CATS.some(c=>c[0]===activeCat)) activeCat = "all";
 
 const FIELDS = ["sref_S","sref_R","sref_A","sref_M","oref_I","oref_IB","oref_D","desc_I","suf_S","suf_R","suf_A","suf_M","integ","mixI","sw","ow","stylize","chaos","extra"];
 function fillCfg(){ FIELDS.forEach(f=>{ $("#"+f).value = cfg[f]; }); $("#useSuf").checked = cfg.useSuf; }
 function readCfg(){ FIELDS.forEach(f=>{ cfg[f] = $("#"+f).value.trim(); }); cfg.useSuf = $("#useSuf").checked; store.set("cfg", cfg); render(); }
 
-const STYLE_NAME = {S:"Sueño", R:"Real", A:"Recurso", M:"Manuscrito"};
+const STYLE_NAME = {S:"Sueño", R:"Real", A:"Recurso", M:"Manuscrito", N:"Libre"};
+
+// direcciones artisticas para explorar el capitulo del vacio
+const DIRS = [
+  ["sueno","Estilo Sueño (tus referencias)",""],
+  ["acuarela","Acuarela mínima","minimal watercolor platformer art, soft pigment bleeds, pastel gradients, delicate linework, contemplative"],
+  ["facetas","Facetas, como Iram","faceted geometric illustration, flat angular color planes with hard edges, subtle paper grain"],
+  ["tinta","Tinta sumi","sumi ink wash on rice paper, vast empty negative space, soft bleeding edges, a single warm accent of color"],
+  ["grabado","Grabado bíblico","19th century biblical wood engraving, dense fine crosshatching, dramatic light from above, black and white"],
+  ["mezzo","Mezzotinta","mezzotint print, velvety deep blacks with forms slowly emerging into soft light"],
+  ["carbon","Carboncillo","charcoal drawing on toned paper, smudged soft darkness, white chalk highlights"],
+  ["blake","Visionario romántico","visionary romantic watercolor and tempera like William Blake, luminous radiating light, mystical figures"],
+  ["friedrich","Sublime romántico","romantic sublime oil painting like Caspar David Friedrich, tiny figure before immense emptiness, muted luminous sky"],
+  ["turner","Bruma luminosa","luminous hazy oil painting like late Turner, forms dissolving in light and vapor"],
+  ["oleo","Óleo empastado","thick impasto oil paint, visible palette knife strokes, rich texture, dark tonal painting"],
+  ["oro","Oro sobre laca","fine gold leaf lines on black lacquer, byzantine icon glow, minimal ornament"],
+  ["vitral","Vitral","medieval stained glass, leaded lines, colored light glowing through glass"],
+  ["tiza","Tiza en pizarra","white chalk construction drawing on a dark blackboard, compass arcs, geometric diagrams, smudged chalk dust"],
+  ["ciano","Cianotipia","cyanotype print, deep prussian blue and white, sun-printed textures"],
+  ["klint","Geometría esotérica","esoteric geometric abstraction like Hilma af Klint, circles, spirals and symmetry in soft colors"],
+  ["papel","Diorama de papel","layered paper cut-out diorama, soft shadows between paper layers, handmade texture"],
+  ["lumen","Luz en la oscuridad","bioluminescent particles in total darkness, long-exposure light trails, cinematic"]
+];
+const DIR_MAP = Object.fromEntries(DIRS.map(d=>[d[0], d]));
+const isVacio = it => it.cat.startsWith("v-");
 const OREF_NAME = {I:"Iram", D:"Dóminus"};
 
 function permCount(t){ let n=1; (t.match(/\{[^}]*\}/g)||[]).forEach(m=>{ n *= m.split(",").length; }); return n; }
@@ -538,12 +654,15 @@ function build(it){
   let text = it.prompt;
   if (it.oref==="I" && cfg.desc_I) text += ", " + cfg.desc_I;
   if (it.oref && cfg.integ && it.style!=="A") text += ", " + cfg.integ;
-  if (cfg.useSuf && it.cat==="puente") text += ", faceted geometric illustration, flat angular color planes with hard edges, subtle paper grain, atmospheric depth, melancholic and dreamlike";
+  const dir = (isVacio(it) && it.style!=="N" && cfg.dirV && cfg.dirV!=="sueno") ? DIR_MAP[cfg.dirV] : null;
+  if (dir) text += ", " + dir[2];
+  else if (cfg.useSuf && it.cat==="puente") text += ", faceted geometric illustration, flat angular color planes with hard edges, subtle paper grain, atmospheric depth, melancholic and dreamlike";
   else if (cfg.useSuf && cfg["suf_"+it.style]) text += ", " + cfg["suf_"+it.style];
   const p = ["--ar " + it.ar];
-  let sref = cfg["sref_"+it.style] || ((it.style==="A"||it.style==="M") ? cfg.sref_S : "");
+  let sref = it.style==="N" ? "" : (cfg["sref_"+it.style] || ((it.style==="A"||it.style==="M") ? cfg.sref_S : ""));
+  if (dir && !cfg.keepSrefV) sref = "";
   const mix = Number(cfg.mixI) || 0;
-  if (mix && cfg.oref_I && (it.style==="S"||it.style==="A")) sref = sref ? `${sref}::3 ${cfg.oref_I}::${mix}` : cfg.oref_I;
+  if (mix && cfg.oref_I && !(dir && !cfg.keepSrefV) && (it.style==="S"||it.style==="A")) sref = sref ? `${sref}::3 ${cfg.oref_I}::${mix}` : cfg.oref_I;
   // el puente lleva el estilo de Iram por delante del Sueño
   if (it.cat==="puente" && cfg.oref_I) sref = (cfg.sref_S ? cfg.sref_S + "::1 " : "") + cfg.oref_I + "::3";
   if (sref){ p.push("--sref " + sref); if (cfg.sw) p.push("--sw " + cfg.sw); }
@@ -564,7 +683,8 @@ function visibleItems(){
   const q = $("#q").value.trim().toLowerCase();
   const hide = $("#hideDone").checked;
   return ITEMS.filter(it=>{
-    if (activeCat!=="all" && it.cat!==activeCat) return false;
+    if (activeCat==="g:vacio"){ if (!isVacio(it)) return false; }
+    else if (activeCat!=="all" && it.cat!==activeCat) return false;
     if (hide && done.has(it.id)) return false;
     if (q && !(it.title+" "+it.prompt+" "+it.note).toLowerCase().includes(q)) return false;
     return true;
@@ -573,8 +693,9 @@ function visibleItems(){
 
 function renderChips(){
   const total = ITEMS.reduce((a,it)=>a+permCount(it.prompt),0);
-  const chips = [["all","Todo",ITEMS.length]].concat(CATS.map(c=>[c[0],c[1],ITEMS.filter(i=>i.cat===c[0]).length]));
-  $("#chips").innerHTML = chips.map(([id,name,n])=>`<button class="chip" data-cat="${id}" aria-pressed="${activeCat===id}">${name}<span class="n">${n}</span></button>`).join("");
+  const chips = [["all","Todo",ITEMS.length],["g:vacio","Cap. 1 · El vacío",ITEMS.filter(isVacio).length]]
+    .concat(CATS.filter(c=>!c[0].startsWith("v-")).map(c=>[c[0],c[1],ITEMS.filter(i=>i.cat===c[0]).length]));
+  $("#chips").innerHTML = chips.map(([id,name,n])=>`<button class="chip ${id==="g:vacio"?"chip-g":""}" data-cat="${id}" aria-pressed="${activeCat===id}">${name}<span class="n">${n}</span></button>`).join("");
   $("#chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ activeCat=b.dataset.cat; store.set("cat",activeCat); renderChips(); render(); });
   $("#stat").dataset.total = total;
 }
@@ -585,14 +706,40 @@ function render(){
   const doneN = ITEMS.filter(i=>done.has(i.id)).length;
   $("#stat").textContent = `${vis.length} prompts · ${vis.reduce((a,i)=>a+permCount(i.prompt),0)} trabajos · ${doneN}/${ITEMS.length} hechos`;
   if (!vis.length){ $("#list").innerHTML = `<p class="empty">Nada coincide con la búsqueda.</p>`; return; }
-  $("#list").innerHTML = byCat.map(([c,items])=>`
+  let introDone = false;
+  $("#list").innerHTML = byCat.map(([c,items])=>{
+    let intro = "";
+    if (c[0].startsWith("v-") && !introDone){ introDone = true; intro = vacioIntro(byCat); }
+    return intro + `
     <section class="cat" id="${c[0]}">
       <div class="cat-head"><h2>${c[1]}</h2><span class="label">${items.length} prompts</span></div>
       <p class="cat-desc">${c[2]}</p>
       <div class="cards">${items.map(card).join("")}</div>
-    </section>`).join("");
+    </section>`; }).join("");
+  const sel = $("#dirV");
+  if (sel){
+    sel.onchange = ()=>{ cfg.dirV = sel.value; store.set("cfg", cfg); render(); };
+    $("#keepSrefV").onchange = e=>{ cfg.keepSrefV = e.target.checked; store.set("cfg", cfg); render(); };
+  }
   $("#list").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{ const it=ITEMS.find(i=>i.id===b.dataset.copy); copy(build(it).full, b); });
   $("#list").querySelectorAll("[data-done]").forEach(cb=>cb.onchange=()=>{ cb.checked? done.add(cb.dataset.done) : done.delete(cb.dataset.done); store.set("done",[...done]); render(); });
+}
+
+function vacioIntro(byCat){
+  const subs = byCat.filter(([c])=>c[0].startsWith("v-"));
+  const n = subs.reduce((a,[,its])=>a+its.length,0);
+  return `<section class="grupo" aria-labelledby="g-vacio">
+    <div class="label">Capítulo 1 · ${n} prompts</div>
+    <h2 id="g-vacio" class="g-title">El vacío</h2>
+    <p class="cat-desc">De la caída en la nada hasta el primer camino a la casa. Elige una dirección artística y todo el capítulo se reescribe con ella: copia los visibles, lánzalos y compara. Repite con otra dirección. Los de estilo <span class="tag N">Libre</span> no cambian: son la lectura propia de Midjourney.</p>
+    <div class="g-controls">
+      <div class="field"><label for="dirV">Dirección artística</label>
+        <select id="dirV">${DIRS.map(d=>`<option value="${d[0]}" ${cfg.dirV===d[0]?"selected":""}>${d[1]}</option>`).join("")}</select>
+      </div>
+      <label class="check"><input type="checkbox" id="keepSrefV" ${cfg.keepSrefV?"checked":""}> Mantener mis --sref con la dirección</label>
+    </div>
+    <nav class="g-nav" aria-label="Partes del capítulo">${subs.map(([c,its])=>`<a href="#${c[0]}">${c[1]} <span>${its.length}</span></a>`).join("")}</nav>
+  </section>`;
 }
 
 function card(it){
@@ -640,7 +787,9 @@ const REFS = [
   ["iram_baston_andando.png","Andando con bastón",false],
   ["iram_baston_paso.png","Paso con bastón",false],
   ["iram_baston_agachado.png","Agachado con bastón",false],
-  ["iram_hoja_giro.png","Hoja de giro (para hojas de personaje)",false,true]
+  ["iram_hoja_giro.png","Hoja de giro (para hojas de personaje)",false,true],
+  ["baculo_entero.png","Báculo solo, sin bola · como imagen de referencia",false],
+  ["baculo_punta.png","Punta del báculo · detalle de la garra",false]
 ];
 $("#gallery").innerHTML = REFS.map(([f,n,top,wide])=>`<figure class="ref ${top?"top":""} ${wide?"wide":""}" style="margin:0">
   <img src="referencias/${f}" alt="Iram, ${n.toLowerCase()}" loading="lazy">

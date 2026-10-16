@@ -1,0 +1,386 @@
+EN _fuentes LAS REFERENCIAS SE LLAMAN referencia_perfil_*.png (las mismas que en
+Descargas/magnus_frente_espaldas_como_perfil/ sin el "perfil_").
+
+PROMPTS CON EL BASTON: ANDAR DE FRENTE Y DE ESPALDAS, LA VUELTA, SACARLO Y GUARDARLO
+(Google Flow, Frames to Video, 2026-10-14)
+=================================================================================
+El peregrino de frente y de espaldas igual que el de perfil (ver PROMPTS.txt, los
+de sin baston). Aqui, todo lo que lleva el baston.
+
+REFERENCIAS (en esta carpeta; 1920x1080, croma #24D732, escala y sitio de siempre)
+  referencia_frente_con_baston.png     de frente, el baston en la mano derecha
+                                       (giro con baston de perfil, fotograma 28)
+  referencia_frente_baston_espalda.png de frente, el baston a la espalda: solo
+                                       asoma la garra sobre el hombro derecho,
+                                       como lo pinta la escena (nueva, compuesta)
+  referencia_espalda_baston_espalda.png de espaldas, el baston cruzado en la
+                                       correa de dos presillas, como lo pinta la
+                                       escena (nueva, compuesta)
+  referencia_espalda_con_baston.png    de espaldas con el baston en la mano: LA
+                                       QUE FALTA. Sale del video 1 (la vuelta):
+                                       me lo pasas, saco el fotograma de espaldas
+                                       y le pongo la correa vacia. Hace falta para
+                                       los videos 3, 6 y 7.
+En todas la garra VACIA: la bola la pone el juego.
+
+ORDEN
+  1. La vuelta con baston (de ahi sale la referencia de espaldas con baston).
+  2. Andar de frente con baston.        4. Sacar de frente.  5. Guardar de frente.
+  3. Andar de espaldas con baston.      6. Sacar de espaldas. 7. Guardar de espaldas.
+  (3, 6 y 7, cuando tengamos la referencia de espaldas con baston)
+
+Ajustes: 16:9, Veo 3.1 - Quality, 1080p si lo ofrece, 8 s, con audio.
+2-4 tomas de cada uno.
+
+Lo aprendido:
+  - Nunca "bare feet": calzas y zapatillas oscuras.
+  - A la velocidad del juego (andar, un paso cada 0,75 s); nada de camara lenta.
+  - La garra SIEMPRE arriba: el baston nunca boca abajo, nunca da la vuelta en
+    el aire y nunca atraviesa el cuerpo (en el guardar de espaldas del video A
+    Veo lo volteo y hubo que repintarlo entero).
+  - Sacar/guardar de espaldas: lo que mejor salio fue SACAR tirando recto hacia
+    arriba y bajandolo por delante, y GUARDAR subiendolo, llevandolo por detras
+    de la cabeza y bajandolo a la correa. Con la correa en las dos referencias
+    (si no, Veo la hace desaparecer).
+  - El baston entero dentro del cuadro aunque lo levante (las referencias dejan
+    ~420 px de aire sobre la capucha).
+
+
+1. VUELTA CON BASTON, DE FRENTE A DE ESPALDAS
+--------------------------------------------
+Inicio = referencia_frente_con_baston.png. SIN fotograma final.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
+ground, no floor, no floor line, no props, no text, no logos, no on-screen
+interface.
+
+The old pilgrim from the first frame faces the camera, holding his long wooden
+staff upright in his right hand, its tip resting on the ground beside his right
+foot; at its top an open antler-shaped claw, always pointing up. The claw is
+EMPTY: no orb, no ball, no gem, no glow, no light. He stands still for two
+seconds. Then, in one single natural movement, he turns around in place to face
+away from the camera, turning toward the right side of the screen: halfway
+through the turn he is seen in profile facing right. The whole turn takes about
+one and a half seconds, a pivot with just two short, clear steps of his feet in
+dark slippers, without stopping halfway and without extra small steps. The staff
+stays in his right hand the whole time, upright beside his body, moving with
+him, the claw always at the top: it never changes hands, never turns upside down
+and never passes through his body. His size does not change and his head stays
+at the same height. He ends seen exactly from behind, holding the staff upright
+in his right hand at his right side (on the right of the screen), its tip on the
+ground, and holds completely still until the end of the video.
+
+His head is covered by the grey cloth hood of his cloak, exactly the shape of the
+first frame: part of the cloak, not a hat; it never grows or stands up. Same
+character throughout: white beard and the grey diamond patch on his chest (seen
+from the front), brown faceted patchwork cloak, and on the back of the cloak a
+large grey chevron patch. His legs and feet are dark, exactly as in the first
+frame: thin legs in dark hose and soft dark slippers, one single very dark brown
+from the hem of the cloak down to the tips of his feet; he is not barefoot, no
+bare skin and no toes show at any moment. Same low-poly flat-shaded hand-painted
+style, same colours and lighting as the first frame, crisp frames with no motion
+blur, soft matte texture, no flicker. Sound: only the rustle of the cloak, two
+light footsteps and the soft tap of the staff, no music, no voice.
+
+
+2. ANDAR DE FRENTE CON BASTON
+-----------------------------
+Inicio = referencia_frente_con_baston.png. SIN fotograma final.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+The old pilgrim from the first frame faces the camera, holding his long wooden
+staff upright in his right hand; at its top an open antler-shaped claw, always
+pointing up. The claw is EMPTY: no orb, no ball, no gem, no glow, no light. His
+left arm hangs relaxed at his side.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 6.5 s: he walks straight toward the camera, along the line of sight,
+  getting slowly bigger as he comes closer: a calm, steady, unhurried walk of an
+  old man, about one step every 0.75 seconds, real natural steps of his feet in
+  dark slippers, heel to toe, the long faceted cloak swaying gently. He uses the
+  staff as a walking stick in a regular rhythm: every second step he lifts it a
+  little, moves it forward together with his right foot and plants its tip on
+  the ground beside that foot; the tip never slides on the ground, the staff
+  stays upright in his right hand and the claw stays at the top.
+- 6.5 to 8 s: he slows down and stops with both feet together, the staff
+  planted beside his right foot, and stands still.
+He never comes too close: he is always seen full-body, from the top of the staff
+and the hood down to the feet, and never leaves the frame.
+
+He faces the camera the whole video and never turns. His head is covered by the
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat; it never grows or stands up. Same character throughout,
+exactly as in the first frame: white beard, the hood shading his face, brown
+faceted patchwork cloak with the grey diamond patch on his chest. His legs and
+feet are dark, exactly as in the first frame: thin legs in dark hose and soft
+dark slippers, one single very dark brown from the hem of the cloak down to the
+tips of his feet; he is not barefoot, no bare skin and no toes show at any
+moment. Same low-poly flat-shaded hand-painted style, colours and lighting as
+the first frame, crisp frames with no motion blur, soft matte texture, no
+flicker. Sound: only his soft footsteps, the soft tap of the staff on the ground
+and the rustle of the cloak, no music, no voice.
+
+
+3. ANDAR DE ESPALDAS CON BASTON
+-------------------------------
+Inicio = referencia_espalda_con_baston.png (la que sale del video 1). SIN
+fotograma final.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+The old pilgrim from the first frame stands with his back to the camera, holding
+his long wooden staff upright in his right hand, on the right of the screen; at
+its top an open antler-shaped claw, always pointing up. The claw is EMPTY: no
+orb, no ball, no gem, no glow, no light. His left arm hangs relaxed at his side.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 6.5 s: he walks straight away from the camera, along the line of sight,
+  getting slowly smaller with the distance: a calm, steady, unhurried walk of an
+  old man, about one step every 0.75 seconds, real natural steps of his feet in
+  dark slippers, heel to toe, the long faceted cloak swaying gently. He uses the
+  staff as a walking stick in a regular rhythm: every second step he lifts it a
+  little, moves it forward together with his right foot and plants its tip on
+  the ground beside that foot; the tip never slides on the ground, the staff
+  stays upright in his right hand and the claw stays at the top.
+- 6.5 to 8 s: he slows down and stops with both feet together, the staff
+  planted beside his right foot, and stands still.
+
+He is seen exactly from behind the whole video and never turns toward the camera
+or to the side, never leaving the frame. His head is covered by the grey cloth
+hood of his cloak, exactly the shape of the first frame: part of the cloak, not
+a hat; it never grows or stands up. Same character throughout, exactly as in the
+first frame: brown faceted patchwork cloak with the large grey chevron patch on
+the upper back and the thin empty leather strap across his back. His legs and
+feet are dark, exactly as in the first frame: thin legs in dark hose and soft
+dark slippers, one single very dark brown from the hem of the cloak down to the
+tips of his feet; he is not barefoot, no bare skin and no toes show at any
+moment. Same low-poly flat-shaded hand-painted style, colours and lighting as
+the first frame, crisp frames with no motion blur, soft matte texture, no
+flicker. Sound: only his soft footsteps, the soft tap of the staff on the ground
+and the rustle of the cloak, no music, no voice.
+
+
+4. SACAR DE FRENTE
+------------------
+Inicio = referencia_frente_baston_espalda.png, fin = referencia_frente_con_baston.png.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
+ground, no floor, no floor line, no props, no text, no logos, no on-screen
+interface. The character stays full-body in frame, same size and same place on
+screen, facing the camera the whole video. The whole staff stays inside the
+frame at all times, even when he lifts it above his head.
+
+The old pilgrim from the first frame faces the camera, his arms relaxed at his
+sides, empty hands. He carries his long wooden staff on his back, slung
+diagonally in a short leather holder; seen from the front only its top, an open
+antler-shaped claw, shows above his right shoulder. The claw is EMPTY: no orb,
+no ball, no gem, no glow, no light.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he raises his right hand over his right shoulder, grabs the staff
+  just below the claw and pulls it straight up out of the holder on his back.
+- 2.5 to 4 s: he brings the staff over his shoulder and down in front of him, to
+  his right side, and plants its bottom tip on the ground beside his right foot.
+- 4 to 8 s: he stands still exactly as in the last frame, holding the staff
+  upright in his right hand.
+The claw always points up: the staff never turns upside down, never spins and
+never passes through his body.
+
+His feet stay in place, at most a small shift of weight; his head stays at the
+same height. His head is covered by the grey cloth hood of his cloak, exactly
+the shape of the first frame: part of the cloak, not a hat; it never grows or
+stands up. Same character throughout, exactly as in the first and last frames:
+white beard, the hood shading his face, brown faceted patchwork cloak with the
+grey diamond patch on his chest; the cloak only moves a little and settles into
+the shape of the last frame. His legs and feet are dark: thin legs in dark hose
+and soft dark slippers, one single very dark brown from the hem of the cloak down
+to the tips of his feet; he is not barefoot, no bare skin and no toes show at any
+moment. Same low-poly flat-shaded hand-painted style, colours and lighting as the
+first frame, crisp frames with no motion blur, soft matte texture, no flicker.
+Sound: cloth rustle, the wood sliding out of the leather and the dry knock of the
+staff tip on the ground; no music, no voice.
+
+
+5. GUARDAR DE FRENTE
+--------------------
+Inicio = referencia_frente_con_baston.png, fin = referencia_frente_baston_espalda.png.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
+ground, no floor, no floor line, no props, no text, no logos, no on-screen
+interface. The character stays full-body in frame, same size and same place on
+screen, facing the camera the whole video. The whole staff stays inside the
+frame at all times, even when he lifts it above his head.
+
+The old pilgrim from the first frame faces the camera, holding his long wooden
+staff upright in his right hand, its tip on the ground; at its top an open
+antler-shaped claw. The claw is EMPTY: no orb, no ball, no gem, no glow, no
+light.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he lifts the staff off the ground and raises it up over his right
+  shoulder, keeping it upright, the claw at the top.
+- 2.5 to 4 s: he slides it down behind his back, diagonally, into the short
+  leather holder on his back, until only the claw shows above his right
+  shoulder; he lets go and his arm comes back to rest at his side.
+- 4 to 8 s: he stands still exactly as in the last frame, arms relaxed at his
+  sides, empty hands.
+The claw always points up: the staff never turns upside down, never spins and
+never passes through his body.
+
+His feet stay in place, at most a small shift of weight; his head stays at the
+same height. His head is covered by the grey cloth hood of his cloak, exactly
+the shape of the first frame: part of the cloak, not a hat; it never grows or
+stands up. Same character throughout, exactly as in the first and last frames:
+white beard, the hood shading his face, brown faceted patchwork cloak with the
+grey diamond patch on his chest; the cloak only moves a little and settles into
+the shape of the last frame. His legs and feet are dark: thin legs in dark hose
+and soft dark slippers, one single very dark brown from the hem of the cloak down
+to the tips of his feet; he is not barefoot, no bare skin and no toes show at any
+moment. Same low-poly flat-shaded hand-painted style, colours and lighting as the
+first frame, crisp frames with no motion blur, soft matte texture, no flicker.
+Sound: cloth rustle and a soft wooden scrape as the staff slides into the
+leather; no music, no voice.
+
+
+6. SACAR DE ESPALDAS
+--------------------
+Inicio = referencia_espalda_baston_espalda.png, fin = referencia_espalda_con_baston.png
+(la que sale del video 1, con la correa vacia).
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
+ground, no floor, no floor line, no props, no text, no logos, no on-screen
+interface. The character stays full-body in frame, same size and same place on
+screen, seen exactly from behind, facing away from the camera the whole video:
+he never turns toward the camera. The whole staff stays inside the frame at all
+times, even when he lifts it above his head.
+
+The old pilgrim from the first frame stands with his back to the camera, his
+arms relaxed at his sides, empty hands. His long wooden staff is slung across his
+back on a steep diagonal, held by two small leather loops on a thin leather strap
+that runs from his right shoulder down to his left hip; its top, an open
+antler-shaped claw, rises just above his right shoulder. The claw is EMPTY: no
+orb, no ball, no gem, no glow, no light.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2 s: he raises his right hand to his right shoulder and grabs the staff
+  just below the claw.
+- 2 to 2.75 s: he pulls it straight up out of the two loops, the claw rising
+  high above his hood, the staff always upright with the claw at the top.
+- 2.75 to 3.5 s: he lowers it beside his right side, keeping it upright.
+- 3.5 to 4 s: he plants its bottom tip on the ground beside his right foot.
+- 4 to 8 s: he stands still exactly as in the last frame, holding the staff
+  upright in his right hand; the empty strap with its two loops stays on his
+  back.
+The claw always points up: the staff never turns upside down, never spins and
+never passes through his body.
+
+His feet stay in place, at most a small shift of weight; his head stays at the
+same height. His head is covered by the grey cloth hood of his cloak, exactly
+the shape of the first frame: part of the cloak, not a hat; it never grows or
+stands up. Same character throughout: brown faceted patchwork cloak with the
+large grey chevron patch on his back, exactly as in the first and last frames:
+the cloak and its patches never change during the video, it only moves a little
+with his arm. His legs and feet are dark: thin legs in dark hose and soft dark
+slippers, one single very dark brown from the hem of the cloak down to the tips
+of his feet; he is not barefoot, no bare skin and no toes show at any moment.
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+cloth rustle, a short leather creak as the staff leaves the loops and the dry
+knock of the staff tip on the ground; no music, no voice.
+
+
+7. GUARDAR DE ESPALDAS
+----------------------
+Inicio = referencia_espalda_con_baston.png (con la correa vacia), fin =
+referencia_espalda_baston_espalda.png.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
+ground, no floor, no floor line, no props, no text, no logos, no on-screen
+interface. The character stays full-body in frame, same size and same place on
+screen, seen exactly from behind, facing away from the camera the whole video:
+he never turns toward the camera. The whole staff stays inside the frame at all
+times, even when he lifts it above his head.
+
+The old pilgrim from the first frame stands with his back to the camera, holding
+his long wooden staff upright in his right hand, its tip on the ground; at its
+top an open antler-shaped claw. A thin leather strap with two small empty loops
+runs on a steep diagonal across his back, from his right shoulder down to his
+left hip. The claw is EMPTY: no orb, no ball, no gem, no glow, no light.
+
+Action, one continuous take, calm and deliberate like an old man, at natural
+speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2 s: he lifts the staff off the ground with his right hand and raises it
+  straight up, high above his right shoulder, keeping it upright with the claw
+  at the top.
+- 2 to 3 s: still holding it upright, he brings it over behind his head, so the
+  staff hangs behind his back, the claw above his hood.
+- 3 to 3.75 s: he lowers it down along his back and lets it settle into the two
+  leather loops, on the same steep diagonal as the strap, the claw ending just
+  above his right shoulder, exactly as in the last frame.
+- 3.75 to 4.5 s: he lets go and his right arm comes down to rest at his side.
+- 4.5 to 8 s: he stands still exactly as in the last frame, arms relaxed at his
+  sides, empty hands.
+The claw ALWAYS points up, from the first frame to the last: the staff never
+turns upside down, never flips or spins in his hand and never passes through his
+body or his head; it goes into the loops from above, behind his back.
+
+His feet stay in place, at most a small shift of weight; his head stays at the
+same height. His head is covered by the grey cloth hood of his cloak, exactly
+the shape of the first frame: part of the cloak, not a hat; it never grows or
+stands up. Same character throughout: brown faceted patchwork cloak with the
+large grey chevron patch on his back, exactly as in the first and last frames:
+the cloak and its patches never change during the video, it only moves a little
+with his arm. His legs and feet are dark: thin legs in dark hose and soft dark
+slippers, one single very dark brown from the hem of the cloak down to the tips
+of his feet; he is not barefoot, no bare skin and no toes show at any moment.
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+cloth rustle and a short leather creak as the staff settles into the loops; no
+music, no voice.
+
+
+AL REVISAR LAS TOMAS
+--------------------
+Todas:
+  - El baston SIEMPRE en la mano derecha (de frente a la izquierda de la
+    pantalla, de espaldas a la derecha) y con la garra ARRIBA, nunca boca
+    abajo, nunca atravesando el cuerpo ni la cabeza.
+  - La garra vacia: sin bola ni brillo.
+  - El mismo personaje que las referencias todo el rato (rombo gris en el pecho,
+    chevron gris en la espalda); piernas y pies oscuros (si sale descalzo, otra
+    toma); sin sombra en el suelo; nada encima del personaje.
+Vuelta: hacia la derecha de la pantalla, ~1,5 s, dos pasos; que acabe de
+  espaldas quieto, con el baston derecho a su lado.
+Andar: un paso cada ~0,75 s; la punta del baston no resbala; camara quieta; que
+  no se salga del cuadro; que pare con los pies juntos.
+Sacar/guardar: el baston entero dentro del cuadro; pies quietos; el gesto en
+  unos 3 s; de espaldas, que entre y salga de las presillas por arriba y que la
+  correa no desaparezca.
