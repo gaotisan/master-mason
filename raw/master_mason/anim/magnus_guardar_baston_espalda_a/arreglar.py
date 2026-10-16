@@ -27,6 +27,21 @@ Aqui:
       brazo, el de cada fotograma; la mano, siempre encima.
   PALO (66-74): la garra de Veo trae el segundo palo saliendo de su punta derecha:
       fuera (y lo de dentro de su contorno) y la nuestra encima, fundida en su vara.
+      (Hasta el 2026-10-15; ahora todo LLEGA.. va como sigue.)
+
+2026-10-15, UN SOLO BASTON (el usuario: "igualarlo todo, a la vieja usanza"): la
+plantilla ya no es el de Veo en reposo (su vara, el tramo retorcido repetido, salia el
+doble de gruesa) sino el de la mano del reposo de espaldas de la escena, recortado a
+mano (raw/master_mason/anim/baston/baston_espalda.py: baston_espalda_master.png), el
+mismo que la escena pone a la espalda (assets/characters/baston/baston_espalda.png).
+  DESDE..HASTA llegan a la pose de la escena en la correa (B_CORREA, PHI_CORREA: la
+      fila de la correa vacia del reposo con baston), no a la de Veo.
+  LLEGA..: en la correa, el de la escena: fuera lo que pinta Veo (baston y correa: su
+      sitio es el de la capa de la escena con baston.png, CORREA_VEO, que calca; y
+      mientras resbala, la recta de su vara) con la espalda limpia
+      (magnus_espalda_sin_baston) debajo, encima la capa de la escena con el nuestro
+      (correa, baston y presillas: CORREA_NUEVA, capa_espalda.gd) y la mano encima.
+  Asi el final del guardar es, pixel a pixel, lo que pinta la escena despues.
 La bola: la de garra.py en lo de Veo (1-47 desde el reposo con baston, 144-62 desde
 el de la correa) y la nuestra en DESDE..HASTA -> garra.json (casa 1.0).
 Los fotogramas de Veo se guardan en _todos_veo/ la primera vez; se escribe en _todos/.
@@ -47,7 +62,19 @@ spec = importlib.util.spec_from_file_location('garra', os.path.join(ANIM, 'magnu
 G = importlib.util.module_from_spec(spec); spec.loader.exec_module(G)
 sys.argv = _argv
 
-FUENTE = 10                 # el baston de Veo en reposo: la plantilla
+FUENTE = 10                 # el baston de Veo en reposo (su luz; la plantilla ya es la de la mano)
+BASTON = os.path.join(ANIM, 'baston', 'baston_espalda_master.png')   # el de la mano, recto (baston_espalda.py)
+CORREA_NUEVA = os.path.join(ANIM, 'magnus_espalda_sin_baston', 'baston_en_correa.png')
+CORREA_VEO = os.path.join(ANIM, 'magnus_espalda_sin_baston', 'baston_en_correa_baston_png.png')
+ESPALDA = os.path.join(ANIM, 'magnus_espalda_sin_baston', 'espalda_sin_baston.png')
+MX, MY = 40, 104            # la casilla del reposo (584x800) en la de sacar / guardar (664x904)
+B_CORREA = (395.28, 261.50) # la bola en la correa, la de la escena (master de la casilla de 904)
+PHI_CORREA = -19.46         # y su giro (pie a la izquierda: negativo)
+RESBALA = 74                # hasta aqui la vara de Veo aun resbala en la correa (-17 a -22)
+ZONA_CORREA = 11            # px alrededor de lo de Veo que se quita
+HOMBRO = 193                # px bajo lo alto de la casilla del reposo (MY): por encima, la capucha. Ahi no
+                            # se repone la espalda limpia: Veo gira la cabeza (la capucha va hasta 13 px
+                            # a un lado de la del tronco) y salia doble
 DESDE, HASTA = 43, 65       # nuestro baston entero
 BASE = 47                   # el cuerpo de BASE+1..HASTA
 DOBLE = 62                  # de aqui a HASTA Veo ya lo tiene en la espalda, pero doble (el baston y
@@ -180,6 +207,153 @@ def plantilla(bola):
     return out, np.array([bola[0] - x0, bola[1]], float), float(pie)
 
 
+def plantilla_mano():
+    """El baston de la mano, recto, a escala de master (baston_espalda.py): (rgba, bola, fila del pie)."""
+    T = np.asarray(Image.open(BASTON).convert('RGBA')).astype(np.float32)
+    d = json.load(open(BASTON.replace('.png', '.json')))
+    return T, np.array(d['bola'], float), float(d['pie'])
+
+
+def banda(forma, b, phi, largo, medio):
+    """Los pixeles a 'medio' px de la recta de la bola al pie (giro phi)."""
+    t = np.radians(phi); u = np.array([np.sin(t), np.cos(t)]); n_ = np.array([u[1], -u[0]])
+    ys, xs = np.mgrid[0:forma[0], 0:forma[1]]
+    d = np.dstack([xs - b[0], ys - b[1]])
+    s, e = d @ u, d @ n_
+    return (s > -60) & (s < largo + 12) & (np.abs(e) <= medio)
+
+
+_capas = {}
+
+
+def mover(img, d):
+    """img (alto, ancho, 4) desplazada d = (dx, dy) px (lo que entra, transparente)."""
+    M = np.float32([[1, 0, d[0]], [0, 1, d[1]]])
+    return cv2.warpAffine(img, M, (img.shape[1], img.shape[0]), flags=cv2.INTER_LINEAR, borderValue=0)
+
+
+def alinear(a, espalda, quitar):
+    """Lo que esta desplazado el cuerpo del fotograma frente a la espalda limpia (Veo lo
+    mueve un poco: la capucha va hasta 15 px a la izquierda de la de la espalda limpia
+    mientras guarda o saca): la traslacion que mejor casa la espalda (sin 'quitar': el
+    baston, la correa, el brazo). Primero de 2 en 2 px y con una fila de cada dos; luego
+    afinada al pixel."""
+    al = espalda[..., 3] > 200
+    zona = np.zeros(al.shape, bool)
+    zona[MY + 120:MY + 560, MX + 150:MX + 440] = True
+    ok = al & zona & ~quitar & (a[..., 3] > 200)
+    A_ = a[..., :3].astype(np.float32)
+    E_ = espalda[..., :3]
+
+    def coste(dx, dy, paso=2):
+        M = np.float32([[1, 0, dx], [0, 1, dy]])
+        e = cv2.warpAffine(E_, M, (E_.shape[1], E_.shape[0]), flags=cv2.INTER_LINEAR)
+        ea = cv2.warpAffine(al.astype(np.uint8), M, (E_.shape[1], E_.shape[0])).astype(bool)
+        m = ok & ea
+        if paso > 1:
+            m2 = np.zeros_like(m)
+            m2[::paso] = m[::paso]
+            m = m2
+        return float(np.abs(A_[m] - e[m]).mean()) if m.sum() > 500 else 1e9
+    mejor = min(((dx, dy) for dx in range(-26, 27, 2) for dy in range(-12, 13, 2)), key=lambda d: coste(*d))
+    mejor = min(((mejor[0] + i, mejor[1] + j) for i in (-1, 0, 1) for j in (-1, 0, 1)), key=lambda d: coste(*d, paso=1))
+    return np.array(mejor, float)
+
+
+def desplazamientos(ks, quitar_de):
+    """{k: (dx, dy)} del cuerpo de cada fotograma frente a la espalda limpia (alinear),
+    suavizados en el tiempo (si no, temblaba un pixel arriba y abajo). quitar_de(k, a):
+    la mascara de lo que no es espalda en ese fotograma."""
+    if 'espalda' not in _capas:
+        esp = Image.new('RGBA', (cargar_casilla()[1], cargar_casilla()[0]), (0, 0, 0, 0))
+        esp.alpha_composite(Image.open(ESPALDA).convert('RGBA'), (MX, MY))
+        _capas['espalda'] = np.asarray(esp).astype(np.float32)
+    d = []
+    for k in ks:
+        a = _cargador(k)
+        d.append(alinear(a, _capas['espalda'], quitar_de(k, a)))
+    d = np.array(d)
+    if len(d) > 2:
+        d = gaussian_filter1d(d, 1.5, axis=0, mode='nearest')
+    return {k: d[i] for i, k in enumerate(ks)}
+
+
+_cargador = None        # el que carga los fotogramas de Veo (este job o el de sacar)
+
+
+def cargar_casilla():
+    return _cargador(1).shape[:2]
+
+
+def en_la_correa(a, k, veo, d=None):
+    """LLEGA..: el baston en la correa, el de la escena (ver arriba). d: el desplazamiento
+    del cuerpo (si no se da, se mide)."""
+    if not _capas:
+        esp = Image.new('RGBA', (a.shape[1], a.shape[0]), (0, 0, 0, 0))
+        esp.alpha_composite(Image.open(ESPALDA).convert('RGBA'), (MX, MY))
+        _capas['espalda'] = np.asarray(esp).astype(np.float32)
+        _capas['nueva'] = np.asarray(Image.open(CORREA_NUEVA).convert('RGBA')).astype(np.float32)
+        veo_a = np.asarray(Image.open(CORREA_VEO).convert('RGBA'))[..., 3] > 30
+        el = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * ZONA_CORREA + 1, 2 * ZONA_CORREA + 1))
+        _capas['zona'] = cv2.dilate(veo_a.astype(np.uint8), el).astype(bool)
+    # todo pegado al cuerpo de este fotograma (Veo lo mueve)
+    if d is None:
+        d = alinear(a, _capas['espalda'], cv2.dilate(_capas['zona'].astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool) | piel(a))
+    _capas['d'] = d
+    espalda_k = mover(_capas['espalda'], d)
+    nueva_k = mover(_capas['nueva'], d)
+    zona = mover(_capas['zona'].astype(np.uint8), d).astype(bool)
+    if k <= RESBALA:
+        b = np.array(veo[k][:2], float)
+        zona |= banda(a.shape[:2], b, giro_vara(a, b), LARGO_CORREA, ZONA_CORREA)
+        # y su garra (aun mas arriba que la nuestra): un disco alrededor de su bola
+        ys_, xs_ = np.mgrid[0:a.shape[0], 0:a.shape[1]]
+        zona |= (np.hypot(xs_ - b[0], ys_ - b[1]) < R_GARRA) & (ys_ < b[1] + 30)
+    # la mano: se queda encima (la de cerca de la zona)
+    cerca = cv2.dilate(zona.astype(np.uint8), np.ones((51, 51), np.uint8)).astype(bool)
+    # (con su orla: los bordes oscuros de los dedos no son piel y dejaban huecos)
+    # solo la mano (la pieza de piel mas grande): la garra de Veo tiene luces rojizas
+    # que pasan por piel y se quedaban encima
+    p_ = (piel(a) & cerca).astype(np.uint8)
+    n_, lab_, st_, _ = cv2.connectedComponentsWithStats(p_)
+    piel_k = (lab_ == 1 + np.argmax(st_[1:, cv2.CC_STAT_AREA])) if n_ > 1 else p_.astype(bool)
+    piel_k = cv2.dilate(piel_k.astype(np.uint8), np.ones((7, 7), np.uint8)).astype(bool) & (a[..., 3] > 0)
+    if k <= RESBALA:
+        # el segundo palo de Veo (sale de la garra hacia arriba a la derecha): lo fino
+        # fuera del cuerpo por encima de la bola
+        bx, by = veo[k][:2]
+        ys, xs = np.mgrid[0:a.shape[0], 0:a.shape[1]]
+        a = sin_baston_de_veo(a, (ys < by + 30) & (xs > bx - 60) & ~piel_k)
+    # el brazo levantado (manga) fuera de la silueta de la espalda limpia: lo gordo
+    # (la garra y la vara son finas) y lejos de la cabeza de la garra; el color no
+    # sirve (la manga y la madera van en el mismo tono)
+    bx, by = veo[k][:2] if k <= RESBALA else B_CORREA
+    ys, xs = np.mgrid[0:a.shape[0], 0:a.shape[1]]
+    gordo = cv2.morphologyEx((a[..., 3] > 128).astype(np.uint8), cv2.MORPH_OPEN,
+                             cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (13, 13))).astype(bool)
+    manga = gordo & (espalda_k[..., 3] < 60) & ~((np.hypot(xs - bx, ys - by) < 38) | (ys < by - 10))
+    manga = cv2.dilate(manga.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(bool) & (a[..., 3] > 0)
+    capucha = (espalda_k[..., 3] > 60) & (ys < MY + HOMBRO)
+    w = cv2.GaussianBlur((zona & ~manga & ~capucha).astype(np.float32), (0, 0), 1.2)
+    o = mezclar(a, espalda_k, w)
+    o = encima(o, nueva_k)
+    # la mano y la manga, encima
+    wm = cv2.GaussianBlur(cv2.dilate((piel_k | (manga & zona)).astype(np.uint8), np.ones((3, 3), np.uint8)).astype(np.float32), (0, 0), 1.0)
+    o = mezclar(o, a, wm)
+    # rendijas entre la mano y el baston (las orlas que no son de nadie): se tapan
+    # con lo de alrededor
+    al = (o[..., 3] > 128).astype(np.uint8)
+    cerrado = cv2.morphologyEx(al, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))).astype(bool)
+    hueco = cerrado & (o[..., 3] < 200) & cv2.dilate(zona.astype(np.uint8), np.ones((15, 15), np.uint8)).astype(bool)
+    if hueco.any():
+        pre = np.dstack([o[..., :3] * o[..., 3:] / 255.0, o[..., 3:] / 255.0]).astype(np.float32)
+        bl = cv2.GaussianBlur(pre, (0, 0), 2.0)
+        rgb = bl[..., :3] / np.maximum(bl[..., 3:], 1e-4)
+        o[hueco, :3] = rgb[hueco]
+        o[hueco, 3] = 255.0
+    return o
+
+
 def capa(forma, T, tb, tpie, bola, phi, largo, ancho=1.0):
     """La tira T (bola en tb, pie en la fila tpie) con la bola en 'bola', girada phi
     grados (pie a la derecha positivo) y 'largo' px de la bola al pie: la garra sin
@@ -301,16 +475,24 @@ if __name__ == '__main__':
     ks = sorted(manos)
     H = gaussian_filter1d(np.array([manos[k] for k in ks]), 1.0, axis=0, mode='nearest')
     H = {k: H[i] for i, k in enumerate(ks)}
-    # la plantilla
-    T, tb, tpie = plantilla(np.array(veo[FUENTE][:2]))
+    # la plantilla: el baston de la mano (el mismo que la escena pone a la espalda)
+    T, tb, tpie = plantilla_mano()
     # salida: la pose de Veo en DESDE (su bola; el eje de la bola al pie de su vara)
     _, pie = vara_bajo_la_mano(cargar(DESDE), H[DESDE])
     b_sal = np.array(veo[DESDE][:2]); d = pie - b_sal
     phi_sal, largo_sal = np.degrees(np.arctan2(d[0], d[1])), float(np.hypot(*d))
     # llegada: Veo en la correa (LLEGA): su bola y el giro de su vara (medido: el de la
     # plantilla de la garra no lo sigue)
-    b_lleg = np.array(veo[LLEGA][:2])
-    phi_lleg = giro_vara(cargar(LLEGA), b_lleg)
+    # (2026-10-15: la de la escena, a la que luego se queda: B_CORREA, PHI_CORREA, con el
+    # cuerpo de BASE donde esta: Veo lo tiene desplazado frente a la espalda limpia)
+    _esp = Image.new('RGBA', (cargar(BASE).shape[1], cargar(BASE).shape[0]), (0, 0, 0, 0))
+    _esp.alpha_composite(Image.open(ESPALDA).convert('RGBA'), (MX, MY))
+    _veo_zona = cv2.dilate((np.asarray(Image.open(CORREA_VEO).convert('RGBA'))[..., 3] > 30).astype(np.uint8),
+                           np.ones((31, 31), np.uint8)).astype(bool)
+    d_base = alinear(cargar(BASE), np.asarray(_esp).astype(np.float32), _veo_zona | piel(cargar(BASE)))
+    print('el cuerpo de BASE, desplazado', d_base)
+    b_lleg = np.array(B_CORREA, float) + d_base
+    phi_lleg = PHI_CORREA
     giro_veo = {k: giro_vara(cargar(k), veo[k][:2]) for k in range(DOBLE, HASTA + 1)}
     print('vara de Veo: %s; en la llegada %.1f' % (', '.join('%d %.1f' % kv for kv in sorted(giro_veo.items())), phi_lleg))
 
@@ -350,9 +532,10 @@ if __name__ == '__main__':
     # la de su garra antes de DESDE a la de despues de PALO
     l_t = luz_garra(cargar(FUENTE), veo[FUENTE][:2])
     luz_sal = luz_garra(cargar(DESDE - 1), veo[DESDE - 1][:2]) / l_t
-    luz_lleg = luz_garra(cargar(PALO[1] + 1), veo[PALO[1] + 1][:2]) / l_t
+    # en la correa, la de la escena (la plantilla tal cual)
+    luz_lleg = 1.0
     print('luz: %.2f -> %.2f' % (luz_sal, luz_lleg))
-    luz = {k: luz_sal + (luz_lleg - luz_sal) * tramo(k, DESDE, LLEGA) for k in range(DESDE, PALO[1] + 1)}
+    luz = {k: luz_sal + (luz_lleg - luz_sal) * tramo(k, DESDE, LLEGA) for k in range(DESDE, HASTA + 1)}
     ancho = {k: ANCHO_SAL + (1 - ANCHO_SAL) * tramo(k, DESDE, ANCHO_HASTA) for k in range(DESDE, HASTA + 1)}
     # el cuerpo de BASE, sin su baston ni su brazo levantado (por encima del hombro y a la
     # derecha de la capucha): el brazo es siempre el de cada fotograma
@@ -363,6 +546,12 @@ if __name__ == '__main__':
     capucha_b = (hsv_b[..., 1] < 50) & (hsv_b[..., 2] > 50) & (base[..., 3] > 0)
     os.makedirs(TODOS, exist_ok=True)
     garra = {k: v for k, v in veo.items()}
+    # el desplazamiento del cuerpo en la correa, medido y suavizado
+    _cargador = cargar
+    en_la_correa(cargar(LLEGA), LLEGA, veo, d=np.zeros(2))       # (carga las capas)
+    _zv = cv2.dilate(_capas['zona'].astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)
+    desp = desplazamientos(list(range(LLEGA, N + 1)), lambda k, a: _zv | piel(a))
+    print('cuerpo desplazado: ' + ', '.join('%d (%.1f, %.1f)' % (k, *desp[k]) for k in range(LLEGA, N + 1, 10)))
     for k in range(1, N + 1):
         a = cargar(k)
         if DESDE <= k <= HASTA:
@@ -411,6 +600,8 @@ if __name__ == '__main__':
             o = mezclar(o, a, wm)
             out = o.clip(0, 255).astype(np.uint8)
             garra[k] = (float(b[0]), float(b[1]), float(phi), 1.0)
+        elif k >= LLEGA:
+            out = en_la_correa(a, k, veo, desp[k]).clip(0, 255).astype(np.uint8)
         elif PALO[0] <= k <= PALO[1]:
             # la garra de Veo (con el segundo palo saliendo de su punta derecha) fuera: lo
             # de fuera del cuerpo por encima de la mano y, sobre la capucha, lo que es
