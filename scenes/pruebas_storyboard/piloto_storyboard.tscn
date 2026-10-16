@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/pruebas_storyboard/storyboard.tscn" id="1"]
+[ext_resource type="Script" path="res://scripts/dev/piloto.gd" id="2"]
+
+[node name="PilotoStoryboard" type="Node"]
+
+[node name="Storyboard" parent="." instance=ExtResource("1")]
+
+[node name="Piloto" type="Node" parent="."]
+script = ExtResource("2")
+guion = [[0.5, "mover_derecha", true], [0.6, "mover_derecha", false], [0.7, "mover_derecha", true], [12.0, "mover_derecha", false], [13.5, "mover_derecha", true], [22.0, "mover_derecha", false], [29.0, "mover_derecha", true], [29.2, "mover_derecha", false]]
+x_inicial = 300.0
+personaje = NodePath("../Storyboard/Magnus")

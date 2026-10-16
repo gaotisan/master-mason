@@ -1,0 +1,138 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/pruebas_storyboard/storyboard.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/pruebas_storyboard/capa_lateral.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/pruebas_storyboard/niebla.gd" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="4"]
+[ext_resource type="Texture2D" path="res://assets/pruebas_storyboard/mirador_fondo.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/pruebas_storyboard/mirador_delante.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/pruebas_storyboard/mirador_marco.png" id="7"]
+[ext_resource type="Script" path="res://scripts/characters/acciones_perfil.gd" id="acciones"]
+
+[node name="Storyboard" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Magnus" parent="." instance=ExtResource("4")]
+
+[node name="Acciones" type="Node2D" parent="."]
+script = ExtResource("acciones")
+magnus_ruta = NodePath("../Magnus")
+generico = true
+ayuda_arriba = true
+
+[node name="Lateral" type="Node2D" parent="."]
+
+[node name="Capas" type="Node2D" parent="Lateral"]
+
+[node name="Cielo" type="Node2D" parent="Lateral/Capas"]
+script = ExtResource("2")
+profundidad = 30000.0
+tipo = 0
+
+[node name="Castillos" type="Node2D" parent="Lateral/Capas"]
+script = ExtResource("2")
+profundidad = 8000.0
+tipo = 1
+color = Color(0.62, 0.5, 0.43, 1)
+semilla = 7
+
+[node name="ArbolesLejos" type="Node2D" parent="Lateral/Capas"]
+script = ExtResource("2")
+profundidad = 3000.0
+tipo = 2
+color = Color(0.48, 0.38, 0.34, 1)
+semilla = 11
+
+[node name="ArbolesCerca" type="Node2D" parent="Lateral/Capas"]
+script = ExtResource("2")
+profundidad = 1000.0
+tipo = 2
+color = Color(0.3, 0.23, 0.22, 1)
+semilla = 23
+
+[node name="Accion" type="Node2D" parent="Lateral/Capas"]
+script = ExtResource("2")
+tipo = 3
+color = Color(0.17, 0.13, 0.12, 1)
+semilla = 31
+
+[node name="PrimerPlano" type="Node2D" parent="Lateral/Capas"]
+script = ExtResource("2")
+profundidad = -700.0
+tipo = 4
+color = Color(0.05, 0.04, 0.04, 1)
+semilla = 41
+
+[node name="Niebla" type="Node2D" parent="Lateral"]
+script = ExtResource("3")
+cantidad = 6
+color = Color(0.95, 0.8, 0.6, 0.08)
+area = Rect2(-400, 500, 3700, 1000)
+
+[node name="Mirador" type="Node2D" parent="."]
+visible = false
+
+[node name="Fondo" type="Node2D" parent="Mirador"]
+
+[node name="Imagen" type="Sprite2D" parent="Mirador/Fondo"]
+scale = Vector2(2, 2)
+texture = ExtResource("5")
+centered = false
+
+[node name="NieblaFondo" type="Node2D" parent="Mirador"]
+script = ExtResource("3")
+cantidad = 6
+color = Color(0.98, 0.85, 0.65, 0.09)
+velocidad = 18.0
+area = Rect2(-400, 500, 3700, 900)
+tamano = Vector2(6, 2)
+semilla = 9
+
+[node name="Ladera" type="Node2D" parent="Mirador"]
+
+[node name="Imagen" type="Sprite2D" parent="Mirador/Ladera"]
+scale = Vector2(2, 2)
+texture = ExtResource("6")
+centered = false
+
+[node name="Proyeccion" type="Node2D" parent="Mirador/Ladera"]
+
+[node name="NieblaDelante" type="Node2D" parent="Mirador"]
+script = ExtResource("3")
+cantidad = 3
+color = Color(0.98, 0.85, 0.65, 0.05)
+velocidad = 35.0
+area = Rect2(-400, 1100, 3700, 500)
+tamano = Vector2(7, 2)
+semilla = 21
+
+[node name="Marco" type="Sprite2D" parent="Mirador"]
+scale = Vector2(2, 2)
+texture = ExtResource("7")
+centered = false
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="Aviso" type="Label" parent="Hud"]
+offset_left = 1700.0
+offset_top = 1380.0
+offset_right = 2700.0
+offset_bottom = 1460.0
+theme_override_colors/font_color = Color(0.95, 0.85, 0.7, 1)
+theme_override_font_sizes/font_size = 40
+text = "→   adentrarse en la niebla"
+horizontal_alignment = 2
+
+[node name="Texto" type="Label" parent="Hud"]
+offset_left = 60.0
+offset_top = 1500.0
+offset_right = 2800.0
+offset_bottom = 1610.0
+theme_override_colors/font_color = Color(0.85, 0.8, 0.75, 0.7)
+theme_override_font_sizes/font_size = 30
+
+[node name="Negro" type="ColorRect" parent="Hud"]
+offset_right = 2912.0
+offset_bottom = 1632.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
