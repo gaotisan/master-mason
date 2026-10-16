@@ -96,6 +96,8 @@ FRONTALES_PREFIJO = ("pt_", "ps_", "puente_")
 # sin el baston encima (decision del usuario) y arrancar/clavar lo llevan en el
 # dibujo o clavado
 SIN_BASTON |= {"tumbarse", "arrastrarse", "levantarse_tumbado", "arrancar", "clavar"}
+# y el arrastre sin salto (2026-10-15): entrada, bucle y salida
+SIN_BASTON |= {"arrastre_entrada", "arrastrarse_bucle", "arrastre_salida"}
 # Sacar y guardar de espaldas (vista frontal, como las de frente de arriba): el
 # baston va en el dibujo; medidas como de perfil daban NaN (2026-10-12, godot-e4)
 SIN_BASTON |= {"sacar_baston_espalda", "guardar_baston_espalda"}

@@ -294,6 +294,13 @@ ANIMACIONES = [
     ('tumbarse',          'magnus_tumbarse',          74, 10, 24.0, False, (460, 360), list(range(0, 74))),
     ('arrastrarse',       'magnus_tumbarse',          49, 10, 24.0, False, (460, 360), list(range(74, 123))),
     ('levantarse_tumbado', 'magnus_tumbarse',         57, 10, 24.0, False, (460, 360), list(range(123, 180))),
+    # El arrastre sin salto (2026-10-15): el de arriba partido en el c096 (entrada
+    # c075-c096 y salida c097-c123) y entre medias el bucle de un video aparte que
+    # empieza y acaba en ese c096 (raw/master_mason/anim/magnus_arrastrarse_bucle:
+    # f133-f192, dos tirones; tras el ultimo, el primero).
+    ('arrastre_entrada',  'magnus_tumbarse',          22, 10, 24.0, False, (460, 360), list(range(74, 96))),
+    ('arrastre_salida',   'magnus_tumbarse',          27, 10, 24.0, False, (460, 360), list(range(96, 123))),
+    ('arrastrarse_bucle', 'magnus_arrastrarse_bucle', 60, 10, 24.0, False, (460, 360)),
     # Tirar del sillar alto por su argolla: anda hacia atras y el sillar va con
     # las manos (el del video se ladeaba: se quito por color).
     ('tirar',             'magnus_tirar',            171, 10, 24.0, False),
@@ -342,7 +349,9 @@ def _rejilla(hoja):
 ## diferencia visible: PSNR 47 dB, ningun pixel cambia mas de 21/255) y con
 ## mipmaps (sin ellas centellea al alejar la camara). Godot crea el .import de
 ## una hoja nueva sin compresion y sin mipmaps; esto lo deja bien siempre.
-IMPORT_HOJA = {'compress/mode': '2', 'compress/high_quality': 'true', 'mipmaps/generate': 'true'}
+# sin mipmaps (2026-10-14, commit 3f36f30: memoria de video de 567 a 477 MB; a su
+# escala de siempre no hacen falta)
+IMPORT_HOJA = {'compress/mode': '2', 'compress/high_quality': 'true', 'mipmaps/generate': 'false'}
 
 
 def asegurar_import(hoja):

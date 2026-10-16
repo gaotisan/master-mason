@@ -936,12 +936,27 @@ func _quedar_tumbado(anim: String) -> void:
 	_sprite.stop()
 	_sprite.frame = int(dat["n"]) - 1
 
+## EL ARRASTRE SIN SALTO (2026-10-15; el usuario: "da un salto la animacion en
+## cada avance, al final tiene un corte"). El arrastre de antes era una brazada
+## entera del video (de tumbado a tumbado) que se repetia: se paraba en cada
+## una y del ultimo dibujo al primero habia un salto. Ahora es una accion de
+## tres tramos: arrastre_entrada (el arrastre de antes hasta su c096: de tumbado
+## arranca la brazada), arrastrarse_bucle (un video aparte que empieza y acaba
+## en ese c096: mientras se mantenga la direccion se repite, sin pararse) y
+## arrastre_salida (el arrastre de antes desde el c097: termina la brazada y se
+## tumba). Los empalmes son los del propio video viejo (ver raw/master_mason/
+## anim/magnus_arrastrarse_bucle). Sin el bucle en la tabla, como antes.
 func _tumbado() -> void:
 	var eje := Input.get_axis("mover_izquierda", "mover_derecha")
-	if not is_zero_approx(eje) and signf(eje) == _magnus.mirando() and _datos.has("arrastrarse"):
-		_corr = 0.0
-		_y_fin = _magnus.position.y
-		_bloque = null
+	if is_zero_approx(eje) or signf(eje) != _magnus.mirando():
+		return
+	_corr = 0.0
+	_y_fin = _magnus.position.y
+	_bloque = null
+	if _datos.has("arrastrarse_bucle"):
+		_al_acabar = func(): _quedar_tumbado("arrastre_salida")
+		_empezar(["arrastre_entrada", "arrastrarse_bucle", "arrastre_salida"], _magnus.mirando())
+	elif _datos.has("arrastrarse"):
 		_al_acabar = func(): _quedar_tumbado("arrastrarse")
 		_empezar(["arrastrarse"], _magnus.mirando())
 
@@ -1146,19 +1161,36 @@ func _siguiente_tramo() -> bool:
 	var resto := _t - float(dat["n"]) / _fps(_anim)
 	var paso: Array = dat["siguiente"]
 	var adelante := float(paso[0]) + (_corr if (_bloque and _k == 0) else 0.0)
-	# ciclo con salida detras (el empuje, si algun dia lo hay); el arrastre se
-	# repite tramo a tramo desde el estado tumbado
+	# ciclo con salida detras: el arrastre (EL ARRASTRE SIN SALTO) y el empuje,
+	# si algun dia lo hay. Sigue mientras se mantenga la direccion (y, empujando,
+	# mientras el sillar tenga sitio); si no, a la salida. "salidas" (el
+	# arrastre): lo que avanza el nodo hasta la salida si se sale tras ese
+	# fotograma (al pixel; la vuelta del bucle difiere en ~1 px).
 	if dat.get("bucle", false) and _k + 1 < _tramos.size():
 		var eje := Input.get_axis("mover_izquierda", "mover_derecha")
-		var sal: Dictionary = _datos[_tramos[_k + 1]]
-		_seguir = signf(eje) == _d and _hueco_delante(_bloque, _d) >= float(dat["bloque_siguiente"]) + float(sal["bloque_siguiente"])
+		if _bloque == null:
+			_seguir = signf(eje) == _d
+		else:
+			var sal: Dictionary = _datos[_tramos[_k + 1]]
+			_seguir = signf(eje) == _d and _hueco_delante(_bloque, _d) >= float(dat["bloque_siguiente"]) + float(sal["bloque_siguiente"])
+		var salidas: Dictionary = dat.get("salidas", {})
+		var ultimo := str(int(dat["n"]) - 1)
+		if not _seguir and salidas.has(ultimo):
+			adelante = float(salidas[ultimo])
 		_base.x += adelante * _d
 		if _seguir:
 			_t = resto
 			_f = -1
 			return true
 	elif _k + 1 < _tramos.size():
-		_base.x += adelante * _d
+		# antes del ciclo, sin la direccion pulsada (un toque, en el arrastre): se
+		# lo salta y va a la salida ("sin_bucle": lo que avanza hasta ella)
+		var ciclo: bool = _datos[_tramos[_k + 1]].get("bucle", false)
+		if ciclo and _bloque == null and dat.has("sin_bucle") and _k + 2 < _tramos.size() 				and signf(Input.get_axis("mover_izquierda", "mover_derecha")) != _d:
+			_base.x += float(dat["sin_bucle"][0]) * _d
+			_k += 1
+		else:
+			_base.x += adelante * _d
 	if _k + 1 >= _tramos.size():
 		_terminar()
 		return false

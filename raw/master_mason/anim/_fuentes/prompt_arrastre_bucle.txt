@@ -1,0 +1,74 @@
+ARRASTRARSE EN BUCLE
+(Google Flow, "Frames to Video", 2026-10-15; 16:9)
+=================================================
+El arrastre del juego (magnus_tumbarse c075-c123) es una brazada entera del
+video del tumbarse y al repetirse salta. El video de 2026-10-15 no sirve: se
+arrastra estirado, con otra postura, y no casa con el tumbarse ni con el
+levantarse (magnus_arrastrarse_v2/estudio.txt).
+Aqui se pide un arrastre que empiece y acabe en el MISMO fotograma de nuestro
+arrastre (c096, a mitad de brazada), el del final 380 px mas a la derecha: 4
+brazadas en 8 s, el paso del arrastre del juego. Sin parar en ningun momento,
+ni al principio ni al final (si para en los extremos, vuelve el salto).
+
+En Flow, 16:9, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_arrastre_inicio.png
+  fotograma final:   referencia_arrastre_fin.png
+(en _fuentes/ y en Descargas/referencias_peregrino_arrastre_bucle; las hace
+referencias_arrastre_bucle.py)
+
+Que mirar en cada toma:
+  - ya va arrastrandose en el primer fotograma y sigue en el ultimo: no arranca
+    ni frena, no se queda quieto tumbado
+  - la MISMA postura que el fotograma inicial todo el rato: apoyado en los
+    antebrazos, pecho y cabeza levantados; no se estira ni se aplasta contra el
+    suelo con las piernas rectas (lo que salio en el video anterior)
+  - cuatro tirones iguales y a ritmo constante; las manos no patinan
+  - de perfil todo el rato, capucha como en el fotograma, camara quieta, nada
+    encima
+  - piernas y pies oscuros (no descalzo, sin piel ni dedos)
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. The camera does not follow him: he moves inside the frame,
+from left to right. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: no shadows, no cast shadow on the ground, no floor
+line, no props, no text, no logos, no on-screen interface or player controls.
+The pilgrim stays full-body in frame, always the same size.
+
+A classic move from a 2D platform video game: the character crawls low along
+the ground, as if passing under a low gap. A seamless looping crawl cycle, calm
+and controlled.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the soft
+grey cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat. Long white beard, long brown faceted patchwork cloak in dark
+maroon, brick red, ochre, warm brown and muted grey, exactly as in the first
+frame. His legs and feet are dark, exactly as in the first frame: thin legs in
+dark hose and soft dark slippers, one single very dark brown from the hem of
+the cloak down to the tips of his feet; he is not barefoot, no bare skin and no
+toes show at any moment. His hands are empty.
+
+He keeps exactly the posture of the first frame the whole time: propped up on
+his forearms, chest and head raised, hips low, the cloak draped over his legs,
+his legs trailing behind him. He does not stretch out flat, does not lie his
+chest on the ground and does not straighten his body: his body keeps the same
+length and the same height as in the first frame.
+
+Action, one continuous take, at natural real-time speed, no slow motion: he is
+already crawling forward at a steady pace in the very first frame and is still
+crawling at the same pace in the last frame. From the first frame to the last
+he crawls to the right with four identical, evenly spaced pulls, one every two
+seconds: he reaches forward with one forearm, plants it and pulls his body
+forward while his legs push behind him, then the other forearm. His forearms
+and hands grip the ground and never slide. He never stops, never pauses between
+pulls, never slows down at the start or at the end and never lies still. The
+last frame is exactly the first frame moved to the right.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+the rustle of the cloak against the ground and the soft brush of his forearms
+on the floor; no breathing, no music, no words.

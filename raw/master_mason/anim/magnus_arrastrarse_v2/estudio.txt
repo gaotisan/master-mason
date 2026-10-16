@@ -1,0 +1,210 @@
+ARRASTRARSE v2: ESTUDIO DEL VIDEO NUEVO (2026-10-15)
+====================================================
+Video: Descargas/Character_crawling_across_floor_20261015012039.mp4
+Pregunta: sacar del video nuevo (desde el final hacia atras) un ciclo de arrastre que
+se repita sin salto y que encaje con el tumbarse y el levantarse_tumbado que ya hay,
+sin meter otro salto en la junta.
+
+VEREDICTO: NO ES VIABLE con este video (ni el ciclo ni las juntas).
+  - El mejor ciclo del video (f093..f143) tiene una costura PEOR que la del arrastre
+    actual: 2,7 pasos normales frente a 2,0, medidos igual.
+  - Su postura no es la nuestra: aqui va estirado del todo (piernas rectas detras,
+    1,3 veces mas largo); el nuestro va recogido (rodillas debajo). Las juntas
+    con tumbarse y con levantarse salen a 9-11 pasos normales: un salto tres o
+    cuatro veces mayor que la costura que queremos quitar.
+  - Ajustar el tamano no lo arregla: la escala es la misma (x1,5108). Encoger el
+    nuevo hasta el largo del viejo achicaria la capucha un 25 %.
+  - Lo que si tiene mejor: no se para en cada brazada (de f086 a f139 la cabeza
+    avanza todos los fotogramas). Pero ese tramo da solo para unas dos brazadas
+    (53 fotogramas) y va mas lento (~16 px de juego/s frente a 23).
+  Propuesta (abajo, "QUE HARIA"): pedir otro video a Flow que empiece y acabe en
+  un fotograma de NUESTRO arrastre.
+
+Todo lo de esta carpeta es estudio: no se ha tocado nada del juego ni del pipeline.
+
+1. EL VIDEO
+-----------
+  1280x720, 24 fps, 8,0 s, 192 fotogramas, h264 + audio aac (como el del tumbarse viejo).
+  Fondo de croma liso, BGR (65-67, 209-210, 48-50), ~#31D142. Es el mismo verde que
+    el del video viejo (BGR 61-65, 207-211, 43-46): fondo_paralelo.py
+    (-Tolerancia 35 -Radio 4) y pulir.py --oscuras deberian ir igual. No hay sombra
+    ni linea de suelo.
+  La camara no se mueve: el suelo esta en la misma fila todo el rato (346 en la
+    mitad), y de pie, al principio y al final, la caja sale identica fotograma a
+    fotograma.
+  Siempre cabe entero en el cuadro (x 106-480, y 139-355 de 640x360): no hay que
+    rellenar nada.
+  Fases (fotogramas del video, 1-based):
+    f001-f010  de pie, quieto
+    f011-f019  se cae de bruces (lo que no vale)
+    f019-f034  tumbado, quieto, asentandose
+    f035-f085  se mueve casi en el sitio: la cabeza avanza ~0,4 px de master por
+               fotograma y entre f055 y f086 casi nada
+    f086-f139  ARRASTRE CONSTANTE: la cabeza avanza 0,7-1,9 px de master por
+               fotograma, sin pararse; unas dos brazadas (la mano llega lo mas
+               lejos en f082, f106 y f137)
+    f140-f145  se para (la cabeza deja de avanzar e incluso recula)
+    f144-f178  se levanta, rapido (1,4 s): se empuja con las manos, mete las
+               rodillas, una pierna en el aire (f158-f166) y se pone de pie
+               reculando (el de pie acaba ~48 px de master por detras)
+    f179-f192  de pie, quieto
+  Fotogramas a la mitad (640x360, todo el video) en 01_frames_mitad/; vistas en
+  contacto_video_cada6.jpg, tira_nuevo_f016_f085.png, tira_nuevo_f086_f155.png y
+  tira_nuevo_levantarse_f140_f190.png (las rayas negras son columnas fijas del
+  video, cada 50 px de la mitad).
+
+2. ESCALA Y ROPA (escala_y_ropa.png)
+------------------------------------
+  De pie mide 416 px de video, igual que el video viejo (f003) y que todos los de
+  Flow: ESCALA x1,5108 (627 px de master), la de siempre (raiz.py sin --escala).
+  En el suelo tienen el mismo alto (~196-200 px de video) pero no el mismo largo:
+    viejo (recogido, rodillas debajo):       458-476 px de video
+    nuevo (estirado, piernas rectas detras): 592-634 px de video (x1,3)
+  Es la postura, no el tamano: la capucha y la cabeza miden lo mismo en los dos.
+  La ropa es la misma (mismo patchwork, el de la referencia). Color medio del manto
+  de pie: viejo BGR (59,71,90), nuevo (60,71,92). Tumbado el nuevo sale algo mas
+  claro (56,69,89 frente a 54,64,81: le da mas luz por arriba). Eso lo iguala
+  montar_accion.py (tono estandar).
+
+3. EL CICLO (costuras_candidatas.png)
+-------------------------------------
+  Como se mide. Los dos videos a la mitad, premultiplicados por el alfa del croma
+  y suavizados (sigma 1); el fotograma de vuelta se encaja en x/y donde menos
+  difiere (el avance de la vuelta). Costura = diferencia entre el ultimo del
+  ciclo y el de vuelta ya encajado. Se cuenta en "pasos normales" (la mediana de
+  la diferencia entre fotogramas seguidos del propio ciclo). "Local" es frente a
+  los pasos que hay justo antes y justo despues de la costura.
+  Para comprobar la medida, con ella el arrastre actual da d(c75,c124) = 1,84
+  (montar_accion.py decia 1,8). En la hoja del juego (04_acciones, con su raiz)
+  da 2,44 pasos, unas 3 veces los pasos lentos de antes de la costura: es la queja.
+
+  Arrastre ACTUAL (video viejo f077..f125, vuelve a f077):
+        costura 1,99 pasos (1,6 locales), avanza 95 px de master por vuelta, 49 fot.
+  NUEVO, los mejores (con avance en px de la mitad; x3,02 = master):
+    f093..f143 (51 fot)  costura 2,72 (3,0 locales)  d(i,j) 3,04  avance 23 = 69 master
+    f092..f143 (52 fot)  costura 2,75 (2,8 locales)               avance 24
+    f055..f117 (63 fot)  costura 2,90 (2,2 locales)               avance 21 = 63 master
+                         (pero f055-f085 es el tramo casi parado)
+    solo dentro del tramo constante (f086..f139): lo mejor es f089..f139, a 3,2
+    una sola brazada (20-35 fot): 4,7 o mas (alterna los brazos: hacen falta dos)
+  Ninguno baja de 2,0; el objetivo era 1,5 o menos. En la imagen: f143 y f093 no
+  se diferencian en las piernas sino en la espalda y la capucha (f093 va mas
+  alta) y en la mano de delante.
+  El mejor, f093..f143, ademas acaba frenando: en f140-f143 la cabeza avanza solo
+  0,2-0,6 px por fotograma, porque ahi ya se prepara para levantarse. Volveria
+  a verse el tiron en la costura.
+  Velocidad: f093..f143 avanza 69 px de master en 51 fotogramas, 16 px de juego/s.
+  El actual avanza 95 en 49, 23 px de juego/s. Es un 30 % mas lento.
+
+4. LAS JUNTAS (juntas_con_tumbarse_y_levantarse.png)
+----------------------------------------------------
+  Misma medida. Paso normal = la mediana del arrastre nuevo (f086..f142). Cada
+  junta se encaja por la capucha y luego en +-2 px.
+  a) Final de tumbarse (hoja 73 = c074 = viejo f076) -> arrastre nuevo:
+       el mas parecido de todo el video nuevo es f146, a 9,6 pasos; el inicio
+       del ciclo, f093, queda a 10,9.
+  b) Arrastre nuevo -> inicio de levantarse_tumbado (hoja 123 = c124 = viejo f126):
+       el mas parecido es f074, a 9,3 pasos; el final del ciclo, f143, a 10,9.
+  Como referencia: hoy, entre f076 y f077 hay 1,8 pasos y entre f125 y f126, 0,9.
+  Y los dos extremos actuales se parecen entre si: c074 frente a c124 da 2,5.
+  En la superposicion se ve lo que falla. El viejo tiene las rodillas y el bajo
+  del manto debajo del cuerpo (rojo); el nuevo, las piernas estiradas ~70 px de
+  la mitad mas atras (cian). Ningun fotograma del arrastre nuevo esta recogido.
+  Un fotograma de entrada o de salida del propio video no salva la diferencia:
+  solo se recoge al levantarse (f156-f168, a cuatro patas y ya alto).
+  Tambien se busco un empalme hibrido: el tumbarse viejo hasta que esta a cuatro
+  patas y, desde ahi, el levantarse nuevo al reves hasta el arrastre estirado.
+  Igual al reves: el levantarse nuevo hasta un punto y luego el viejo. Se
+  compararon f020-f076 y f126-f182 del viejo con f140-f190 del nuevo. Solo se
+  parecen de pie (0,2 pasos, de pie contra de pie, no sirve). Agachado o a
+  cuatro patas, lo mejor es viejo f050 / nuevo f150 a 3,5 pasos del levantarse
+  nuevo (que va rapido: 3,5 de los suyos son ~5,8 del arrastre). Tampoco vale.
+
+5. USAR EL VIDEO NUEVO PARA TODO (descartado, por si acaso)
+-----------------------------------------------------------
+  tumbarse = el levantarse del video nuevo al reves (f178 -> f144), arrastre =
+  ciclo f093..f143, levantarse = f144 -> f178 hacia delante.
+  La salida seria perfecta: f143 -> f144 es seguido en el video. La entrada
+  (f144 al reves -> f094) tendria el mismo salto que la costura del ciclo
+  (~2,7-3).
+  Pero ese levantarse dura 1,4 s, va rapido, recula y saca una pierna en el aire.
+  Al reves se ve como dejarse caer de golpe hacia delante: justo lo que el
+  usuario no quiere del principio del video. Y seguiria la costura de 2,7 en el
+  bucle. No lo recomiendo.
+
+6. QUE HARIA (propuesta, NO hecho)
+----------------------------------
+  Pedir a Flow ("Frames to Video", 16:9, 8 s) un arrastre cuyo primer y ultimo
+  fotograma sean el MISMO fotograma de nuestro arrastre, el ultimo corrido hacia
+  delante. Es lo que ya decia prompt_tumbarse_arrastrarse.txt ("si el arrastre
+  sale corto para hacer el bucle, se pide otro con inicio = fin = un fotograma
+  del arrastre") y lo que se hizo con el andar con el baston.
+    - Fotograma de referencia: uno de MITAD de brazada, donde el cuerpo va mas
+      deprisa, y no el tumbado quieto (con un fotograma quieto Flow arranca y
+      frena en los extremos, y volveria el parón). Candidato: c096 (viejo f098):
+      la raiz ahi avanza 4 px de master por fotograma, lo maximo del arrastre.
+    - Referencias 1920x1080 a escala de master 1:1, con el suelo como en
+      referencias_coger_tirar_tumbarse.py (pies en y=1040, croma #24D732):
+      inicio = c096 de magnus_tumbarse/04_limpios sobre croma; fin = el mismo
+      corrido 3-4 brazadas (3 x 95 = 285 o 4 x 95 = 380 px de master). Tumbado
+      y recogido ocupa ~720 px de master, asi que con 380 de avance cabe de
+      sobra en 1920.
+    - Prompt (de prompt_tumbarse_arrastrarse.txt): camara quieta, de perfil,
+      "already crawling at a steady pace from the very first frame and still
+      crawling at the last one, never stops, never pauses between pulls", tres o
+      cuatro tirones iguales, sin patinar.
+  Como se montaria, todo seguido y sin fotogramas inventados:
+    tumbarse c001-c074 -> arrastre viejo c075-c096 (una vez: arranca la brazada)
+    -> BUCLE nuevo (empieza en c096 y acaba en c096 + avance; costura ~0, la
+    pone Flow) -> arrastre viejo c097-c123 (una vez: frena y se tumba) ->
+    levantarse c124-c180.
+  Las juntas con lo viejo son las del propio video viejo (c096 -> c097
+  seguidos). La unica diferencia es lo que Flow se aparte de la referencia en el
+  primero y el ultimo, unos pocos px. Se mide al montarlo.
+  Pasos (pipeline de acciones_perfil.txt):
+    1. nuevo.ps1 -Job magnus_arrastrarse_v2 (con el video nuevo de Flow) +
+       frames.ps1 -Job magnus_arrastrarse_v2   (01_frames, 24 fps)
+    2. python raiz.py magnus_arrastrarse_v2 --desde 1 --hasta N   (escala x1,5108;
+       no hay objeto que quitar, asi que sin quitar_objeto.py). OJO: raiz.py
+       encaja el REPOSO de pie en el primero y en el ultimo. Para un arrastre hay
+       que encajar el c096 viejo (sacando el primero de c096 y el ultimo de c096
+       + avance): seria una opcion nueva, p. ej. --ref c096.
+    3. python ../fondo_paralelo.py magnus_arrastrarse_v2 ; python ../baston/pulir.py
+       --oscuras magnus_arrastrarse_v2 ; y --bolsas-verdes
+    4. montar_accion.py: una entrada nueva en ACCIONES con 'bucle'. OJO:
+       al_reposo() lleva los extremos al reposo de pie; aqui los extremos tienen
+       que ir al c096 (otra opcion, p. ej. 'ref_inicio'/'ref_fin' = 'c096', o
+       ninguna correccion). La entrada y la salida (c075-c096 y c097-c123)
+       pueden seguir saliendo de magnus_tumbarse partiendo el tramo 'arrastrarse'
+       en dos ('arrastre_entrada' 75-96 y 'arrastre_salida' 97-123).
+    5. hoja.ps1 -Job magnus_arrastrarse_v2 -Desde 04_acciones -Fps 24 -Escala 2 -Cols 10
+    6. tools/anim/_spriteframes.py (animaciones nuevas) y baston/seguir.py
+       (ACCIONES_PERFIL / SIN_BASTON, como el tumbarse); y en
+       acciones_perfil.gd, el orden entrada -> bucle -> salida.
+  Riesgos:
+    - Flow puede no clavar el avance pedido o patinar las manos: la raiz sale de
+      la silueta. Si patina mucho, raiz_por_pies no vale tumbado (hay que mirar
+      los codos).
+    - Puede volver a frenar en los extremos aunque se pida que no: mirar los
+      pasos de los 5 primeros y los 5 ultimos antes de montar.
+    - El filtro de Flow: el arrastre ya paso una vez, contado como movimiento de
+      plataformas.
+    - Si se quiere aprovechar ESTE video sin mas, lo menos malo es el ciclo
+      f093..f143 con su propio levantarse (f144-f178) y el tumbarse viejo... pero
+      la junta con el tumbarse queda a ~10 pasos. No lo recomiendo.
+
+Archivos de esta carpeta:
+  01_frames_mitad/                      los 192 fotogramas a 640x360 (15 MB)
+  contacto_video_cada6.jpg              todo el video, uno de cada 6
+  tira_nuevo_f016_f085.png              asentandose y casi en el sitio
+  tira_nuevo_f086_f155.png              arrastre constante, se para y empieza a levantarse
+  tira_nuevo_levantarse_f140_f190.png   el levantarse nuevo
+  escala_y_ropa.png                     de pie (mismo alto) y tumbados (largo distinto)
+  costuras_candidatas.png               la costura actual y las dos mejores del nuevo
+  juntas_con_tumbarse_y_levantarse.png  juntas a) y b) con superposicion
+  medidas/   los scripts de medida (desechables) y sus resultados .json:
+             extraer.py (fotogramas a la mitad), rasgos.py (capucha, pies, manos
+             por fotograma), metrica.py (la medida comun), ciclos3.py (busqueda
+             de ciclos), juntas.py (juntas), hibrido.py (empalme hibrido) y los
+             *_img.py de las imagenes. Llevan rutas absolutas y se ejecutan con
+             python -I.
