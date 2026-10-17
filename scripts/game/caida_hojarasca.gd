@@ -309,6 +309,11 @@ extends Node2D
 ## de salida_hasta de escala (entra en la bruma), el corte.
 @export var salida_escala: float = 0.98
 @export var salida_hasta: float = 0.78
+## Desde la toma de frente se puede volver al de perfil (abajo hasta la boca, o
+## los lados en ella). Apagado (2026-10-17): el paso de frente al perfil no casa
+## (el usuario: "que no pueda volver a la hojarasca, se quede ahi"); el de
+## espaldas al perfil si, pero tambien es volver.
+@export var volver_al_perfil := false
 ## Volviendo de camino_bosque, la escala a la que aparece en la bruma.
 @export var salida_entra: float = 0.7
 
@@ -1713,10 +1718,14 @@ func _crear_fantasma() -> void:
 ## misma forma"):
 ##   arriba     se adentra de espaldas; al entrar en la bruma (salida_hasta),
 ##              corte de camara a camino_bosque
-##   abajo      vuelve hacia la camara y en la boca sigue el de perfil con la
-##              segunda mitad de su giro (por el puente frente_*); de espaldas en
-##              la boca, se da la vuelta y lo mismo
-##   izq./der.  en la boca, al perfil (de espaldas, por la vuelta del de frente)
+##   abajo      vuelve hacia la camara y se para en la boca, de frente, y de ahi
+##              no pasa: no se vuelve a la hojarasca (el usuario, 2026-10-17: el
+##              paso de frente al perfil "no funciona", "que se quede ahi"); de
+##              espaldas en la boca, se da la vuelta y lo mismo. Con
+##              volver_al_perfil, como antes: en la boca sigue el de perfil con la
+##              segunda mitad de su giro (puente frente_*)
+##   izq./der.  nada (con volver_al_perfil: en la boca, al perfil; de espaldas,
+##              por la ida al reves)
 ##   B          saca o guarda el baston (con sus animaciones de frente/espaldas)
 ## Se entra desde el perfil en la boca: la primera vez solo, al llegar andando
 ## (el usuario: "la primera vez que se meta solo en el camino, que no haga falta
@@ -1913,25 +1922,42 @@ func _camino_tick() -> void:
 		_entra_ref = lerpf(salida_escala, _parada_e, u)
 		f.scale = Vector2(_frontal_dir, 1.0) * lerpf(1.0, salida_escala / _parada_e, u)
 		if est == "reposo":
-			_al_perfil()
+			if volver_al_perfil:
+				_al_perfil()
+			else:
+				_parando = false
 		return
 	# de espaldas en la boca, abajo: la vuelta (y quieto de frente, al perfil)
 	if _volviendo:
 		f.set("quiere", "frente" if est == "reposo" and mira == "espalda" else "")
 		if est == "reposo" and mira == "frente":
-			_al_perfil()
+			if volver_al_perfil:
+				_al_perfil()
+			else:
+				_volviendo = false
 		return
 	if en_boca and est == "reposo":
 		if mira == "frente" and (quiere == "frente" or lado != 0.0):
-			_al_perfil()
+			# de frente en la boca: de ahi no pasa (sin volver_al_perfil)
+			if volver_al_perfil:
+				_al_perfil()
+			else:
+				f.set("quiere", "")
 			return
 		if mira == "espalda" and quiere == "frente":
 			_volviendo = true
 			f.set("quiere", "frente")
 			return
 		if mira == "espalda" and lado != 0.0 and quiere == "":
-			_al_perfil()
+			if volver_al_perfil:
+				_al_perfil()
 			return
+	# sin volver_al_perfil, de frente no pasa de la boca: parado cerca de ella (la
+	# parada prevista lo deja algo antes: medido 0,92-0,95) no vuelve a arrancar
+	# hacia la camara, y andando, por si la parada no llega a tiempo, tampoco mas alla
+	if not volver_al_perfil and mira == "frente" and quiere == "frente" 			and (e >= salida_escala + 0.02 or (est == "reposo" and e >= salida_escala - 0.07)):
+		f.set("quiere", "")
+		return
 	if quiere == "frente" and mira == "frente" and est == "andar":
 		var prev := _prever_parada(f)
 		if not prev.is_empty() and absf(float(prev[0]) - salida_escala) <= absf(float(prev[1]) - salida_escala) \

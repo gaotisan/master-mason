@@ -168,7 +168,10 @@ def hacer(nombre, cfg):
         ma = semejanza(pos_a, pos_b, s)
         mb = inversa(pos_a, pos_b, s)
         vb = M.suave((t - 0.2) / 0.6)
-        baston = (1 - vb) * mover(A_b, ma) + vb * mover(B_b, mb)
+        # los dos bastones opacos, uno encima del otro (el que va ganando, arriba):
+        # fundidos a medias el palo se veia tenue y doble
+        ba_, bb_ = mover(A_b, ma) * min(1.0, 2.0 * (1 - vb)), mover(B_b, mb) * min(1.0, 2.0 * vb)
+        baston = M.sobre(ba_, bb_) if vb < 0.5 else M.sobre(bb_, ba_)
         # lo de delante solo cerca de cada extremo: a medio camino el baston va por
         # detras (si no, el tramo del hombro de B rayaba la capucha)
         dl = ((1 - vb) * (1 - M.suave(t / 0.3)) * mover(A_d, ma)
