@@ -266,6 +266,7 @@ var _garra_fundiendo := false     # y la garra pegada (andar_frente) se desvanec
 var _pisada: AudioStreamPlayer2D
 var _ultima_pisada := ""
 var _a_perfil := false            # girar_a_perfil pedido: a la vuelta y parar en el perfil
+var _perfil_en := -1              # y en que fotograma de la vuelta (-1: el del perfil exacto)
 var _mat_madera: ShaderMaterial   # copias del material de la raiz para el baston a la espalda
 var _mat_delante: ShaderMaterial
 var _mat_funda: ShaderMaterial
@@ -466,8 +467,11 @@ func girar_desde_perfil(hacia := "espalda", desde := -1) -> void:
 ## la vuelta sin pararse (los puentes de siempre). Con baston y sin el. Vale
 ## mirando de frente (la vuelta hacia delante) y de espaldas (hacia atras).
 ## Mientras, `quiere` no manda; girar_desde_perfil() lo saca de ahi.
-func girar_a_perfil() -> void:
+## `hasta`: el fotograma de la vuelta en que parar (el de un puente al de
+## perfil, PuentePerfil); si no se da, el del perfil exacto.
+func girar_a_perfil(hasta := -1) -> void:
 	_a_perfil = true
+	_perfil_en = hasta
 
 
 ## El fotograma de la vuelta del perfil exacto (giro_vuelta mas cerca de 90).
@@ -745,7 +749,7 @@ func _cb_paso(quiere: String) -> void:
 			_cb = "reposo"
 			_poner_anim(String(_acciones[anim]["a"]), 0)
 		"vuelta":
-			if _a_perfil and _sprite.frame == _fotograma_perfil():
+			if _a_perfil and _sprite.frame == (_perfil_en if _perfil_en >= 0 else _fotograma_perfil()):
 				_a_perfil = false
 				_cb = "perfil"
 				en_perfil.emit()

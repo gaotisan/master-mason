@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/camino_bosque.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/world/camino_bosque/fondo.png" id="2"]
@@ -12,7 +12,6 @@
 [ext_resource type="Script" path="res://scripts/game/motas_luz.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/game/pajaro_lejano.gd" id="11"]
 [ext_resource type="Script" path="res://scripts/game/hojas_copa.gd" id="12"]
-[ext_resource type="AudioStream" path="res://assets/audio/musica_camino_bosque.ogg" id="13"]
 [ext_resource type="Script" path="res://scripts/game/emu_camino.gd" id="14"]
 [ext_resource type="Shader" path="res://scripts/game/emu_camino.gdshader" id="15"]
 [ext_resource type="AudioStream" path="res://assets/audio/emu_camino.ogg" id="16"]
@@ -93,6 +92,3 @@ z_index = 6
 script = ExtResource("10")
 mascara = ExtResource("7")
 
-[node name="Musica" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("13")
-volume_db = -60.0

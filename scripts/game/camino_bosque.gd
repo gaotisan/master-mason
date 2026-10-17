@@ -21,9 +21,12 @@ extends Node2D
 ##
 ## SONIDO. Musica de fondo en bucle (assets/audio/musica_camino_bosque.ogg, de
 ## raw/master_mason/audio/camino_bosque/construye.py): entra con la imagen y,
-## cuando el sol se abre paso, sube un pelin. El viento de siempre
-## (WindAmbience) aqui se apaga (bosque cerrado; el usuario queria descansar de
-## el): se funde a silencio al entrar. Las rachas siguen viendose en la copa.
+## cuando el sol se abre paso, sube un pelin. La lleva MusicAmbience: es la
+## misma que suena en la hojarasca desde que se coge el baculo y sigue por el
+## corte sin empezar de nuevo (2026-10-16); aqui solo se lleva a musica_db. El
+## viento de siempre (WindAmbience) aqui se apaga (bosque cerrado; el usuario
+## queria descansar de el): es lo que cambia con el corte. Las rachas siguen
+## viendose en la copa.
 ##
 ## SACUDIDA. sacudir() da un golpe de camara que se amortigua (el emu al pasar
 ## rozando): mueve camara, asi que tiembla todo con su paralaje.
@@ -71,19 +74,22 @@ const PartidaHechos := preload("res://scripts/game/partida.gd")
 @export var sin_emu_espera := 1.2
 ## Lo que tarda el fundido a negro al llegar delante.
 @export var negro_s := 1.6
-## Lo que tarda en irse la musica antes del corte a la escena de antes (la de
-## alli es otra: cortada en seco sonaba a golpe).
+## Lo que sigue andando por la bruma antes del corte a la escena de antes (antes
+## se iba la musica en ese rato; ahora sigue, ver SONIDO).
 @export var corte_musica_s := 0.6
 
 @export_group("Sonido")
 ## Nivel de la musica (dB) y lo que sube con el claro de sol a tope.
 @export var musica_db := -20.0
 @export var musica_claro_db := 1.5
-## Segundos que tarda la musica en entrar.
+## Segundos que tarda la musica en entrar (o, si ya sonaba en la hojarasca, en
+## llegar a musica_db: alli va mas alta, con el viento).
 @export var musica_entrada := 6.0
 ## Nivel del viento en esta escena: apagado (el ogg es muy bajo; en la
-## hojarasca va a +9). Se funde a este nivel al entrar.
+## hojarasca va a +9). Se funde a este nivel al entrar: en musica_entrada s
+## desde negro, en viento_corte s tras un corte de camara (que se note el sitio).
 @export var viento_db := -80.0
+@export var viento_corte := 1.5
 ## Golpe de camara: px en lo mas cercano y lo que tarda en amortiguarse (s).
 @export var sacudida_px := 10.0
 @export var sacudida_s := 0.7
@@ -136,7 +142,6 @@ const PartidaHechos := preload("res://scripts/game/partida.gd")
 @onready var _fondo: Sprite2D = $Fondo
 @onready var _aire_vista: SubViewport = $AireVista
 @onready var _aire: ColorRect = $AireVista/Aire
-@onready var _musica: AudioStreamPlayer = $Musica
 
 var brisa := 0.45
 ## Desplazamiento de la camara (px en lo mas cercano) y acercamiento: lo leen
@@ -174,7 +179,6 @@ var _viento_cerca := Vector2.ZERO
 var _mascara_viento: Image
 var _ruido_img: Image
 var _param := {}
-var _musica_nivel := 0.0   # 0..1 de la entrada
 var _cargando_anterior := false
 var _sacudida := 0.0
 var _c_inicio := -100.0
@@ -209,21 +213,17 @@ func _ready() -> void:
 		var nodo := get_node_or_null(n)
 		if nodo:
 			nodo.set("controlador", self)
-	# Musica en bucle, desde silencio; y el viento a su nivel de escena.
-	var pista := _musica.stream as AudioStreamOggVorbis
-	if pista:
-		pista.loop = true
-	_musica.volume_db = -60.0
-	_musica.play()
-	var entra := create_tween()
-	entra.tween_property(self, "_musica_nivel", 1.0, musica_entrada).set_delay(0.4)
-	var viento := get_node_or_null("/root/WindAmbience")
-	if viento:
-		viento.fade_to(viento_db, musica_entrada)
 	# viniendo por el camino de otra escena: corte de camara, sin negro (el
 	# usuario: corte "para darle continuidad al mundo")
-	if str(Estado.leer(get_tree()).get("viene_de", "")) != "":
+	var corte := str(Estado.leer(get_tree()).get("viene_de", "")) != ""
+	if corte:
 		fundido_entrada = 0.0
+	# Musica en bucle (desde silencio o, tras el corte, la que ya sonaba); y el
+	# viento a su nivel de escena.
+	MusicAmbience.sonar_camino(musica_db, musica_entrada, 0.0 if MusicAmbience.camino_sonando() else 0.4)
+	var viento := get_node_or_null("/root/WindAmbience")
+	if viento:
+		viento.fade_to(viento_db, viento_corte if corte else musica_entrada)
 	if fundido_entrada > 0.0:
 		var negro := ColorRect.new()
 		negro.color = Color.BLACK
@@ -268,7 +268,7 @@ func _a_negro() -> Tween:
 	add_child(negro)
 	var tw := create_tween().set_parallel()
 	tw.tween_property(negro, "modulate:a", 1.0, negro_s).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tw.tween_property(self, "_musica_nivel", 0.0, negro_s).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	MusicAmbience.apagar_camino(negro_s)
 	return tw
 
 ## Delante: a negro y ahi se queda (aun no hay la escena de la camara de detras).
@@ -281,14 +281,12 @@ func _cargar_anterior() -> void:
 		_cargando_anterior = true
 		ResourceLoader.load_threaded_request(escena_anterior)
 
-## Se aleja hacia la bruma: corte a la escena de antes (la musica se va un
-## momento antes). Si la carga aun no ha acabado, sigue andando mientras; si
-## tarda, a negro.
+## Se aleja hacia la bruma: corte a la escena de antes (la musica sigue). Si la
+## carga aun no ha acabado, sigue andando mientras; si tarda, a negro.
 func _volver() -> void:
 	if escena_anterior == "":
 		return
 	_cargar_anterior()
-	create_tween().tween_property(self, "_musica_nivel", 0.0, corte_musica_s).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	var t := 0.0
 	var negro := false
 	while t < corte_musica_s or ResourceLoader.load_threaded_get_status(escena_anterior) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
@@ -488,8 +486,7 @@ func _mover_camara() -> void:
 
 func _subir_parametros() -> void:
 	_mover_camara()
-	# La entrada va en lineal de amplitud (en dB arrancaria de golpe).
-	_musica.volume_db = musica_db + musica_claro_db * claro + linear_to_db(maxf(_musica_nivel, 0.001))
+	MusicAmbience.camino_extra_db = musica_claro_db * claro
 	var agitacion := PackedFloat32Array()
 	var media := 0.0
 	for i in MUELLES:
