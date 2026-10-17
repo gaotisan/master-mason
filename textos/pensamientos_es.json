@@ -11,5 +11,11 @@
 
 	"baculo": ["Lo conozco. ¿Ha venido a buscarme?"],
 
-	"camino": ["Se ha apagado al tocarlo.\nPero la luz ha dejado un camino."]
+	"camino": ["Se ha apagado al tocarlo.\nPero la luz ha dejado un camino."],
+
+	"baculo_mano": ["Algo se me escapa por las manos.\nCon él así, solo puedo caminar."],
+
+	"baculo_espalda": ["A la espalda apenas lo siento.\nEl cuerpo vuelve a ser mío."],
+
+	"no_volver": ["Me retiene. ¿Es el báculo?\nNo quiere que vuelva atrás."]
 }

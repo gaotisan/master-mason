@@ -566,6 +566,7 @@ var _parada_inv := 0.0
 var _volviendo := false                 # en la boca de espaldas, abajo: se da la vuelta y al perfil
 var _al_perfil_ya := false              # pasando al de perfil
 var _cortando := false                  # ya va el corte a camino_bosque
+var _entrando := false                  # entrando desde el perfil: se adentra solo, sin mando
 var _frontal_dir := 1.0                 # el de frente espejado (-1) o no
 var _sec_frontal: Dictionary = {}       # secuencia_frontal[_sin].json (los pies juntos de cada andar)
 var _salida_carga := false              # camino_bosque pedida en segundo plano
@@ -715,6 +716,7 @@ func _soplar(delta: float) -> void:
 	_detras.viento_arriba = camino_levante * _levante
 
 func _process(delta: float) -> void:
+	_vigilar_ensena(delta)
 	_soplar(delta)
 	_animar_a_explorar(delta)
 	# Con racha caen mas hojas de arriba.
@@ -1290,29 +1292,139 @@ func _acabar_coger() -> void:
 	PARTIDA.marcar(get_tree(), "hojarasca_resuelta")
 	# al caer con el, lo piensa (el sendero ya esta encendido)
 	get_tree().create_timer(0.8).timeout.connect(_pensar.decir.bind("camino"))
+	_empezar_ensena_baston()
 	# y la camara vuelve sola a lo de siempre
 	var cam := create_tween().set_parallel()
 	cam.tween_property(self, "_cine_lado", 0.0, final_vuelve).set_trans(Tween.TRANS_SINE).set_delay(1.2)
 	cam.tween_property(self, "_cine_zoom", 0.0, final_vuelve).set_trans(Tween.TRANS_SINE).set_delay(1.2)
 
-## B: sacar o guardar el baston a voluntad en cuanto lo tiene (el usuario,
-## 2026-10-14; la misma tecla que en piloto_baston.gd). De parado, con la
+## ENSENAR A GUARDAR EL BACULO (2026-10-17; el usuario: que se note que con el
+## en la mano le saca algo por las manos y solo le deja andar, y ensenar ahi la
+## tecla para guardarlo). Con el baston en la mano no se salta ni se corre
+## (baston.gd, PASO_MANO); si se intenta saltar, el pie del baculo da en el suelo
+## (guion 1.8: golpe seco, unas hojas y polvo; sin animacion nueva), siempre. La
+## primera vez que lo intenta (saltar, o el doble toque de correr), o si a los
+## ensena_baston_espera s de tener el mando no lo ha intentado, piensa
+## "baculo_mano" y debajo del pensamiento sale la tecla del baston pulsandose
+## (KeyPrompt, la de la intro). Al pulsarla destella y se va; ya guardado piensa
+## "baculo_espalda". Una vez por partida (Partida "baston_aprendido").
+@export_group("Ensenar a guardar el baculo")
+@export var ensena_baston_espera: float = 14.0
+@export var golpe_baculo_db: float = -9.0
+@export var golpe_baculo_tono: float = 1.6
+## Donde da el pie del baculo, por delante de los pies (px).
+@export var golpe_baculo_dx: float = 55.0
+@export var tecla_tam: float = 170.0
+## La base de la tecla, por debajo del centro del pensamiento (px de pantalla).
+@export var tecla_bajo_texto: float = 400.0
+@export_group("")
+
+const KEY_PROMPT := preload("res://scenes/tutorial/key_prompt.tscn")
+var _ensena := 0                  # 0 nada, 1 en la mano sin aprender, 2 con la tecla a la vista, 3 aprendido
+var _ensena_t := 0.0
+var _ensena_tecla: KeyPrompt
+var _ensena_lado := {}            # accion de direccion -> _ensena_t de su ultima pulsacion (doble toque)
+
+func _empezar_ensena_baston() -> void:
+	_ensena = 3 if PARTIDA.ya(get_tree(), "baston_aprendido") else 1
+	_ensena_t = 0.0
+
+## Con el baston en la mano, de pie, con el mando y fuera de la boca del camino
+## (ahi saltar es entrar en el).
+func _con_baston_en_mano() -> bool:
+	return _baston_mano != null and bool(_baston_mano.get("en_mano")) and not _cogiendo \
+		and not _en_camino and not _en_boca and not _magnus.control_bloqueado and not _magnus.en_el_aire()
+
+func _input(event: InputEvent) -> void:
+	if not _con_baston_en_mano():
+		return
+	var intenta := false
+	if event.is_action_pressed("saltar") and not event.is_echo():
+		_golpe_del_baculo()
+		intenta = true
+	for lado in [&"mover_izquierda", &"mover_derecha"]:
+		if event.is_action_pressed(lado) and not event.is_echo():
+			if _ensena_t - float(_ensena_lado.get(lado, -10.0)) <= 0.3:
+				intenta = true
+			_ensena_lado[lado] = _ensena_t
+	if intenta and _ensena == 1:
+		_mostrar_ensena()
+
+## El pie del baculo contra el suelo: unas hojas saltan, un poco de polvo y un
+## golpe seco (el sordo de la hojarasca, mas agudo y bajo).
+func _golpe_del_baculo() -> void:
+	var x: float = _magnus.position.x + float(_magnus.mirando()) * golpe_baculo_dx
+	for capa in [_delante, _detras]:
+		for h in capa.tomar(x - 22.0, x + 22.0, 3, 1, 0.8):
+			capa.lanzar(h, Vector2(randf_range(-170.0, 170.0), -randf_range(140.0, 340.0)))
+	_polvo_paso.position = Vector2(x, 1192.0)
+	_polvo_paso.amount = 6
+	_polvo_paso.restart()
+	_sonar($SonidoGolpe, golpe_baculo_db, golpe_baculo_tono * randf_range(0.96, 1.04))
+
+func _mostrar_ensena() -> void:
+	_ensena = 2
+	_pensar.decir("baculo_mano", true)
+	var capa := CanvasLayer.new()
+	capa.layer = 15
+	add_child(capa)
+	_ensena_tecla = KEY_PROMPT.instantiate()
+	_ensena_tecla.key_size_px = tecla_tam
+	_ensena_tecla.setup(&"baston")
+	# debajo del pensamiento: en el lado contrario al peregrino (pensamientos.gd)
+	var caja: Vector2 = _pensar.caja_derecha if _magnus.position.x < ANCHO * 0.5 else _pensar.caja_izquierda
+	_ensena_tecla.position = Vector2((caja.x + caja.y) * 0.5, float(_pensar.y_centro) + tecla_bajo_texto)
+	capa.add_child(_ensena_tecla)
+	_ensena_tecla.appear(true)
+
+## Quita la tecla: con destello si la ha pulsado; si no, se desvanece.
+func _quitar_tecla(acierto: bool) -> void:
+	if _ensena_tecla == null:
+		return
+	var t := _ensena_tecla
+	_ensena_tecla = null
+	t.finished.connect(t.get_parent().queue_free, CONNECT_ONE_SHOT)
+	if acierto:
+		t.succeed(true)
+	else:
+		t.disappear()
+
+## Cada fotograma: la espera hasta ensenarlo y, ya guardado, lo aprendido.
+func _vigilar_ensena(delta: float) -> void:
+	if _ensena == 0 or _ensena == 3:
+		return
+	_ensena_t += delta
+	if _ensena == 1 and _ensena_t >= ensena_baston_espera and _con_baston_en_mano() and not _pensar.hablando():
+		_mostrar_ensena()
+	if _ensena == 2 and (_en_boca or _en_camino):
+		_quitar_tecla(false)
+	if _baston_mano != null and not bool(_baston_mano.get("en_mano")):
+		_quitar_tecla(true)
+		_ensena = 3
+		PARTIDA.marcar(get_tree(), "baston_aprendido")
+		get_tree().create_timer(0.6).timeout.connect(_pensar.decir.bind("baculo_espalda"))
+
+## La tecla del baston (accion "baston": Q o Z, ver Teclas): sacar o guardar el
+## baston a voluntad en cuanto lo tiene (el usuario, 2026-10-14). De parado, con la
 ## animacion de sacar o guardar; andando, en el sitio (baston.gd: alternar_mano).
 ## Con el baculo clavado no hace nada: el nodo de las acciones, que la ve antes,
 ## se la queda.
 func _unhandled_input(event: InputEvent) -> void:
-	var k := event as InputEventKey
-	if k == null or not k.pressed or k.echo or k.keycode != KEY_B:
+	if not event.is_action_pressed("baston") or event.is_echo():
 		return
 	if _en_camino:
-		# en el camino, el de frente (saca o guarda con su animacion)
-		if _frontal and not _cortando and not _al_perfil_ya:
+		# en el camino, el de frente (saca o guarda con su animacion); entrando
+		# solo desde el perfil, nada: va sin mando hasta el corte
+		if _frontal and not _cortando and not _al_perfil_ya and not _entrando:
 			get_viewport().set_input_as_handled()
 			_frontal.call("pulsar_baston")
 		return
 	if _baston_mano == null or not _baston_mano.get("puesto") or _cogiendo:
 		return
 	get_viewport().set_input_as_handled()
+	# la tecla ensenada: destella al pulsarla (lo aprendido, al acabar de guardarlo)
+	if _ensena == 2 and bool(_baston_mano.get("en_mano")):
+		_quitar_tecla(true)
 	_baston_mano.call("alternar_mano")
 
 ## La luz de la escena sobre el baston a la espalda (2026-10-14; el usuario: "al
@@ -1741,8 +1853,9 @@ func _crear_fantasma() -> void:
 ## Se entra desde el perfil en la boca: la primera vez solo, al llegar andando
 ## (el usuario: "la primera vez que se meta solo en el camino, que no haga falta
 ## darle a arriba, luego ya normal"), y luego con arriba (ahi no salta:
-## salto_bloqueado). Se para donde este, se da la vuelta de espaldas y se queda
-## en posicion. Volviendo de camino_bosque aparece en la bruma (salida_entra) de
+## salto_bloqueado). Se para donde este, se da la vuelta de espaldas (por el
+## puente de PuentePerfil) y sigue solo, sin mando, hasta el corte (_entrando; el
+## usuario, 2026-10-17). Volviendo de camino_bosque aparece en la bruma (salida_entra) de
 ## frente y quieto; si llega con arriba pulsada (la que lo metio en la bruma
 ## alli), anda hacia la camara hasta soltarla: tras el corte de camara la tecla
 ## que se mantiene sigue llevandolo hacia donde iba.
@@ -1803,6 +1916,9 @@ func _entrar_al_camino() -> void:
 	f.set_process(true)
 	f.visible = true
 	_al_perfil_ya = false
+	# y sigue solo hacia el camino, sin mando, hasta el corte (el usuario,
+	# 2026-10-17: girarse ya es la decision; volver de frente al perfil no se puede)
+	_entrando = true
 
 ## El de perfil, quieto, lleva su respiracion al fotograma f del reposo por el
 ## camino corto, a 24 fps (exhala o inspira deprisa; 0,2-0,3 s como mucho): de
@@ -1877,6 +1993,7 @@ func _crear_frontal(con_baston: bool, escala: float, dir: float, pies0: Vector2)
 	_al_perfil_ya = false
 	_cortando = false
 	_lado_suelto = false
+	_entrando = false
 	_sec_frontal.clear()
 	for con in [true, false]:
 		_sec_frontal[con] = JSON.parse_string(FileAccess.open("res://assets/characters/magnus/secuencia_frontal%s.json"
@@ -1924,6 +2041,9 @@ func _camino_tick() -> void:
 		f.set("quiere", "espalda")
 		_cortar_a_camino()
 		return
+	if _entrando:
+		f.set("quiere", "espalda")
+		return
 	var en_boca := e >= salida_escala - 0.02
 	# de frente hacia la boca: se para en ella; mientras, la boca y el tamano se
 	# ajustan a donde se va a parar (ver _prever_parada) y alli, al perfil
@@ -1949,11 +2069,12 @@ func _camino_tick() -> void:
 		return
 	if en_boca and est == "reposo":
 		if mira == "frente" and (quiere == "frente" or lado != 0.0):
-			# de frente en la boca: de ahi no pasa (sin volver_al_perfil)
+			# de frente en la boca: de ahi no pasa (sin volver_al_perfil), y lo piensa
 			if volver_al_perfil:
 				_al_perfil()
 			else:
 				f.set("quiere", "")
+				_pensar.decir("no_volver")
 			return
 		if mira == "espalda" and quiere == "frente":
 			_volviendo = true
@@ -1968,6 +2089,8 @@ func _camino_tick() -> void:
 	# hacia la camara, y andando, por si la parada no llega a tiempo, tampoco mas alla
 	if not volver_al_perfil and mira == "frente" and quiere == "frente" 			and (e >= salida_escala + 0.02 or (est == "reposo" and e >= salida_escala - 0.07)):
 		f.set("quiere", "")
+		if est == "reposo":
+			_pensar.decir("no_volver")
 		return
 	if quiere == "frente" and mira == "frente" and est == "andar":
 		var prev := _prever_parada(f)
