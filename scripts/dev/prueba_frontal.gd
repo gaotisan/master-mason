@@ -81,7 +81,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_ESCAPE: get_tree().quit()
 		KEY_R: _peregrino.reiniciar()
 		KEY_Z: _zoom = (_zoom + 1) % ZOOMS.size()
-		KEY_B: _peregrino.cambiar_baston(not _peregrino.lleva_baston)
+		KEY_B: _peregrino.pulsar_baston()
 		KEY_M: _peregrino.gastar(0.25)
 		KEY_C: _peregrino.color += 1
 

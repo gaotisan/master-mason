@@ -75,3 +75,23 @@ MONTAJE
       (casilla 332x452; a veces se cuelga en _margenes.py con la hoja ya escrita)
   tools/anim/_spriteframes.py (este job en lugar del de B) y --import
 05_salida: arreglo_veo_vs_nuevo_24fps.mp4 y _6fps.mp4 (30-89; Veo a la izquierda).
+
+EL BACULO MAS GORDO EN LA CORREA (2026-10-16)
+---------------------------------------------
+El usuario: al guardar de espaldas el baculo "se hace algo mas gordo y se guarda, y
+luego adelgaza" (y al reves al sacar); le gusta el delgado (el de la escena).
+Causa: las capas que pinta la escena (capa_espalda.gd: baston_en_correa.png,
+funda_vacia_reposo_espalda.png, capas/correa_vacia_*.png) se capturaban sobre fondo
+transparente y la mezcla de Godot dejaba los bordes casi negros (luminancia 3 con
+alfa 10-60, 76 dentro). Pegadas en los videos, el palo y la correa llevaban un
+contorno oscuro y se veian mas gruesos; al acabar, la escena los pinta sin el.
+Arreglo: capa_espalda.gd pinta sobre negro y sobre blanco y saca alfa y color
+exactos; de espaldas, el baston con baston_espalda_master.png a media escala (con
+fix_alpha_edges, como al importar) en vez de la de hoja ampliada. Las cuatro capas
+rehechas (mismo alfa, solo cambia el color del borde) y todo el montaje otra vez.
+Ademas, el halo del orbe: en la animacion la bola va detras del sprite (como en la
+mano) y en la espalda delante, y la capucha se encendia de golpe al acabar
+(peregrino_frontal.gd, _halo_de_espaldas: una copia de solo el halo delante, con la
+mascara del baston, que entra segun la escala de la bola).
+Salto al acabar el guardar (px que cambian mas de 30): 2860 -> 83; al empezar el
+sacar: 2959 -> 371 (lo de un fotograma normal de la animacion).

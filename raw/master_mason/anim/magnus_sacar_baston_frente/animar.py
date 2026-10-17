@@ -126,10 +126,37 @@ def suave(v, veces=2):
     return v
 
 
-def bola_video(job, a, b):
-    """Posicion de la bola en los fotogramas a..b del video (px de master de la casilla)."""
+def bola_video(job, a, b, mano_antes=None):
+    """Posicion de la bola en los fotogramas a..b del video (px de master de la casilla).
+
+    (2026-10-17) garra.json se siguio en dos tramos, cada uno desde su extremo: el de
+    la mano (bola de la referencia con el baston en la mano) y el de la espalda (bola
+    de la escena, que encaja en la garra de baston.png, mas grande que la del video).
+    No casan: en el tramo de espalda la bola iba 15-17 px de master MAS BAJA que la
+    garra del video (el usuario: "se cae del receptaculo de garras" al final del
+    guardar), y el hueco de en medio (la garra por detras de la capucha) se
+    interpolaba en recta. Ahora, con mano_antes (True: la mano en los primeros
+    fotogramas, el guardar; False: en los ultimos, el sacar), el hueco se sigue desde
+    el lado de la mano (garra.seguir) y el tramo de espalda se corrige con lo que
+    difieren en la costura; los puentes llevan la bola de ahi a la de la escena,
+    mientras la garra del video pasa a la de la escena."""
     g = {int(k): v for k, v in json.load(open(os.path.join(ANIM, job, 'garra.json'))).items()}
     ks = list(range(a, b + 1))
+    hueco = [k for k in ks if k not in g]
+    if mano_antes is not None and hueco:
+        h0, h1 = min(hueco), max(hueco)
+        if mano_antes:
+            k0, sigue, costura = h0 - 1, list(range(h0, h1 + 5)), list(range(h1 + 1, h1 + 5))
+        else:
+            k0, sigue, costura = h1 + 1, list(range(h1, h0 - 5, -1)), list(range(h0 - 4, h0))
+        t = G.seguir(job, sigue, G.madera(G.celda(job, k0)), g[k0][:2])
+        d = np.mean([np.array(t[k][:2]) - np.array(g[k][:2]) for k in costura], axis=0)
+        print('%s: hueco %d-%d seguido desde la mano; tramo de espalda corregido %s px' % (job, h0, h1, np.round(d, 1)))
+        for k in hueco:
+            g[k] = list(t[k])
+        for k in list(g):
+            if (mano_antes and k > h1) or (not mano_antes and k < h0):
+                g[k] = [g[k][0] + d[0], g[k][1] + d[1]] + list(g[k][2:])
     con = [k for k in ks if k in g]
     xs = np.interp(ks, con, [g[k][0] for k in con]); ys = np.interp(ks, con, [g[k][1] for k in con])
     return np.stack([suave(xs), suave(ys)], 1)
@@ -165,7 +192,7 @@ if __name__ == '__main__':
         frames = [mezcla(R0, V0, k / (N_ENTRA + 1)) for k in range(1, N_ENTRA + 1)]
         frames += [V[k] for k in range(a, b + 1)]
         frames += [mezcla(V1, R1, k / (N_SALE + 1)) for k in range(1, N_SALE + 1)]
-        pv = bola_video(job, a, b)
+        pv = bola_video(job, a, b, mano_antes=nombre.startswith('guardar'))
         p_ent = [np.array(ent[2]) + (pv[0] - np.array(ent[2])) * k / (N_ENTRA + 1) for k in range(1, N_ENTRA + 1)]
         p_sal = [pv[-1] + (np.array(sal[2]) - pv[-1]) * k / (N_SALE + 1) for k in range(1, N_SALE + 1)]
         pos = np.array(p_ent + list(pv) + p_sal)

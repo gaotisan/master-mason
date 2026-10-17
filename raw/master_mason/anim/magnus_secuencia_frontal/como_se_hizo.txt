@@ -273,3 +273,13 @@ pegado a una pierna, por la madera) en gris, y la bota (los ultimos 40 px de cad
 con un paso de 5) en marron, quitando el detalle fino (las rayas de los dedos) y dejando
 el volumen. Va en secuencia.py (los dos modos), en magnus_sacar_baston_frente/animar.py y
 en el de espaldas; los json de la escena no cambian (comprobado: identicos).
+
+LA BOLA EN LA VUELTA CON BASTON (2026-10-17)
+--------------------------------------------
+El usuario: al girar con el baston "la bola se vuelve transparente, deja verse el
+azul de la capucha". En vuelta_cb 7-14 la garra pasa por delante de la cara y su
+hueco deja ver la capucha; la bola va detras del sprite y la capucha la tapaba.
+garra_vuelta.py saca de esos fotogramas los dedos de la garra dentro del disco de
+la bola (por saturacion: la capucha y la barba son grises) y PeregrinoFrontal pone
+ahi una esfera sin halo delante del cuerpo y esos dedos encima
+(assets/characters/magnus/vuelta_garra/ y vuelta_garra.json).

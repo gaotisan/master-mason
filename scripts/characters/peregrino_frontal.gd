@@ -13,7 +13,9 @@ extends Node2D
 ## LO MANDA LA ESCENA: cada fotograma pone `quiere` ("frente" = hacia la camara,
 ## "espalda" = alejandose, "" = parado), como si fueran las teclas; el doble toque
 ## (correr) lo detecta el componente con esos cambios. cambiar_baston(si) saca o
-## guarda (andando, termina el paso y se para antes). gastar(cuanto) gasta magia.
+## guarda (andando, termina el paso y se para antes); pulsar_baston() es la tecla
+## (lo contrario de lo que vaya a llevar; durante la animacion, se apunta para
+## despues). gastar(cuanto) gasta magia.
 ## girar_desde_perfil() empieza la vuelta en el perfil y girar_a_perfil() la
 ## hace hasta el perfil y se queda ahi (emite en_perfil): para empalmar con el
 ## de perfil, magnus.tscn, en los dos sentidos.
@@ -279,6 +281,18 @@ var _de_espaldas := false         # el baston a la espalda se ve de espaldas (ba
 var _textura_espaldas := false    # la que tiene puesta Madera ahora
 var _tex_baston: Texture2D        # la de baston.tscn (baston.png) y su offset
 var _offset_baston := Vector2.ZERO
+## El halo de la bola por delante del cuerpo en sacar / guardar de espaldas (ver
+## _halo_de_espaldas) y el del Orbe de baston.tscn.
+var _halo_delante: Sprite2D
+var _halo0 := 1.1
+var _pendiente := false           # una pulsacion de B que espera (pulsar_baston)
+## La vuelta con baston pasa la garra por delante de la cara (vuelta_cb 8-11): la
+## esfera delante del cuerpo y encima los dedos de la garra del propio fotograma
+## (raw/master_mason/anim/magnus_secuencia_frontal/garra_vuelta.py).
+const VUELTA_GARRA := "res://assets/characters/magnus/vuelta_garra.json"
+var _vuelta_garra: Dictionary = {}     # anim -> {fotograma: [esquina, textura]}
+var _esfera_delante: Sprite2D
+var _garra_vuelta: Sprite2D
 ## Radio de la garra (px de la casilla con escala 1) para el uniforme `garra`.
 const RADIO_GARRA := 34.0
 
@@ -352,6 +366,46 @@ func _ready() -> void:
 	for n in ["Madera", "Madera/Orbe", "Madera/Luz", "MaderaDelante"]:
 		var ci := _bola.get_node(n) as CanvasItem
 		ci.material = ci.material.duplicate()
+	var orbe := _bola.get_node("Madera/Orbe") as Sprite2D
+	_halo0 = float((orbe.material as ShaderMaterial).get_shader_parameter("halo"))
+	_halo_delante = orbe.duplicate() as Sprite2D
+	_halo_delante.name = "HaloDelante"
+	_halo_delante.material = orbe.material.duplicate()
+	(_halo_delante.material as ShaderMaterial).set_shader_parameter("solo_halo", 1.0)
+	# la garra y el palo del video van en el sprite: el halo, solo fuera de ellos (en la
+	# escena el baston va encima del halo). Con el baston a la espalda la garra queda
+	# donde baston_espalda.png en Madera (la bola en ORBE_EN_MADERA, como el Orbe).
+	var be: Dictionary = _datos["baston_espalda"]
+	var tam := Vector2(be["tam"][0], be["tam"][1])
+	var lado := orbe.texture.get_size() * orbe.scale
+	var mh := _halo_delante.material as ShaderMaterial
+	mh.set_shader_parameter("mascara", BASTON_ESPALDA_TEX)
+	mh.set_shader_parameter("mascara_uv", Vector4(
+		(be["bola"][0] - 0.5 * lado.x) / tam.x, (be["bola"][1] - 0.5 * lado.y) / tam.y, lado.x / tam.x, lado.y / tam.y))
+	mh.set_shader_parameter("con_mascara", 1.0)
+	# la esfera sola (sin halo: el de la bola de detras sigue igual) por delante del
+	# cuerpo, para la vuelta
+	_esfera_delante = orbe.duplicate() as Sprite2D
+	_esfera_delante.name = "EsferaDelante"
+	_esfera_delante.material = orbe.material.duplicate()
+	(_esfera_delante.material as ShaderMaterial).set_shader_parameter("halo", 0.0)
+	_esfera_delante.show_behind_parent = false
+	_esfera_delante.z_as_relative = false
+	_esfera_delante.z_index = Z_BOLA_DELANTE["Orbe"]
+	_esfera_delante.visible = false
+	_bola.get_node("Madera").add_child(_esfera_delante)
+	if FileAccess.file_exists(VUELTA_GARRA):
+		var vg: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(VUELTA_GARRA))
+		for anim in vg:
+			_vuelta_garra[anim] = {}
+			for f in vg[anim]:
+				_vuelta_garra[anim][int(f)] = [Vector2(vg[anim][f][0], vg[anim][f][1]),
+					load("res://assets/characters/magnus/vuelta_garra/%s_%03d.png" % [anim, int(f)])]
+	_halo_delante.show_behind_parent = false
+	_halo_delante.z_as_relative = false
+	_halo_delante.z_index = Z_BOLA_DELANTE["Orbe"]
+	_halo_delante.visible = false
+	_bola.get_node("Madera").add_child(_halo_delante)
 	_bola.z_index = 0
 	add_child(_bola)
 	# la funda de cuero, en dos capas pegadas al baston: atras (lenguetas e
@@ -428,6 +482,15 @@ func _ready() -> void:
 	_garra.centered = false
 	_garra.use_parent_material = true
 	add_child(_garra)
+	# los dedos de la garra encima de la esfera de delante (vuelta): con la luz de la
+	# escena, como el sprite del que salen
+	_garra_vuelta = Sprite2D.new()
+	_garra_vuelta.centered = false
+	_garra_vuelta.use_parent_material = true
+	_garra_vuelta.z_as_relative = false
+	_garra_vuelta.z_index = Z_BOLA_DELANTE["Orbe"] + 1
+	_garra_vuelta.visible = false
+	add_child(_garra_vuelta)
 	if pasos:
 		_pisada = AudioStreamPlayer2D.new()
 		_pisada.stream = pasos
@@ -487,6 +550,18 @@ func _fotograma_perfil() -> int:
 ## Saca (true) o guarda (false) el baston, con su animacion de cara a donde
 ## mire (andando, termina el paso y se para antes). En la vuelta o a mitad de
 ## otra accion, no hace nada.
+## La tecla del baston (2026-10-17): saca o guarda segun lo que vaya a llevar. Si
+## ya esta sacando o guardando (o girando), no se pierde: se apunta y el cambio
+## contrario empieza en cuanto acabe (otra pulsacion la anula). Antes se ignoraba
+## y el usuario, con el baston ya en la correa y el brazo aun bajando, pulsaba B
+## "y parece que la ignora".
+func pulsar_baston() -> void:
+	if _cb in ["puente", "vuelta", "accion", "perfil"] or _accion != "":
+		_pendiente = not _pendiente
+		return
+	cambiar_baston(not _con_baston)
+
+
 func cambiar_baston(si: bool) -> void:
 	if si == _con_baston or _cb in ["puente", "vuelta", "accion", "perfil"]:
 		return
@@ -516,6 +591,10 @@ func gastar(cuanto: float) -> void:
 
 
 func _process(delta: float) -> void:
+	# la pulsacion apuntada (pulsar_baston), en cuanto se puede
+	if _pendiente and _accion == "" and not _cb in ["puente", "vuelta", "accion", "perfil"]:
+		_pendiente = false
+		cambiar_baston(not _con_baston)
 	var q := quiere
 	# doble toque: al pulsar, si la pulsacion anterior de esa tecla fue hace poco, a
 	# correr mientras se mantenga
@@ -558,7 +637,7 @@ func _poner_anim(nombre: String, fotograma: int, fundir := false) -> void:
 
 func _poner_color() -> void:
 	var c: Color = COLORES[color]
-	for n in ["Madera/Orbe", "Madera/Luz"]:
+	for n in ["Madera/Orbe", "Madera/Luz", "Madera/HaloDelante", "Madera/EsferaDelante"]:
 		((_bola.get_node(n) as Sprite2D).material as ShaderMaterial).set_shader_parameter("color", Vector3(c.r, c.g, c.b))
 	for n in ["Madera/Recarga", "Madera/Estallido", "Madera/Chispas"]:
 		(_bola.get_node(n) as CPUParticles2D).color = c.lightened(0.25)
@@ -569,7 +648,7 @@ func _magia_bola(delta: float) -> void:
 	magia = minf(1.0, magia + magia_recarga * delta)
 	_mostrada = lerpf(_mostrada, magia, 1.0 - exp(-4.0 * delta))
 	_destello = move_toward(_destello, 0.0, 3.5 * delta)
-	for n in ["Madera/Orbe", "Madera/Luz"]:
+	for n in ["Madera/Orbe", "Madera/Luz", "Madera/HaloDelante", "Madera/EsferaDelante"]:
 		var m := (_bola.get_node(n) as Sprite2D).material as ShaderMaterial
 		m.set_shader_parameter("carga", _mostrada)
 		m.set_shader_parameter("destello", _destello)
@@ -960,6 +1039,35 @@ func _madera(si: bool) -> void:
 		_bola_delante(false)
 
 
+## Sacar / guardar de espaldas: la bola va detras del sprite (los dedos de la
+## garra del video, encima), como en la mano; con el baston ya a la espalda va
+## delante y su halo cae sobre la capucha. Al acabar el guardar la capucha se
+## encendia de golpe (y al empezar el sacar se apagaba): el halo se reparte entre
+## la bola de detras (1 - t) y una copia de solo el halo por delante del cuerpo (t),
+## t de 0 en la mano a 1 en la espalda (lo que lleva recorrido la escala de la bola).
+func _halo_de_espaldas(t: float) -> void:
+	t = clampf(t, 0.0, 1.0)
+	var orbe := _bola.get_node("Madera/Orbe") as CanvasItem
+	(orbe.material as ShaderMaterial).set_shader_parameter("halo", _halo0 * (1.0 - t))
+	(_halo_delante.material as ShaderMaterial).set_shader_parameter("halo", _halo0 * t)
+	_halo_delante.visible = t > 0.0 and orbe.visible
+
+
+## Vuelta con baston, fotogramas en que la garra pasa por delante de la cara: la
+## bola, detras del sprite, quedaba tapada por la capucha que se ve en el hueco de
+## la garra (el usuario: "la bola se vuelve transparente"). Ahi, la esfera delante
+## del cuerpo y encima los dedos de la garra (vuelta_garra.json).
+func _garra_por_delante(con_bola: bool) -> void:
+	var f = _vuelta_garra.get(String(_sprite.animation), {}).get(_sprite.frame) if con_bola else null
+	var si: bool = f != null and (_bola.get_node("Madera/Orbe") as CanvasItem).visible and _fundido <= 0.0
+	_esfera_delante.visible = si
+	_garra_vuelta.visible = si
+	if si:
+		_garra_vuelta.texture = f[1]
+		_garra_vuelta.position = _sprite.position + (_sprite.offset + f[0]) * _escala
+		_garra_vuelta.scale = Vector2.ONE * _escala
+
+
 ## Donde van los pies con la escala de ahora (espacio del nodo).
 func _pies() -> Vector2:
 	if perspectiva.is_valid():
@@ -982,6 +1090,7 @@ func _colocar() -> void:
 		(_bola.get_node(n) as CanvasItem).visible = not _sin_magia()
 	var con_garra: bool = d != null and d.has("garra")
 	_madera(false)
+	_halo_de_espaldas(0.0)
 	if d == null and _espalda.has(String(_sprite.animation)):
 		_baston_a_la_espalda(_espalda[String(_sprite.animation)])
 	if d != null:
@@ -993,12 +1102,17 @@ func _colocar() -> void:
 			# con el baston) a la de en la mano (escala_bola, derecha) o al reves
 			e = o[2]
 			giro = o[3]
+			# la de en la mano, la del extremo de las filas que no es 1
+			var mano := maxf(float(d["orbe"][0][2]), float(d["orbe"][-1][2]))
+			if String(_sprite.animation).ends_with("_espalda") and mano > 1.0:
+				_halo_de_espaldas((mano - e) / (mano - 1.0))
 		_bola.scale = Vector2.ONE * _escala * e
 		_bola.rotation = giro
 		_bola.position = _sprite.position + (_sprite.offset + Vector2(o[0], o[1])) * _escala \
 			- ORBE_EN_MADERA.rotated(giro) * _escala * e
 		if _fundido > 0.0 and _bola_antes != Vector2.ZERO:
 			_bola.position = _bola.position.lerp(_bola_antes, _fundido)
+	_garra_por_delante(d != null)
 	_poner_funda_vacia()
 	# la garra pegada va en el andar de frente; al salir de el se desvanece con
 	# el fundido en su ultima postura (la de la vuelta ya viene en el dibujo)

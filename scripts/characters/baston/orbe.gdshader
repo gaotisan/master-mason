@@ -16,6 +16,15 @@ uniform float radio : hint_range(0.1, 1.0) = 0.34;
 uniform float halo : hint_range(0.0, 3.0) = 1.1;
 uniform float facetas : hint_range(1.0, 8.0) = 3.0;
 uniform float destello : hint_range(0.0, 1.0) = 0.0;
+// 1: solo el halo de fuera de la esfera (sin la esfera). PeregrinoFrontal lo pone
+// en una copia por delante del cuerpo mientras la bola, detras, pasa de la mano a
+// la espalda o al reves (en la espalda va delante y su halo cae sobre la capucha).
+uniform float solo_halo : hint_range(0.0, 1.0) = 0.0;
+// Con solo_halo: el baston que en la escena va encima del halo (su alfa lo tapa).
+// mascara_uv: uv de la mascara = xy + UV * zw.
+uniform sampler2D mascara : filter_linear, repeat_disable;
+uniform vec4 mascara_uv = vec4(0.0, 0.0, 0.0, 0.0);
+uniform float con_mascara = 0.0;
 
 vec3 vidrio(vec3 n) {
 	vec3 l = normalize(vec3(-0.45, -0.65, 0.6));
@@ -77,6 +86,16 @@ void fragment() {
 	// que se apague antes del borde del cuadrado, o se ve el recuadro
 	h *= 1.0 - smoothstep(0.7, 1.0, length(UV - 0.5) * 2.0);
 	float fuerza = halo * (0.08 + carga * carga) * energia + destello * 1.5;
-	rgb += mix(color, vec3(1.0), destello * 0.5) * h * fuerza * (1.0 - a);
-	COLOR = vec4(rgb, a);
+	vec3 suma = mix(color, vec3(1.0), destello * 0.5) * h * fuerza * (1.0 - a);
+	if (solo_halo > 0.5) {
+		if (con_mascara > 0.5) {
+			vec2 m = mascara_uv.xy + UV * mascara_uv.zw;
+			if (m.x >= 0.0 && m.x <= 1.0 && m.y >= 0.0 && m.y <= 1.0) {
+				suma *= 1.0 - texture(mascara, m).a;
+			}
+		}
+		COLOR = vec4(suma, 0.0);
+	} else {
+		COLOR = vec4(rgb + suma, a);
+	}
 }

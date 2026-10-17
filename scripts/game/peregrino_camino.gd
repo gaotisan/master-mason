@@ -239,7 +239,7 @@ func _w(p: Vector2) -> float:
 func _unhandled_input(event: InputEvent) -> void:
 	var k := event as InputEventKey
 	if _estado == "jugando" and k and k.pressed and not k.echo and k.keycode == KEY_B:
-		peregrino.cambiar_baston(not peregrino.lleva_baston)
+		peregrino.pulsar_baston()
 
 
 func _process(delta: float) -> void:

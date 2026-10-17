@@ -85,3 +85,27 @@ secuencias):
     desde ahi (sin promediar).
 Puentes ahora 15,2-17,7 (como el video y los reposos); el cambio de detalle a
 mitad del puente mueve 0,30 por fotograma, menos que el propio gesto (0,33-0,49).
+
+CAPA DEL BASTON REHECHA (2026-10-16)
+------------------------------------
+baston_espalda_reposo.png era del 2026-10-10 y llevaba el borde casi negro de la
+captura vieja (capa_espalda.gd sobre fondo transparente; ver
+magnus_guardar_baston_espalda_a/como_se_hizo.txt). Recapturada (fondo negro y
+blanco, con la escena de ahora) y animar.py otra vez: solo cambian los puentes del
+lado sin baston (sacar 0-2, guardar 130-133); lo demas, igual al pixel. En el
+juego, en la zona de la garra, el corte al acabar el guardar paso de 381 a 213 px
+y al empezar el sacar de 481 a 197 (un paso normal de la animacion, ~160-230).
+
+LA BOLA SE CAIA DE LA GARRA (2026-10-17)
+----------------------------------------
+El usuario: al guardar de frente, al final "la bola se queda mas baja de lo que
+deberia, parece que se cae del receptaculo de garras". garra.json se siguio en dos
+tramos (desde la mano y desde la espalda) que no casan: el de la espalda parte de
+la bola de la escena, que encaja en la garra de baston.png (mas grande), y con la
+garra del video iba 15-17 px de master mas baja (guardar -8,2 / -17,5; sacar
+0,8 / -15,8). Y el hueco (la garra por detras de la capucha: guardar 65-73, sacar
+47-57) se interpolaba en recta, cuando la garra baja por arcos: ahi la bola se salia
+de la garra hasta 20 px. animar.py (bola_video, mano_antes): el hueco se sigue
+desde el lado de la mano y el tramo de espalda se corrige con lo medido en la
+costura; los puentes llevan la bola a la de la escena. Las hojas no cambian (solo
+baston_frente.json).
