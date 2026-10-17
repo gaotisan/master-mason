@@ -1,0 +1,180 @@
+PROMPTS: VIDEOS PUENTE ENTRE EL PEREGRINO DE PERFIL Y EL DE FRENTE / ESPALDAS
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-16)
+============================================================================
+
+Por que: en la boca del camino de la hojarasca se pasa de la toma de perfil a la
+frontal (y al reves) cortando entre fotogramas de videos distintos, y no casan:
+otra tunica, otra capucha, el baculo en otro sitio. Con baston en la mano la vuelta
+frontal nunca llega a un perfil de verdad y el palo salta. Un video que EMPIECE en
+el sprite de un lado y ACABE en el del otro casa en los dos extremos, y el cambio de
+tunica y capucha lo hace el propio giro, que es donde se disimula.
+
+REFERENCIAS (referencias_puente_perfil_frontal.py; aqui en _fuentes y en
+Descargas/referencias_puente_perfil_frontal/): 1920x1080, croma #24D732, la pose
+exacta del juego, misma escala en las dos, pies en la fila 1040, centrado.
+
+  video                          inicio                                        fin
+  1 perfil -> espaldas (ida)     puente1_perfil_a_espaldas_<modo>_inicio.png   puente1_..._fin.png
+  2 espaldas -> perfil           puente2_espaldas_a_perfil_<modo>_inicio.png   puente2_..._fin.png
+  3 frente -> perfil             puente3_frente_a_perfil_<modo>_inicio.png     puente3_..._fin.png
+  <modo>: mano (el baculo en la mano) o guardado (a la espalda, en la correa)
+
+Seis videos. Si hay que ir por partes: primero el 1 con baculo en la mano (es el
+corte que mas canta), y luego el 3.
+Antes de pedir el 2: probar el 1 al reves (los pies irian hacia atras; si no se
+nota, ese video sobra).
+
+Ajustes: 16:9, Veo 3.1 - Quality, 1080p si lo ofrece, 8 s, con audio. 2-4 tomas.
+
+Que mirar en cada toma, por orden:
+  1. que EMPIECE quieto en la pose del primer fotograma y ACABE quieto en la del
+     ultimo; que llegue de verdad al final (si el video se para antes, no sirve)
+  2. que gire en el sitio: camara quieta, mismo tamano, la cabeza a la misma
+     altura, sin desplazarse por la pantalla
+  3. el sentido: el 1 y el 2 nunca pasan por delante (no ensena la cara a mitad
+     del giro); el 3 nunca pasa por la espalda
+  4. el baculo: en la mano, SIEMPRE en su mano derecha (de perfil por delante de
+     el; de espaldas a la derecha de la pantalla; de frente a la izquierda),
+     vertical, sin cambiar de mano, sin duplicarse y con la garra vacia (sin
+     bola). Guardado: quieto en la correa todo el rato, las manos vacias
+  5. el giro rapido y a la velocidad del juego (1-1,5 s, dos pasos claros que
+     pivotan, sin pasitos): acelerarlo despues se ve a saltitos
+  6. la capucha: que no le crezca pico ni se doble la punta hacia atras (el
+     "sombrero de mago" de la vuelta frontal de ahora)
+  7. pies oscuros (si salen color carne, otra toma), sin sombra en el suelo, nada
+     encima (controles, marcas de agua, texto)
+
+
+TEXTO COMUN (va igual en los seis; se pega al final de cada prompt)
+-------------------------------------------------------------------
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
+ground, no floor, no floor line, no props, no text, no logos, no on-screen
+interface or player controls.
+
+He turns in place: his feet stay on the same spot of the screen, his size does
+not change and his head stays at the same height the whole video. His head is
+covered by the soft grey cloth hood of his cloak: part of the cloak, not a hat.
+Its shape only changes as it is seen from another angle while he turns, matching
+the first frame at the start and the last frame at the end; it never grows a
+tall point, never bends back into a tip, no wizard hat. Same character
+throughout: white beard, brown faceted patchwork cloak, the grey chevron patch
+on the back of the cloak. His legs and feet are dark: thin legs in dark hose and
+soft dark slippers, one single very dark brown from the hem of the cloak down to
+the tips of his feet; no bare skin and no toes show at any moment. Same low-poly
+flat-shaded hand-painted style, same colours and lighting as the first and last
+frames, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+only the rustle of the cloak and two soft footsteps, no music, no voice.
+
+
+EL BACULO (una de las dos frases, segun el modo; va justo despues de la accion)
+-------------------------------------------------------------------------------
+
+MANO:
+He holds his tall wooden walking staff upright in his right hand the whole
+video, its tip on the floor, and never switches hands; the staff turns with his
+body. At the top the staff opens into an open claw of curled root fingers,
+EMPTY: no orb, no ball, no gem, no glow, no light; the claw keeps its shape and
+the staff never doubles, bends or disappears.
+
+GUARDADO:
+His tall wooden staff stays strapped diagonally across his back in its leather
+strap the whole video, the empty claw of curled root fingers above his shoulder:
+it never moves, never comes out and never changes shape. His hands are empty and
+his arms hang relaxed at his sides.
+
+
+1. PERFIL -> ESPALDAS (la ida: se vuelve para entrar en el camino)
+------------------------------------------------------------------
+Inicio = puente1_perfil_a_espaldas_<modo>_inicio.png
+Fin    = puente1_perfil_a_espaldas_<modo>_fin.png
+
+The old hooded pilgrim from the first frame stands in profile, facing the right
+side of the screen. Action, one continuous take, at natural speed, no slow
+motion:
+- 0 to 1.5 s: he stands completely still, exactly as in the first frame.
+- 1.5 to 3 s: in one single quick and natural movement he turns in place to his
+  left, away from the camera, until he has his back to the camera: a pivot with
+  just two short, clear steps, without stopping halfway and without extra small
+  steps. He never shows his face to the camera while turning.
+- 3 to 8 s: he is seen exactly from behind, identical to the last frame, and
+  holds completely still until the end of the video.
+[frase del baculo]
+[texto comun]
+
+
+2. ESPALDAS -> PERFIL (la vuelta, de espaldas en la boca del camino)
+--------------------------------------------------------------------
+Inicio = puente2_espaldas_a_perfil_<modo>_inicio.png
+Fin    = puente2_espaldas_a_perfil_<modo>_fin.png
+
+The old hooded pilgrim from the first frame stands with his back to the camera.
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1.5 s: he stands completely still, exactly as in the first frame.
+- 1.5 to 3 s: in one single quick and natural movement he turns in place to his
+  right until he stands in profile facing the right side of the screen: a pivot
+  with just two short, clear steps, without stopping halfway and without extra
+  small steps. He never shows his face to the camera while turning: only at the
+  end his profile, as in the last frame.
+- 3 to 8 s: he stands in profile, identical to the last frame, and holds
+  completely still until the end of the video.
+[frase del baculo]
+[texto comun]
+
+
+3. FRENTE -> PERFIL (la vuelta, llegando de frente a la boca del camino)
+------------------------------------------------------------------------
+Inicio = puente3_frente_a_perfil_<modo>_inicio.png
+Fin    = puente3_frente_a_perfil_<modo>_fin.png
+
+The old hooded pilgrim from the first frame faces the camera, the hood shading
+his face. Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1.5 s: he stands completely still, exactly as in the first frame.
+- 1.5 to 3 s: in one single quick and natural movement he turns in place to his
+  left until he stands in profile facing the right side of the screen: a pivot
+  with just two short, clear steps, without stopping halfway and without extra
+  small steps. He never turns his back to the camera.
+- 3 to 8 s: he stands in profile, identical to the last frame, and holds
+  completely still until the end of the video.
+[frase del baculo]
+[texto comun]
+
+
+EJEMPLO ENTERO, LISTO PARA PEGAR (1 con el baculo en la mano)
+------------------------------------------------------------
+
+The old hooded pilgrim from the first frame stands in profile, facing the right
+side of the screen. Action, one continuous take, at natural speed, no slow
+motion:
+- 0 to 1.5 s: he stands completely still, exactly as in the first frame.
+- 1.5 to 3 s: in one single quick and natural movement he turns in place to his
+  left, away from the camera, until he has his back to the camera: a pivot with
+  just two short, clear steps, without stopping halfway and without extra small
+  steps. He never shows his face to the camera while turning.
+- 3 to 8 s: he is seen exactly from behind, identical to the last frame, and
+  holds completely still until the end of the video.
+He holds his tall wooden walking staff upright in his right hand the whole
+video, its tip on the floor, and never switches hands; the staff turns with his
+body. At the top the staff opens into an open claw of curled root fingers,
+EMPTY: no orb, no ball, no gem, no glow, no light; the claw keeps its shape and
+the staff never doubles, bends or disappears.
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
+ground, no floor, no floor line, no props, no text, no logos, no on-screen
+interface or player controls.
+He turns in place: his feet stay on the same spot of the screen, his size does
+not change and his head stays at the same height the whole video. His head is
+covered by the soft grey cloth hood of his cloak: part of the cloak, not a hat.
+Its shape only changes as it is seen from another angle while he turns, matching
+the first frame at the start and the last frame at the end; it never grows a
+tall point, never bends back into a tip, no wizard hat. Same character
+throughout: white beard, brown faceted patchwork cloak, the grey chevron patch
+on the back of the cloak. His legs and feet are dark: thin legs in dark hose and
+soft dark slippers, one single very dark brown from the hem of the cloak down to
+the tips of his feet; no bare skin and no toes show at any moment. Same low-poly
+flat-shaded hand-painted style, same colours and lighting as the first and last
+frames, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+only the rustle of the cloak and two soft footsteps, no music, no voice.
