@@ -603,6 +603,7 @@ var _ligero_pendiente := false         # ya floto: decir "ligero" en cuanto se p
 var _alcanzado := false
 
 func _ready() -> void:
+	_montar_nada()
 	_fondo_mat = $Fondo.material as ShaderMaterial
 	_leer_haz()
 	_repartir_haz()
@@ -1919,6 +1920,65 @@ func _entrar_al_camino() -> void:
 	# y sigue solo hacia el camino, sin mando, hasta el corte (el usuario,
 	# 2026-10-17: girarse ya es la decision; volver de frente al perfil no se puede)
 	_entrando = true
+	_cerrar_claro()
+
+## EL CLARO SE CIERRA (2026-10-17; el usuario: el bosque de Dominus va siempre
+## con cambios de camara y el lateral es para los mundos de los libros del
+## padre; del claro se sale una vez, "casi como un portal"). Mientras entra solo
+## en el camino, el suelo de hojas se va a una oscuridad de niebla que sube desde
+## abajo hasta la boca (como al bajar el baculo se apago el bosque de detras): ya
+## no hay por donde volver. Volviendo del camino ya esta cerrado (Partida
+## "claro_cerrado"): solo queda el bosque con la entrada del camino, y en el
+## borde se para y lo piensa ("no_volver"). La capa (Nada, claro_cerrado.gdshader)
+## va por encima de las hojas de delante y solo en la franja del suelo (a
+## pantalla completa costaba ~4 ms en la P520).
+@export_group("El claro se cierra")
+## Donde empieza la nada (y del mundo): en la boca del camino, los pies del
+## peregrino; en lo demas, la linea de los arboles (asi no queda una franja de
+## hojas cruzando la pantalla, como una cornisa).
+@export var cierre_borde: float = 1194.0
+@export var cierre_borde_lejos: float = 1110.0
+@export var cierre_boca_ancho: float = 190.0
+@export var cierre_suave: float = 80.0
+@export var cierre_dura: float = 3.5
+@export var cierre_color: Color = Color(0.03, 0.024, 0.02)
+@export_group("")
+
+var _nada: ColorRect
+var _nada_mat: ShaderMaterial
+
+func _montar_nada() -> void:
+	_nada = ColorRect.new()
+	_nada.name = "Nada"
+	_nada.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_nada.position = Vector2(-ANCHO, cierre_borde_lejos - cierre_suave)
+	_nada.size = Vector2(ANCHO * 3.0, 1632.0 + 400.0 - (cierre_borde_lejos - cierre_suave))
+	_nada_mat = ShaderMaterial.new()
+	_nada_mat.shader = preload("res://scripts/game/claro_cerrado.gdshader")
+	_nada_mat.set_shader_parameter("suave", cierre_suave)
+	_nada_mat.set_shader_parameter("borde", cierre_borde)
+	_nada_mat.set_shader_parameter("borde_lejos", cierre_borde_lejos)
+	_nada_mat.set_shader_parameter("camino_x", salida_x)
+	_nada_mat.set_shader_parameter("camino_ancho", cierre_boca_ancho)
+	_nada_mat.set_shader_parameter("ancho_mundo", ANCHO)
+	_nada_mat.set_shader_parameter("color", Vector3(cierre_color.r, cierre_color.g, cierre_color.b))
+	_nada.material = _nada_mat
+	add_child(_nada)
+	move_child(_nada, $HojasDelante.get_index() + 1)
+	_poner_nada(1.0 if PARTIDA.ya(get_tree(), "claro_cerrado") else 0.0)
+
+## u de 0 (claro entero) a 1 (cerrado): la nada sube desde abajo hasta el borde y
+## se espesa en el primer tercio.
+func _poner_nada(u: float) -> void:
+	_nada_mat.set_shader_parameter("subida", u * u * (3.0 - 2.0 * u))
+	_nada_mat.set_shader_parameter("alfa", clampf(u * 3.0, 0.0, 1.0))
+	_nada.visible = u > 0.0
+
+func _cerrar_claro() -> void:
+	if PARTIDA.ya(get_tree(), "claro_cerrado"):
+		return
+	PARTIDA.marcar(get_tree(), "claro_cerrado")
+	create_tween().tween_method(_poner_nada, 0.0, 1.0, cierre_dura)
 
 ## El de perfil, quieto, lleva su respiracion al fotograma f del reposo por el
 ## camino corto, a 24 fps (exhala o inspira deprisa; 0,2-0,3 s como mucho): de
