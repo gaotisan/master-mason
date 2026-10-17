@@ -437,6 +437,56 @@ var hoja_debajo: Callable
 @export var giro_aire_inicio: int = 0
 @export var giro_aire_arranque: float = 2.5
 @export var giro_aire_rampa: int = 24
+## giro_aire_prisa: lo mas que acelera el giro para acabar antes de llegar a la
+##   hoja de debajo (ver LLEGAR A LA HOJA).
+@export var giro_aire_prisa: float = 2.0
+## DESPEGAR DE LA HOJA (2026-10-16). El usuario: "entre que junta los pies y
+## salta, justo antes de saltar, la animacion no es fluida, queda rara". Al
+## acabar flotar_pisar (de pie, piernas rectas y juntas, capa abierta: su video
+## pinta los paneles a su manera) seguia el salto de parado 21,5 (piernas
+## separadas, tunica recta, otro video): grabado, se veia el corte (silueta
+## 0,24, textura 1,16; un paso normal 0,03-0,10 y 0,2-0,5). Ahora sigue
+## flotar_despegar (raw/master_mason/anim/magnus_despegue_hoja/montar.py): A, la
+## subida del mismo video de pisar (la capa se asienta sola), a su ritmo; y B,
+## el final del video de rebote, que recoge las piernas hasta la pose de flotar
+## (su ultimo es el 0 de flotar_bajar), y de ahi la bajada flotando de siempre.
+## La fisica, la del salto de parado (_despegar_de_hoja); el cuerpo, donde dice
+## la fisica (como en la bajada).
+## despegue_ritmo_b: fotogramas de B por tick (1 = 60 fps, 2,5 veces su video).
+## despegue_prisa: lo mas que corre B (fotogramas por tick) cuando hace falta:
+##   si debajo viene una hoja o el suelo, para llegar a la pose de flotar a
+##   tiempo de estirar las piernas hacia ella (PISAR_ANTICIPA); y con un giro
+##   pedido, hasta giro_desde de flotar.json (de ahi casa con flotar_girar 0).
+## despegue_prisa_giro_b: con un giro pedido, B a esto hasta donde casa con el
+##   giro. El usuario (2026-10-17): "puede ser que ahora sea mas dificil subir
+##   por la escalera de hojas?". Si: con B a 2 el giro empezaba a 0,62 s del
+##   rebote (antes del despegue nuevo, a 0,47) y en el zigzag de la escalera
+##   se iba hacia la hoja siguiente 0,15 s tarde. B es tela que se asienta
+##   (cambia poco por fotograma) y aguanta mas prisa que A, el empujon.
+@export var despegue_ritmo_b: float = 1.0
+@export var despegue_prisa: float = 2.0
+@export var despegue_prisa_giro_b: float = 3.5
+## LLEGAR A LA HOJA (2026-10-16; "el objetivo es hacer lo que sea con lo que
+## tenemos para que quede perfecto"). Se entraba en flotar_pisar desde la bajada
+## (otro video) por el fotograma de altura parecida: se veia el cambio (0,28 de
+## silueta, 1,2 de textura). El video de pisar empieza en la pose de flotar y
+## sus 0-13 bajan hasta la hoja (flotar_llegar, del mismo job que
+## flotar_despegar): con una hoja debajo se queda en la pose (los primeros de
+## flotar_bajar, de_bajar/casa_bajar de flotar.json, o flota quieto) y, cuando
+## falta lo que dura la llegada, la hace repartida hasta tocar la hoja en su
+## ultimo fotograma, que sigue en el primero de pisar. Si la hoja se va de
+## debajo, la deshace hasta la pose.
+## FLOTAR QUIETO EN SU COSTURA: el bucle de flotar_quieto (8 s) solo casa con la
+## pose (con flotar_bajar, con la llegada y con el giro) cerca de su costura
+## (casa_bajar, casa_quieto y casa_giro de flotar.json); a mitad se aparta
+## (0,15 de silueta, 0,75 de textura) y al salir de ahi a la bajada, a la
+## llegada o al giro se veia el cambio. Ahora se mece a su ritmo dentro de la
+## costura (costura de flotar.json, 183 -> 10: ~0,7 s del video), yendo y
+## volviendo como un pendulo (frena y arranca a QUIETO_ACELERA), y sale de
+## ahi cuando toca, siempre por uno que casa. Con un giro pedido corre (hasta
+## quieto_ritmo_max veces su ritmo) a los que casan con el giro, que estan al
+## lado (<= 9 fotogramas).
+@export var quieto_ritmo_max: float = 2.5
 const FLOTAR := "res://assets/characters/magnus/flotar.json"
 ## Cinematica de entrada (caer_desde_arriba): cae desde fuera de pantalla, se
 ## estampa, se queda tumbado y se levanta. Mientras dura no se acepta entrada.
@@ -904,6 +954,9 @@ var _giro_aire := 0.0        # girandose en el aire hacia ahi (-1/1), 0 si no (v
 var _giro_aire_pedido := 0.0 # pedido, esperando a que la pose case o a que quepa
 var _giro_iv := 0.0          # fotograma del giro en el aire
 var _tras_giro := false      # flotando tras girarse: la luz lo sostiene (giro_aire_caida_min)
+var _despega := -1.0         # despegando de una hoja: fotograma de flotar_despegar (ver DESPEGAR DE LA HOJA); -1 si no
+var _llega := -1.0           # llegando a una hoja: fotograma de flotar_llegar (ver LLEGAR A LA HOJA); -1 si no
+var _quieto_v := 0.0         # fotogramas por tick del bucle quieto ahora (ver SALIR DE QUIETO POR LA COSTURA)
 
 @onready var _sprite: AnimatedSprite2D = $Sprite
 @onready var _pasos: AudioStreamPlayer = $Pasos
@@ -1404,7 +1457,7 @@ func en_el_aire() -> bool:
 	var f := _sprite.frame
 	if _sprite.animation == &"salto_correr":
 		return f >= salto_correr_despegue and f < salto_correr_toca
-	if _sprite.animation in [&"flotar_bajar", &"flotar_girar", &"flotar_pisar", &"flotar_quieto"]:
+	if _sprite.animation in [&"flotar_bajar", &"flotar_girar", &"flotar_pisar", &"flotar_quieto", &"flotar_despegar", &"flotar_llegar"]:
 		return true
 	var v: Dictionary = VUELO.get(_sprite.animation, {})
 	return not v.is_empty() and f >= v["despegue"] and f < v["toca"]
@@ -1427,7 +1480,7 @@ func tras_tocar_suelo() -> bool:
 func altura_pies() -> float:
 	if not en_el_aire():
 		return 0.0
-	if _sprite.animation in [&"flotar_bajar", &"flotar_girar", &"flotar_pisar", &"flotar_quieto"]:
+	if _sprite.animation in [&"flotar_bajar", &"flotar_girar", &"flotar_pisar", &"flotar_quieto", &"flotar_despegar", &"flotar_llegar"]:
 		var pf: Array = _flotar[String(_sprite.animation)]["pies"]
 		return maxf(float(pf[clampi(_sprite.frame, 0, pf.size() - 1)]) - _sprite.position.y, 0.0)
 	var v: Dictionary = VUELO[_sprite.animation]
@@ -1467,6 +1520,9 @@ func rebotar(fuerza: float = 1.0, hoja: Dictionary = {}) -> bool:
 ## (lo de siempre, _despegar_de_hoja), con el cuerpo donde estaba.
 func _empezar_pisar(hoja: Dictionary, fuerza: float) -> void:
 	_pisando = true
+	_despega = -1.0
+	var llegando := _llega >= 0.0 and _sprite.animation == &"flotar_llegar"
+	_llega = -1.0
 	_pisar_hoja = hoja
 	_pisar_t = 0.0
 	_pisar_fuerza = fuerza
@@ -1484,7 +1540,8 @@ func _empezar_pisar(hoja: Dictionary, fuerza: float) -> void:
 	var d: Dictionary = _flotar["flotar_pisar"]
 	var f0 := 0
 	var trae := _cuerpo_sobre_pies()
-	if not is_nan(trae):
+	# (LLEGAR A LA HOJA) llegando, el siguiente del video es el primero de pisar
+	if not is_nan(trae) and not llegando:
 		var mejor := INF
 		for f in mini(PISAR_ENTRADA_MAX + 1, int(d["n"])):
 			var dif := absf(float(d["cuerpo"][f]) - float(d["pies"][f]) - trae)
@@ -1523,6 +1580,12 @@ func _volar_pisando(delta: float) -> float:
 	var b0: float = desp.get(String(_vuelo_de), desp["salto_parado"])
 	_vuelo_y = _pisar_arco + float(d["cuerpo"][n - 1]) - b0
 	_despegar_de_hoja(_pisar_fuerza, 1.0, PISAR_DESPEGUE_TAU)
+	# (DESPEGAR DE LA HOJA) con la fisica del de parado, pero con su video
+	if _flotar.has("flotar_despegar") and _giro_aire == 0.0:
+		_despega = 0.0
+		_sprite.animation = &"flotar_despegar"
+		_sprite.offset = _offset_flotar(&"flotar_despegar")
+		_sprite.set_frame_and_progress(0, 0.0)
 	return _arco_de_ahora()
 
 ## El fotograma del salto de parado por el que sigue al despegar de la hoja: el
@@ -1627,7 +1690,7 @@ func _arco_de_ahora() -> float:
 	var f := _sprite.frame
 	if anim == "flotar_pisar":
 		return _pisar_arco
-	if anim == "flotar_bajar" or anim == "flotar_girar":
+	if anim == "flotar_bajar" or anim == "flotar_girar" or anim == "flotar_despegar" or anim == "flotar_llegar":
 		var d: Dictionary = _flotar[anim]
 		var b0: float = _flotar["_despegue"][String(_vuelo_de)]
 		return maxf((_vuelo_y + b0) - float(d["cuerpo"][f]), -float(d["pies"][f]) - _desnivel())
@@ -2017,7 +2080,7 @@ func _aterrizar_abajo() -> void:
 ## es una pared.
 func _pies_sobre_despegue() -> float:
 	var anim := _sprite.animation
-	if anim == &"flotar_bajar" or anim == &"flotar_girar" or anim == &"flotar_quieto":
+	if anim == &"flotar_bajar" or anim == &"flotar_girar" or anim == &"flotar_quieto" or anim == &"flotar_despegar" or anim == &"flotar_llegar":
 		var pf: Array = _flotar[String(anim)]["pies"]
 		return float(pf[clampi(_sprite.frame, 0, pf.size() - 1)]) - _sprite.position.y
 	var v: Dictionary = VUELO.get(anim, {})
@@ -2137,6 +2200,8 @@ func _saltar() -> void:
 	_salto_soltado = false
 	_vuelo = 0
 	_flota = false
+	_despega = -1.0
+	_llega = -1.0
 	_quieto = -1.0
 	_giro_aire = 0.0
 	_giro_aire_pedido = 0.0
@@ -2167,7 +2232,7 @@ func _aterrizaje() -> float:
 	match String(_sprite.animation):
 		"salto_correr": return aterrizaje_correr
 		"salto_parado": return aterrizaje_parado
-		"flotar_bajar", "flotar_girar", "flotar_pisar", "flotar_quieto": return 1.0
+		"flotar_bajar", "flotar_girar", "flotar_pisar", "flotar_quieto", "flotar_despegar", "flotar_llegar": return 1.0
 		"flotar_posarse": return 0.0
 	return aterrizaje
 
@@ -2175,7 +2240,7 @@ func _interrumpible() -> float:
 	match String(_sprite.animation):
 		"salto_correr": return salto_correr_interrumpible
 		"salto_parado": return salto_parado_interrumpible
-		"flotar_bajar", "flotar_girar", "flotar_pisar", "flotar_quieto": return 2.0
+		"flotar_bajar", "flotar_girar", "flotar_pisar", "flotar_quieto", "flotar_despegar", "flotar_llegar": return 2.0
 		"flotar_posarse": return 0.55
 	return salto_interrumpible
 
@@ -2258,6 +2323,8 @@ func _cambiar(nuevo: Estado) -> void:
 		return
 	# Apoyado en una hoja solo se esta dentro de un salto (ver PISAR LA HOJA).
 	_pisando = false
+	_despega = -1.0
+	_llega = -1.0
 	# La frenada tiene que partir de la velocidad que llevaba de verdad, no de
 	# la de crucero. Si no, un toque corto -- en el que apenas ha acelerado --
 	# entra a frenar a toda velocidad y el personaje pega un tiron hacia
@@ -2330,6 +2397,8 @@ func _en_cinematica() -> bool:
 func tomar_cinematica() -> void:
 	_cinematica_nivel = true
 	_pisando = false
+	_despega = -1.0
+	_llega = -1.0
 	_flota = false
 	_quieto = -1.0
 	_tras_giro = false
@@ -2549,7 +2618,7 @@ func _actualizar_saltos() -> void:
 		# En cuanto le da la luz, sigue la fisica desde aqui (FLOTAR EN LA LUZ).
 		if _luz_en_carrera(arco, velocidad):
 			velocidad = 0.0
-	elif en_salto and not correr and (VUELO.has(_sprite.animation) or _flota or _giro_aire != 0.0 or _pisando):
+	elif en_salto and not correr and (VUELO.has(_sprite.animation) or _flota or _giro_aire != 0.0 or _pisando or _despega >= 0.0):
 		arco = _volar(get_physics_process_delta_time())
 		# En el aire el fotograma lo pone _volar; el sprite no avanza solo.
 		velocidad = 0.0 if _vuelo == 1 or _vuelo == 2 else 1.0
@@ -2755,6 +2824,12 @@ func _volar(delta: float) -> float:
 				v1 = minf(lerpf(_vuelo_v, -tope, 1.0 - exp(-delta / 0.12)), -tope)
 		_vuelo_y += (_vuelo_v + v1) * 0.5 * delta
 		_vuelo_v = v1
+	# Despegando de una hoja (DESPEGAR DE LA HOJA): su video hasta la pose de
+	# flotar; al acabar (o si empieza a girarse), lo de siempre.
+	if _despega >= 0.0:
+		var arco_despega := _volar_despegando(delta)
+		if _despega >= 0.0 or _vuelo == 3 or _llega >= 0.0:
+			return arco_despega
 	# Girarse en el aire (ver GIRAR EN EL AIRE): empieza cuando la pose casa y
 	# mientras dura lleva el fotograma; al acabar sigue lo que toque.
 	if _giro_aire_pedido != 0.0 and _giro_aire == 0.0 and _puede_girar_en_el_aire():
@@ -2860,26 +2935,60 @@ func _volar_flotando() -> float:
 				suelo_ritmo = suelo_hoja
 	var queda := _tiempo_hasta_suelo(_vuelo_y - suelo_ritmo)
 	var de_salto := 38 - flotar_desde
+	# LLEGAR A LA HOJA: llegando, la llegada; con una hoja debajo, lo que falta
+	# para tocarla (t_hoja) y para empezar a llegar (sobra)
+	if _llega >= 0.0:
+		return _volar_llegando(dt, b0)
+	var t_hoja := INF
+	var sobra := INF
+	var y_hoja := _altura_llegada(b0)
+	var fl: Dictionary = _flotar.get("flotar_llegar", {})
+	if _vuelo == 2 and not is_nan(y_hoja) and y_hoja > suelo:
+		t_hoja = _tiempo_hasta_suelo(_vuelo_y - y_hoja)
+	var j_ahora := floori(_flota_iv + 0.0001) - de_salto
+	var en_pose := j_ahora >= 0 and j_ahora < (fl.get("casa_bajar", []) as Array).size() \
+			and bool(fl["casa_bajar"][j_ahora])
 	# FLOTAR QUIETO: lo que queda hasta posarse en el suelo o en la hoja de debajo
 	# (esta, aunque aun quede lejos: si sigue debajo, ahi se posara)
 	var queda_q := queda
 	if _flotar.has("flotar_quieto") and _vuelo == 2:
 		queda_q = _tiempo_hasta_suelo(_vuelo_y - _suelo_quieto(suelo, b0, cuerpo, fb))
+		var fq: Dictionary = _flotar["flotar_quieto"]
 		if _quieto >= 0.0:
-			var j0: int = _flotar["flotar_quieto"]["a_bajar"][clampi(int(_quieto), 0, int(_flotar["flotar_quieto"]["n"]) - 1)]
-			if queda_q > _tiempo_posarse(j0):
+			var q := clampi(int(_quieto), 0, int(fq["n"]) - 1)
+			var j0: int = fq["a_bajar"][q]
+			# cuando hay que salir: a llegar a la hoja, o a la bajada hasta el
+			# suelo (meciendose en la costura, sale por uno que casa)
+			var salida := queda_q - _tiempo_posarse(j0)
+			if is_finite(t_hoja):
+				salida = t_hoja - _tiempo_llegar(int(fl["de_quieto"][q]))
+			if salida > 0.0:
 				return _volar_quieto(dt, b0)
-			# a posarse, por el fotograma de la bajada que mas se parece
 			_quieto = -1.0
+			_quieto_v = 0.0
+			if is_finite(t_hoja):
+				return _empezar_llegada(int(fl["de_quieto"][q]), dt, b0)
+			# a posarse, por el fotograma de la bajada que mas se parece
 			_flota_iv = float(de_salto + j0)
 		elif _flota_iv >= float(de_salto) - 0.001 and _flota_iv < float(de_salto) + 1.0 \
-				and queda_q > _tiempo_posarse(0) + flotar_quieto_margen:
+				and (queda_q > _tiempo_posarse(0) + flotar_quieto_margen
+					or (is_finite(t_hoja) and t_hoja - _tiempo_llegar(0) > flotar_quieto_margen)):
 			# llega a la pose de flotar con altura de sobra: flota quieto
 			_quieto = 0.0
+			_quieto_v = float(fq["fps"]) * dt
 			_tras_giro = false
 			return _volar_quieto(dt, b0)
+	if is_finite(t_hoja) and en_pose:
+		# en la pose con una hoja debajo: a llegar cuando falte lo que dura; hasta
+		# entonces, sin salir de la pose (los que casan de flotar_bajar)
+		sobra = t_hoja - _tiempo_llegar(int(fl["de_bajar"][j_ahora]))
+		if sobra <= 0.0:
+			return _empezar_llegada(int(fl["de_bajar"][j_ahora]), dt, b0)
 	var faltan := (_flota_largo() - 1.0) - _flota_iv
 	var paso := clampf(faltan / maxf(queda / dt, 1.0), 0.0, 2.0)
+	if is_finite(sobra):
+		var ultimo_en_pose := float(de_salto + (fl["casa_bajar"] as Array).rfind(true))
+		paso = clampf((ultimo_en_pose - _flota_iv) / maxf(sobra / dt, 1.0), 0.0, 1.0)
 	if _flotar.has("flotar_quieto") and _vuelo == 2 and _flota_iv < float(de_salto) \
 			and queda_q > _tiempo_posarse(0) + flotar_quieto_margen:
 		# hacia el flotar quieto: los del salto hasta la pose, a uno por tick
@@ -2908,14 +3017,29 @@ func _volar_flotando() -> float:
 	var arco := (_vuelo_y + b0) - float(cuerpo[j])
 	return maxf(arco, -float(fb["pies"][j]) - _desnivel())
 
-## Un tick flotando quieto (FLOTAR QUIETO): el bucle a su ritmo y el cuerpo
-## donde dice la fisica (como en la bajada).
+## Un tick flotando quieto (FLOTAR QUIETO): el bucle y el cuerpo donde dice la
+## fisica (como en la bajada). Meciendose en su costura (FLOTAR QUIETO EN SU
+## COSTURA); con un giro pedido, hacia los que casan con el giro.
 func _volar_quieto(dt: float, b0: float) -> float:
 	var fq: Dictionary = _flotar["flotar_quieto"]
 	var n := int(fq["n"])
-	_quieto += float(fq["fps"]) * dt
+	var r0 := float(fq["fps"]) * dt
+	var objetivo := r0
+	var acelera := QUIETO_ACELERA
+	if _giro_aire_pedido != 0.0 and (fq.get("casa_giro", []) as Array).size() == n:
+		var d := _distancia_a_casa(_quieto, fq["casa_giro"])
+		objetivo = d.y * clampf(d.x * 0.25, 0.0, quieto_ritmo_max * r0)
+		acelera *= 3.0
+	elif fq.has("costura"):
+		objetivo = _mecer_quieto(r0, fq)
+	# sin tirones: el ritmo cambia poco a poco, como un pendulo
+	_quieto_v = move_toward(_quieto_v, objetivo, acelera)
+	_quieto += _quieto_v
+	var vuelta := float(flotar_quieto_vuelta)
 	while _quieto >= float(n):
-		_quieto -= float(n - flotar_quieto_vuelta)
+		_quieto -= float(n) - vuelta
+	if _quieto_v < 0.0 and _quieto < vuelta:
+		_quieto += float(n) - vuelta
 	var f := clampi(int(_quieto), 0, n - 1)
 	_vuelo_tau = 38.0
 	if _sprite.animation != &"flotar_quieto":
@@ -2925,6 +3049,125 @@ func _volar_quieto(dt: float, b0: float) -> float:
 		_sprite.set_frame_and_progress(f, 0.0)
 	var arco := (_vuelo_y + b0) - float(fq["cuerpo"][f])
 	return maxf(arco, -float(fq["pies"][f]) - _desnivel())
+
+## El ritmo del bucle quieto (fotogramas por tick, con signo) para mecerse en
+## su costura: a su ritmo hacia donde va mientras, frenando, no se salga de
+## ella; si se saldria, hacia el otro lado. Fuera de ella (no deberia), hacia
+## ella.
+func _mecer_quieto(r0: float, fq: Dictionary) -> float:
+	var n := int(fq["n"])
+	var vuelta := float(flotar_quieto_vuelta)
+	var desde := float(fq["costura"][0])
+	var hasta := float(fq["costura"][1])
+	var dentro := func(q: float) -> bool: return q >= desde or q <= hasta + 0.999
+	var sentido := -1.0 if _quieto_v < 0.0 else 1.0
+	if not dentro.call(_quieto):
+		# hacia el lado de la costura que tenga mas cerca
+		return r0 if _quieto - hasta > desde - _quieto else -r0
+	var punto := _quieto + sentido * (absf(_quieto_v) + r0 * r0 / (2.0 * QUIETO_ACELERA))
+	if punto >= float(n):
+		punto -= float(n) - vuelta
+	if punto < vuelta and sentido < 0.0 and _quieto >= vuelta:
+		punto += float(n) - vuelta
+	return sentido * r0 if dentro.call(punto) else -sentido * r0
+
+## Lo mas que cambia el ritmo del bucle quieto en un tick (fotogramas/tick^2):
+## de su ritmo a el mismo hacia atras en ~0,45 s.
+const QUIETO_ACELERA := 0.03
+
+## Del fotograma q del bucle quieto al mas cercano de `casa`: (fotogramas, sentido).
+func _distancia_a_casa(q: float, casa: Array) -> Vector2:
+	var vuelta := flotar_quieto_vuelta
+	var largo := float(casa.size() - vuelta)
+	var mejor := Vector2(INF, 1.0)
+	for g in casa.size():
+		if not bool(casa[g]) or g < vuelta:
+			continue
+		var adelante := fposmod(float(g) - q, largo) if q >= float(vuelta) else float(g) - q
+		if adelante < mejor.x:
+			mejor = Vector2(adelante, 1.0)
+		if q >= float(vuelta):
+			var atras := fposmod(q - float(g), largo)
+			if atras < mejor.x:
+				mejor = Vector2(atras, -1.0)
+	return mejor
+
+## LLEGAR A LA HOJA: la altura de la fisica (sobre el despegue) a la que los
+## pies tocarian la hoja de debajo con el ultimo fotograma de flotar_llegar
+## (donde el nivel la pisa: PIES_EN_HOJA de caida_hojarasca, 1,5 px sobre ella);
+## NAN si no hay hoja debajo, si se pide un giro o sin la animacion. Subiendo,
+## la de debajo de donde estaran los pies en el apogeo: la siguiente hoja de la
+## escalera esta por encima de los pies al despegar y solo se veia al pasarla,
+## sin tiempo para llegar bien a ella.
+func _altura_llegada(b0: float) -> float:
+	if not hoja_debajo.is_valid() or _giro_aire_pedido != 0.0 or not _flotar.has("flotar_llegar"):
+		return NAN
+	var fl: Dictionary = _flotar["flotar_llegar"]
+	var n := int(fl["n"])
+	var sobre_pies := float(fl["cuerpo"][n - 1]) - float(fl["pies"][n - 1])
+	var pies := altura_pies()
+	var t := 0.3
+	if _vuelo == 1 and _vuelo_v > 0.0:
+		var g := maxf(_f_g * lerpf(1.0, gravedad_luz, _luz), 1.0)
+		pies = maxf(pies, _vuelo_y + _vuelo_v * _vuelo_v / (2.0 * g) + b0 - sobre_pies)
+		t += _vuelo_v / g
+	# y donde estara de lado dentro de t (se va moviendo hacia la hoja, tambien
+	# girandose): con la tecla hacia donde va, a esa velocidad; sin ella,
+	# frenando como frena la luz
+	var x := global_position.x
+	var vx := _velocidad() * _mirando + _deriva
+	var hacia := 0.0 if control_bloqueado else Input.get_axis("mover_izquierda", "mover_derecha")
+	if signf(hacia) == signf(vx) and hacia != 0.0:
+		x += vx * t
+	else:
+		x += signf(vx) * minf(absf(vx) * t, vx * vx / (2.0 * maxf(deriva_aceleracion * _luz, 1.0)))
+	var hy: float = hoja_debajo.call(Vector2(x, global_position.y - pies))
+	if not is_finite(hy):
+		return NAN
+	return (position.y - hy - 1.5) + sobre_pies - b0
+
+## Segundos de la llegada desde su fotograma k, a su ritmo.
+func _tiempo_llegar(k: int) -> float:
+	if not _flotar.has("flotar_llegar"):
+		return 0.0
+	var fl: Dictionary = _flotar["flotar_llegar"]
+	return float(int(fl["n"]) - 1 - k) / float(fl["fps"])
+
+func _empezar_llegada(k: int, dt: float, b0: float) -> float:
+	_llega = float(k)
+	_quieto = -1.0
+	_sprite.animation = &"flotar_llegar"
+	_sprite.offset = _offset_flotar(&"flotar_llegar")
+	_sprite.set_frame_and_progress(k, 0.0)
+	return _volar_llegando(dt, b0, false)
+
+## Un tick llegando a la hoja: los fotogramas que quedan repartidos en lo que
+## falta para tocarla (a lo sumo dos por tick); el cuerpo donde dice la fisica.
+## Si la hoja ya no esta debajo, vuelve hacia la pose y sigue la bajada.
+func _volar_llegando(dt: float, b0: float, avanza := true) -> float:
+	var fl: Dictionary = _flotar["flotar_llegar"]
+	var n := int(fl["n"])
+	var y_hoja := _altura_llegada(b0)
+	if avanza:
+		if is_nan(y_hoja):
+			_llega -= 1.0
+			if _llega <= 0.0:
+				# de vuelta en la pose (llegar 0 casa con flotar_bajar 2)
+				_llega = -1.0
+				_flota_iv = float(38 - flotar_desde) + 2.0
+				return _volar_flotando()
+		else:
+			var t := _tiempo_hasta_suelo(_vuelo_y - y_hoja)
+			_llega = minf(_llega + clampf((float(n - 1) - _llega) / maxf(t / dt, 1.0), 0.25, 2.0), float(n - 1))
+	var f := clampi(floori(_llega + 0.0001), 0, n - 1)
+	if f != _sprite.frame:
+		_sprite.set_frame_and_progress(f, 0.0)
+	# (si toca suelo llegando, que no deberia: se posa)
+	if _vuelo == 2 and _vuelo_y <= float(fl["cuerpo"][f]) - float(fl["pies"][f]) - b0 - _desnivel():
+		_llega = -1.0
+		_posarse_flotando()
+		return 0.0
+	return maxf((_vuelo_y + b0) - float(fl["cuerpo"][f]), -float(fl["pies"][f]) - _desnivel())
 
 ## Segundos que tarda la bajada en posarse desde su fotograma j, a uno por tick
 ## (todos los fotogramas, como los saltos).
@@ -2966,6 +3209,83 @@ func _tiempo_hasta_suelo(h: float) -> float:
 	if d1 >= h or is_inf(tope):
 		return t0 + (-u + sqrt(u * u + 2.0 * g * h)) / g
 	return t0 + t1 + (h - d1) / tope
+
+## Un tick despegando de la hoja (DESPEGAR DE LA HOJA), con la fisica ya
+## integrada: A a su ritmo (el del video de pisar), B a despegue_ritmo_b o mas
+## deprisa si hace falta (despegue_prisa); el cuerpo donde dice la fisica. Al
+## llegar a la pose de flotar sigue la bajada flotando desde su principio, o el
+## giro si estaba pedido.
+func _volar_despegando(delta: float) -> float:
+	var d: Dictionary = _flotar["flotar_despegar"]
+	var n := int(d["n"])
+	var tb := float(d["tramo_b"])
+	var fb: Dictionary = _flotar["flotar_bajar"]
+	var b0: float = _flotar["_despegue"][String(_vuelo_de)]
+	var de_salto := float(38 - flotar_desde)
+	# Toca suelo despegando (no deberia: se despega hacia arriba): se posa.
+	var f := clampi(floori(_despega + 0.0001), 0, n - 1)
+	if _vuelo == 2 and _vuelo_y <= float(d["cuerpo"][f]) - float(d["pies"][f]) - b0 - _desnivel():
+		_despega = -1.0
+		_posarse_flotando()
+		return 0.0
+	# A y B a su ritmo; si no da tiempo de acabarlos y de hacer lo que sigue
+	# (la llegada a la hoja de debajo, LLEGAR A LA HOJA, o sin hoja la bajada
+	# hasta el suelo a dos por tick), todo a la vez mas deprisa, repartido (hasta
+	# despegue_prisa): la llegada no se queda con la prisa del final.
+	# Con una hoja debajo, B no hace falta acabarlo: desde que casa con la
+	# llegada (casa_llegar, ~68) se pasa a ella (el atajo, mas abajo).
+	var y_hoja := _altura_llegada(b0)
+	var al: Array = d.get("a_llegar", [])
+	var cl: Array = d.get("casa_llegar", [])
+	var atajo := not is_nan(y_hoja) and cl.size() == n
+	var hasta := float(n - 1)
+	if atajo:
+		for g in range(clampi(floori(_despega + 0.0001), 0, n - 1), n):
+			if bool(cl[g]):
+				hasta = float(g)
+				break
+	var ticks_a := maxf(tb - _despega, 0.0) / (float(d["fps"]) * delta)
+	var ticks_b := maxf(hasta - maxf(_despega, tb), 0.0) / despegue_ritmo_b
+	var ticks_hay := 0.0
+	var ticks_luego := 0.0
+	if not is_nan(y_hoja):
+		ticks_hay = _tiempo_hasta_suelo(_vuelo_y - y_hoja) / delta
+		ticks_luego = _tiempo_llegar(int(al[int(hasta)]) if atajo else 0) / delta
+	else:
+		ticks_hay = _tiempo_hasta_suelo(_vuelo_y - _suelo_flotar()) / delta
+		ticks_luego = 0.5 * _tiempo_posarse(0) / delta
+	var prisa := clampf((ticks_a + ticks_b + ticks_luego) / maxf(ticks_hay, 1.0), 1.0, despegue_prisa)
+	var paso := (float(d["fps"]) * delta if _despega < tb else despegue_ritmo_b) * prisa
+	# con un giro pedido, deprisa hasta donde casa con el giro (tambien A)
+	if _giro_aire_pedido != 0.0 and _despega < float(d["giro_desde"]):
+		paso = maxf(paso, despegue_prisa if _despega < tb else despegue_prisa_giro_b)
+	_despega += paso
+	if _giro_aire_pedido != 0.0 and _giro_aire == 0.0 and _puede_girar_en_el_aire():
+		_despega = -1.0
+		_flota = true
+		_flota_iv = de_salto
+		_empezar_giro_aire()
+		return 0.0
+	# (LLEGAR A LA HOJA) el atajo: con la hoja cerca, de donde casa a la llegada
+	# en cuanto falta lo que dura
+	if atajo:
+		var g := clampi(floori(_despega + 0.0001), 0, n - 1)
+		if bool(cl[g]) and _tiempo_hasta_suelo(_vuelo_y - y_hoja) <= _tiempo_llegar(int(al[g])):
+			_despega = -1.0
+			_flota = true
+			_flota_iv = de_salto
+			return _empezar_llegada(int(al[g]), delta, b0)
+	if _despega > float(n - 1):
+		# en la pose de flotar (el 0 de flotar_bajar): la bajada de siempre
+		_despega = -1.0
+		_flota = true
+		_quieto = -1.0
+		_flota_iv = de_salto
+		return 0.0
+	f = floori(_despega + 0.0001)
+	if f != _sprite.frame:
+		_sprite.set_frame_and_progress(f, 0.0)
+	return _arco_de_ahora()
 
 ## Fotogramas de la bajada flotando: los del salto hasta la pose de flotar y
 ## los de flotar_bajar.
@@ -3033,10 +3353,21 @@ func _puede_girar_en_el_aire() -> bool:
 	if not _flotar.has("flotar_girar") or _vuelo_de != &"salto_parado" or _luz < flotar_luz_min:
 		return false
 	var de_salto := float(38 - flotar_desde)
-	if _flota:
-		# flotando quieto, siempre (la pose casa en todo el bucle); en la
-		# bajada, hasta giro_aire_hasta
+	if _llega >= 0.0:
+		# llegando a una hoja (deshace la llegada si se pide el giro: ver LLEGAR A LA HOJA)
+		return false
+	if _despega >= 0.0:
+		# despegando de una hoja: desde que la pose casa con la del giro
+		if _despega < float(_flotar["flotar_despegar"]["giro_desde"]):
+			return false
+	elif _flota:
+		# flotando quieto, por los que casan (abajo); en la bajada, hasta
+		# giro_aire_hasta
 		if _quieto < 0.0 and _flota_iv > de_salto + float(giro_aire_hasta):
+			return false
+		# quieto, por los del bucle que casan con el giro (FLOTAR QUIETO EN SU COSTURA)
+		var cg: Array = _flotar["flotar_quieto"].get("casa_giro", []) if _quieto >= 0.0 else []
+		if not cg.is_empty() and not bool(cg[clampi(int(_quieto), 0, cg.size() - 1)]):
 			return false
 	elif _vuelo != 1 or _vuelo_tau < float(giro_aire_desde):
 		return false
@@ -3080,8 +3411,17 @@ func _volar_girando() -> float:
 		return 0.0
 	if f != _sprite.frame:
 		_sprite.set_frame_and_progress(f, 0.0)
-	# deprisa al empezar (RESPUESTA DEL GIRO EN EL AIRE), luego a uno por tick
-	_giro_iv += lerpf(giro_aire_arranque, 1.0, clampf(_giro_iv / maxf(float(giro_aire_rampa), 1.0), 0.0, 1.0))
+	# deprisa al empezar (RESPUESTA DEL GIRO EN EL AIRE), luego a uno por tick;
+	# con una hoja debajo, lo justo para acabar a tiempo de llegar a ella (LLEGAR
+	# A LA HOJA: si no, la pisaba a medio giro), hasta giro_aire_prisa
+	var ritmo := lerpf(giro_aire_arranque, 1.0, clampf(_giro_iv / maxf(float(giro_aire_rampa), 1.0), 0.0, 1.0))
+	var y_hoja := _altura_llegada(b0)
+	if not is_nan(y_hoja):
+		var dt := get_physics_process_delta_time()
+		var ticks_hay := _tiempo_hasta_suelo(_vuelo_y - y_hoja) / dt
+		var ticks_giro := float(int(fg["n"]) - 1) - _giro_iv
+		ritmo *= clampf((ticks_giro + _tiempo_llegar(0) / dt) / maxf(ticks_hay, 1.0), 1.0, giro_aire_prisa)
+	_giro_iv += ritmo
 	var arco := (_vuelo_y + b0) - float(fg["cuerpo"][f])
 	return maxf(arco, -float(fg["pies"][f]) - _desnivel())
 

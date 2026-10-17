@@ -25,6 +25,8 @@ const RUTAS := [
 	"res://assets/characters/magnus/magnus_flotar_posarse.png",
 	"res://assets/characters/magnus/magnus_flotar_girar.png",
 	"res://assets/characters/magnus/magnus_flotar_pisar.png",
+	"res://assets/characters/magnus/magnus_flotar_despegar.png",
+	"res://assets/characters/magnus/magnus_flotar_llegar.png",
 	"res://assets/characters/magnus/magnus_flotar_quieto.png",
 	"res://assets/characters/magnus/magnus_coger_baculo.png",
 	"res://assets/characters/baston/mano_reposo.png",

@@ -52,6 +52,10 @@ uniform sampler2D mascara_camino : filter_linear;
 uniform float camino : hint_range(0.0, 1.0) = 0.0;
 uniform float camino_tapado = 0.0;
 uniform float camino_brillo = 1.0;
+// Cuanto bosque se ve (1 entero, 0 solo la oscuridad del fondo con el haz): se
+// apaga mientras baja el baculo y vuelve al cogerlo (caida_hojarasca.gd, EL
+// BOSQUE SE APAGA CON EL BACULO).
+uniform float presencia : hint_range(0.0, 1.0) = 1.0;
 // La imagen del fondo (la de la SubViewport; caida_hojarasca.gd), con la luz
 // del haz para el bosque en el alfa.
 uniform sampler2D fondo : filter_linear;
@@ -128,5 +132,5 @@ void fragment() {
 	float luz = ambiente + f.a * LUZ_BOSQUE;
 	float suelo_v = smoothstep(horizonte - 0.02, horizonte + suelo_fundido, UV.y);
 	vec3 c = mix(alumbrar(lejos, uv_l, luz, suelo_v), alumbrar(cerca.rgb, uv_c, luz, suelo_v), cerca.a);
-	COLOR = vec4(f.rgb + c, 1.0);
+	COLOR = vec4(f.rgb + c * presencia, 1.0);
 }

@@ -424,6 +424,8 @@ func _physics_process(delta: float) -> void:
 				b.bajada = 0.05
 				b.bajar()
 				escena.empezar_escalera(false)
+				# como _bajar_baculo: con bosque, se apaga (EL BOSQUE SE APAGA CON EL BACULO)
+				escena._atenuar_bosque(escena.bosque_atenuado, escena.bosque_apagar)
 		_extra += 1
 	if not traza:
 		return

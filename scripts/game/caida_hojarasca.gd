@@ -66,6 +66,11 @@ extends Node2D
 ## bosque_apagar s; al cogerlo, con el destello, vuelve entero en bosque_volver
 ## s mientras la racha abre el camino. El refuerzo del haz con bosque
 ## (haz_con_bosque) va con lo que se ve de el.
+## El sonido con la imagen: el viento baja bosque_viento_db mientras se apaga y
+## sin bosque no hay rachas (casi silencio: el hilo del baculo y la musica); la
+## racha que abre el camino lo trae de vuelta. Y el bosque vuelve con esa racha,
+## pasada la quietud del agarre (agarre_quietud: hojas quietas y destello, aun a
+## oscuras), no durante ella: quietud y luego liberacion.
 ## bosque_atenuado 0: la oscuridad del fondo con el haz y nada mas, como la
 ## escena de pruebas (el usuario: "me gustaba esa tonalidad y luz... me daba
 ## como paz, no se si me gustara intuir los troncos detras"; con 0,08 se
@@ -73,6 +78,7 @@ extends Node2D
 @export_range(0.0, 1.0) var bosque_atenuado: float = 0.0
 @export var bosque_apagar: float = 4.0
 @export var bosque_volver: float = 2.5
+@export var bosque_viento_db: float = -10.0
 ## Con el bosque: el camino de la derecha esta tapado de hojas (apagado, ver
 ## bosque_fondo.gdshader) y al alcanzar el baculo una racha se las lleva y
 ## aparece en camino_abrir s (_abrir_camino).
@@ -691,6 +697,9 @@ func _entrar_desde_negro() -> void:
 ## volumen del viento (gust_db, por encima del nivel base) y empujan las hojas.
 func _soplar(delta: float) -> void:
 	_racha_espera -= delta
+	if _racha_espera <= 0.0 and _bosque_presencia < 0.5:
+		# sin bosque, sin rachas (EL BOSQUE SE APAGA CON EL BACULO)
+		_racha_espera = 1.0
 	if _racha_espera <= 0.0:
 		_racha_espera = randf_range(racha_cada_min, racha_cada_max)
 		_racha_dir = 1.0 if randf() < 0.6 else -1.0
@@ -1214,7 +1223,6 @@ func _coger_baculo() -> void:
 	# la luz se retira despues, ver luz_apagar_tras). Lo que pensaba al verlo
 	# bajar se calla.
 	_pensar.callar()
-	_atenuar_bosque(1.0, bosque_volver)
 	_quietud_del_agarre()
 	get_tree().create_timer(agarre_quietud).timeout.connect(_abrir_camino)
 	_apagar_luz()
@@ -1445,6 +1453,9 @@ func _mover_remolino(delta: float) -> void:
 func _abrir_camino() -> void:
 	if not bosque_de_fondo:
 		return
+	# el bosque y su viento vuelven con la racha (EL BOSQUE SE APAGA CON EL BACULO)
+	_atenuar_bosque(1.0, bosque_volver)
+	WindAmbience.fade_to(viento_db, bosque_volver)
 	_racha_dir = 1.0
 	_racha_espera = maxf(_racha_espera, camino_abrir + 9.0)   # que no la pise otra
 	var tw := create_tween()
@@ -2192,6 +2203,8 @@ func _bajar_baculo() -> void:
 	_baculo_bajando = true
 	_baculo.bajar()
 	_atenuar_bosque(bosque_atenuado, bosque_apagar)
+	if bosque_de_fondo:
+		WindAmbience.fade_to(viento_db + bosque_viento_db, bosque_apagar)
 	empezar_escalera()
 	_sonar($SonidoHilo, hilo_db)
 
