@@ -1,0 +1,66 @@
+magnus_puente_perfil: los puentes entre el peregrino de perfil y el de frente/espaldas
+====================================================================================
+2026-10-17. Por que: en la boca del camino de la hojarasca se pasa de la toma de
+perfil (magnus.tscn + baston.gd) a la frontal (PeregrinoFrontal) y al reves, y se
+cortaba de un video al otro: otra tunica (de perfil abierta con el rombo, de frente
+cerrada), otra capucha (de perfil un pico delante; de frente redonda, de espaldas en
+cono) y el baston en otro sitio. El usuario: "no cuadran los fotogramas finales";
+Flow deforma, asi que "lo mejor posible" a mano, y luego se disimulara aun mas con
+niebla. Probado antes y descartado:
+  - el giro viejo de perfil por la espalda (magnus_giro_pie_rapido) como enlace: su
+    espalda tiene la capucha aun mas en cono y el cuerpo mas estrecho;
+  - un fundido por flujo optico de todo el sprite (prueba del 2026-10-16): la
+    silueta bien, pero dos capuchas, dos bastones y la tunica derritiendose.
+
+Que hace (puente.py, morph.py): fotogramas que van de A (un fotograma del de un
+lado, quieto) a B_k (los del otro, en movimiento), por piezas como un animador:
+  - CUERPO: contornos de A y B_k emparejados tramo a tramo entre anclas (cima de la
+    capucha, su punta delante, barba/pecho, bajo de la tunica delante, punta del pie,
+    talon, bajo de atras, espalda; morph.anclas) mas la mano (mancha de piel) ->
+    mapa suave (TPS) en los dos sentidos; A llevado hacia B_k una fraccion s y B_k
+    traido hacia A (1 - s); una sola silueta (sin orla doble) y el dibujo de B_k
+    entrando con un BARRIDO del lado que gira hacia la camara (ida: por la
+    izquierda; de frente al perfil: por la derecha). A se suaviza un poco segun
+    avanza (el frontal viene mas blando).
+    El flujo optico entre fotogramas del frontal se probo para el movimiento de B y
+    metia ruido en bordes y pies: se dejo el emparejado de contornos en cada fotograma.
+  - BASTON: pieza rigida. Su postura (garra, eje) va de la de A a la de B_k en recta,
+    a escala 1 (la escala por el ancho de la garra lo estiraba: cambia con el angulo).
+    Las dos texturas se cruzan en el camino. Detras del cuerpo; lo que en un extremo
+    va delante, solo cerca de ese extremo (si no, el tramo del hombro rayaba la capucha).
+    Con el baston a la espalda es capa aparte en los dos lados (capturas _cuerpo /
+    _baston); en la mano viene pintado en el sprite: morph.baston_pintado lo separa
+    por forma (lo fino que sale del cuerpo -> recta por RANSAC -> franja del palo y
+    caja de la garra, solo lo de color madera) y separar() rellena (inpaint) lo que
+    tapaba del cuerpo.
+
+Los extremos, elegidos por silueta (IoU) y no por los numeros de la vuelta: el
+"perfil" de vuelta_cb no es el 10-11 (giro_vuelta 77-90) que se usaba, que es tres
+cuartos con el palo delante de la cara, sino el 21 (palo adelantado, como el de perfil).
+  ida_sb      reposo de perfil -> vuelta_sb 27-35, frontal 6 px delante, sigue en 36
+  ida_cb      reposo de perfil (mano) -> vuelta_cb 21-28, 6 px delante, sigue en 29
+  frente_sb   reposo_frente_sb -> giro 25-33 del de perfil, 0 px, sigue en 34
+  frente_cb   reposo_frente_cb -> giro (mano) 33-41, 8 px, sigue en 42 (en el 33 el
+              palo ya esta en la mano derecha, como el frontal; por silueta sola
+              salia el 17, con el palo en la otra mano)
+La vuelta de espaldas al perfil es la ida al reves (ida_*_r00).
+La ida sale del reposo de perfil, que respira: de varios fotogramas (r00, r10, r20 sin
+baston; r00..r60 de 15 en 15 con el) y el juego lleva antes la respiracion al mas
+cercano (caida_hojarasca._respirar_hasta, 0,2-0,4 s). Los primeros fotogramas dependen
+mucho de A; los ultimos casi nada.
+
+Pasos:
+  1. Capturas (Godot, sin luz de escena, transparente; el origen del nodo = los pies en
+     (500, 900)): scenes/dev/tmp_captura_puente.tscn (gitignorado; CAP_SOLO_LATERAL=1
+     solo el de perfil) -> _captura/<lado>[_cuerpo|_baston]/<anim>_<k>.png. Lados:
+     lat_sb, lat_mano (perfil: reposo y giro), fr_sb, fr_cb (frontal a 0,98: vuelta,
+     reposos, puentes de la vuelta).
+  2. python puente.py [nombre ...] -> _previa/<puente>/ (A, el puente y lo que sigue,
+     sobre oscuro; imprime el cambio por fotograma: un paso normal del giro ~35-40) y
+     assets/characters/magnus/puente_perfil/<puente>.png + puente_perfil.json (casilla,
+     pies, b0, sigue, dx).
+  3. godot --headless --import.
+En el juego: scripts/characters/puente_perfil.gd (PuentePerfil) y caida_hojarasca.gd
+(_entrar_al_camino, _al_perfil); PeregrinoFrontal.girar_a_perfil(hasta).
+Verificar: scenes/dev/tmp_transicion.tscn (gitignorado; TRANS_BASTON, TRANS_GUION)
+con --write-movie y la traza (lineas P = puente).
