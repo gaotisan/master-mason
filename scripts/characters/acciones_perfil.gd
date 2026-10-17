@@ -580,12 +580,14 @@ func _cae_andando(a: Dictionary, s: float, eje: float) -> bool:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# con el baculo clavado (o clavandolo, o arrancandolo) no hay baston que
-	# sacar ni guardar: B y G (piloto_baston.gd, que las mira despues) no hacen nada
+	# sacar ni guardar: la tecla del baston y la G (piloto_baston.gd, que las mira
+	# despues) no hacen nada
 	var kb := event as InputEventKey
 	var en_el_suelo := _clavado != null or (_modo == Modo.ACCION and _anim in ["clavar", "arrancar"])
-	if kb and kb.pressed and kb.keycode in [KEY_B, KEY_G] and en_el_suelo:
+	var del_baston := event.is_action_pressed("baston") or (kb and kb.pressed and kb.keycode == KEY_G)
+	if del_baston and en_el_suelo:
 		get_viewport().set_input_as_handled()
-		_ultima = "(el baculo esta clavado: E para arrancarlo)"
+		_ultima = "(el baculo esta clavado: la tecla de accion para arrancarlo)"
 		return
 	if _modo == Modo.TUMBADO:
 		var k0 := event as InputEventKey
@@ -607,11 +609,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("saltar"):
 		_saltar_pegado()
 		return
+	# la tecla de accion (accion "accion": E o X, ver Teclas)
+	if event.is_action_pressed("accion") and not event.is_echo():
+		_accion()
+		return
 	var k := event as InputEventKey
 	if k == null or not k.pressed or k.echo:
 		return
 	match k.keycode:
-		KEY_E: _accion()
 		KEY_K: _clavar()
 		KEY_1: _sin_mas("golpe")
 		KEY_2: _sin_mas("derribo")

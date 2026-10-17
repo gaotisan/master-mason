@@ -17,23 +17,20 @@ func set_from_action(action: StringName) -> void:
 	text = info.get("text", "")
 	queue_redraw()
 
-## Traduce una accion del InputMap al simbolo de la primera tecla asignada.
+## Traduce una accion del InputMap al simbolo de su tecla: la de la postura con
+## que juega (flechas o WASD, ver Teclas) y con la letra de su teclado.
 static func describe_action(action: StringName) -> Dictionary:
-	if not InputMap.has_action(action):
-		return {"kind": "text", "text": String(action)}
-	for ev in InputMap.action_get_events(action):
-		if ev is InputEventKey:
-			var kc: Key = ev.keycode if ev.keycode != KEY_NONE else ev.physical_keycode
-			match kc:
-				KEY_UP: return {"kind": "arrow", "dir": Vector2.UP}
-				KEY_DOWN: return {"kind": "arrow", "dir": Vector2.DOWN}
-				KEY_LEFT: return {"kind": "arrow", "dir": Vector2.LEFT}
-				KEY_RIGHT: return {"kind": "arrow", "dir": Vector2.RIGHT}
-				KEY_SPACE: return {"kind": "text", "text": "SPACE"}
-				KEY_ENTER: return {"kind": "text", "text": "ENTER"}
-				KEY_ESCAPE: return {"kind": "text", "text": "ESC"}
-				_: return {"kind": "text", "text": OS.get_keycode_string(kc)}
-	return {"kind": "text", "text": String(action)}
+	var kc := Teclas.de(action)
+	match kc:
+		KEY_NONE: return {"kind": "text", "text": String(action)}
+		KEY_UP: return {"kind": "arrow", "dir": Vector2.UP}
+		KEY_DOWN: return {"kind": "arrow", "dir": Vector2.DOWN}
+		KEY_LEFT: return {"kind": "arrow", "dir": Vector2.LEFT}
+		KEY_RIGHT: return {"kind": "arrow", "dir": Vector2.RIGHT}
+		KEY_SPACE: return {"kind": "text", "text": "SPACE"}
+		KEY_ENTER: return {"kind": "text", "text": "ENTER"}
+		KEY_ESCAPE: return {"kind": "text", "text": "ESC"}
+		_: return {"kind": "text", "text": Teclas.nombre(kc)}
 
 func _draw() -> void:
 	if kind == "arrow":
@@ -41,7 +38,8 @@ func _draw() -> void:
 		_draw_arrow(Vector2.ZERO, color)
 	else:
 		var font: Font = ThemeDB.fallback_font
-		var font_size := int(size * (0.55 if text.length() <= 2 else 0.32))
+		# una letra (Q, Z, E...), grande: a 0,55 apenas se leia sobre la tecla
+		var font_size := int(size * (0.85 if text.length() == 1 else 0.55 if text.length() <= 2 else 0.32))
 		var w := size * 1.6
 		var pos := Vector2(-w / 2.0, font_size * 0.36)
 		draw_string(font, pos + Vector2(0, 3), text, HORIZONTAL_ALIGNMENT_CENTER, w, font_size, shadow_color)

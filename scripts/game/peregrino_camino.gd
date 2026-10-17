@@ -237,8 +237,8 @@ func _w(p: Vector2) -> float:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	var k := event as InputEventKey
-	if _estado == "jugando" and k and k.pressed and not k.echo and k.keycode == KEY_B:
+	# la tecla del baston (accion "baston": Q o Z, ver Teclas)
+	if _estado == "jugando" and event.is_action_pressed("baston") and not event.is_echo():
 		peregrino.pulsar_baston()
 
 

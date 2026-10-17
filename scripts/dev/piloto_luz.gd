@@ -414,8 +414,9 @@ func _physics_process(delta: float) -> void:
 				escena._alcanzado = true
 				escena._coger_baculo()
 			"tecla_b":
-				var tecla := InputEventKey.new()
-				tecla.keycode = KEY_B
+				# la tecla del baston (accion "baston", ver Teclas)
+				var tecla := InputEventAction.new()
+				tecla.action = &"baston"
 				tecla.pressed = true
 				# directa a la escena: este piloto se come el teclado (ignorar_teclado)
 				escena._unhandled_input(tecla)

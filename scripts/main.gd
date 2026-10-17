@@ -16,6 +16,8 @@ func _notification(what: int) -> void:
 		_salir()
 
 func _input(event):
+	# con que postura juega (flechas o WASD): lo que ensenan los avisos de tecla
+	Teclas.notar(event)
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_ESCAPE:
 			_salir()
