@@ -53,6 +53,12 @@ Por cada fotograma:
   4. Recortar a lo opaco con margen y guardar a ESCALA (en la embestida, que
      se ve de cerca y movida, a ESCALA_CARGA), en premultiplicado.
   5. Sangrar el color hacia lo transparente (filtrado lineal sin halo).
+  6. Relieve (2026-10-17): de la silueta, una normal por pixel (dos bultos por
+     la distancia al canto, RELIEVE: la masa del cuerpo y el canto que se
+     curva; patas y cuello salen como cilindros) y el grosor. Va a
+     emu_relieve_N.png, a la mitad y con las mismas UV que la pagina: con el
+     emu_camino.gdshader le pone la luz de lo que tiene alrededor (frente
+     oscuro, contraluz en el canto que mira al resplandor).
 Todo va a paginas de atlas (emu_0.png...) y una ficha (emu.json) con, por
 fotograma: pagina y rectangulo en el atlas, rectangulo en el video, centro,
 ventana (ox, oy, s), y los pies (o si ya se han salido por abajo).
@@ -122,6 +128,11 @@ ESCALA_FIN = 2.45
 # centro y el borde izquierdo del video sigue fuera cuando el emu lo toca.
 CENTRO_X = 1250.0
 HOLGURA = 30.0           # px que deben quedar fuera los bordes que toca (camara)
+# Relieve (6): bultos por la distancia al canto, en fraccion del alto del emu y
+# con su peso (uno ancho, el cuerpo como una masa redonda; uno estrecho, el
+# canto que se curva), y el grosor (para la luz que pasa por las plumas finas).
+RELIEVE = ((0.22, 0.4), (0.05, 1.0))
+GROSOR = 0.03
 
 
 def suave(a, b, x):
@@ -182,6 +193,27 @@ def sin_luz_de_estudio(col, a, alto):
 	forma = np.power(np.maximum(luz, 1e-3) / media, FORMA)
 	nueva = LUZ_REF * detalle * forma
 	return np.clip(col * (nueva / np.maximum(lum, 1e-3))[..., None], 0.0, 1.0)
+
+
+def relieve(a, alto):
+	"""Normales y grosor de la silueta (ver 6): RGB = nx, ny (a 0..1) y grosor."""
+	m = (a > 0.5).astype(np.uint8)
+	d = cv2.distanceTransform(np.pad(m, 1), cv2.DIST_L2, 5)[1:-1, 1:-1]
+	h = np.zeros_like(d)
+	for frac, peso in RELIEVE:
+		r = max(3.0, frac * alto)
+		k = 1.0 - np.minimum(d, r) / r
+		h += peso * r * np.sqrt(np.maximum(1.0 - k * k, 0.0))
+	h = cv2.GaussianBlur(h, (0, 0), max(1.5, 0.012 * alto))
+	gx = cv2.Sobel(h, cv2.CV_32F, 1, 0, ksize=3) / 8.0
+	gy = cv2.Sobel(h, cv2.CV_32F, 0, 1, ksize=3) / 8.0
+	nz = np.ones_like(h)
+	ln = np.sqrt(gx * gx + gy * gy + nz * nz)
+	r = max(3.0, GROSOR * alto)
+	grosor = cv2.GaussianBlur(np.minimum(d, r) / r, (0, 0), 1.0)
+	out = np.stack([-gx / ln * 0.5 + 0.5, -gy / ln * 0.5 + 0.5, grosor], -1).astype(np.float32)
+	# Fuera de la silueta, la normal del canto (para el filtrado lineal).
+	return sangrar(out, a)
 
 
 def ventana(n, pies_v):
@@ -273,6 +305,7 @@ def main():
 		abajo = yy > y1 - 25
 		piezas.append({
 			"img": np.concatenate([c, ca[..., None]], -1),
+			"rel": relieve(ca, (y1 - y0) * e),
 			"v": [int(cx0), int(cy0), int(cx1 - cx0), int(cy1 - cy0)],
 			"centro": [round(float(xx.mean()), 1), round(float(yy.mean()), 1)],
 			"ventana": [round(ox, 2), round(oy, 2), round(s, 4)],
@@ -287,6 +320,7 @@ def main():
 
 	# Empaquetado por estantes.
 	paginas = [np.zeros((PAGINA, PAGINA, 4), np.float32)]
+	relieves = [np.full((PAGINA, PAGINA, 3), (0.5, 0.5, 0.0), np.float32)]
 	x = y = alto = 0
 	ficha = []
 	for p in piezas:
@@ -295,12 +329,17 @@ def main():
 			x, y, alto = 0, y + alto, 0
 		if y + h > PAGINA:
 			paginas.append(np.zeros((PAGINA, PAGINA, 4), np.float32))
+			relieves.append(np.full((PAGINA, PAGINA, 3), (0.5, 0.5, 0.0), np.float32))
 			x = y = alto = 0
 		paginas[-1][y:y + h, x:x + w] = p["img"]
+		relieves[-1][y:y + h, x:x + w] = p["rel"]
 		ficha.append([len(paginas) - 1, x, y, w, h] + p["v"] + p["centro"] + p["ventana"] + p["pies"])
 		x += w
 		alto = max(alto, h)
-	paginas[-1] = paginas[-1][:max(1, y + alto)]
+	# (alto de la ultima pagina par: el relieve va a la mitad y tiene que casar)
+	fin = max(2, y + alto + (y + alto) % 2)
+	paginas[-1] = paginas[-1][:fin]
+	relieves[-1] = relieves[-1][:fin]
 	for f in os.listdir(SALIDA):
 		if f.startswith("emu_") and f.endswith(".png"):
 			os.remove(os.path.join(SALIDA, f))
@@ -308,6 +347,12 @@ def main():
 		out = (np.clip(pg, 0.0, 1.0) * 255.0 + 0.5).astype(np.uint8)
 		cv2.imwrite(os.path.join(SALIDA, "emu_%d.png" % i), cv2.cvtColor(out, cv2.COLOR_RGBA2BGRA))
 		print("   emu_%d.png" % i, out.shape)
+	# Relieve a la mitad (es de baja frecuencia): mismas coordenadas UV.
+	for i, rl in enumerate(relieves):
+		rl = cv2.resize(rl, (rl.shape[1] // 2, rl.shape[0] // 2), interpolation=cv2.INTER_AREA)
+		out = (np.clip(rl, 0.0, 1.0) * 255.0 + 0.5).astype(np.uint8)
+		cv2.imwrite(os.path.join(SALIDA, "emu_relieve_%d.png" % i), cv2.cvtColor(out, cv2.COLOR_RGB2BGR))
+		print("   emu_relieve_%d.png" % i, out.shape)
 	with open(os.path.join(SALIDA, "emu.json"), "w", encoding="utf-8") as f:
 		json.dump({"fps": FPS, "video": [W, H], "escala_pie": ESCALA_PIE, "escala_fin": ESCALA_FIN,
 				   "paginas": len(paginas), "fotogramas": ficha}, f)
