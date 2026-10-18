@@ -20,8 +20,8 @@ const FUENTE_NOTA := preload("res://assets/fonts/IMFellEnglish-Italic.ttf")
 const LLAMA := preload("res://scripts/ui/llama.gdshader")
 const ORBE := preload("res://scripts/characters/baston/orbe.gdshader")
 const AJUSTES := preload("res://scripts/ui/ajustes.gd")
-## Sonidos (raw/master_builder/audio/menu/sintetiza.py): cambiar de opcion o de
-## valor, elegir y volver.
+## Sonidos (raw/master_builder/audio/menu/sintetiza.py), muy discretos: al
+## cambiar de opcion o de valor, al elegir y al volver (Esc o la opcion Volver).
 const SONIDO_MOVER := preload("res://assets/audio/ui/menu_mover.wav")
 const SONIDO_ELEGIR := preload("res://assets/audio/ui/menu_elegir.wav")
 const SONIDO_VOLVER := preload("res://assets/audio/ui/menu_volver.wav")

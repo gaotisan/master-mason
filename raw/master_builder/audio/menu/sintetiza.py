@@ -6,9 +6,15 @@ cola de sala corta. El cuerpo va por debajo de ~900 Hz porque en la pausa todo
 pasa por un paso bajo a 900 Hz (menu_pausa.gd, "oido de lejos") y lo agudo se
 perderia.
 
-  menu_mover.wav   corto y suave, al cambiar de opcion (y al cambiar un valor)
-  menu_elegir.wav  algo mas grave y lleno, al elegir
-  menu_volver.wav  el toque que baja de tono, mas apagado, al volver (Esc/Volver)
+  menu_mover.wav   al cambiar de opcion (y de valor): un toque suave y redondo,
+                   como una baqueta de fieltro sobre madera (marimba apagada)
+  menu_elegir.wav  la misma madera en un solo golpe con dos notas a la vez,
+                   Sol4 y Re5 (una quinta): mas lleno que el de moverse
+  menu_volver.wav  el cristal grave en Do5 (Esc y la opcion Volver): suena mas
+                   a "atras" que a elegir
+(Probados y descartados: un toque de volver que bajaba de tono, "raro"; el
+cristal para elegir, "suena a no poder, a back"; elegir en dos toques seguidos,
+"como dos sonidos".)
 
 Uso: python sintetiza.py   (escribe en assets/audio/ui/)
 """
@@ -43,6 +49,21 @@ def toque(f0, dur, caida, parciales, glide=1.0, glide_t=0.0, rng=None):
     return s * ataque
 
 
+def madera(f0, dur, rng):
+    """Marimba apagada: fundamental y los parciales de la marimba (4 y 9,9),
+    que se apagan muy deprisa, mas el golpe blando de la baqueta (ruido grave
+    de unos ms)."""
+    t = np.arange(int(SR * dur)) / SR
+    s = np.sin(2 * np.pi * f0 * t) * np.exp(-t / 0.085)
+    s += 0.12 * np.sin(2 * np.pi * f0 * 4.0 * t) * np.exp(-t / 0.018)
+    s += 0.03 * np.sin(2 * np.pi * f0 * 9.9 * t) * np.exp(-t / 0.008)
+    golpe = rng.standard_normal(len(t)) * np.exp(-t / 0.004)
+    golpe = np.convolve(golpe, np.ones(24) / 24, mode="same")      # sin agudos
+    s += 0.25 * golpe
+    ataque = np.clip(t / 0.003, 0, 1)
+    return s * ataque
+
+
 def sala(x, dur=0.5, mezcla=0.14, semilla=3):
     """Cola de sala corta: convolucion con ruido que cae, filtrado suave."""
     rng = np.random.default_rng(semilla)
@@ -73,16 +94,17 @@ def escribir(nombre, x, pico_db):
 
 def main():
     rng = np.random.default_rng(7)
-    # parciales de campana de cristal (razones casi armonicas, la 2.76 da el cristal)
-    cristal = [(1.0, 1.0, 1.0), (2.0, 0.35, 0.6), (2.76, 0.22, 0.45), (4.07, 0.08, 0.3)]
-    mover = toque(698.5, 0.45, 0.11, cristal, rng=rng)                  # F5
-    escribir("menu_mover.wav", sala(mover, 0.35, 0.12), -17.0)
-    elegir = toque(523.3, 0.9, 0.24, cristal, rng=rng)                  # C5
-    elegir += 0.5 * toque(784.0, 0.9, 0.2, cristal, rng=rng)            # G5, quinta
-    elegir += 0.25 * toque(261.6, 0.9, 0.12, [(1.0, 1.0, 1.0), (2.0, 0.3, 0.6)], rng=rng)  # cuerpo
-    escribir("menu_elegir.wav", sala(elegir, 0.6, 0.16), -14.5)
-    volver = toque(659.3, 0.55, 0.13, cristal, glide=0.75, glide_t=0.09, rng=rng)  # E5 -> B4
-    escribir("menu_volver.wav", sala(volver, 0.4, 0.12), -18.5)
+    # parciales de campana de cristal (razones casi armonicas, la 2.76 da el
+    # cristal), con lo de arriba apagado
+    # pulsar: cristal en Do5, apagado arriba (en Fa5 era algo agudo)
+    suave = [(1.0, 1.0, 1.0), (2.0, 0.28, 0.6), (2.76, 0.1, 0.45), (4.07, 0.03, 0.3)]
+    cristal_c5 = toque(523.3, 0.45, 0.11, suave, rng=rng)               # C5
+    escribir("menu_volver.wav", sala(cristal_c5, 0.35, 0.12), -23.0)
+    madera_g4 = madera(392.0, 0.3, rng)                                  # G4
+    escribir("menu_mover.wav", sala(madera_g4, 0.3, 0.1), -24.0)
+    # elegir: Sol4 y Re5 a la vez, la quinta algo mas suave
+    elegir = madera(392.0, 0.36, rng) + 0.7 * madera(587.3, 0.36, rng)
+    escribir("menu_elegir.wav", sala(elegir, 0.3, 0.1), -23.0)
 
 
 if __name__ == "__main__":
