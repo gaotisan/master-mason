@@ -1,4 +1,4 @@
-"""Genera las hojas del bosque de The Master Mason.
+"""Genera las hojas del bosque de The Master Builder.
 
     python bosque.py                 # todas
     python bosque.py capa2 suelo     # solo esas

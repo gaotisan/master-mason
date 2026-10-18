@@ -1,4 +1,4 @@
-# The Master Mason
+# The Master Builder
 
 Juego de terror en Godot 4 hecho con IA. Prototipo en desarrollo.
 
@@ -25,7 +25,7 @@ Abrir en el editor:
 ## Exportar a Windows
 
 ```
-build_windows.bat        # genera _builds\pc\master_mason.exe + .pck
+build_windows.bat        # genera _builds\pc\the_master_builder.exe + .pck
 build_windows.bat run    # exporta y lanza el juego
 ```
 
@@ -72,7 +72,7 @@ Para revisar esos tiempos sin estar delante:
 ```
 
 Guarda una captura en cada segundo que se le pida (`scripts/dev/piloto_capturas.gd`)
-y sale. Las imágenes quedan en `%APPDATA%\Godot\app_userdata\Master Mason\`.
+y sale. Las imágenes quedan en `%APPDATA%\Godot\app_userdata\The Master Builder\`.
 
 ## Sprites de personajes
 

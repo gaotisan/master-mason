@@ -1,4 +1,4 @@
-# MASTER MASON — Guion v4
+# THE MASTER BUILDER — Guion v4
 
 *Documento maestro. Parte de la v3.2 (`guion.md`) y aplica el canon del usuario (`trabajo/canon_reglas_jugables.md`) con `trabajo/decisiones_v4.md`; los dos mandan. Se conserva la numeración de secuencias de la v3.2 para que las referencias cruzadas sigan valiendo; en el cap. 1 cambian de contenido 1.8 y 1.9. Se describe solo lo que se ve, se oye o se juega.*
 
@@ -6,8 +6,8 @@
 
 ## 0. Portada
 
-**Título de trabajo:** *Master Mason*. **En pantalla:** **El maestro constructor**.
-*Nota de título:* *Master Mason* conserva a propósito la resonancia con Hiram y la tradición del maestro de obra. Si esa lectura masónica no interesa, el título internacional será *Master Builder*.
+**Título:** *The Master Builder* (decidido el 2026-10-18). **En pantalla:** **El maestro constructor**.
+*Nota de título:* se descartó *Master Mason* para no vincular el juego a la masonería.
 
 **Logline.** Alguien encerrado a oscuras golpea un cristal para salir y, sin querer, aplasta una cucaracha que suelta esporas. Negro. Un viejo peregrino sin memoria cae en un bosque de otoño donde las hojas sostienen su peso y la luz le quita la gravedad. Un anfitrión con mirada de niño le promete decirle quién es a cambio de que le enseñe el mundo. Cada verdad vuelve el sueño más real, más pesado y más mortal, hasta que el peregrino, que es cantero, demuestra que la casa de su anfitrión nunca pudo sostenerse.
 
@@ -1529,7 +1529,7 @@ Por eso el último gesto no es construir el torreón ni derribar la casa. **Es r
 
 ## 13. Decisiones abiertas
 
-1. **Título internacional:** *Master Mason* (resonancia con Hiram y el maestro de obra) o *Master Builder* (sin lectura masónica). En pantalla, **El maestro constructor** en ambos casos. *Recomiendo* mantener *Master Mason* como título de trabajo y decidir el internacional tras las pruebas.
+1. ~~**Título internacional.**~~ Cerrada el 2026-10-18: *The Master Builder*, sin lectura masónica.
 2. **Duración de la espera final:** objetivo 35 s. *Recomiendo* validar entre 25 y 45 s con las señales de 10/20/30 s y fijarla según cuántos testers llegan a esperar más de 20 s.
 3. **Explicitud de la cara (10.5):** ¿bastan las dos ilustraciones o hace falta un tercer encuadre del padre de carboncillo? *Recomiendo* producir solo dos y añadir el tercero únicamente si salta la alarma del 70 % (§10).
 4. **Cuánto se ve al hijo en la rama B (8.4-8.6):** lo bastante para que sea causal (bolsillo, tres miradas, el puñado), no tanto como para arruinar la tensión de la cena. *Recomiendo* el plano lejano actual y ajustar con la alarma del 20 %.

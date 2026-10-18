@@ -1,4 +1,4 @@
-# Textos de The Master Mason
+# Textos de The Master Builder
 
 Todos los textos del juego, en todos sus idiomas. Cada fichero es una tabla: una fila por frase y una columna por idioma, así que la misma frase en español y en inglés queda una al lado de la otra.
 

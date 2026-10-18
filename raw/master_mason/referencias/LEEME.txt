@@ -8,7 +8,7 @@ gaotisan_, las de IA por Gemini_Generated_Image_ o ChatGPT Image).
                  golpea, el pendulo y las cadenas de la intro
   cocina/        cocina y carniceria del castillo, la cabeza de cerdo, corazones,
                  pajaro, y dos de cajas con flores
-  titulo/        pantallas de titulo "The Master Mason" / "El Maestro Constructor",
+  titulo/        pantallas de titulo "The Master Mason" (nombre antiguo) / "El Maestro Constructor",
                  hojas y el humo suave
   escenarios/    bosques, la piramide, el arbol con fuego y la figura del sabio
   personaje/     Dominus y el peregrino: piezas sueltas (cabeza, brazos, piernas, abrigo),

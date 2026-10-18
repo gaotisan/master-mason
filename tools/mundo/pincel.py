@@ -1,4 +1,4 @@
-"""Pincel: utilidades para pintar por codigo el mundo de The Master Mason.
+"""Pincel: utilidades para pintar por codigo el mundo de The Master Builder.
 
 El estilo sale de las referencias del bosque (capas de arboles desnudos en
 niebla, cielo degradado, grano de acuarela): SILUETAS. Cada capa se genera como
