@@ -74,7 +74,7 @@ const PRUEBAS := {
 	"coger": [1380.0, []],
 	"coger_b": [1380.0, []],
 	# Con el bosque de fondo (LUZ_BOSQUE=1): el viento destapa el camino al
-	# segundo, con Magnus quieto en el centro.
+	# segundo, con el peregrino quieto en el centro.
 	"camino": [1470.0, []],
 	# El lecho bajo el haz no crece con las hojas que caen por la luz.
 	"monton": [600.0, []],
@@ -114,7 +114,7 @@ const EXTRAS := {
 ## en bucle hasta Esc. Cada paso espera a lo suyo:
 ##   ["texto", t]          pone el rotulo
 ##   ["espera", s]         segundos
-##   ["hasta_x", x]        a que Magnus pase de x (sin dar la vuelta al mundo:
+##   ["hasta_x", x]        a que el peregrino pase de x (sin dar la vuelta al mundo:
 ##                         una vuelta entera suma 2912)
 ##   ["pulsa"|"suelta", accion]
 const DEMO := [
@@ -341,7 +341,7 @@ func _contar_monton() -> int:
 			n += capa.cuantas_en(x)
 	return n
 
-## LUZ_HOJAS=1: cuantas hojas del lecho vuelan cerca de Magnus (andando), para
+## LUZ_HOJAS=1: cuantas hojas del lecho vuelan cerca del peregrino (andando), para
 ## medir como responde el lecho al pasar.
 var _hojas_suma := 0.0
 var _hojas_ticks := 0
@@ -412,7 +412,7 @@ func _physics_process(delta: float) -> void:
 				escena._abrir_camino()
 			"subir_400":
 				# en pleno vuelo (subiendo), 400 px mas alto
-				var mg: Node = escena.get_node("Magnus")
+				var mg: Node = escena.get_node("Peregrino")
 				mg.set("_vuelo_y", float(mg.get("_vuelo_y")) + 400.0)
 			"coger":
 				escena._alcanzado = true
@@ -447,7 +447,7 @@ func _physics_process(delta: float) -> void:
 		int(m._mirando), "v" if s.flip_h else "", int(m._giro_aire), m._tope_caida()])
 
 ## Antes de pintar: el sprite donde dice la fisica para el fotograma que se ve.
-## Si algo cambia el fotograma despues del tick de Magnus sin recolocarlo (el
+## Si algo cambia el fotograma despues del tick del peregrino sin recolocarlo (el
 ## rebote, que lo llama el nivel), se pinta un fotograma descolocado: el
 ## parpadeo del rebote (2026-10-12). Lo avisa.
 func _process(_delta: float) -> void:

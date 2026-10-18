@@ -70,7 +70,7 @@ func _arboles(nivel: int, escala: float) -> void:
 	draw_rect(Rect2(DESDE, SUELO_Y, HASTA - DESDE, 4000), color)
 
 func _suelo() -> void:
-	# Arboles sueltos en el plano de Magnus, por detras de el.
+	# Arboles sueltos en el plano del peregrino, por detras de el.
 	var x := DESDE
 	while x < HASTA:
 		_arbol(Vector2(x, SUELO_Y + 10), _rng.randf_range(1300, 1900), 9)

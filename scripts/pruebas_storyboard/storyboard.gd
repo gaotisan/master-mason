@@ -1,10 +1,10 @@
 extends Node2D
-## PRUEBA de "storyboard jugable": dos planos encadenados con el mismo Magnus.
+## PRUEBA de "storyboard jugable": dos planos encadenados con el mismo peregrino.
 ##
 ##   1. Lateral: bosque en niebla, capas con perspectiva, la camara le sigue.
 ##      Al salir por la derecha, corte al mirador.
 ##   2. Mirador (la imagen del usuario, separada en fondo, ladera y marco):
-##      Magnus entra por abajo y sube por el sendero haciendose pequeno.
+##      El peregrino entra por abajo y sube por el sendero haciendose pequeno.
 ##      Va sobre un camino (raíl): derecha = adelante por el sendero, izquierda
 ##      = atras. Al llegar a la punta se para solo y la camara se acerca
 ##      despacio, con la ladera moviendose mas que el fondo. Ahi, derecha otra
@@ -12,13 +12,13 @@ extends Node2D
 ##      el sendero hasta salir por abajo, corte al plano 1 andando hacia la
 ##      izquierda.
 ##
-## Magnus no sabe nada: sigue andando en x. En el mirador su x es la distancia
+## El peregrino no sabe nada: sigue andando en x. En el mirador su x es la distancia
 ## recorrida por el sendero, y el nodo Proyeccion le pone cada fotograma el
 ## punto de pantalla y la escala que tocan ahi (como en la prueba de planos
 ## fijos). La distancia se mide dividida por la escala, asi que el paso del
 ## sprite sigue casando con lo que avanza en pantalla.
 ##
-## Teclas: las de Magnus, R reinicia, H oculta el texto, Esc sale.
+## Teclas: las del peregrino, R reinicia, H oculta el texto, Esc sale.
 
 const PANTALLA := Vector2(2912, 1632)
 const SUELO_Y := 1200.0
@@ -34,7 +34,7 @@ const SUELO_Y := 1200.0
 @export var sendero: PackedVector2Array = PackedVector2Array([
 	Vector2(140, 880), Vector2(250, 790), Vector2(360, 742), Vector2(450, 694),
 	Vector2(500, 660), Vector2(523, 640)])
-## Escala de Magnus segun la altura en la imagen: es 'escala_punta' en la punta
+## Escala del peregrino segun la altura en la imagen: es 'escala_punta' en la punta
 ## (la figura pintada medía 63 px) y crece hacia abajo como en un suelo en
 ## perspectiva con el horizonte en 'horizonte_y'.
 @export var escala_punta: float = 0.40
@@ -47,7 +47,7 @@ const SUELO_Y := 1200.0
 
 enum Plano { LATERAL, MIRADOR }
 
-@onready var _magnus: Node2D = $Magnus
+@onready var _peregrino: Node2D = $Peregrino
 @onready var _lateral: Node2D = $Lateral
 @onready var _capas: Node2D = $Lateral/Capas
 @onready var _accion: Node2D = $Lateral/Capas/Accion
@@ -61,7 +61,7 @@ enum Plano { LATERAL, MIRADOR }
 
 var _plano := Plano.LATERAL
 var _cam_x := 0.0
-# sendero muestreado: puntos de pantalla, escala y distancia "de Magnus"
+# sendero muestreado: puntos de pantalla, escala y distancia "de Peregrino"
 var _pts := PackedVector2Array()
 var _esc := PackedFloat32Array()
 var _dist := PackedFloat32Array()
@@ -74,7 +74,7 @@ func _ready() -> void:
 	WindAmbience.gust_db = 0.0
 	WindAmbience.fade_to(-16.0, 0.0)
 	_muestrear_sendero()
-	_magnus.get_parent().remove_child(_magnus)
+	_peregrino.get_parent().remove_child(_peregrino)
 	_entrar_lateral(300.0, 1.0)
 	_negro.color.a = 0.0
 	_aviso.modulate.a = 0.0
@@ -103,21 +103,21 @@ func _entrar_lateral(x: float, mirando: float) -> void:
 	_plano = Plano.LATERAL
 	_lateral.visible = true
 	_mirador.visible = false
-	_poner_magnus_en(_accion, Vector2(x, SUELO_Y))
-	_magnus.limite_izquierdo = 150.0
+	_poner_peregrino_en(_accion, Vector2(x, SUELO_Y))
+	_peregrino.limite_izquierdo = 150.0
 	# El limite, lejos: el corte tiene que llegar antes de que frene.
-	_magnus.limite_derecho = lateral_largo + 3000.0
-	_magnus.frenada_limite_andar = 200.0
-	_magnus.frenada_limite_correr = 380.0
-	if mirando < 0.0 and _magnus.mirando() > 0.0:
-		_magnus.call("_mirar", -1.0)
-	elif mirando > 0.0 and _magnus.mirando() < 0.0:
-		_magnus.call("_mirar", 1.0)
+	_peregrino.limite_derecho = lateral_largo + 3000.0
+	_peregrino.frenada_limite_andar = 200.0
+	_peregrino.frenada_limite_correr = 380.0
+	if mirando < 0.0 and _peregrino.mirando() > 0.0:
+		_peregrino.call("_mirar", -1.0)
+	elif mirando > 0.0 and _peregrino.mirando() < 0.0:
+		_peregrino.call("_mirar", 1.0)
 	_cam_x = clampf(x + 300.0 * mirando, PANTALLA.x * 0.5, lateral_largo)
 
 func _proceso_lateral(delta: float) -> void:
-	var x := _magnus.position.x
-	var obj := clampf(x + 300.0 * _magnus.mirando(), PANTALLA.x * 0.5, lateral_largo)
+	var x := _peregrino.position.x
+	var obj := clampf(x + 300.0 * _peregrino.mirando(), PANTALLA.x * 0.5, lateral_largo)
 	_cam_x = lerpf(_cam_x, obj, 1.0 - exp(-delta * 4.0))
 	var cy := SUELO_Y - (suelo_en_pantalla - 0.5) * PANTALLA.y
 	for capa in _capas.get_children():
@@ -125,7 +125,7 @@ func _proceso_lateral(delta: float) -> void:
 		capa.scale = Vector2(s, s)
 		capa.position = PANTALLA * 0.5 - Vector2(_cam_x, cy) * s
 	# Sale por la derecha: corte al mirador, entrando por abajo.
-	if x > lateral_largo + PANTALLA.x * 0.5 - 120.0 and _magnus.mirando() > 0.0:
+	if x > lateral_largo + PANTALLA.x * 0.5 - 120.0 and _peregrino.mirando() > 0.0:
 		_entrar_mirador(_dist[0] + 10.0)
 
 # --- Plano 2: mirador ----------------------------------------------------------
@@ -136,14 +136,14 @@ func _entrar_mirador(d: float) -> void:
 	_mirador.visible = true
 	_contemplar = 0.0
 	_en_punta = 0.0
-	_poner_magnus_en(_proyeccion, Vector2(d, 0.0))
-	_magnus.limite_izquierdo = _dist[0] - 400.0
-	_magnus.limite_derecho = _largo
-	_magnus.frenada_limite_andar = 120.0
-	_magnus.frenada_limite_correr = 300.0
+	_poner_peregrino_en(_proyeccion, Vector2(d, 0.0))
+	_peregrino.limite_izquierdo = _dist[0] - 400.0
+	_peregrino.limite_derecho = _largo
+	_peregrino.frenada_limite_andar = 120.0
+	_peregrino.frenada_limite_correr = 300.0
 
 func _proceso_mirador(delta: float) -> void:
-	var d := _magnus.position.x
+	var d := _peregrino.position.x
 	var p := _en_sendero(d)
 	var s: float = p[1]
 	var t := Transform2D(0.0, Vector2(s, s), 0.0, Vector2.ZERO)
@@ -162,7 +162,7 @@ func _proceso_mirador(delta: float) -> void:
 	var aviso_obj := 1.0 if _en_punta > 2.5 and not _saliendo else 0.0
 	_aviso.modulate.a = move_toward(_aviso.modulate.a, aviso_obj * 0.7, delta * 0.8)
 	# Baja por el sendero hasta salir por abajo: corte al lateral, hacia la izquierda.
-	if d < _dist[0] - 300.0 and _magnus.mirando() < 0.0:
+	if d < _dist[0] - 300.0 and _peregrino.mirando() < 0.0:
 		_entrar_lateral(lateral_largo + PANTALLA.x * 0.5 + 100.0, -1.0)
 
 func _zoom_capa(capa: Node2D, z: float, foco: Vector2) -> void:
@@ -184,7 +184,7 @@ func _escala_en(y_img: float) -> float:
 	return maxf(escala_punta * (y_img - horizonte_y) / (sendero[sendero.size() - 1].y - horizonte_y), 0.05)
 
 ## Muestrea el sendero cada pocos pixeles y acumula la distancia que anda
-## Magnus: tramo de pantalla / escala, para que el paso case con el suelo.
+## El peregrino: tramo de pantalla / escala, para que el paso case con el suelo.
 func _muestrear_sendero() -> void:
 	_pts.clear(); _esc.clear(); _dist.clear()
 	var acum := 0.0
@@ -217,8 +217,8 @@ func _en_sendero(d: float) -> Array:
 	var t := inverse_lerp(_dist[i - 1], _dist[i], d)
 	return [_pts[i - 1].lerp(_pts[i], t), lerpf(_esc[i - 1], _esc[i], t)]
 
-func _poner_magnus_en(padre: Node, pos: Vector2) -> void:
-	if _magnus.get_parent():
-		_magnus.get_parent().remove_child(_magnus)
-	padre.add_child(_magnus)
-	_magnus.position = pos
+func _poner_peregrino_en(padre: Node, pos: Vector2) -> void:
+	if _peregrino.get_parent():
+		_peregrino.get_parent().remove_child(_peregrino)
+	padre.add_child(_peregrino)
+	_peregrino.position = pos

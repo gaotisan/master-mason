@@ -1,12 +1,12 @@
 PROMPT DEL GIRO AGACHADO POR DELANTE, A SU RITMO Y CON LA TUNICA SIMETRICA
 (Google Flow / Veo 3.1, "Frames to Video", 2026-10-11)
 =========================================================================
-Por que: el giro agachado de ahora (job magnus_giro_agachado_video, video
+Por que: el giro agachado de ahora (job peregrino_giro_agachado_video, video
 Wizard_turning_in_place_20261005171117, pedido con prompt_giro_agachado_video.txt)
 gira POR DETRAS, ensenando la espalda, y queda raro; ademas asi el baston a la
 espalda tiene que pasar por delante del cuerpo con una funda de cuero
 (seguir.py, colocar_giro_vertical). Por delante, como el giro de pie
-(magnus_giro_simetrico, que salio bien con prompt_giro_frente_simetrico.txt),
+(peregrino_giro_simetrico, que salio bien con prompt_giro_frente_simetrico.txt),
 la espalda no se ve nunca y el baston va siempre detras del cuerpo siguiendo a
 la capucha (colocar_giro_delante): mucho mas facil y mas natural.
 Aquella toma, ademas, hacia dos cosas: primero se volvia hacia la camara y
@@ -15,7 +15,7 @@ solo giro, rapido, de un perfil al otro por delante.
 
 En Flow, modo de fotogramas a video:
   - fotograma inicial: referencia_giro_agachado_inicio.png  (el agachado del juego,
-    c_089 de magnus_agacharse, mirando a la derecha, a su tamano de master en
+    c_089 de peregrino_agacharse, mirando a la derecha, a su tamano de master en
     1920x1080, pies en la fila 879; es la misma imagen que referencia_giro_video_inicio.png)
   - fotograma final:   referencia_giro_agachado_fin.png     (el mismo, espejado)
   Que el final sea el inicio espejado le dice al modelo que los dos costados son

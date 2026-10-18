@@ -14,4 +14,4 @@ desde = 0.0
 hasta = 22.0
 guion = [[1.0, "agacharse", true], [3.0, "mover_derecha", true], [6.0, "mover_derecha", false], [7.5, "mover_izquierda", true], [8.5, "mover_izquierda", false], [9.0, "mover_derecha", true], [11.0, "agacharse", false], [13.0, "mover_derecha", false], [14.5, "agacharse", true], [16.5, "mover_derecha", true], [17.1, "mover_derecha", false], [17.2, "mover_derecha", true], [17.4, "mover_derecha", false], [19.0, "agacharse", false]]
 x_inicial = 700.0
-personaje = NodePath("../DarkStage/Magnus")
+personaje = NodePath("../DarkStage/Peregrino")

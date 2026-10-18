@@ -7,7 +7,7 @@ correa el de la mano (marron, con la garra de cuerna y el tramo retorcido) y en 
 puentes se transformaba de uno a otro (el usuario: "pasa ya al de la animacion, que
 no es exacto"; "igualarlo todo a la vieja usanza, sin trucos").
 
-Aqui, el de la mano del reposo de espaldas con baston (magnus_secuencia_frontal,
+Aqui, el de la mano del reposo de espaldas con baston (peregrino_secuencia_frontal,
 reposo_espalda_cb_000, el que se ve parado y andando), recortado a mano: la garra y
 el tramo retorcido (la pieza de arriba, suelta sobre el verde) y el palo liso (la de
 abajo); en medio la mano y la manga lo tapan: ahi, el mismo palo liso. Enderezado
@@ -32,8 +32,8 @@ AQUI = os.path.dirname(os.path.abspath(__file__))
 ANIM = os.path.dirname(AQUI)
 PROY = os.path.abspath(os.path.join(ANIM, '..', '..', '..'))
 SALIDA = os.path.join(PROY, 'assets', 'characters', 'baston')
-FUENTE = os.path.join(ANIM, 'magnus_secuencia_frontal', '04_limpios', 'reposo_espalda_cb_000.png')
-SEC = os.path.join(PROY, 'assets', 'characters', 'magnus', 'secuencia_frontal.json')
+FUENTE = os.path.join(ANIM, 'peregrino_secuencia_frontal', '04_limpios', 'reposo_espalda_cb_000.png')
+SEC = os.path.join(PROY, 'assets', 'characters', 'peregrino', 'secuencia_frontal.json')
 CASILLA = (292, 400)        # hoja; el master es el doble
 LARGO = 437.0               # master: de la bola al pie en la correa (arreglar.py, LARGO_CORREA)
 TRAMO = 176                 # master bajo la bola: hasta aqui la garra y el tramo retorcido (pieza de
@@ -109,7 +109,7 @@ def main():
     junto = junto[y0:y1, max(0, x0):min(W, x1)]
     b = np.array([W // 2 - max(0, x0), by - y0], float)
     # a escala de master, recto (bola arriba, pie abajo): para repintar los
-    # fotogramas de sacar y guardar (magnus_guardar_baston_espalda_a/arreglar.py)
+    # fotogramas de sacar y guardar (peregrino_guardar_baston_espalda_a/arreglar.py)
     Image.fromarray(junto.clip(0, 255).astype(np.uint8), 'RGBA').save(os.path.join(AQUI, 'baston_espalda_master.png'))
     pie = int(np.nonzero(junto[..., 3] > 2)[0].max())
     json.dump({'bola': [float(b[0]), float(b[1])], 'pie': pie}, open(os.path.join(AQUI, 'baston_espalda_master.json'), 'w'))

@@ -1,10 +1,10 @@
-PROMPT PARA LOS FOTOGRAMAS DEL GIRO AGACHADO DE MAGNUS
+PROMPT PARA LOS FOTOGRAMAS DEL GIRO AGACHADO DE PEREGRINO
 ======================================================
 Adjuntar DOS imagenes de referencia, con el peso mas alto que permita la
 herramienta:
-  - referencia_magnus_agachado.png  la POSE: el agachado exacto del juego (sale
-                                    del sprite c_089 de magnus_agacharse)
-  - referencia_magnus_perfil.png    el personaje y el estilo
+  - referencia_peregrino_agachado.png  la POSE: el agachado exacto del juego (sale
+                                    del sprite c_089 de peregrino_agacharse)
+  - referencia_peregrino_perfil.png    el personaje y el estilo
 Croma de todo el proyecto: #24D732 (verde). NO gris ni blanco: la barba es casi
 blanca y con un fondo claro se pierde al quitarlo.
 

@@ -102,7 +102,7 @@ En 1ª persona: Dóminus enfrente y, en medio, una **balanza de cantero**. El ju
 
 ## 2. Personajes
 
-**Iram, el peregrino (el jugador; en código, «Magnus»).** Un anciano sin memoria, cantero, *Magister muri*. Es la proyección de Dóminus: la parte adulta que habría podido crecer. Llega como hijo del sueño, a mitad del juego pasa a ser el padre que enseña y al final mata al padre. Su arco va de la obediencia al amor y del amor a la elección. Habla poco. Lo último que aprende no está en ningún legajo: su propia cara. *Visual:* túnica de peregrino, báculo con garra, sin sombra hasta que le ponen nombre.
+**Iram, el peregrino (el jugador).** Un anciano sin memoria, cantero, *Magister muri*. Es la proyección de Dóminus: la parte adulta que habría podido crecer. Llega como hijo del sueño, a mitad del juego pasa a ser el padre que enseña y al final mata al padre. Su arco va de la obediencia al amor y del amor a la elección. Habla poco. Lo último que aprende no está en ningún legajo: su propia cara. *Visual:* túnica de peregrino, báculo con garra, sin sombra hasta que le ponen nombre.
 
 **Dóminus.** El niño de doce años encerrado en un sarcófago de bronce, que lleva años imaginando este mundo. Dentro del sueño es un curandero e inventor alto, de melena canosa y toga oscura, con la cara de su padre porque es la única que recuerda bien, y una mirada infantil y perversa. Su casa es una ciudadela en miniatura que no debería sostenerse, con un péndulo que no obedece a la física. **Es monstruoso por egoísmo de creador:** desmonta, injerta y presta a su hijo para azotarlo. **Da pena:** quemaron a su padre delante de él, imaginó a su madre y le salió un monstruo, y cada mañana, cuando el péndulo ya está parado, lo empuja como un niño que da cuerda a un juguete roto. Todo lo que hace mal lo hace por miedo a quedarse solo otra vez. Nunca lleva música de villano.
 
@@ -273,7 +273,7 @@ En 1ª persona: Dóminus enfrente y, en medio, una **balanza de cantero**. El ju
 - **CÁM:** frontal fijo de la mesa. Dóminus a la izquierda, la silla de Iram a la derecha, el péndulo al fondo cruzando el encuadre. **Este encuadre volverá en el cap. 8.**
 - **LUGAR:** la sala abarrotada (órgano, potro de tortura, alambique que silba, caldera sobre el brasero, trampillas y puertas por todas partes). La única luz es la de la chimenea.
 - **PASA:** Iram recorre la sala fingiendo interés por los objetos, se sienta y le cuenta la verdad.
-- **JUEGA:** andar por la sala en diagonal. Al sentarse, **la elección del nombre**: tres nombres que se le ocurren al jugador (por ejemplo, «Magnus», «Pedro», «Santiago») o el silencio. Elija lo que elija, Dóminus lo pisa.
+- **JUEGA:** andar por la sala en diagonal. Al sentarse, **la elección del nombre**: tres nombres que se le ocurren al jugador (por ejemplo, «Pedro», «Santiago») o el silencio. Elija lo que elija, Dóminus lo pisa.
 - **TEXTO** (diálogo, condensado del relato):
   - Dóminus: «¿Cuál es tu nombre, peregrino?» (respuesta del jugador) «Yo me llamo Dóminus. Soy curandero e inventor».
   - Iram: «No recuerdo nada. Muéstrame el camino a una aldea».

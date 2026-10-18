@@ -1,10 +1,10 @@
 extends Node2D
 ## La caida en la hojarasca, por separado. El cuento empieza con el anciano
 ## poniendose en pie y sacudiendose "la hojarasca que se habia quedado adherida
-## a sus ropas" en un atardecer de otono: aqui Magnus cae del cielo sobre un
+## a sus ropas" en un atardecer de otono: aqui el peregrino cae del cielo sobre un
 ## monton de hojas, a oscuras junto a un haz de luz calida, las levanta con el
 ## golpe, se queda tumbado mientras vuelven a caer, y al levantarse se le van
-## desprendiendo. Cae fuera del haz, en el tercio izquierdo (MagnusSpawn,
+## desprendiendo. Cae fuera del haz, en el tercio izquierdo (el peregrinoSpawn,
 ## 2026-10-14; antes en el centro): en la luz se flota, y caer de golpe a
 ## traves de ella la contradecia justo antes de que el jugador lo descubra
 ## (al levantarse ve la columna, va hacia ella y salta: "ligero").
@@ -12,7 +12,7 @@ extends Node2D
 ## De arriba, de arboles que no se ven, caen hojas sueltas. El mundo da la
 ## vuelta: lo que sale por un lado entra por el otro.
 ##
-## La hojarasca a la altura de Magnus son hojas de verdad (hojas_voladoras.gd),
+## La hojarasca a la altura del peregrino son hojas de verdad (hojas_voladoras.gd),
 ## en dos capas apiladas por columnas: una algo detras de el y otra algo delante
 ## (le tapa los pies). Todo lo que levanta son esas hojas, que vuelven a caer
 ## encima de donde caigan: el camino que abre se queda abierto, delante se
@@ -24,18 +24,18 @@ extends Node2D
 ## (next_scene de title_screen_controller.gd); dark_stage queda para pruebas.
 ##
 ## Entrada: el titulo acaba en negro, asi que aqui se abre desde negro (el haz y
-## el lecho aparecen primero) y Magnus cae ya con luz. El viento es el mismo
+## el lecho aparecen primero) y el peregrino cae ya con luz. El viento es el mismo
 ## autoload que viene sonando desde el titulo (sin corte): sube suave desde el
 ## nivel en que lo dejo hasta el de fondo de la escena, a la vez que la luz. El
 ## fichero de viento es muy bajo (-48 dB de media), por eso viento_db es positivo.
 ## Rachas de vez en cuando: suben el viento unos dB, caen mas hojas de arriba y
 ## las que vuelan se desvian con ellas.
 
-## Del negro a la escena (s) y cuando empieza a caer Magnus (s desde el inicio).
+## Del negro a la escena (s) y cuando empieza a caer el peregrino (s desde el inicio).
 @export var entrada: float = 3.0
 @export var espera_caida: float = 1.8
 ## A false (scenes/dev/prueba_luz.tscn y piloto_luz.tscn), sin entrada ni
-## caida: Magnus de pie en su sitio y con el mando desde el principio, sin
+## caida: el peregrino de pie en su sitio y con el mando desde el principio, sin
 ## pensamientos.
 @export var caida_al_empezar: bool = true
 ## Para probar las hojas de la luz: el baculo baja nada mas empezar, sin
@@ -158,7 +158,7 @@ extends Node2D
 @export var golpe_hojas: int = 220
 @export var golpe_vel_min: float = 300.0
 @export var golpe_vel_max: float = 880.0
-## Donde queda el cuerpo tumbado respecto al nodo de Magnus (px en x): de ahi
+## Donde queda el cuerpo tumbado respecto al nodo del peregrino (px en x): de ahi
 ## salen las hojas del golpe. Medido en la grabacion de la caida.
 @export var cuerpo_desde: float = -170.0
 @export var cuerpo_hasta: float = 160.0
@@ -169,7 +169,7 @@ extends Node2D
 @export var arbol_cada_max: float = 4.0
 ## Escala de todo lo que levantan los pies (1 = lo de CONTACTOS).
 @export var pateo: float = 1.0
-## Velocidad de andar de Magnus, para escalar con lo que corre de verdad.
+## Velocidad de andar del peregrino, para escalar con lo que corre de verdad.
 @export var velocidad_referencia: float = 160.0
 ## Vadear: las piernas cogen las hojas de arriba de las columnas que tienen
 ## delante (hasta vadeo_alcance px, mas corriendo) y no dejan menos de
@@ -187,7 +187,7 @@ extends Node2D
 ## hojas (raw/master_mason/audio/hojarasca/construye.py). Las pisadas: una al
 ## azar de doce, con algo de tono y volumen distintos (AudioStreamRandomizer).
 ## El arrastre es un bucle que sube con la velocidad (el roce al vadear) y
-## calla parado o en el aire. Los pasos propios de Magnus (de suelo duro) se
+## calla parado o en el aire. Los pasos propios del peregrino (de suelo duro) se
 ## bajan aqui para que mande el crujido.
 ## Equilibrio (2026-10-14, con la musica de fondo; el usuario: las hojas y el
 ## viento "ensordecedores"): medido en LUFS como suena en el juego, la musica
@@ -200,7 +200,7 @@ extends Node2D
 @export var hojas_levantarse_db: float = -15.0
 @export var hojas_paso_db: float = -19.0
 @export var arrastre_db: float = -20.0
-@export var magnus_pasos_db: float = -24.0
+@export var peregrino_pasos_db: float = -24.0
 ## La nota del hilo mientras baja el baculo (assets/audio/baculo_hilo.wav, de
 ## raw/master_mason/audio/baculo/hilo.py): por debajo de los pasos en las hojas.
 @export var hilo_db: float = -14.0
@@ -226,7 +226,7 @@ extends Node2D
 
 @export_group("Coger el baculo")
 ## COGER EL BACULO (2026-10-14; video del usuario, raw/master_mason/anim/
-## magnus_coger_baculo). Al alcanzarlo lo agarra (coger_baculo, de flotar.json,
+## peregrino_coger_baculo). Al alcanzarlo lo agarra (coger_baculo, de flotar.json,
 ## mirando hacia el; el nodo se pone para que la garra del dibujo caiga en la
 ## bola) y en ese instante el destello, que tapa el cambio de pose y de baston
 ## (el del juego y el del video son el mismo dibujo; desde ahi la madera la
@@ -247,7 +247,7 @@ extends Node2D
 ## sin la luz, oscuro, cayendo las hojas normales"). Desde luz_apagar_tras s
 ## tras el agarre, en luz_apagar s: el haz, su reflejo en el bosque, la mancha
 ## de luz del suelo y de las hojas, la niebla calida, las motas, la luz sobre
-## Magnus y lo que aligera (ya no se flota). Las hojas de la escalera se sueltan
+## El peregrino y lo que aligera (ya no se flota). Las hojas de la escalera se sueltan
 ## y caen como las demas, y dejan de bajar las de la luz; las de los arboles
 ## siguen. Con el, el peregrino cae (coger_cae): la luz pierde su espesor.
 @export var luz_apagar_tras: float = 1.5
@@ -292,8 +292,8 @@ extends Node2D
 ## seria entrar cuando le demos a la tecla de arriba, ya que no tiene sentido
 ## saltar"; antes entraba solo al llegar y, volviendo del camino, costaba volver
 ## a entrar): a menos de salida_boca px, arriba no salta (salto_bloqueado de
-## magnus.gd, como junto a una puerta) y el juego toma el mando: se para donde
-## este (magnus.gd: andar_hasta), se vuelve de espaldas y se aleja por el camino
+## peregrino.gd, como junto a una puerta) y el juego toma el mando: se para donde
+## este (peregrino.gd: andar_hasta), se vuelve de espaldas y se aleja por el camino
 ## con la toma de frente (el baston como lo lleve, en la mano o a la espalda);
 ## al adentrarse en la bruma, corte de camara a camino_bosque (que se va
 ## cargando desde que se le quita el mando), sin negro: el usuario, "para darle
@@ -332,8 +332,8 @@ extends Node2D
 @export var luz_borde: float = 1.1
 
 @export_group("Las hojas de la luz")
-## En la luz se pesa poco (el salto flota, ver magnus.gd) y por el haz bajan
-## hojas despacio, planeando casi de cara. Solo esas aguantan a Magnus: si cae
+## En la luz se pesa poco (el salto flota, ver peregrino.gd) y por el haz bajan
+## hojas despacio, planeando casi de cara. Solo esas aguantan al peregrino: si cae
 ## con los pies sobre una, rebota como si volviera a saltar, y la hoja se hunde
 ## un palmo girando y la luz la vuelve a su camino (hojas_voladoras.gd).
 ## 2026-10-12: antes eran una escalera fija (seis hojas quietas en zigzag);
@@ -369,7 +369,7 @@ extends Node2D
 ## sube ~110 px por rebote y en 5-6 rebotes se llega al baculo. Con 112 y 32
 ## (lo de la escalera fija) se subian ~55: diez o doce rebotes seguidos, cada
 ## uno con su giro, demasiado. De espaldas no se
-## va en el aire: cada rebote es girarse (magnus.gd, GIRAR EN EL AIRE: 1,05 s)
+## va en el aire: cada rebote es girarse (peregrino.gd, GIRAR EN EL AIRE: 1,05 s)
 ## y luego avanzar los 124 px de un lado al otro. Un bot sube hasta el baculo
 ## (piloto_luz, prueba "escalera").
 ## UNA ESCALERA QUE NO LO PAREZCA (2026-10-18; el usuario: "no te parece muy muy
@@ -433,14 +433,14 @@ extends Node2D
 @export var pisar_luz: float = 0.35
 @export var pisar_altura: float = 30.0
 ## Hasta cuanto por debajo de los pies (px) mira la hoja que pisara al bajar
-## flotando (magnus.gd: hoja_debajo; estira las piernas al acercarse), y en
+## flotando (peregrino.gd: hoja_debajo; estira las piernas al acercarse), y en
 ## cuanto (s, la mitad del camino) se pone la hoja pisada bajo su pie.
 @export var pisar_mira: float = 260.0
 @export var pisar_centrar: float = 0.05
 ## Empuje que se lleva la hoja pisada (px/s hacia abajo) y su crujido (dB).
 @export var pisar_empuje: float = 240.0
 ## Lo que cede la hoja al apoyarse en ella (px/s hacia abajo, sin girar): baja
-## con el mientras flexiona y despega (magnus.gd, PISAR LA HOJA); al despegar
+## con el mientras flexiona y despega (peregrino.gd, PISAR LA HOJA); al despegar
 ## sale pateada con pisar_empuje, girando.
 @export var pisar_cede: float = 90.0
 @export var hoja_pisada_db: float = -23.0
@@ -469,7 +469,7 @@ extends Node2D
 @export var coger_ajuste_px: float = 400.0
 
 ## Que levanta cada contacto del pie. Los contactos salen de la senal pisada de
-## Magnus, en el sprite en que el pie planta (los mismos de sus sonidos):
+## El peregrino, en el sprite en que el pie planta (los mismos de sus sonidos):
 ##   n       hojas (min, max) a velocidad_referencia
 ##   vel     rango de velocidad de salida (px/s)
 ##   pie     donde esta el pie respecto al centro, hacia donde mira (px)
@@ -514,19 +514,19 @@ const PARTIDA := preload("res://scripts/game/partida.gd")
 const FONDO_Z := -10
 ## El baston en la mano tras cogerlo (ver coger_cae).
 const BASTON_EN_MANO := preload("res://scenes/characters/baston.tscn")
-## Lo que se carga a mano (las hojas de flotar en magnus.gd _cargar_flotar y las
+## Lo que se carga a mano (las hojas de flotar en peregrino.gd _cargar_flotar y las
 ## del baston en la mano en baston.gd): con preload son dependencias de la
 ## escena y entran en la carga en segundo plano del titulo; si no, se cargaban
 ## al abrir la escena o al coger el baculo, con el juego parado.
 const _PRECARGA := [
-	preload("res://assets/characters/magnus/magnus_flotar_bajar.png"),
-	preload("res://assets/characters/magnus/magnus_flotar_posarse.png"),
-	preload("res://assets/characters/magnus/magnus_flotar_girar.png"),
-	preload("res://assets/characters/magnus/magnus_flotar_pisar.png"),
-	preload("res://assets/characters/magnus/magnus_flotar_despegar.png"),
-	preload("res://assets/characters/magnus/magnus_flotar_llegar.png"),
-	preload("res://assets/characters/magnus/magnus_flotar_quieto.png"),
-	preload("res://assets/characters/magnus/magnus_coger_baculo.png"),
+	preload("res://assets/characters/peregrino/peregrino_flotar_bajar.png"),
+	preload("res://assets/characters/peregrino/peregrino_flotar_posarse.png"),
+	preload("res://assets/characters/peregrino/peregrino_flotar_girar.png"),
+	preload("res://assets/characters/peregrino/peregrino_flotar_pisar.png"),
+	preload("res://assets/characters/peregrino/peregrino_flotar_despegar.png"),
+	preload("res://assets/characters/peregrino/peregrino_flotar_llegar.png"),
+	preload("res://assets/characters/peregrino/peregrino_flotar_quieto.png"),
+	preload("res://assets/characters/peregrino/peregrino_coger_baculo.png"),
 	preload("res://assets/characters/baston/mano_reposo.png"),
 	preload("res://assets/characters/baston/mano_arranque_andar.png"),
 	preload("res://assets/characters/baston/mano_andar.png"),
@@ -536,8 +536,8 @@ const _PRECARGA := [
 	preload("res://assets/characters/baston/mano_guardar_baston.png"),
 ]
 
-@onready var _magnus: Node2D = $Magnus
-@onready var _sprite: AnimatedSprite2D = $Magnus/Sprite
+@onready var _peregrino: Node2D = $Peregrino
+@onready var _sprite: AnimatedSprite2D = $Peregrino/Sprite
 @onready var _detras: Node2D = $HojasDetras
 @onready var _delante: Node2D = $HojasDelante
 @onready var _polvo: CPUParticles2D = $Polvo
@@ -547,14 +547,14 @@ const _PRECARGA := [
 
 var _arbol_espera := 1.0
 var _ultima_x := 0.0
-var _velocidad := 0.0                  # px/s de Magnus en x, suavizada
+var _velocidad := 0.0                  # px/s del peregrino en x, suavizada
 var _vx := 0.0                         # lo mismo con signo (para la camara)
 var _temblor := 0.0
 var _roce := 0.0                       # volumen lineal del arrastre
 var _racha := 0.0                      # 0..1, la racha de viento que sopla ahora
 var _racha_espera := 5.0
 var _racha_dir := 1.0
-var _fantasma: AnimatedSprite2D        # Magnus al otro lado mientras cruza un borde
+var _fantasma: AnimatedSprite2D        # el peregrino al otro lado mientras cruza un borde
 var _vueltas := 0                      # veces que ha salido por un borde con el mando
 var _con_mando := -1.0                 # 0 desde que se levanta (-1: aun no tiene el mando)
 var _baculo_bajando := false
@@ -603,7 +603,7 @@ var _entra_ref := 0.98                  # entrando por el camino: la escala que 
 var _frontal: Node2D                    # la toma de frente del sector del camino (PeregrinoFrontal)
 var _resuelta := false                  # ya cogido el baculo en esta partida (ver _poner_resuelta)
 var _en_boca := false                   # en la boca del camino: arriba entra (sin saltar)
-var _frontal_luz: ShaderMaterial        # su magnus_luz (con el suelo donde pisa)
+var _frontal_luz: ShaderMaterial        # su peregrino_luz (con el suelo donde pisa)
 
 var _luz_apagada := false               # ya no bajan hojas por la luz
 var _niebla_mat: ShaderMaterial         # el de NieblaSuelo (que se va a una SubViewport)
@@ -640,7 +640,7 @@ func _ready() -> void:
 	_poner_bosque()
 	_niebla_mat = $NieblaSuelo.material as ShaderMaterial
 	_a_baja_resolucion($NieblaSuelo, 4)
-	# El fondo, por debajo de todo: el baston de Magnus (scenes/characters/baston.tscn)
+	# El fondo, por debajo de todo: el baston del peregrino (scenes/characters/baston.tscn)
 	# va con z_index -1 para quedar detras del cuerpo, y con el fondo en 0 se
 	# quedaba tambien detras del fondo (con el baston en la mano no se veia la bola).
 	for nombre in ["FondoImagen", "Bosque", "HojasLejanas", "Motas"]:
@@ -648,15 +648,15 @@ func _ready() -> void:
 	var estado := PEREGRINO_ESTADO.leer(get_tree())
 	WindAmbience.gust_db = 0.0
 	WindAmbience.fade_to(viento_db, viento_corte if estado.get("viene_de", "") == "camino_bosque" else viento_subida)
-	_magnus.position = $MagnusSpawn.position
-	_ultima_x = _magnus.position.x
-	_magnus.impacto.connect(_al_impacto)
-	_magnus.pisada.connect(_al_pisar)
-	_magnus.despega_de_hoja.connect(_al_despegar_de_hoja)
+	_peregrino.position = $PeregrinoSpawn.position
+	_ultima_x = _peregrino.position.x
+	_peregrino.impacto.connect(_al_impacto)
+	_peregrino.pisada.connect(_al_pisar)
+	_peregrino.despega_de_hoja.connect(_al_despegar_de_hoja)
 	_sprite.animation_changed.connect(_al_cambiar_animacion)
-	# La luz de la escena sobre Magnus (sin tocar sus hojas ni su escena).
+	# La luz de la escena sobre el peregrino (sin tocar sus hojas ni su escena).
 	var luz := ShaderMaterial.new()
-	luz.shader = preload("res://scripts/game/magnus_luz.gdshader")
+	luz.shader = preload("res://scripts/game/peregrino_luz.gdshader")
 	luz.set_shader_parameter("haz_origen", _haz_origen)
 	luz.set_shader_parameter("haz_destino", _haz_destino)
 	luz.set_shader_parameter("haz_apertura", _haz_apertura)
@@ -667,14 +667,14 @@ func _ready() -> void:
 	if not _resuelta:
 		get_tree().create_timer(0.3).timeout.connect(_preparar_baston)
 		MusicAmbience.apagar_camino(0.0)
-	_magnus.pasos_db = magnus_pasos_db
+	_peregrino.pasos_db = peregrino_pasos_db
 	# En la luz se pesa poco: sus saltos de parado y andando flotan en el haz.
-	_magnus.ligereza = luz_en
-	_magnus.hoja_debajo = _hoja_debajo
+	_peregrino.ligereza = luz_en
+	_peregrino.hoja_debajo = _hoja_debajo
 	for capa in [_delante, _detras]:
 		capa.ligereza = luz_en
-		capa.gravedad_luz = _magnus.gravedad_luz
-	# Pisar hojas mira a Magnus despues de que se mueva en el tick.
+		capa.gravedad_luz = _peregrino.gravedad_luz
+	# Pisar hojas mira al peregrino despues de que se mueva en el tick.
 	process_physics_priority = 10
 	_delante.sembrar(hojas_por_columna_delante, _monton.bind(0.6))
 	_detras.sembrar(hojas_por_columna_detras, _monton.bind(0.4))
@@ -695,8 +695,8 @@ func _ready() -> void:
 		_empezar_musica()
 	if baculo_al_empezar:
 		_bajar_baculo.call_deferred()
-	_pensar.x_de = func() -> float: return _magnus.position.x
-	_magnus.cinematica_terminada.connect(_al_levantarse)
+	_pensar.x_de = func() -> float: return _peregrino.position.x
+	_peregrino.cinematica_terminada.connect(_al_levantarse)
 	_pensar.terminado.connect(_al_terminar_pensamiento)
 	_baculo.posado.connect(_al_posar_baculo)
 	# Que ya haya alguna hoja cayendo al abrir, y alguna suelta en la luz (las
@@ -707,14 +707,14 @@ func _ready() -> void:
 		for i in 6:
 			_hoja_suelta_luz(randf_range(0.0, 1000.0))
 
-## Altura extra (px) del monton donde cae (en MagnusSpawn) y de dos lomas mas
+## Altura extra (px) del monton donde cae (en el peregrinoSpawn) y de dos lomas mas
 ## bajas: una bajo el haz y otra a la derecha.
 func _monton(x: float, cuanto: float) -> float:
-	var caida: float = $MagnusSpawn.position.x
+	var caida: float = $PeregrinoSpawn.position.x
 	return cuanto * (30.0 * exp(-pow(wrapf(x - caida, -ANCHO / 2.0, ANCHO / 2.0) / 260.0, 2.0))
 		+ 6.0 * exp(-pow((x - 1456.0) / 240.0, 2.0)) + 8.0 * exp(-pow((x - 2076.0) / 200.0, 2.0)))
 
-## Del negro del titulo a la escena: primero la luz, luego cae Magnus. Hasta
+## Del negro del titulo a la escena: primero la luz, luego cae el peregrino. Hasta
 ## entonces no esta (ni se le puede mover).
 func _entrar_desde_negro() -> void:
 	var negro: ColorRect = $Entrada/Negro
@@ -722,14 +722,14 @@ func _entrar_desde_negro() -> void:
 	var tw := create_tween()
 	tw.tween_property(negro, "color:a", 0.0, entrada).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tw.tween_callback($Entrada.hide)
-	_magnus.visible = false
+	_peregrino.visible = false
 	_sombra.visible = false
-	_magnus.process_mode = Node.PROCESS_MODE_DISABLED
+	_peregrino.process_mode = Node.PROCESS_MODE_DISABLED
 	get_tree().create_timer(espera_caida).timeout.connect(func() -> void:
-		_magnus.process_mode = Node.PROCESS_MODE_INHERIT
-		_magnus.visible = true
+		_peregrino.process_mode = Node.PROCESS_MODE_INHERIT
+		_peregrino.visible = true
 		_sombra.visible = true
-		_magnus.caer_desde_arriba())
+		_peregrino.caer_desde_arriba())
 
 ## Rachas de viento: suben y bajan en unos segundos, de vez en cuando. Mueven el
 ## volumen del viento (gust_db, por encima del nivel base) y empujan las hojas.
@@ -772,7 +772,7 @@ func _process(delta: float) -> void:
 	if _cogiendo:
 		_coger_tick(delta)
 	else:
-		_seguir_a_magnus(delta)
+		_seguir_a_peregrino(delta)
 	_vida_del_bosque(delta)
 	_alumbrar_baston()
 	if _temblor > 0.0:
@@ -817,7 +817,7 @@ func _vida_del_bosque(delta: float) -> void:
 			0.5 * sin(TAU * t / 23.0 + 2.0) + 0.3 * sin(TAU * t / 13.7 + 0.4)) * camara_deriva
 	var obj := Vector2.ZERO
 	if _con_mando >= 0.0 or not caida_al_empezar:
-		var pies_y: float = _magnus.global_position.y - _magnus.altura_pies()
+		var pies_y: float = _peregrino.global_position.y - _peregrino.altura_pies()
 		obj = Vector2(clampf(_vx / 250.0, -1.0, 1.0) * camara_adelanto,
 				-clampf((1150.0 - pies_y) / 700.0, 0.0, 1.0) * camara_subida)
 	var k := 1.0 - exp(-2.2 * delta)
@@ -852,16 +852,16 @@ func _soltar(pos: Vector2, vel: Vector2, delante: bool, escala: float = -1.0, gi
 	return (_delante if delante else _detras).soltar(pos, vel, escala, giro, ligera)
 
 ## Velocidad, vadeo, sombra de contacto y el lado de la luz para el borde
-## encendido de Magnus.
-func _seguir_a_magnus(delta: float) -> void:
+## encendido del peregrino.
+func _seguir_a_peregrino(delta: float) -> void:
 	if delta <= 0.0:
 		return
-	var x := _magnus.position.x
+	var x := _peregrino.position.x
 	var dx := wrapf(x - _ultima_x, -ANCHO / 2.0, ANCHO / 2.0)
 	_ultima_x = x
 	_velocidad = lerpf(_velocidad, absf(dx) / delta, 1.0 - exp(-10.0 * delta))
 	_vx = lerpf(_vx, dx / delta, 1.0 - exp(-6.0 * delta))
-	var en_suelo: bool = not _magnus.en_el_aire()
+	var en_suelo: bool = not _peregrino.en_el_aire()
 	if en_suelo and absf(dx) > 0.2 and _velocidad > 25.0:
 		_vadear(x, signf(dx))
 	# El roce sigue a la velocidad, en volumen lineal y sin saltos, para que
@@ -873,7 +873,7 @@ func _seguir_a_magnus(delta: float) -> void:
 	# larga (todo el cuerpo).
 	# La altura de los pies (en las de flotar el dibujo ya va alto en su casilla:
 	# el arco solo no la dice).
-	var alto: float = _magnus.altura_pies() if _magnus.en_el_aire() else maxf(-_sprite.position.y, 0.0)
+	var alto: float = _peregrino.altura_pies() if _peregrino.en_el_aire() else maxf(-_sprite.position.y, 0.0)
 	var tumbado := _sprite.animation in [&"caida", &"tumbado"]
 	var ancho := 5.6 if tumbado else 3.4
 	if _sprite.animation == &"levantarse":
@@ -881,7 +881,7 @@ func _seguir_a_magnus(delta: float) -> void:
 	var sube := clampf(alto / 260.0, 0.0, 1.0)
 	_sombra.position = Vector2(x + (cuerpo_desde + cuerpo_hasta) * 0.5 * (1.0 if tumbado else 0.0), 1196.0)
 	_sombra.scale = Vector2(ancho * (1.0 - 0.35 * sube), 0.75 * (1.0 - 0.35 * sube))
-	_sombra.modulate.a = 0.62 * (1.0 - 0.7 * sube) * (0.0 if _magnus.position.y < 1150.0 else 1.0)
+	_sombra.modulate.a = 0.62 * (1.0 - 0.7 * sube) * (0.0 if _peregrino.position.y < 1150.0 else 1.0)
 	# Borde de luz del lado del haz: en UV del sprite, que se voltea con flip_h.
 	var hacia := clampf((1456.0 - x) / 500.0, -1.0, 1.0)
 	(_sprite.material as ShaderMaterial).set_shader_parameter(&"lado_luz", hacia * (-1.0 if _sprite.flip_h else 1.0))
@@ -923,12 +923,12 @@ func _al_pisar(anim: StringName, sprite: int) -> void:
 	if tipo == "":
 		return
 	var c: Dictionary = CONTACTOS[tipo]
-	var dir: float = _magnus.mirando()
+	var dir: float = _peregrino.mirando()
 	var n := int(round(randi_range(c["n"].x, c["n"].y) * fuerza * pateo))
 	var vel_max: float = c["vel"].y * sqrt(fuerza)
 	var lados := [1.0, -1.0] if tipo == "caida" else [1.0]
 	for lado in lados:
-		var pie: float = _magnus.position.x + dir * lado * c["pie"] + (lado * 45.0 if tipo == "caida" else 0.0)
+		var pie: float = _peregrino.position.x + dir * lado * c["pie"] + (lado * 45.0 if tipo == "caida" else 0.0)
 		var cuantas: int = n / lados.size()
 		var radio := 30.0 if tipo != "caida" else 45.0
 		var hojas: Array[Dictionary] = _delante.tomar(pie - radio, pie + radio, cuantas * 2 / 3 + 1, 1)
@@ -942,7 +942,7 @@ func _al_pisar(anim: StringName, sprite: int) -> void:
 					_velocidad_patada(dir, c["vel"].x, vel_max, c["delante"], c["alto"]) * 1.2,
 					randf() < 0.6, randf_range(0.09, 0.14), randf_range(-20.0, 20.0))
 	if tipo in ["caida", "frenada", "zancada"]:
-		_polvo_paso.position = Vector2(_magnus.position.x + dir * c["pie"], 1192.0)
+		_polvo_paso.position = Vector2(_peregrino.position.x + dir * c["pie"], 1192.0)
 		_polvo_paso.amount = 18 if tipo == "caida" else 8
 		_polvo_paso.restart()
 	if randf() < (1.0 if tipo != "paso_suave" else 0.5):
@@ -962,7 +962,7 @@ func _velocidad_patada(dir: float, v_min: float, v_max: float, delante: float, a
 ## mas alto en el centro y mas abierto en los extremos; queda el hueco. Polvo,
 ## migas y un temblor de camara.
 func _al_impacto() -> void:
-	var x0 := _magnus.position.x
+	var x0 := _peregrino.position.x
 	var a := x0 + cuerpo_desde - 20.0
 	var b := x0 + cuerpo_hasta + 20.0
 	var hojas: Array[Dictionary] = _delante.tomar(a, b, golpe_hojas * 2 / 3, 2, 0.8)
@@ -997,14 +997,14 @@ func _al_cambiar_animacion() -> void:
 	for i in hojas_pegadas:
 		var p := pow(randf(), 1.2)
 		get_tree().create_timer(p * dur * 0.95).timeout.connect(func() -> void:
-			var x := _magnus.position.x + randf_range(-120.0, 120.0) * (1.0 - p * 0.65)
+			var x := _peregrino.position.x + randf_range(-120.0, 120.0) * (1.0 - p * 0.65)
 			var y := 1188.0 - (30.0 + 230.0 * p) * randf_range(0.35, 1.0)
 			_soltar(Vector2(x, y), Vector2(randf_range(-70.0, 70.0), randf_range(-60.0, 10.0)),
 					randf() < 0.6, randf_range(0.3, 0.38)))
 	# El sacudon del final: unas pocas mas, de golpe, a la altura del pecho.
 	get_tree().create_timer(dur * 0.92).timeout.connect(func() -> void:
 		for i in 6:
-			_soltar(_magnus.position + Vector2(randf_range(-40.0, 40.0), -randf_range(120.0, 230.0)),
+			_soltar(_peregrino.position + Vector2(randf_range(-40.0, 40.0), -randf_range(120.0, 230.0)),
 					Vector2(randf_range(-160.0, 160.0), randf_range(-140.0, 0.0)), randf() < 0.6))
 
 ## Hoja suelta que entra por arriba, de arboles que no se ven, con brisa floja.
@@ -1142,13 +1142,13 @@ func _hoja_suelta_luz(y: float) -> void:
 			randf_range(r.x, r.y), INF, true)
 	h["de_fuera"] = true
 
-# --- Pisar hojas, flotar y el baculo (cada tick de fisica, despues de Magnus) ---
+# --- Pisar hojas, flotar y el baculo (cada tick de fisica, despues del peregrino) ---
 
 func _physics_process(delta: float) -> void:
 	_bajar_hojas_luz(delta)
-	var alto: float = _magnus.altura_pies()
-	var pies := Vector2(_magnus.global_position.x, _magnus.global_position.y - alto)
-	if _magnus.cayendo() and alto > pisar_altura:
+	var alto: float = _peregrino.altura_pies()
+	var pies := Vector2(_peregrino.global_position.x, _peregrino.global_position.y - alto)
+	if _peregrino.cayendo() and alto > pisar_altura:
 		_pisar_hoja(pies)
 	_centrar_hoja_pisada(pies, delta)
 	_pies_antes = pies.y
@@ -1157,7 +1157,7 @@ func _physics_process(delta: float) -> void:
 	_mover_remolino(delta)
 
 ## Donde quedan los pies (los de altura_pies) bajo el centro de la hoja al
-## apoyarse en ella (magnus.gd: PISAR_EN_HOJA menos lo que levanta el pie en
+## apoyarse en ella (peregrino.gd: PISAR_EN_HOJA menos lo que levanta el pie en
 ## flotar_pisar). Se pisa cuando llegan ahi, no antes: con 10 px de margen por
 ## debajo se pisaba antes de tocarla y los pies bajaban de golpe (2026-10-14).
 const PIES_EN_HOJA := 3.5
@@ -1173,7 +1173,7 @@ func _pisar_hoja(pies: Vector2) -> void:
 		if not h.is_empty() and (mejor.is_empty() or h["p"].y < mejor["p"].y):
 			mejor = h
 			capa_mejor = capa
-	if mejor.is_empty() or mejor["p"].y < escalera_aguanta or not _magnus.rebotar(1.0, mejor):
+	if mejor.is_empty() or mejor["p"].y < escalera_aguanta or not _peregrino.rebotar(1.0, mejor):
 		return
 	# Se apoya en ella: cede con su peso, sin girar; la patada, al despegar.
 	capa_mejor.pisar(mejor, Vector2(0.0, pisar_cede))
@@ -1187,7 +1187,7 @@ func _pisar_hoja(pies: Vector2) -> void:
 	_sonar($SonidoPaso, hoja_pisada_db, randf_range(1.12, 1.22))
 
 ## La hoja que pisaria al bajar (la mas alta de las que tiene debajo, a menos de
-## pisar_mira): su y, o INF. La usa magnus.gd para estirar las piernas al llegar.
+## pisar_mira): su y, o INF. La usa peregrino.gd para estirar las piernas al llegar.
 func _hoja_debajo(pies: Vector2) -> float:
 	var mejor := {}
 	for capa in [_delante, _detras]:
@@ -1199,11 +1199,11 @@ func _hoja_debajo(pies: Vector2) -> float:
 	return mejor["p"].y
 
 ## Apoyado en una hoja, la hoja se pone bajo su pie (el no la sigue de lado:
-## ver PISAR LA HOJA SIN DESCUADRE en magnus.gd).
+## ver PISAR LA HOJA SIN DESCUADRE en peregrino.gd).
 func _centrar_hoja_pisada(pies: Vector2, delta: float) -> void:
-	if _hoja_pisada_capa == null or not _magnus.get("_pisando"):
+	if _hoja_pisada_capa == null or not _peregrino.get("_pisando"):
 		return
-	var h: Dictionary = _magnus.get("_pisar_hoja")
+	var h: Dictionary = _peregrino.get("_pisar_hoja")
 	if h.is_empty():
 		return
 	var dx := wrapf(pies.x - h["p"].x, -ANCHO / 2.0, ANCHO / 2.0)
@@ -1219,9 +1219,9 @@ func _al_despegar_de_hoja(h: Dictionary) -> void:
 ## La primera vez que flota de verdad (le ha dado bien la luz en un salto),
 ## al volver al suelo lo piensa: en la luz apenas pesa.
 func _seguir_el_salto() -> void:
-	if _magnus.en_el_aire():
+	if _peregrino.en_el_aire():
 		_en_el_aire = true
-		_luz_del_salto = maxf(_luz_del_salto, _magnus.luz())
+		_luz_del_salto = maxf(_luz_del_salto, _peregrino.luz())
 		return
 	if _en_el_aire and _luz_del_salto >= 0.6 and not _pensar.dicho("ligero"):
 		_ligero_pendiente = true
@@ -1236,14 +1236,14 @@ func _mirar_baculo(pies: Vector2) -> void:
 		return
 	if _sprite.sprite_frames.has_animation(&"coger_baculo") and not _cogiendo:
 		# COGERLO A LA PAR: la mano del primer fotograma, con los pies donde estan
-		var d: Dictionary = _magnus.get("_flotar")["coger_baculo"]
+		var d: Dictionary = _peregrino.get("_flotar")["coger_baculo"]
 		var punta: Vector2 = _baculo.punta()
-		var dir := signf(punta.x - _magnus.position.x)
+		var dir := signf(punta.x - _peregrino.position.x)
 		if dir == 0.0:
-			dir = _magnus.mirando()
+			dir = _peregrino.mirando()
 		var g: Array = d["garra"][0]
-		var alto_ahora: float = (_magnus.position.y - pies.y) - float(d["pies"][0])
-		var mano := Vector2(_magnus.position.x + dir * float(g[0]), _magnus.position.y + float(g[1]) - alto_ahora)
+		var alto_ahora: float = (_peregrino.position.y - pies.y) - float(d["pies"][0])
+		var mano := Vector2(_peregrino.position.x + dir * float(g[0]), _peregrino.position.y + float(g[1]) - alto_ahora)
 		var bajo := mano.y - punta.y            # + : la mano por debajo de la bola
 		if absf(wrapf(mano.x - punta.x, -ANCHO / 2.0, ANCHO / 2.0)) <= coger_margen.x \
 				and bajo >= -coger_margen.y and bajo <= coger_bajo:
@@ -1263,25 +1263,25 @@ func _mirar_baculo(pies: Vector2) -> void:
 
 ## Empieza a coger el baculo (ver coger_cae).
 func _coger_baculo() -> void:
-	_coger_dat = _magnus.get("_flotar")["coger_baculo"]
+	_coger_dat = _peregrino.get("_flotar")["coger_baculo"]
 	# de donde parte (COGERLO A LA PAR): los pies donde estan
-	var pies_alto: float = _magnus.altura_pies()
-	_magnus.tomar_cinematica()
+	var pies_alto: float = _peregrino.altura_pies()
+	_peregrino.tomar_cinematica()
 	_cogiendo = true
 	_coger_t = 0.0
 	_coger_cayo = false
 	var punta: Vector2 = _baculo.punta()
-	var dir := signf(punta.x - _magnus.position.x)
-	_coger_dir = dir if dir != 0.0 else _magnus.mirando()
-	_magnus._mirar(_coger_dir)
+	var dir := signf(punta.x - _peregrino.position.x)
+	_coger_dir = dir if dir != 0.0 else _peregrino.mirando()
+	_peregrino._mirar(_coger_dir)
 	_sprite.animation = &"coger_baculo"
 	_sprite.frame = 0
 	var o: Array = _coger_dat["offset"]
 	_sprite.offset = Vector2(-float(o[0]) if _sprite.flip_h else float(o[0]), float(o[1]))
 	var g: Array = _coger_dat["garra"][0]
-	_coger_x0 = _magnus.position.x
+	_coger_x0 = _peregrino.position.x
 	_coger_xt = _coger_x0 + wrapf(punta.x - _coger_dir * float(g[0]) - _coger_x0, -ANCHO / 2.0, ANCHO / 2.0)
-	_coger_alto = maxf(_magnus.position.y + float(g[1]) - punta.y, 0.0)
+	_coger_alto = maxf(_peregrino.position.y + float(g[1]) - punta.y, 0.0)
 	_coger_alto0 = maxf(pies_alto - float(_coger_dat["pies"][0]), 0.0)
 	_coger_bola0 = punta
 	var falta := maxf(absf(_coger_xt - _coger_x0), absf(_coger_alto0 - _coger_alto))
@@ -1325,14 +1325,14 @@ func _coger_tick(delta: float) -> void:
 	# lo que faltaba para la mano en la bola, en coger_ajuste s (COGERLO A LA PAR)
 	var b := smoothstep(0.0, _coger_ajuste_t, _coger_t) if _coger_ajuste_t > 0.0 else 1.0
 	alto = lerpf(_coger_alto0, alto, b)
-	_magnus.position.x = lerpf(_coger_x0, _coger_xt, b)
-	_ultima_x = _magnus.position.x
+	_peregrino.position.x = lerpf(_coger_x0, _coger_xt, b)
+	_ultima_x = _peregrino.position.x
 	_sprite.position.y = -alto
 	var g: Array = d["garra"][k]
-	var mano := _magnus.position + Vector2(_coger_dir * float(g[0]), float(g[1]) - alto)
+	var mano := _peregrino.position + Vector2(_coger_dir * float(g[0]), float(g[1]) - alto)
 	_baculo.bola_en(_coger_bola0.lerp(mano, b))
 	var arriba := clampf((alto + float(d["pies"][k])) / 260.0, 0.0, 1.0)
-	_sombra.position = Vector2(_magnus.position.x, 1196.0)
+	_sombra.position = Vector2(_peregrino.position.x, 1196.0)
 	_sombra.scale = Vector2(3.4 * (1.0 - 0.35 * arriba), 0.75 * (1.0 - 0.35 * arriba))
 	_sombra.modulate.a = 0.62 * (1.0 - 0.7 * arriba)
 	if kf >= float(n):
@@ -1340,7 +1340,7 @@ func _coger_tick(delta: float) -> void:
 
 ## Toca el suelo con el baculo: las hojas de los pies saltan y un golpe sordo.
 func _caer_con_baculo() -> void:
-	var x := _magnus.position.x
+	var x := _peregrino.position.x
 	for capa in [_delante, _detras]:
 		for h in capa.tomar(x - 70.0, x + 70.0, 10, 2, 0.8):
 			capa.lanzar(h, Vector2(randf_range(-260.0, 260.0), -randf_range(250.0, 600.0)))
@@ -1355,7 +1355,7 @@ func _acabar_coger() -> void:
 	_preparar_baston()
 	_baston_mano.set("puesto", true)
 	_baston_mano.call("poner_en_mano", true)
-	_magnus.soltar_cinematica()
+	_peregrino.soltar_cinematica()
 	_camino_abierto = bosque_de_fondo
 	_resuelta = true
 	PARTIDA.marcar(get_tree(), "hojarasca_resuelta")
@@ -1422,7 +1422,7 @@ func _empezar_ensena_baston() -> void:
 ## (ahi saltar es entrar en el).
 func _con_baston_en_mano() -> bool:
 	return _baston_mano != null and bool(_baston_mano.get("en_mano")) and not _cogiendo \
-		and not _en_camino and not _en_boca and not _magnus.control_bloqueado and not _magnus.en_el_aire()
+		and not _en_camino and not _en_boca and not _peregrino.control_bloqueado and not _peregrino.en_el_aire()
 
 func _input(event: InputEvent) -> void:
 	if not _con_baston_en_mano():
@@ -1442,7 +1442,7 @@ func _input(event: InputEvent) -> void:
 ## El pie del baculo contra el suelo: unas hojas saltan, un poco de polvo y un
 ## golpe seco (el sordo de la hojarasca, mas agudo y bajo).
 func _golpe_del_baculo() -> void:
-	var x: float = _magnus.position.x + float(_magnus.mirando()) * golpe_baculo_dx
+	var x: float = _peregrino.position.x + float(_peregrino.mirando()) * golpe_baculo_dx
 	for capa in [_delante, _detras]:
 		for h in capa.tomar(x - 22.0, x + 22.0, 3, 1, 0.8):
 			capa.lanzar(h, Vector2(randf_range(-170.0, 170.0), -randf_range(140.0, 340.0)))
@@ -1463,7 +1463,7 @@ func _mostrar_ensena(paso: String) -> void:
 	_ensena_tecla.key_size_px = tecla_tam
 	_ensena_tecla.setup(&"baston")
 	# debajo del pensamiento: en el lado contrario al peregrino (pensamientos.gd)
-	var caja: Vector2 = _pensar.caja_derecha if _magnus.position.x < ANCHO * 0.5 else _pensar.caja_izquierda
+	var caja: Vector2 = _pensar.caja_derecha if _peregrino.position.x < ANCHO * 0.5 else _pensar.caja_izquierda
 	_ensena_tecla.position = Vector2((caja.x + caja.y) * 0.5, float(_pensar.y_centro) + tecla_bajo_texto)
 	capa.add_child(_ensena_tecla)
 	_ensena_tecla.appear(true)
@@ -1554,11 +1554,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## La luz de la escena sobre el baston a la espalda (2026-10-14; el usuario: "al
 ## guardarlo a la espalda se ilumina, estando vacio, no tiene sentido"). En la
-## mano va en el dibujo de Magnus y le da magnus_luz.gdshader; a la espalda son
+## mano va en el dibujo del peregrino y le da peregrino_luz.gdshader; a la espalda son
 ## sprites aparte (baston.tscn) y salian con su color de siempre, la garra
 ## dorada en el claro a oscuras. Se les tine con lo que ese shader le daria a
-## Magnus donde esta el baston (su tinte, sin el borde ni el rebote).
-const _BASTON_SOMBRA := Color(0.46, 0.37, 0.3)   # color_sombra de magnus_luz.gdshader
+## El peregrino donde esta el baston (su tinte, sin el borde ni el rebote).
+const _BASTON_SOMBRA := Color(0.46, 0.37, 0.3)   # color_sombra de peregrino_luz.gdshader
 const _BASTON_LUZ := Color(1.0, 0.83, 0.6)       # color_luz
 func _alumbrar_baston() -> void:
 	if _baston_mano == null or not _baston_mano.get("puesto"):
@@ -1585,7 +1585,7 @@ func _alumbrar_baston() -> void:
 
 ## El baston que tendra en la mano, preparado al abrir la escena (tras el negro
 ## de la entrada) y escondido (puesto = false): crearlo al coger el baculo
-## (lee sus json, duplica las SpriteFrames de Magnus y monta las de la mano)
+## (lee sus json, duplica las SpriteFrames del peregrino y monta las de la mano)
 ## paraba el juego ~0,8 s justo al devolver el mando. Sin magia: la bola vacia.
 func _preparar_baston() -> void:
 	if _baston_mano != null:
@@ -1594,7 +1594,7 @@ func _preparar_baston() -> void:
 	b.set("puesto", false)
 	b.set("magia", 0.0)
 	b.set("magia_recarga", 0.0)
-	_magnus.add_child(b)
+	_peregrino.add_child(b)
 	b.set("_mostrada", 0.0)
 	_baston_mano = b
 
@@ -1936,7 +1936,7 @@ func _leer_haz() -> void:
 
 ## Cuanta luz del haz hay en un punto de la escena (0..1) para jugar: el cono
 ## de fondo_haz.gdshader, entero hasta luz_entera de su apertura y nada desde
-## luz_borde (ver La luz). Es la ligereza de Magnus: donde vale 1, sus saltos
+## luz_borde (ver La luz). Es la ligereza del peregrino: donde vale 1, sus saltos
 ## flotan del todo.
 func luz_en(p: Vector2) -> float:
 	if _luz_viva <= 0.0:
@@ -1947,17 +1947,17 @@ func luz_en(p: Vector2) -> float:
 
 # --- El mundo da la vuelta ---------------------------------------------------
 
-## Copia del sprite de Magnus que se dibuja al otro lado de la pantalla mientras
+## Copia del sprite del peregrino que se dibuja al otro lado de la pantalla mientras
 ## cruza un borde: asi sale por un lado y entra por el otro a la vez, sin salto.
 func _crear_fantasma() -> void:
 	_fantasma = AnimatedSprite2D.new()
-	_fantasma.name = "MagnusAlOtroLado"
+	_fantasma.name = "PeregrinoAlOtroLado"
 	_fantasma.sprite_frames = _sprite.sprite_frames
 	_fantasma.offset = _sprite.offset
 	_fantasma.material = _sprite.material
 	_fantasma.visible = false
 	add_child(_fantasma)
-	move_child(_fantasma, _magnus.get_index() + 1)
+	move_child(_fantasma, _peregrino.get_index() + 1)
 
 ## EL SECTOR DEL CAMINO (2026-10-15). En la boca del camino (salida_x) el
 ## peregrino pasa a la toma de frente (PeregrinoFrontal) y ahi lo lleva el
@@ -1989,22 +1989,22 @@ const _DE_PIE := [&"reposo", &"arranque_andar", &"andar", &"parada_andar",
 
 ## De perfil, en la boca del camino: la primera vez entra solo; despues, arriba.
 func _mirar_salida() -> void:
-	var falta := wrapf(salida_x - _magnus.position.x, -ANCHO / 2.0, ANCHO / 2.0)
+	var falta := wrapf(salida_x - _peregrino.position.x, -ANCHO / 2.0, ANCHO / 2.0)
 	var boca := _camino_abierto and not _en_camino and not _cogiendo and absf(falta) <= salida_boca
 	_en_boca = boca
 	# en la boca no se salta (arriba es entrar) y con el baston en la mano tampoco
 	# (baston.gd, PASO_MANO): al salir de la boca se le quitaba el bloqueo aunque
 	# lo llevara en la mano, y saltaba con el
 	var bloqueo := boca or (_baston_mano != null and bool(_baston_mano.get("en_mano")))
-	if _magnus.salto_bloqueado != bloqueo:
-		_magnus.salto_bloqueado = bloqueo
-	if not boca or _magnus.control_bloqueado or not _sprite.animation in _DE_PIE:
+	if _peregrino.salto_bloqueado != bloqueo:
+		_peregrino.salto_bloqueado = bloqueo
+	if not boca or _peregrino.control_bloqueado or not _sprite.animation in _DE_PIE:
 		return
 	var primera := not PARTIDA.ya(get_tree(), "hojarasca_camino")
 	# al camino solo con el baston aprendido (guardar y sacar): la primera vez no
 	# entra solo, y con arriba se le recuerda la tecla
 	var aprendido := _ensena == 0 or _ensena == 5
-	var llega: bool = primera and aprendido and _sprite.animation != &"reposo" and signf(falta) == _magnus.mirando()
+	var llega: bool = primera and aprendido and _sprite.animation != &"reposo" and signf(falta) == _peregrino.mirando()
 	if Input.is_action_just_pressed("saltar") and not aprendido:
 		_recordar_ensena()
 		return
@@ -2017,15 +2017,15 @@ func _mirar_salida() -> void:
 func _entrar_al_camino() -> void:
 	_en_camino = true
 	_en_boca = false
-	_magnus.salto_bloqueado = false
+	_peregrino.salto_bloqueado = false
 	_pensar.callar()
 	PARTIDA.marcar(get_tree(), "hojarasca_camino")
 	_pedir_camino()
-	_magnus.andar_hasta(_magnus.position.x)
-	await _magnus.llegado
+	_peregrino.andar_hasta(_peregrino.position.x)
+	await _peregrino.llegado
 	_cam_fija = _respira
 	_cam_quieta = 1.0
-	var dir: float = _magnus.mirando()
+	var dir: float = _peregrino.mirando()
 	var en_mano := bool(_baston_mano.get("en_mano"))
 	# del perfil a la vuelta de la toma de frente por su puente (PuentePerfil): la
 	# respiracion, antes, al fotograma de partida mas cercano de los puentes
@@ -2034,7 +2034,7 @@ func _entrar_al_camino() -> void:
 	await _respirar_hasta(v)
 	var nombre := "ida_%s_r%02d" % [modo, v]
 	var d := PuentePerfil.datos(nombre)
-	var pies0 := _magnus.position
+	var pies0 := _peregrino.position
 	# la toma de frente se crea ya (crearla al acabar el puente daba un tiron),
 	# escondida y quieta, y sin que la lleve el jugador hasta que aparezca
 	var f := _crear_frontal(en_mano, salida_escala, dir, Vector2(pies0.x + float(d["dx"]) * dir, pies0.y))
@@ -2046,7 +2046,7 @@ func _entrar_al_camino() -> void:
 	# levanta las hojas de los pies (le cruzan por delante en el cambio de dibujo)
 	_rafaga_de_entrada(pies0.x)
 	puente.jugar(nombre, false, pies0, Vector2(dir, 1.0), pies0, Vector2(dir, 1.0))
-	_magnus.visible = false
+	_peregrino.visible = false
 	await puente.acabado
 	if not is_instance_valid(f):
 		return
@@ -2246,19 +2246,19 @@ func _puente_perfil() -> PuentePerfil:
 		p = PuentePerfil.new()
 		p.name = "PuentePerfil"
 		add_child(p)
-		move_child(p, _magnus.get_index() + 1)
+		move_child(p, _peregrino.get_index() + 1)
 	p.material = _sprite.material
 	return p
 
 ## Volviendo de camino_bosque: en la bruma del camino, de frente.
 func _llegar_del_camino(con_baston: bool) -> void:
 	_en_camino = true
-	_magnus.visible = false
-	_magnus.control_bloqueado = true
-	var pies0 := Vector2(salida_x, _magnus.position.y)
+	_peregrino.visible = false
+	_peregrino.control_bloqueado = true
+	var pies0 := Vector2(salida_x, _peregrino.position.y)
 	# el de perfil (escondido) ya en la boca: la camara y lo que lo sigue no
 	# esperan a un sitio que no es
-	_magnus.position = pies0
+	_peregrino.position = pies0
 	_ultima_x = pies0.x
 	_cam_fija = _respira
 	_cam_quieta = 1.0
@@ -2305,10 +2305,10 @@ func _crear_frontal(con_baston: bool, escala: float, dir: float, pies0: Vector2)
 	_entrando = false
 	_sec_frontal.clear()
 	for con in [true, false]:
-		_sec_frontal[con] = JSON.parse_string(FileAccess.open("res://assets/characters/magnus/secuencia_frontal%s.json"
+		_sec_frontal[con] = JSON.parse_string(FileAccess.open("res://assets/characters/peregrino/secuencia_frontal%s.json"
 				% ("" if con else "_sin"), FileAccess.READ).get_as_text())
 	add_child(f)
-	move_child(f, _magnus.get_index() + 1)
+	move_child(f, _peregrino.get_index() + 1)
 	_sombra.visible = true
 	return f
 
@@ -2421,7 +2421,7 @@ func _prever_parada(f: Node2D) -> Array:
 	var sec: Dictionary = _sec_frontal[bool(f.get("lleva_baston"))]
 	if not sec["pies_juntos"].has(anim):
 		return []
-	var frames: SpriteFrames = load("res://resources/characters/magnus_frames.tres")
+	var frames: SpriteFrames = load("res://resources/characters/peregrino_frames.tres")
 	var n := frames.get_frame_count(anim)
 	var fr := int(f.get("fotograma"))
 	var faltan: Array = []
@@ -2454,7 +2454,7 @@ func _al_perfil() -> void:
 	var con := bool(f.get("lleva_baston"))
 	_baston_mano.call("poner_en_mano", con)
 	var modo := "cb" if con else "sb"
-	var y := _magnus.position.y
+	var y := _peregrino.position.y
 	var dir := Vector2(_frontal_dir, 1.0)
 	var puente := _puente_perfil()
 	if String(f.get("mirando")) == "frente":
@@ -2462,17 +2462,17 @@ func _al_perfil() -> void:
 		var d := PuentePerfil.datos(nombre)
 		var pies: Vector2 = f.to_global(f.get("pies"))
 		var k := float(f.get("escala")) * absf(f.scale.y) / 0.98
-		_magnus.position = Vector2(pies.x + float(d["dx"]) * _frontal_dir, y)
-		_ultima_x = _magnus.position.x
-		_magnus.call("_mirar", _frontal_dir)
+		_peregrino.position = Vector2(pies.x + float(d["dx"]) * _frontal_dir, y)
+		_ultima_x = _peregrino.position.x
+		_peregrino.call("_mirar", _frontal_dir)
 		puente.jugar(nombre, false, pies, dir * k, Vector2(pies.x, y), dir)
 		_frontal = null
 		f.queue_free()
 		await puente.acabado
 		if not is_inside_tree():
 			return
-		_magnus.visible = true
-		_magnus.call("_empezar_giro", -_frontal_dir, false)
+		_peregrino.visible = true
+		_peregrino.call("_empezar_giro", -_frontal_dir, false)
 		_sprite.frame = int(d["sigue"])
 		while _sprite.animation == &"giro":
 			await get_tree().process_frame
@@ -2488,10 +2488,10 @@ func _al_perfil() -> void:
 		var pies: Vector2 = f.to_global(f.get("pies"))
 		var k := float(f.get("escala")) * absf(f.scale.y) / 0.98
 		var dx := float(d["dx"]) * _frontal_dir
-		_magnus.position = Vector2(pies.x - dx, y)
-		_ultima_x = _magnus.position.x
-		_magnus.call("_mirar", _frontal_dir)
-		puente.jugar(nombre, true, Vector2(pies.x - dx * k, pies.y), dir * k, _magnus.position, dir)
+		_peregrino.position = Vector2(pies.x - dx, y)
+		_ultima_x = _peregrino.position.x
+		_peregrino.call("_mirar", _frontal_dir)
+		puente.jugar(nombre, true, Vector2(pies.x - dx * k, pies.y), dir * k, _peregrino.position, dir)
 		_frontal = null
 		f.queue_free()
 		await puente.acabado
@@ -2499,8 +2499,8 @@ func _al_perfil() -> void:
 			return
 		_sprite.play(&"reposo")
 		_sprite.frame = 0
-		_magnus.visible = true
-	_magnus.control_bloqueado = false
+		_peregrino.visible = true
+	_peregrino.control_bloqueado = false
 	_en_camino = false
 	_al_perfil_ya = false
 	create_tween().tween_property(self, "_cam_quieta", 0.0, 1.5).set_trans(Tween.TRANS_SINE)
@@ -2549,7 +2549,7 @@ func _fuga_del_camino() -> Vector2:
 	return salida_fuga + _cam_fija * (1.0 - lejos)
 
 ## Cada vez que se coloca la toma de frente: su sombra y su suelo (la luz de
-## magnus_luz oscurece los pies y les da el rebote junto a y_suelo).
+## peregrino_luz oscurece los pies y les da el rebote junto a y_suelo).
 func _al_colocar_frontal() -> void:
 	if _frontal == null:
 		return
@@ -2589,22 +2589,22 @@ func _cortar_a_camino() -> void:
 	else:
 		get_tree().change_scene_to_file(SALIDA_ESCENA)
 
-## Si Magnus pasa de un borde, aparece por el otro (el centro del nodo manda), y
+## Si el peregrino pasa de un borde, aparece por el otro (el centro del nodo manda), y
 ## la copia pinta la parte que aun asoma por el lado contrario.
 func _envolver() -> void:
-	var x := _magnus.position.x
+	var x := _peregrino.position.x
 	if x < 0.0 or x >= ANCHO:
-		_magnus.position.x = fposmod(x, ANCHO)
+		_peregrino.position.x = fposmod(x, ANCHO)
 		if _con_mando >= 0.0 and not _resuelta:
 			_vueltas += 1
 			if _vueltas == 1:
 				_pensar.decir("vuelta", true)
-	x = _magnus.position.x
+	x = _peregrino.position.x
 	var lado := ANCHO if x < 260.0 else (-ANCHO if x > ANCHO - 260.0 else 0.0)
 	_fantasma.visible = lado != 0.0
 	if not _fantasma.visible:
 		return
-	# (con el baston en la mano, Magnus lleva otras SpriteFrames)
+	# (con el baston en la mano, el peregrino lleva otras SpriteFrames)
 	if _fantasma.sprite_frames != _sprite.sprite_frames:
 		_fantasma.sprite_frames = _sprite.sprite_frames
 	if _fantasma.animation != _sprite.animation:
@@ -2677,7 +2677,7 @@ func estado_reanudar() -> Dictionary:
 	# Entrando ya al camino (va solo, sin mando): se sigue en el camino.
 	if _entrando or _cortando:
 		return {"escena": SALIDA_ESCENA, "peregrino": peregrino}
-	var x := _magnus.position.x
+	var x := _peregrino.position.x
 	# En la toma de frente de la boca, de perfil un poco antes de la boca.
 	if _en_camino or _en_boca:
 		x = minf(x, salida_x - salida_boca - 60.0)
@@ -2685,15 +2685,15 @@ func estado_reanudar() -> Dictionary:
 	if not _resuelta:
 		# Con el baculo ya bajando (o ya dicha la vuelta, que lo trae), vuelve a bajar.
 		fase = "baculo" if (_baculo_bajando or _vueltas > 0 or _cogiendo) else "explorar"
-	return {"fase": fase, "x": x, "mira": int(_magnus.call("mirando")), "vueltas": _vueltas,
+	return {"fase": fase, "x": x, "mira": int(_peregrino.call("mirando")), "vueltas": _vueltas,
 		"peregrino": peregrino}
 
 
 func _reanudar(r: Dictionary) -> void:
-	var x := float(r.get("x", _magnus.position.x))
-	_magnus.position.x = x
+	var x := float(r.get("x", _peregrino.position.x))
+	_peregrino.position.x = x
 	_ultima_x = x
-	_magnus.call("_mirar", 1 if int(r.get("mira", 1)) >= 0 else -1)
+	_peregrino.call("_mirar", 1 if int(r.get("mira", 1)) >= 0 else -1)
 	if _resuelta:
 		return  # el resto lo pone _poner_resuelta, que ya entra desde negro
 	# Antes del baculo: de pie, con el mando y sin la caida.

@@ -13,7 +13,7 @@ caida_al_empezar = false
 script = ExtResource("2")
 guion = []
 x_inicial = 900.0
-personaje = NodePath("../DarkStage/Magnus")
+personaje = NodePath("../DarkStage/Peregrino")
 
 [node name="Acciones" type="Node2D" parent="."]
 script = ExtResource("3")

@@ -3,7 +3,7 @@ HOJA DE GIRO A 12 GRADOS (fase 0) -- para Gemini (imagen)
 
 Referencias que se adjuntan, en este orden:
   1. giro360.jpeg                          (la hoja de giro actual: manda en el diseno)
-  2. referencia_giro_pie_video_inicio.png  (Magnus de perfil tal como sale en el juego)
+  2. referencia_giro_pie_video_inicio.png  (el peregrino de perfil tal como sale en el juego)
 NO adjuntar las de raw/master_mason/referencias/personaje: son versiones viejas
 (tunica azul, capa naranja) y contaminan el diseno.
 

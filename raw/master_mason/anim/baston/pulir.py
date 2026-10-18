@@ -4,8 +4,8 @@
   - tinte verde en bordes y puntos sueltos: se le quita el verde de mas
     (g = max(r, b)), sin tocar la forma
 Guarda los originales en <job>/_antes_de_pulir/ la primera vez.
-  python pulir.py magnus_guardar_baston [magnus_sacar_baston ...]
-  python pulir.py --oscuras magnus_sacar_baston_v3
+  python pulir.py peregrino_guardar_baston [peregrino_sacar_baston ...]
+  python pulir.py --oscuras peregrino_sacar_baston_v3
     (solo bolsas oscuras, todo por debajo de OSCURA: en ese video la capucha
     es gris verdosa clara, ~(125,140,143), y se la comia; la bolsa entre la
     barba y el baston es croma en sombra, por debajo de 100)"""
@@ -48,7 +48,7 @@ def bolsas_verdes(job):
     pasa en 35 al rojo y al azul) y aqui sigue opaco, solo si tiene grosor (una
     apertura de 3x3 quita la orla de 1-2 px del contorno, que es antialias y se
     queda). Lo de la bolsa pasa a transparente y su borde, a media opacidad.
-      python pulir.py --bolsas-verdes magnus_andar_baston_bucle"""
+      python pulir.py --bolsas-verdes peregrino_andar_baston_bucle"""
     carpeta = PROY / "raw/master_mason/anim" / job / "04_limpios"
     origen = carpeta.parent / "_con_fondo" / "04_limpios"
     total = []

@@ -1,4 +1,4 @@
-"""Lee resources/characters/magnus_frames.tres y reconstruye cada fotograma en
+"""Lee resources/characters/peregrino_frames.tres y reconstruye cada fotograma en
 su casilla completa (la hoja va recortada: region + margin). Devuelve
 {animacion: [RGBA numpy (alto, ancho, 4), ...]}."""
 import re
@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 
 PROY = Path(__file__).resolve().parents[4]
-TRES = PROY / "resources/characters/magnus_frames.tres"
+TRES = PROY / "resources/characters/peregrino_frames.tres"
 
 
 def _res_path(p):

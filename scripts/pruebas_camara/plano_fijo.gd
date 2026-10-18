@@ -1,11 +1,11 @@
 extends Node
 ## Un plano de camara de la prueba de planos fijos (planos_fijos.gd), como los
-## de Alone in the Dark: mientras Magnus este en su tramo de x, la sala se ve
+## de Alone in the Dark: mientras el peregrino este en su tramo de x, la sala se ve
 ## desde aqui. Al salir del tramo, corte al plano siguiente.
 ##
-## Coordenadas de la sala: x a lo largo de la galeria (la x de Magnus), y hacia
+## Coordenadas de la sala: x a lo largo de la galeria (la x del peregrino), y hacia
 ## arriba desde el suelo, z de -700 (pared de este lado) a 700 (pared del
-## fondo). Magnus anda por z = 0.
+## fondo). El peregrino anda por z = 0.
 
 @export var nombre: String = ""
 @export var desde: float = 0.0
@@ -17,7 +17,7 @@ extends Node
 @export var focal: float = 1500.0
 ## Inclinacion lateral del encuadre (plano holandes), en grados.
 @export var alabeo: float = 0.0
-## La camara no se mueve pero gira para seguir a Magnus (panoramica).
+## La camara no se mueve pero gira para seguir al peregrino (panoramica).
 @export var seguir: bool = false
 ## Cuanto le sigue: 0 nada, 1 le deja centrado.
 @export_range(0.0, 1.0) var seguimiento: float = 0.7

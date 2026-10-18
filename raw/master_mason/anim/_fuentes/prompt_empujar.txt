@@ -13,7 +13,7 @@ animacion vale con el baston a la espalda y sin el.
 
 En Flow, modo de fotogramas a video:
   - fotograma inicial: referencia_empujar_inicio.png  (el reposo del juego,
-    magnus_respirando c_01, mirando a la derecha, con un sillar delante a medio
+    peregrino_respirando c_01, mirando a la derecha, con un sillar delante a medio
     paso: 125 px de la punta del pie a la cara del sillar)
   - fotograma final:   referencia_empujar_fin.png     (lo mismo 439 px mas a la
     derecha: lo que lo ha empujado)

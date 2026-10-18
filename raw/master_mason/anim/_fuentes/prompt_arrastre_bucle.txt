@@ -1,10 +1,10 @@
 ARRASTRARSE EN BUCLE
 (Google Flow, "Frames to Video", 2026-10-15; 16:9)
 =================================================
-El arrastre del juego (magnus_tumbarse c075-c123) es una brazada entera del
+El arrastre del juego (peregrino_tumbarse c075-c123) es una brazada entera del
 video del tumbarse y al repetirse salta. El video de 2026-10-15 no sirve: se
 arrastra estirado, con otra postura, y no casa con el tumbarse ni con el
-levantarse (magnus_arrastrarse_v2/estudio.txt).
+levantarse (peregrino_arrastrarse_v2/estudio.txt).
 Aqui se pide un arrastre que empiece y acabe en el MISMO fotograma de nuestro
 arrastre (c096, a mitad de brazada), el del final 380 px mas a la derecha: 4
 brazadas en 8 s, el paso del arrastre del juego. Sin parar en ningun momento,

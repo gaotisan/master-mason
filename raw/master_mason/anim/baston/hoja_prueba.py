@@ -1,4 +1,4 @@
-"""Hoja de contacto: baston colocado con seguir.py sobre fotogramas de Magnus.
+"""Hoja de contacto: baston colocado con seguir.py sobre fotogramas del peregrino.
   python hoja_prueba.py reposo,correr salida.png [paso] [x0,y0,x1,y1] [escala]
 Con recorte y escala (para ver de cerca hombros y capucha) sale en filas de 8
 con el numero de fotograma; p. ej. los giros enteros, de cerca:

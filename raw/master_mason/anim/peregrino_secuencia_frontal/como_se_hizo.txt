@@ -1,0 +1,285 @@
+peregrino_secuencia_frontal (y _sin): la secuencia de frente / espaldas de UN video
+================================================================================
+2026-10-08. Por que: la vuelta y los andares salian de videos distintos y la
+capucha cambiaba de ancho al girar. El usuario pidio un video por modo con todo
+seguido (quieto, anda, se para, gira, se aleja, se para) y se monta todo de ahi.
+
+  con baston  _fuentes/Pilgrim_walking_turning_full_20261008161217.mp4
+              (original "Pilgrim_walking_and_turning_anim..._20261008161217.mp4")
+  sin baston  _fuentes/Pilgrim_walking_animation_sequence_20261008164615.mp4
+              (mas cerca de la camara; bucles casi perfectos)
+
+Pasos (cada job):
+  nuevo / frames / elegir "1-240" ; python ../peregrino_andar_frente/croma.py <job>
+  python medir.py <job>        capucha-pies sin baston, pies, eje (medidas_crudas.json)
+  python montar.py [<job>]     los 240 a la casilla 584x800 con capucha-pies 628
+                               (tamano suavizado, suelo por la recta suelo~h) -> _todos/
+  python secuencia.py [<job>]  animaciones, bucles cerrados por flujo, puentes
+                               -> 04_limpios (+ <job>_pt/04_limpios: puentes, otra hoja:
+                               todo junto no cabe en 4096x4096), animaciones.json,
+                               assets/characters/peregrino/secuencia_frontal[_sin].json
+  hoja.ps1 -Job <job> -Cols 16 -Fps 24 -Escala 2 ; idem <job>_pt
+  python tools/anim/_spriteframes.py resources/characters/peregrino_frames.tres
+         (lee animaciones.json de los dos jobs)
+
+Tramos (fotogramas del video):
+  con  reposo_f 1-28 (ida y vuelta) | arranque 29-52 | andar_f bucle 45-85 (41),
+       cerrado por flujo los 8 primeros hacia 86-93 | vuelta 121-153 |
+       arranque_e 154-170 | andar_e bucle 165-202 (38, 6 cerrados) | reposo_e 216-240
+       Los bucles de este video no cierran solos (0,21 / 0,16: el bote del paso
+       desplaza la figura; encajados, la pose casa a 0,10).
+  sin  reposo_f 1-17 | arranque 18-45 | andar_f 38-68 (31, cierra a 0,033) |
+       vuelta 119-152 | arranque_e 153-175 | andar_e 170-205 (36, 0,051) | reposo_e 224-240
+       De frente crece muy poco (camara que retrocede con el?): el bucle de frente
+       avanza por ciclo lo mismo que el de espaldas (paso_frente_como_espalda).
+Puentes: 3-5 fotogramas de flujo optico entre fotogramas del mismo video: salir
+del reposo (cada 7 fotogramas) a arrancar o a la vuelta; de los pies juntos del
+andar (2 por ciclo) al reposo o a la vuelta; de la vuelta al reposo / al
+arranque de frente. Sin fundidos.
+Escena (scripts/dev/prueba_frontal.gd, _cb_tick / _cb_paso): los dos modos con
+esto; lo anterior (andares y vueltas de videos sueltos, puentes de
+peregrino_puentes_frontal*) queda en el codigo sin usarse.
+Bola (con baston): seguida por color en cada sprite. Sin baston: el baston en la
+funda de cuero a la espalda, calculado por sprite (baston_espalda en el json).
+Grabaciones: 05_salida/secuencia_en_juego.mp4 de cada job (cambio maximo entre
+fotogramas 0,88 con baston y 0,68 sin, sin picos).
+
+PENDIENTE: el video sin baston, de espaldas, NO tiene el chevron gris (parches con
+una franja gris vertical); el de con baston y los giros de perfil si.
+
+EL REPOSO, TERCERA VERSION (2026-10-09): un fotograma y la respiracion dibujada.
+  v1 (fotogramas 1-28 de ida y vuelta): "como Chiquito", la pierna iba y venia
+     (en 1-13 asienta un pie y desde 23 lo levanta).
+  v2 (14-22, alineados con ECC): seguia "temblando". Medido: el tramo quieto no
+     tiene respiracion (0,2-1 px sueltos sin direccion), la textura del video
+     hierve (0,04-0,07 por fotograma aun compensando el movimiento) y 9 fotogramas
+     de ida y vuelta son 0,67 s: todo va y viene 1,5 veces por segundo. En el
+     perfil (peregrino_respirando) hierve igual, pero lo tapa una respiracion amplia
+     y lenta (2,5 s).
+  v3: secuencia.py respiracion(): el fotograma BASE_F / BASE_B (con: 18 y 229; sin:
+     9 y 232) deformado: de la cadera para arriba sube hasta 3,5 px de master
+     (hombros y capucha) y el pecho se ensancha un 1,2 %, senoidal, 2,5 s, 12 fps
+     (16 fotogramas de ida y vuelta). El baston en la mano y la mano no se deforman
+     (+-22 px del palo, +-50 en la garra). Sin baston, el de la espalda sube con
+     los hombros. Del reposo se sale siempre por el fotograma base: la escena
+     exhala deprisa (k - 3 por tick, 0,2 s como mucho) y entra en el puente.
+  Grabado: cambio medio por fotograma del reposo 0,04 (antes 0,22), textura quieta.
+
+EL BASTON A LA ESPALDA EN LA VUELTA (2026-10-09): el usuario veia el baston y la
+funda por delante del cuerpo donde el cuerpo deberia taparlos. Antes era un solo
+delante/detras para todo el baston (por la barba): pasaba entero delante de
+golpe (fotograma 18 de vuelta_sb) y la bola saltaba de un lado de la capucha al
+otro. Ahora (secuencia.py, baston_espalda / giros_vuelta) el baston es un
+segmento en 3D sobre una espalda eliptica (del hombro derecho a la cadera
+izquierda); el giro del cuerpo sale de la anchura del torso (90 de frente, 44 de
+perfil, 92 de espaldas: gira mirando a la derecha) y por fotograma se proyecta y
+se calcula que tramo mira a la camara (siempre de la bola hacia abajo: de 0 en
+el fotograma 11 a entero en el 24). La escena dibuja el baston entero detras y
+MaderaDelante (de baston.tscn) delante recortada a ese tramo; la funda y la
+bola van delante cuando su tramo lo esta. De frente y de espaldas da lo mismo
+que antes. Las filas de "baston_espalda" llevan ahora [x, y, giro, corte, 0].
+
+LA FUNDA SOBRE EL BRAZO (2026-10-09, segunda vuelta): el usuario veia la funda
+encima del brazo casi de perfil. Fotograma a fotograma (capturas de Godot de
+vuelta_sb, 0-33): del 15 al 21 el palo y la funda caian dentro de la silueta,
+encima de la manga del brazo de este lado (que de perfil llega hasta el borde de
+la espalda), y la funda se veia de cara, ancha, en pleno perfil. Era la espalda
+eliptica: el pie del palo, mas alla del semiancho, quedaba en el plano del eje y
+de perfil el palo iba por el centro del cuerpo. Ahora:
+  - el palo va en un PLANO pegado por detras a la espalda: la recta tangente por
+    detras al contorno del perfil (fotograma 15), de la bola al pie (la espalda se
+    inclina hacia atras al bajar: 42,6 + 0,0305 dy px del eje), y el eje del palo
+    10 px de master mas atras (R_BASTON). De perfil el palo y la funda asoman por
+    detras de la espalda, como un carcaj, y no tocan la manga.
+  - delante o detras sin medias tintas: hasta 90 grados detras (asoma lo que sale
+    de la silueta), pasado el perfil entero delante (el plano mira a la camara).
+    En los 90 el palo esta fuera de la silueta: el cambio no se ve.
+  - la bola y la garra (CORTE_GARRA, los 42 px de arriba de baston.png) delante
+    desde 68 grados (fotograma 12): ahi la bola queda mas cerca de la camara que
+    el lado de la capucha. Antes la tapaba la punta de la capucha hasta el 15 y
+    aparecia delante de golpe en el 16.
+  - la funda es un tubo aplastado: ancho |cos THETA|, sin bajar de 0,45 (de canto).
+    Va en la quinta columna de las filas: [x, y, giro, corte, ancho] (1 de frente
+    y de espaldas, como antes).
+Las demas animaciones (reposo, andar, puentes) salen igual que antes (de frente y
+de espaldas el plano da lo mismo) y los sprites no cambian.
+
+LA CAPUCHA AL COLOR ESTANDAR (2026-10-09): el usuario vio que al guardar el baston,
+al llegar al reposo sin baston, la capucha era "bastante mas azul". Medido (Lab
+del gris azulado de la capucha, mismos pixeles): perfil (estandar, peregrino_respirando)
+52,9 / -2,7 / -4,0; de frente con baston 46,7 / -0,5 / -4,1 (gris neutro); sin
+baston 47,4 / -3,8 / -5,3 (casi turquesa, el doble de saturacion); de espaldas,
+el video sin baston casi gris (44,5 / -0,2 / -2,7). El usuario eligio llevarlas
+todas a la del perfil. ../igualar_capucha.py: en la franja de la capucha (punta
+al 27 % del alto, apagandose al 32 %: los parches grises de la tunica quedan
+debajo), lo gris azulado; color en Lab con media y desviacion de los ejes de
+color, la luz solo desplazada (la barba, casi neutra, no cambia). secuencia.py lo
+aplica al guardar cada sprite, con dos ajustes por video (medidos en el reposo
+de frente y en el de espaldas) mezclados segun hacia donde mira (en la vuelta,
+(1 - cos THETA) / 2). Despues: frente con / sin 52,5 / 52,7 (a 0,3), espaldas
+52,6 / 52,5 (a 0,1), perfil de la vuelta 58,4 / 57,0 (mas luz en los dos).
+
+LA FUNDA, DE ESPALDAS (2026-10-10):
+  - Con el baston en la mano, la funda se queda VACIA en la espalda (como en el
+    perfil, baston.gd): secuencia.py escribe "funda_espalda" en
+    secuencia_frontal.json con el mismo modelo que el baston guardado, y la
+    escena la dibuja (solo la funda) de espaldas, andando y en la vuelta. Para las
+    referencias de sacar / guardar de espaldas: si el video no la llevara, Veo la
+    haria desaparecer al sacar el baston.
+  - Con el baston en la mano lo mas alto del dibujo es la garra: _medidas_cuerpo
+    tomaba la garra por la punta de la capucha y la funda vacia salia arriba y a
+    la derecha. En ese modo mide sin lo fino (apertura horizontal de 15 px).
+  - El usuario: "sale muy a la derecha de la espalda y un poco como pegote".
+    Eligio (entre variantes pintadas) CENTRADA en la columna y al 75 %:
+      * de espaldas el baston va respecto a la capucha, y la capucha de estos
+        videos no queda centrada sobre el cuerpo: desfase_espalda() mide en el
+        reposo de espaldas cuanto hay que moverlo para que la funda caiga en la
+        columna (-7,7 px sin baston, -26,6 con el) y se aplica con cos^2 THETA
+        pasado el perfil (de frente no cambia nada; en la vuelta, poco a poco).
+      * tamaño: ../baston/funda_cuero.py TAMANO = 0,75 (funda_cuero.json escala
+        0,1875; la textura no cambia). Tambien la del perfil (avisada la otra
+        sesion).
+  Los sprites no cambian (md5 iguales): solo el json.
+
+LA CORREA EN VEZ DE LA FUNDA (2026-10-10): de espaldas la funda de tubo seguia
+pareciendo un pegote. El usuario pidio a Gemini tres composiciones sobre nuestra
+referencia y eligio una correa en diagonal (hombro derecho - cadera izquierda)
+con dos presillas con hebilla. ../baston/correa.py la aisla de esa imagen
+(_fuentes/baston_correa_gemini.jpeg) y la deja en dos capas como la funda
+(correa_atras: la correa, detras del baston; correa_delante: las presillas,
+delante: el palo pasa por dentro) + correa.json. La escena la cuelga del mismo
+modelo que el baston (CORREA_INICIO: empieza bajo la capucha), asi que sigue la
+vuelta, va delante / detras del cuerpo y de canto de perfil igual que el; con el
+baston en la mano se ve la correa vacia. El palo es mas ancho que la correa: con
+el baston dentro solo se ven las presillas (el usuario lo prefirio asi frente a
+una correa mas ancha o corrida a un lado). De frente no asoma nada nuevo.
+La funda de tubo (funda_cuero, al 75 %) la sigue usando el perfil (baston.gd).
+
+LA CORREA AL ANDAR DE ESPALDAS CON EL BASTON EN LA MANO (2026-10-10): el usuario
+la veia "pegada y moviendose irreal". Medido con flujo optico (la tela bajo la
+correa frente a la correa): se deslizaba 3,4 px por fotograma y hasta 44 px a lo
+largo del ciclo (sin baston, 0,8 px y 13 px: ahi se veia bien). Causa: en el
+modo con baston el nudo de la garra pasaba la apertura de 15 px y entraba en el
+centro de la "capucha" (bailaba 59 px al balancearse el baston; la capucha de
+verdad, 10). _medidas_cuerpo mide ahora la capucha (punta y centro) por su
+color gris azulado en ese modo: la correa se mueve 9 px en el ciclo (antes 57) y
+se desliza 0,9 px por fotograma, como sin baston. De rebote cambia un poco el
+giro estimado de la vuelta con baston (y con el el color de la capucha de esos
+sprites): hoja peregrino_secuencia_frontal rehecha.
+
+LA CORREA VACIA, COSIDA A LA TUNICA (2026-10-10): aun midiendo bien la capucha, la
+correa vacia "se mueve mucho y queda como pegote" (con el baston dentro, que se
+balancee si tiene sentido: pesa). secuencia.py, correa_pegada_a_la_tela() (solo el
+modo con baston):
+  - de la vuelta al reposo de espaldas el modo sale de un video seguido: cada
+    fotograma (arranque, andar, parada) se ENCAJA con el reposo de espaldas por
+    el torso (ECC afin, hombros a caderas, sin brazos ni baston) y la correa va
+    con ese ajuste. Encajar uno con el siguiente (flujo optico encadenado)
+    acumulaba error: la correa acababa a un lado; contra el reposo, no.
+  - en la VUELTA el encaje falla (el torso cambia demasiado al girar): el
+    modelo, con la correa pegada a la tela (sin los 10 px que separan el palo de
+    la espalda: de perfil la correa vacia salia flotando por detras) y de canto
+    casi invisible (ancho |cos|, sin el minimo de la funda gruesa); corrido poco
+    a poco (con el giro, de 100 a 180 grados) hasta casar con el arranque.
+  - puentes de espaldas: de la postura de un extremo a la del otro.
+  Andando de espaldas la correa ya no se mueve sobre la tunica (se mueve lo que
+  se mueve la tela). Sin baston (palo en la correa) sigue el modelo de antes.
+
+LA CORREA VACIA EN LA VUELTA (2026-10-10): el usuario: al empezar a girar "se ve la
+funda deslizarse por la espalda"; de lado no se debe ver nada (esta pegada a la
+espalda), ni de frente a espaldas ni al reves. Ahora:
+  - oculta (ancho 0) hasta 125 grados; de 125 a 150 se va abriendo de una raya a
+    su ancho, y COSIDA a la tela: flujo optico encadenado solo en ese tramo
+    (unos 14 fotogramas hacia atras desde el arranque, que ya va encajado con el
+    reposo): sin tiempo de acumular error.
+  - en la escena la correa vacia cuelga del sprite con clip_children: se recorta
+    con la silueta del personaje (al girar, la parte de la cadera izquierda ya no
+    sale por fuera del cuerpo). De frente (detras del cuerpo) no se dibuja.
+    capa_espalda.gd, para sacar referencias con baston, usa el sprite solo como
+    mascara (CLIP_CHILDREN_ONLY).
+
+2026-10-12: SIN BASTON, VUELTA Y ANDAR DE ESPALDAS NUEVOS Y LAS CARRERAS
+------------------------------------------------------------------------
+La espalda sin baston era otra tunica (sin el chevron): el reposo de espaldas ya
+salia de peregrino_espalda_sin_baston (ESPALDA_NUEVA). Ahora tambien la vuelta y el
+andar de espaldas, y se anaden las carreras de frente y de espaldas (D1 del guion:
+solo con el baston guardado). Videos de Flow con nuestras referencias
+(_fuentes/prompt_espalda_sin_baston_vuelta_andar.txt, prompt_correr_frente_espaldas.txt):
+  peregrino_vuelta_sin_v2          Pilgrim_turns_around_on_green_20261012094345
+  peregrino_andar_espalda_sin_v2   Pilgrim_walking_away_from_camera_20261012094541 (anda en el sitio)
+  peregrino_correr_frente          Old_pilgrim_running_toward_camera_20261012094716
+  peregrino_correr_espalda         Pilgrim_running_on_green_screen_20261012094829 (con sombra:
+                                quitar_sombra.py en su job, antes del croma)
+Pasos de cada uno: nuevo / frames / elegir "1-192"; croma.py; medir.py; y
+montar_en_sitio.py (NO montar.py: con la altura casi fija la recta suelo~h sale mal
+condicionada y cada video se descolocaba unos px; aqui la transformacion fija de las
+referencias, que cae al pixel sobre el sprite, y en los que andan o corren el tamano
+corregido al del primero alrededor de los pies; la vuelta, --fijo).
+secuencia.py (sin baston): la linea de tiempo por TRAMOS (1-118 de este video, lo de
+frente; la vuelta nueva 44-102; el andar 26-110; las carreras 18-180 y 18-177). La
+capucha se lleva al estandar al leer cada fotograma (F) y capucha() ya no la toca.
+El andar nuevo va en el sitio: el avance es sintetico, con la zancada por ciclo del de
+antes (asi el de frente, que avanza lo mismo por ciclo, no cambia: -0,00264). La
+vuelta acaba al terminar de girar (102; luego se cuadra muy despacio): sus puentes de
+espaldas, de 6, y uno nuevo vu_arrb (vuelta -> arranque de espaldas; la escena lo usa
+si esta). Carreras (CARRERAS): arranque 18-47 (1,25 s) que entra en el bucle por la
+fase que mejor casa, bucle (frente 88+21, espalda 54+23), parada desde que frena (140)
+a la que se entra desde una fase del bucle con un puente, y la velocidad del andar por
+435/192 (la de perfil). Van en otra hoja: peregrino_secuencia_frontal_sin_co.
+En la escena: doble toque hacia donde mira para correr (sin baston), estados
+correr y parada (prueba_frontal.gd).
+
+2026-10-12 (tarde): PIES OSCUROS; ANDAR Y CORRER DE ESPALDAS REPETIDOS
+------------------------------------------------------------------------
+Los cuatro videos nuevos salieron descalzos: los prompts decian "thin dark legs and bare
+feet" (como todos los de antes) y esta vez Veo pinto pies color carne con dedos. En la
+vuelta y el correr de frente las piernas seguian oscuras: oscurecer_pies.py lleva lo
+claro de los pies al marron del pie del andar de frente aceptado (los de Veo, en
+_todos_veo/ de cada job). El andar y el correr de espaldas tenian ademas las piernas
+color carne (y el correr, un pie como una pezuna): repetidos con el prompt corregido
+("thin legs in dark hose and soft dark slippers... he is not barefoot"):
+  peregrino_andar_espalda_sin_v3   Old_pilgrim_walking_away_20261012112519 (en el sitio;
+                                24 quieto, primer paso 25, bucle 58+36, cierra a 0,84)
+  peregrino_correr_espalda_v2      Old_man_running_on_green_20261012112604 (sin sombra;
+                                ciclo de 19, el de perfil; bucle 78+19, cierra a 1,52;
+                                parada 146-184, sale por la fase 7, entra por la 8)
+El bucle y las fases, buscados como antes: diferencia media entre fotogramas (146x200,
+luminancia premultiplicada y alfa) a un periodo, y el cierre de los m primeros; el
+metodo da lo que se eligio con los videos anteriores (a=64/65 P=34; a=54 P=23).
+El andar va ahora a 0,00227 por fotograma (ciclo de 36 con la misma zancada por ciclo:
+no patina) y el correr de espaldas a 0,00514. Empalmes medidos (todos dentro del paso
+normal de su animacion): cierre del andar 1,29 (paso tipico 1,11), del correr 5,67
+(4,96), arranques al bucle 1,18 y 4,25, correr -> parada 3,2-3,6, puentes al reposo <1,5.
+Los puentes de parada del andar de espaldas cambian de nombre (ps_ab17_*, ps_ab35_*: los
+pies juntos del bucle nuevo); la escena los saca del json.
+Despues, en la escena (fondo oscuro), las piernas del correr de espaldas se veian grises y
+palidas, y las dos de espaldas, gruesas (espinilla/pie en px de master: aceptado 12/29,
+andar v3 15/32, correr v2 18/38). igualar_piernas.py: color de piernas y pies al del
+reposo de espaldas sin baston (de ahi salen y ahi vuelven), con las estadisticas de todo
+el video para que no parpadee, brillos comprimidos, y mas finas (x0,72 el correr, x0,85
+el andar). Pies que patinan, simulados con las formulas de la escena (suelo 145,9 por
+unidad de escala, paso por fotograma): de espaldas el pie apoyado se queda quieto
+(-0,27/+0,17 px por fotograma); de frente el andar ~0 y el correr 0 a escala 1 y +1,7 a
+1,5 (el video en el sitio a otro tamano que el suyo: no se nota corriendo).
+
+2026-10-12 (noche): BOTAS EN TODAS LAS DE FRENTE Y ESPALDAS
+-------------------------------------------------------------
+El usuario: de frente/espaldas "parece casi que esta descalzo"; que se parezcan a las de
+perfil, que llevan "como unas botas"; sin rehacer el dibujo, solo el color. Medido en las
+de perfil (peregrino_andando, _corriendo, _respirando): calzas gris neutro (~63,60,60) y pie
+marron de un tono (~89,68,62). ../botas.py pinta asi cada sprite al guardarlo: piernas
+(lo fino que cuelga de la tunica; sin el baston, que se quita por lo alto que es y, si va
+pegado a una pierna, por la madera) en gris, y la bota (los ultimos 40 px de cada pierna,
+con un paso de 5) en marron, quitando el detalle fino (las rayas de los dedos) y dejando
+el volumen. Va en secuencia.py (los dos modos), en peregrino_sacar_baston_frente/animar.py y
+en el de espaldas; los json de la escena no cambian (comprobado: identicos).
+
+LA BOLA EN LA VUELTA CON BASTON (2026-10-17)
+--------------------------------------------
+El usuario: al girar con el baston "la bola se vuelve transparente, deja verse el
+azul de la capucha". En vuelta_cb 7-14 la garra pasa por delante de la cara y su
+hueco deja ver la capucha; la bola va detras del sprite y la capucha la tapaba.
+garra_vuelta.py saca de esos fotogramas los dedos de la garra dentro del disco de
+la bola (por saturacion: la capucha y la barba son grises) y PeregrinoFrontal pone
+ahi una esfera sin halo delante del cuerpo y esos dedos encima
+(assets/characters/peregrino/vuelta_garra/ y vuelta_garra.json).

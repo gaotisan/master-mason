@@ -1,6 +1,6 @@
 class_name PuentePerfil
 extends Node2D
-## El paso del peregrino de perfil (magnus.tscn) al de frente / espaldas
+## El paso del peregrino de perfil (peregrino.tscn) al de frente / espaldas
 ## (PeregrinoFrontal) y al reves, sin corte (2026-10-17; el usuario: "en pocos
 ## sitios vamos a pasar de frontal a side, digamos que solo aqui, asi que lo
 ## vamos a hacer lo mejor posible").
@@ -8,13 +8,13 @@ extends Node2D
 ## Los dos personajes salen de videos distintos (otra tunica, otra capucha, el
 ## baston en otro sitio) y cortar de uno al otro saltaba. Un puente son unos
 ## fotogramas que llevan el uno al otro por piezas (raw/master_mason/anim/
-## magnus_puente_perfil/puente.py): la silueta cambia de forma poco a poco, el
+## peregrino_puente_perfil/puente.py): la silueta cambia de forma poco a poco, el
 ## baston va como pieza rigida y el dibujo de la tunica entra con un barrido del
 ## lado que gira hacia la camara. Empiezan en un fotograma del de un lado y
 ## acaban en el del otro (el de "sigue" de la ficha), asi que antes y despues van
 ## los personajes de siempre.
 ##
-## Puentes (assets/characters/magnus/puente_perfil/puente_perfil.json):
+## Puentes (assets/characters/peregrino/puente_perfil/puente_perfil.json):
 ##   ida_<sb|cb>_rNN  del reposo de perfil (su fotograma NN; mano: cb) a la vuelta
 ##                    del frontal hacia la espalda (sigue en su fotograma
 ##                    "sigue", "dx" px por delante); al reves, de espaldas al perfil
@@ -24,7 +24,7 @@ extends Node2D
 
 signal acabado
 
-const FICHA := "res://assets/characters/magnus/puente_perfil/puente_perfil.json"
+const FICHA := "res://assets/characters/peregrino/puente_perfil/puente_perfil.json"
 const FPS := 24.0
 
 static var _ficha := {}

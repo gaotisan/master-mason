@@ -1,7 +1,7 @@
 shader_type canvas_item;
 render_mode blend_disabled;
 // Fondo de la caida en la hojarasca: oscuridad calida con un haz de luz que baja
-// sobre el sitio donde cae Magnus, niebla que se arrastra despacio y el resplandor
+// sobre el sitio donde cae el peregrino, niebla que se arrastra despacio y el resplandor
 // del suelo, como la luz de la imagen de titulo. Todo bajo: el negro manda.
 // Se calcula a 1/4 de resolucion y se estira (caida_hojarasca.gd): es todo
 // degradado blando y a resolucion completa costaba la mitad de los FPS.

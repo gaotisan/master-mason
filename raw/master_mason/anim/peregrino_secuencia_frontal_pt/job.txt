@@ -1,0 +1,2 @@
+job:     peregrino_secuencia_frontal_pt
+nota:    puentes de la secuencia con baston (peregrino_secuencia_frontal/secuencia.py)

@@ -9,7 +9,7 @@ mascaras BLANCAS con alfa (el valor interior varia un poco, para que no sea
 papel recortado): el color lo pone bosque.gd con modulate, segun la hora del
 dia y la profundidad. Las capas se repiten en horizontal sin costura.
 
-Coordenadas: el suelo de Magnus esta en y = 1200 del mundo. Cada capa lleva en
+Coordenadas: el suelo del peregrino esta en y = 1200 del mundo. Cada capa lleva en
 bosque_meta.json su 'y_arriba' (y del mundo de su borde superior) y su escala
 de dibujo (las lejanas se pintan a media resolucion y se estiran x2: estan en
 niebla y no se nota, y cuestan la cuarta parte).
@@ -198,7 +198,7 @@ def suelo() -> None:
 
 
 def suelo_frente() -> None:
-    """Flequillo de hierba que va DELANTE de Magnus, a la misma velocidad que el
+    """Flequillo de hierba que va DELANTE del peregrino, a la misma velocidad que el
     suelo: le tapa unos pocos px de los pies y lo asienta en la tierra."""
     y0, alto = 1150, 90
     w = ANCHO
@@ -386,7 +386,7 @@ def hoja() -> None:
 
 def gargola() -> None:
     """Roble grueso con una gargola de piedra que asoma del tronco hacia la
-    izquierda (de donde viene Magnus). Los ojos van aparte: dos brillos que lo
+    izquierda (de donde viene el peregrino). Los ojos van aparte: dos brillos que lo
     siguen; aqui solo se dejan las cuencas."""
     w, h = 1600, 1500
     rnd = random.Random(99)

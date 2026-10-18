@@ -1,6 +1,6 @@
 shader_type canvas_item;
 // Bruma baja sobre el borde de atras de la hojarasca: sin ella el lecho acaba
-// en una raya dura contra el negro. Va delante del lecho y detras de Magnus,
+// en una raya dura contra el negro. Va delante del lecho y detras del peregrino,
 // se arrastra muy despacio y solo se enciende donde llega el haz.
 
 uniform vec2 tam = vec2(2912.0, 260.0);

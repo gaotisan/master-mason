@@ -1,10 +1,10 @@
 extends Node
 ## PRECARGA DEL PEREGRINO (2026-10-14). El peregrino sale en todo el juego con
 ## todas sus animaciones, de perfil y de frente (el usuario: "se van a usar
-## siempre, no puedo cargar por acciones"): magnus_frames.tres son ~4.400
+## siempre, no puedo cargar por acciones"): peregrino_frames.tres son ~4.400
 ## fotogramas en 56 hojas (~330 MB de memoria de video). Cargarlo al entrar en
 ## la hojarasca (con su script, el baston y las acciones) alargaba el negro
-## tras el titulo (medido, cargando a la vez: compilar magnus.gd con lo suyo
+## tras el titulo (medido, cargando a la vez: compilar peregrino.gd con lo suyo
 ## 2,8 s, las animaciones 2 s, las hojas 60-200 ms cada una).
 ## Se carga una vez, en segundo plano, al segundo de arrancar (en el ataud, aun
 ## a oscuras) y se guarda aqui para todo el juego: las escenas que lo usan lo
@@ -17,19 +17,19 @@ extends Node
 ## SIN_PRECARGA=1 en el entorno la desactiva (para medir).
 
 const RUTAS := [
-	"res://resources/characters/magnus_frames.tres",
-	"res://scenes/characters/magnus.tscn",
+	"res://resources/characters/peregrino_frames.tres",
+	"res://scenes/characters/peregrino.tscn",
 	"res://scenes/characters/baston.tscn",
 	"res://scripts/characters/acciones_perfil.gd",
-	# las que se cargan a mano (flotar en magnus.gd y la mano en baston.gd)
-	"res://assets/characters/magnus/magnus_flotar_bajar.png",
-	"res://assets/characters/magnus/magnus_flotar_posarse.png",
-	"res://assets/characters/magnus/magnus_flotar_girar.png",
-	"res://assets/characters/magnus/magnus_flotar_pisar.png",
-	"res://assets/characters/magnus/magnus_flotar_despegar.png",
-	"res://assets/characters/magnus/magnus_flotar_llegar.png",
-	"res://assets/characters/magnus/magnus_flotar_quieto.png",
-	"res://assets/characters/magnus/magnus_coger_baculo.png",
+	# las que se cargan a mano (flotar en peregrino.gd y la mano en baston.gd)
+	"res://assets/characters/peregrino/peregrino_flotar_bajar.png",
+	"res://assets/characters/peregrino/peregrino_flotar_posarse.png",
+	"res://assets/characters/peregrino/peregrino_flotar_girar.png",
+	"res://assets/characters/peregrino/peregrino_flotar_pisar.png",
+	"res://assets/characters/peregrino/peregrino_flotar_despegar.png",
+	"res://assets/characters/peregrino/peregrino_flotar_llegar.png",
+	"res://assets/characters/peregrino/peregrino_flotar_quieto.png",
+	"res://assets/characters/peregrino/peregrino_coger_baculo.png",
 	"res://assets/characters/baston/mano_reposo.png",
 	"res://assets/characters/baston/mano_arranque_andar.png",
 	"res://assets/characters/baston/mano_andar.png",
@@ -62,7 +62,7 @@ func _pedir() -> void:
 		get_tree().create_timer(0.5).timeout.connect(_pedir)
 		return
 	# Todas cuentan como pedidas desde ya (en_marcha), pero se cargan de una en
-	# una: pedidas a la vez, magnus.tscn cargaba magnus_frames.tres como
+	# una: pedidas a la vez, peregrino.tscn cargaba peregrino_frames.tres como
 	# dependencia mientras otra peticion cargaba el mismo archivo, y a veces
 	# chocaban ("Another resource is loaded from path ...::atlas_264", visto el
 	# 2026-10-17).

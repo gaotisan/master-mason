@@ -59,7 +59,7 @@ raw/master_mason/anim/*/_*/
 # de 04_limpios (con la tabla de cada job); la hoja va en 05_salida.
 raw/master_mason/anim/*/04_acciones/
 
-# Blender portable y su entorno de Python (bpy) para raw/master_mason/magnus3d:
+# Blender portable y su entorno de Python (bpy) para raw/master_mason/peregrino3d:
 # ~1,8 GB que se descargan, como ffmpeg. Las copias de seguridad de Blender, tampoco.
 tools/blender/
 tools/bpy_env/

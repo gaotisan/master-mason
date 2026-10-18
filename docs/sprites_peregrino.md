@@ -1,0 +1,1148 @@
+# Sprites del peregrino
+
+Todo lo que hay que tener delante al montar las animaciones del personaje en
+Godot. Los numeros no son negociables entre animaciones: si se cambia uno, hay
+que rehacer las tres.
+
+## Ya esta montado
+
+| archivo | que es |
+|---|---|
+| `assets/characters/peregrino/*.png` | las 17 hojas, 292x360 por casilla (340x400 el salto corriendo, 380x360 las cuatro de la caida) |
+| `resources/characters/peregrino_frames.tres` | el `SpriteFrames` con las 19 animaciones |
+| `scenes/dev/piloto_*.tscn` | pilotos de teclas para grabar al personaje sin nadie al teclado (ver al final) |
+| `scenes/characters/peregrino.tscn` | el personaje |
+| `scripts/characters/peregrino.gd` | la maquina de estados, y desde ella el sonido |
+| `assets/audio/peregrino_paso_*.wav` | las pisadas: `a`/`b` al andar, `correr_a`/`correr_b` al correr |
+| `assets/audio/peregrino_respirar_ciclo.ogg` | la respiracion del reposo tras un esfuerzo (bucle de 2,5 s, igual que la animacion); en reposo normal no suena |
+| `scenes/game/dark_stage.tscn` | la escena negra, con el peregrino instanciado |
+| `scripts/game/datos_movimiento.gd` | el panel de estudio del escenario negro (estado, velocidad, carrerilla, ultimo salto); H lo oculta |
+
+**Sonido.** Los videos de `raw\master_mason\anim\_fuentes` traen audio, y va
+sincronizado con la imagen: medido, cada golpe de pie cae medio fotograma
+despues del sprite en que el pie planta. De ahi salen los efectos, con
+`raw\master_mason\audio\peregrino\construye.py` (la ficha de que es cada archivo
+esta al lado, en `02_salida\ficha.txt`). Las pisadas no van en bucle: andar y
+correr avanzan con la distancia, no con el reloj, asi que `peregrino.gd` dispara
+cada golpe al pasar por el sprite de contacto (andar: 1 y 17; correr: 5 y 17).
+Los de correr son los mismos de andar acelerados un 15 % y 3 dB mas fuertes. La
+respiracion si es un bucle de 2,5 s, pero ya no sale del video de `respirando`
+(llevaba zumbido): sale de un video aparte con el efecto aislado
+(`Elderly_mystic_breathing_calmly`), del que se coge la unica respiracion
+completa de valle a valle (2,30 s), se estira un 8,7 % con `atempo` a los 2,5 s
+de la animacion y se gira para que la inspiracion, que es la fuerte, suene
+mientras el pecho crece (sprites 8-19) y la espiracion mientras baja. Picos en
+1,20 y 2,02 s; la costura cae en el valle entre respiraciones, con fundido
+cruzado. El antiguo queda como `_v1` en `02_salida`.
+
+**La respiracion responde al esfuerzo, no al estado.** Un bucle a volumen fijo
+mientras estas parado era un metronomo: en diez segundos molestaba. Ahora hay
+una cuenta de esfuerzo de 0 a 1 que sube corriendo (a 1 en 4 s), andando (20 s)
+y con cada salto (+0,35), y baja en reposo (de 1 a 0 en 7 s). El volumen va de
+`respiracion_tranquilo_db` (esfuerzo 0, -40 = apagada) a `respiracion_db`
+(esfuerzo 1, -22), y al llegar a cero se apaga con el fundido corto de siempre.
+Parado sin mas no suena; tras correr entra fuerte y se va en siete segundos; al
+acabar la cinematica de entrada llega al reposo sin aliento (esfuerzo 1). Para
+que el bucle no sea regular, cada vuelta cambia el volumen al azar dentro de
++-2 dB y una de cada cuatro se salta (`respiracion_variacion_db`,
+`respiracion_saltar_ciclo`); el tono no se toca porque desfasaria el sonido del
+pecho. Todo son exports del nodo, junto con `pasos_db`.
+
+Cada vez que entra en reposo con esfuerzo, la respiracion arranca desde el
+principio del bucle, a la par que el fotograma 0 del pecho, aunque viniera de
+un fundido de salida a medias (un toque corto, un giro en el sitio): seguir el
+audio por donde iba dejaba sonido y pecho desfasados hasta 1,2 s. Y en reposo
+con la respiracion callada, al dar la vuelta la animacion a veces se sostiene
+el valle entre dos respiraciones un rato al azar (`reposo_pausa_prob` 0,35,
+entre `reposo_pausa_min` y `reposo_pausa_max`, 0,4-1,2 s) para que no se lea el
+bucle; con la respiracion sonando no, que el pecho tiene que ir con el audio.
+`reposo_pausa_prob = 0` lo quita.
+
+Las animaciones que reproduce el nodo (arranques, paradas, saltos, aterrizaje)
+tienen sus golpes en la tabla `GOLPES` de `peregrino.gd`, disparados desde
+`frame_changed`: el contacto del pie en `arranque_correr` (sprite 17),
+`parada_andar` (8), `parada_correr` (5) y `aterrizaje_correr` (19), medidos
+siguiendo la fila del pie mas bajo; y los despegues y caidas de los dos saltos,
+sacados del audio de sus propios videos (`construye.py`, seccion SALTOS) y
+colocados en el sprite del ataque medido: `saltar` 13 y 48, `salto_correr` 4 y
+33, `salto_parado` 18 y 47. Cuando el salto corriendo sigue al ciclo al tocar suelo, el golpe de la caida
+suena en el propio corte, porque el sprite 33 no llega a verse. Antes todo eso
+era mudo: al arrancar a correr no sonaba nada en 0,6 s y los saltos ni despegaban
+ni caian.
+
+**Niveles, pendiente de oido.** En la grabacion del piloto el viento de la escena
+tapaba las primeras pisadas de andar: el viento estaba a -35..-45 dBFS y las
+pisadas de andar llegaban a -26..-38. Con `pasos_db` a -6 se oyen justas sobre
+el viento; subirlas 3-4 dB o bajar `wind_db` al empezar la escena es cosa de
+escucharlo.
+
+Controles (definidos en `project.godot`): flechas izquierda/derecha o A/D para
+andar, **doble pulsacion** de la misma flecha para correr, flecha arriba o espacio
+para saltar, flecha abajo o S para agacharse (mantenida; al soltarla se levanta)
+y, agachado, la direccion hacia donde mira para andar agachado; la contraria lo
+gira sin levantarse.
+Al soltar la direccion, entra la frenada y vuelve a reposo. Un toque corto
+andando no corta el paso: si suelta antes de mover los pies (arranque f0-f3)
+vuelve al reposo; si ya habia empezado el paso, lo termina y se para en el
+primer apoyo que casa con la parada (ningun fotograma del primer paso del
+arranque casa con ella: cortar ahi era un salto de pose). Corriendo, igual: si
+el segundo toque del doble se suelta con los pies aun quietos (arranque de correr
+hasta el f5) vuelve al reposo; si no, termina el arranque, entra al ciclo y se
+para en la fase que casa (el arranque esta a 1,6-2,4 pasos de la parada). Medido
+con `piloto_toques`: soltar a los 0,23-0,37 s son unos 2,2 s hasta el reposo.
+
+**Cambiar de sentido** no voltea en seco: pasa por la frenada, voltea cuando ya
+ha frenado (por debajo del 30 % de la velocidad con que entro en la parada de
+andar, pasado `frenada_correr` en la de correr, 30 % de la de andar en la cola
+del salto) y arranca al otro lado. Desde que existe la animacion de
+`giro` (de un video, 47 fotogramas, 1,6 s), el volteo lo hace ella y el `flip_h` se aplica al
+terminar; con `giro_activo = false` vuelve al volteo instantaneo de antes.
+
+El salto conserva el impulso que llevaba: saltar corriendo avanza en el aire, y al
+caer recupera el modo que llevaba (andar o correr) si la tecla sigue pulsada. El
+salto de parado/andando (`saltar`) se puede cortar a partir del 85,5 % de la
+animacion (sprite 60 de 70, 0,23 s despues de tocar el suelo), y entra en el
+arranque de andar por el fotograma que mas se parece a la pose en la que se
+corta (`POSE_DESDE_SALTO` en `peregrino.gd`).
+
+**El salto corriendo lleva empuje anadido.** El sprite trae un brinco corto: 94 px
+de subida y 0,47 s de vuelo, 204 px de avance a 435 px/s, dos tercios de la
+altura del personaje. `peregrino.gd` le suma un arco vertical al sprite
+(`salto_correr_altura`, 80 px), multiplica la velocidad en el aire
+(`salto_correr_impulso`, 1,3) y frena la animacion durante el vuelo
+(`salto_correr_vuelo`, 0,75). El arco va atado al fotograma, del despegue
+(sprite 3) a la toma de suelo (sprite 30), no al reloj, asi que cuadra con la
+pose sea cual sea la velocidad. Medido en el juego: sube 180 px y avanza 376 en
+0,6 s de vuelo, algo mas de una altura.
+
+Al tocar suelo hay dos salidas. **Con la direccion pulsada** entra directo al
+ciclo de correr por el fotograma que mas se parece a la toma de suelo
+(`salto_correr_a_correr`, f17, 2,5 pasos normales del ciclo) y a la velocidad
+que traia: antes se cortaba al 85 % hacia el arranque por velocidad, y como el
+impulso ya se habia apagado, el personaje se clavaba 0,3 s al caer y volvia a
+acelerar, que era lo raro del aterrizaje. **Soltandola**, la animacion acaba en
+la zancada de la toma de suelo y sigue `aterrizaje_correr` (video 166-199 del
+mismo salto: se incorpora y da dos pasos cortos hasta quedarse de pie, 0,57 s a
+60 fps) y de ahi a reposo; la velocidad baja a la mitad durante la toma de suelo
+y se apaga en el primer 60 % de esa animacion (`aterrizaje_correr_velocidad`,
+`aterrizaje_correr_frenada`). Enganches medidos: salto c_38 -> aterrizaje c_01 es
+0,13, el paso normal de esa animacion; su ultimo fotograma esta a 0,10 del reposo.
+
+El `.tres` se genera por script, no a mano: son 658 `AtlasTexture`, uno por
+casilla usada de cada hoja. Una hoja puede dar varias animaciones y una
+animacion puede repetir casillas (lista de indices: la ida y vuelta del
+agachado). El generador es
+`tools/anim/_spriteframes.py`, y ahi estan tambien los **fps de cada
+animacion**, que no tienen por que ser los del video:
+
+```powershell
+cd C:\Users\santiago.ochoa\godot\projects\master_mason\tools\anim
+python _spriteframes.py "..\..\resources\characters\peregrino_frames.tres"
+```
+
+Los saltos son el caso claro: los videos vienen a camara lenta (31 fotogramas de
+vuelo a 24 fps son 1,3 s). Se reproducen a **60 fps**, con lo que `saltar` dura
+**1,17 s** (0,52 de vuelo), y ademas en una pantalla de 60 Hz se ve cada
+fotograma exactamente una vez.
+
+Verificado corriendo el juego: el personaje ocupa el **19,4 %** del alto de
+pantalla, que es lo que se diseno (20,2 % teorico).
+
+## Carrerilla y altura variable del salto corriendo
+
+Dos mecanicas encima del salto corriendo y dos empalmes suyos, cada cosa con su
+interruptor en el nodo. Con `carrerilla_activa`, `salto_variable_activo` y
+`arco_desde_despegue` a `false` y `aterrizaje_carrera_suavizado` a 0, las
+trazas del piloto salen identicas a las de antes, tick a tick (21 guiones:
+correr, saltar con toque y mantenido, de parado, andando, girando, en cadena y
+contra el borde).
+
+**Carrerilla.** Un contador de 0 a 1 que se llena corriendo a crucero con la
+tecla hacia delante (estado `CORRER`, 1,5 s hasta lleno, `carrerilla_tiempo`).
+Se vacia en 0,4 s (`carrerilla_vaciado`) en cuanto deja de pedir correr:
+soltando la tecla (tambien mientras espera la fase de la parada), con la tecla
+anulada por la frenada del limite, frenando, andando o parado. En el aire del
+salto corriendo se congela. El salto corriendo escala con el arco 80 -> 130 px
+(`salto_correr_altura_max`) y empuje 1,3 -> 1,6 (`salto_correr_impulso_max`).
+El ritmo del aire no es un numero fijo: sale del arco con la misma gravedad
+que el salto de siempre (`_ritmo_vuelo`: el tiempo de vuelo va con la raiz de
+la altura, la cocida del sprite, 97 px, mas el arco), 0,75 con el arco de
+siempre y 0,66 con la carrerilla llena. Nunca va por debajo de
+`salto_correr_vuelo_min` (0,6) ni de 0,55 (`VUELO_MIN`), que ya se lee como
+camara lenta. Cada salto gasta la mitad de lo que llevaba
+(`carrerilla_gasto_salto`): saltar en cadena da 225, 201 y 191 px, no el
+maximo sin fin. Recien arrancado, el contador esta a 0 y el salto es el de
+antes.
+
+**Altura variable** (solo el salto corriendo). Un toque corto baja el arco
+anadido al 55 % (`salto_corto_factor`); mantener la tecla durante la subida da
+el entero. Como el arco va atado al fotograma, la amplitud no cambia de golpe:
+
+- soltada antes del despegue (el arco aun vale 0), el brinco es corto desde el
+  principio;
+- soltada en el aire, la amplitud baja hacia el objetivo con una curva
+  exponencial (`SALTO_CORTO_TAU`, 0,12 del vuelo), solo mientras sube, sin
+  quitarle mas del 60 % de su velocidad de subida (`SALTO_CORTO_FRENO`) y con
+  ese freno entrando en unos tres ticks (`SALTO_CORTO_ENTRADA`).
+
+Medido: la subida por tick nunca vuelve a acelerar (con carrerilla llena y
+toque: 12,9, 11,3, 8,8, 6,7, 5,6, 4,7...). Con el tramo recto de antes, al
+acabarse el tramo la subida doblaba de golpe su velocidad. Menos arco es menos
+vuelo con la misma gravedad, asi que el brinco corto cae antes y avanza algo
+menos. Antes el toque con la carrerilla llena era mas bajo que el salto de
+siempre pero estaba mas rato en el aire: un planeo.
+
+**Salto cargado desde parado: probado y quitado.** Se probo que, con la
+tecla mantenida desde parado, `salto_parado` se quedara quieto en la cuclilla
+(fotograma 16) cargando y al soltar saltara mas alto (hasta 120 px de arco
+anadido, con el aire frenado). Con el ritmo de esa animacion no quedaba bien:
+la cuclilla larga y la altura de mas no se leian como el mismo salto. Se quito
+entero (exports, pausa, arco y la linea del panel). El salto de parado vuelve a
+ser el de siempre: 65 px de pies, sin pausa, dure lo que dure la pulsacion.
+
+**Empalmes del salto corriendo.**
+
+- **`arco_desde_despegue`.** El sprite va a 60 fps y la fisica lee el
+  fotograma del despegue con `frame_progress` ya a 1. Por eso el primer tick
+  del vuelo se comia un fotograma entero de arco: 11 px de golpe y luego 8,
+  que con la carrerilla llena eran 18 y 10. Ahora la parabola cuenta desde lo
+  que marcaba el sprite en ese primer tick: vale 0 ahi y acaba igual al tocar
+  suelo.
+- **Empuje.** El extra de la carrerilla (lo que pasa de 1,3) no se aplica con
+  los pies en el suelo, antes del despegue. Entra en los tres primeros
+  fotogramas del vuelo (`SALTO_EMPUJE_RAMPA`); si no, los pies resbalaban a x1,6
+  antes de despegar. Lo de antes del despegue sigue siendo lo de siempre
+  (435 -> 565).
+- **`aterrizaje_carrera_suavizado`** (0,12 s). Al caer con la direccion pulsada
+  sigue corriendo a la velocidad del aire, y lo que pasa de 435 se apaga con
+  esa constante de tiempo: 696, 694, 660, 631, 606... Antes caia de golpe a 435
+  en un tick (hoy 565 -> 435; con la carrerilla llena, 696 -> 435, que se leia
+  como un frenazo). Las piernas van por distancia, asi que solo ciclan algo mas
+  deprisa unas decimas. Un salto justo despues no se lleva ese sobrante.
+
+Medido con pilotos (60 Hz). La altura es la de los pies sobre el suelo en el
+apogeo, y la distancia va del despegue al reposo, soltando la direccion al
+saltar. La "gravedad" es 8 x altura / vuelo al cuadrado; la del salto de siempre es 4130.
+
+| salto corriendo | mantenido: altura | distancia | toque: altura | distancia |
+|---|---|---|---|---|
+| carrerilla 0 (el de siempre) | 177 px | 415 px | 142 px | 387 px |
+| carrerilla 0,5 | 202 px | 488 px | 156 px | 445 px |
+| carrerilla 1 | 225 px | 554 px | 169 px | 496 px |
+
+Con la carrerilla llena, mantenido: 0,65 s de vuelo, gravedad 4260 y ritmo
+0,66. Con toque: 0,57 s, gravedad 4180. Todos quedan entre 4180 y 4400: ninguno
+flota.
+
+**Limites.** `_impulso_hasta_limite` recorta el salto corriendo con
+`_recorrido_salto_correr()`: el 0,95 s por px/s medido de siempre, mas lo que
+cambian el vuelo (a su ritmo, con la rampa del empuje) y media cola con el
+empuje y el ritmo del salto en curso. Con los valores de siempre da 0,95 justo.
+Junto al borde, **primero se gasta menos carrerilla**: `_saltar` busca por
+biseccion la mayor que quepa entera. Solo si ni el salto de siempre cabe se
+recorta el empuje, como antes. Recortar solo el empuje dejaba el arco y el
+vuelo de la carrerilla llena sobre 150 px de avance: un bote en el sitio.
+Supone el arco entero, asi que el toque se queda algo corto del limite.
+
+Probado con la carrerilla llena contra cada borde de `dark_stage`, saltando
+cada 0,1 s de 2,9 a 4,6 s, a los dos lados, con toque y mantenido, y con la
+direccion mantenida y soltada (144 casos):
+
+- mantenido: como mucho **8,6 px** mas alla del limite;
+- con toque: se queda al menos 3,7 px antes;
+- cerca del borde el salto baja hacia el de siempre (202, 181, 176 px) y nunca
+  pasa de el.
+
+**El panel.** `dark_stage` lleva `DatosMovimiento` (CanvasLayer con
+`scripts/game/datos_movimiento.gd`): texto gris apagado y pequeno arriba a la
+izquierda (26 px, gris 0,48 al 80 %) con estado y animacion, velocidad,
+carrerilla y el ultimo salto. Del ultimo salto da la distancia (del
+despegue al reposo, o a tocar si sigue corriendo), el tramo en el aire y la
+altura. No sale durante la cinematica de la caida. La altura de los pies se
+saca de una tabla por fotograma de los tres saltos (fila del pixel opaco mas
+bajo de cada casilla contra la de pie, medida sobre las hojas) mas el arco del
+nodo; cuadra con los pixeles medidos en video a 1-3 px. La tecla H lo oculta;
+se lee la tecla directamente, sin accion en `project.godot`. El peregrino le da los
+datos con `datos_movimiento()`.
+
+## Donde esta cada cosa
+
+Las hojas y los sprites **no estan en el repo**. Viven fuera, igual que las
+fuentes de audio:
+
+```
+raw\master_mason\anim\peregrino_<accion>\   una carpeta por animacion
+    04_limpios\   sprites sueltos a 584x720  <- MASTER, no se importa
+    05_salida\    peregrino_<accion>_sheet.png  <- la rejilla, fuente del atlas
+                  peregrino_<accion>_atlas.json <- donde quedo cada fotograma
+```
+
+Al repo sube el **atlas** que `_spriteframes.py` saca de esa rejilla (ver
+"Escala: memoria de video" mas abajo), a `assets/characters/peregrino/` con el
+nombre de la hoja. La rejilla no se copia a mano.
+
+Los parametros del personaje y el porque de cada numero estan en
+`raw\master_mason\anim\peregrino_comun.txt`.
+
+## Las animaciones
+
+| animacion | fotogramas | hframes | vframes | fps | tipo |
+|---|---|---|---|---|---|
+| `respirando` | 29 de 30 | 6 | 5 | 11,6 | bucle (sin el c_30: cerraba a 0,058, dos pasos; sin el, 0,034; 29/11,6 sigue siendo 2,5 s, lo que dura el audio) |
+| `arranque_andar` | 34 | 6 | 6 | 30 | una pasada |
+| `andando` | 34 | 6 | 6 | 30 | bucle |
+| `parada_andar` | 21 | 7 | 3 | 30 | una pasada |
+| `arranque_correr` | 38 | 7 | 6 | 30 | una pasada |
+| `corriendo` | 24 | 6 | 4 | 30 | bucle |
+| `parada_correr` | 39 | 7 | 6 | 30 | una pasada |
+| `salto_andando` | 70 | 10 | 7 | 60 | una pasada (saltar andando) |
+| `salto_parado` | 66 | 9 | 8 | 60 | una pasada (saltar desde el reposo) |
+| `salto_corriendo` | 38 | 8 | 5 | 60 | una pasada, casilla 340x400 |
+| `aterrizaje_correr` | 34 | 7 | 5 | 60 | una pasada, solo si se suelta la direccion en el aire |
+| `giro` | 47 | 8 | 6 | 30 | una pasada, 1,6 s, de un video, de espaldas; hoja `peregrino_giro_pie_rapido`; voltea al terminar |
+| `cayendo` | 14 | 7 | 2 | 24 | bucle, casilla 380x360 |
+| `caida` | 21 | 7 | 3 | 24 | una pasada, casilla 380x360 |
+| `tumbado` | 1 | 1 | 1 | - | quieto, casilla 380x360 |
+| `levantarse` | 63 | 8 | 8 | 20 | una pasada, casilla 380x360 (a 24 se veia rapido) |
+| `agacharse` | 71 | 9 | 8 | 60 | una pasada, 1,4 s (el asentarse a 1,5 refrescos por sprite); hoja `peregrino_agacharse_flow` |
+| `agachado` | 24 | 12 | 11 | 12 | bucle de ida y vuelta sobre c_077-c_089 (la cabeza quieta); hoja `peregrino_agacharse` |
+| `incorporarse` | 38 | 12 | 11 | 60 | una pasada; hoja `peregrino_agacharse` |
+| `arranque_agachado` | 27 | 7 | 4 | 20 | una pasada; el nodo va por su tabla de avance |
+| `andar_agachado` | 42 | 7 | 6 | 20 | bucle movido por la distancia (4,65 px por fotograma, 93 px/s) |
+| `parada_agachado` | 31 | 8 | 4 | 20 | una pasada; el nodo va por su tabla de avance |
+| `paso_agachado` | 95 | 10 | 10 | 60 | una pasada, 1,6 s: un solo paso de agachado a agachado (+39 px); el nodo va por su tabla de avance |
+| `giro_agachado` | 65 | 10 | 7 | 24 | una pasada, 2,8 s, de un video, por detras; los primeros fotogramas duran mas (arranque suave); voltea al terminar |
+
+
+Todas comparten **casilla de 292 x 360 px** salvo el salto corriendo y las cuatro
+de la caida. Ojo: algunas hojas tienen casillas de sobra al final (2 en andando y
+arranque_andar, 4 en arranque_correr, 3 en parada_correr, 2 en salto_corriendo,
+1 en levantarse, 1 en giro, 5 en giro_agachado). Al crear el `SpriteFrames` hay que quedarse solo con los
+primeros N.
+
+Las cuatro de la caida salen de un solo video y comparten casilla propia porque
+tumbado mide 678 px de master de ancho. La casilla es mas ancha pero **igual de
+alta y con el suelo en la misma fila** que la comun (pies en 677 de 720), asi que
+usan `offset_comun`, sin offset propio. Todo el detalle, fotogramas y medidas en
+`raw/master_mason/anim/peregrino_caida/como_se_hizo.txt`.
+
+## Como encadenan
+
+En el juego: andar con la flecha, correr con doble pulsacion.
+
+```
+respirando -> arranque_andar  -> andando      -> parada_andar  -> respirando
+respirando -> arranque_correr -> corriendo    -> parada_correr -> respirando
+(entrada)  -> cayendo -> caida -> tumbado -> levantarse -> respirando
+corriendo  -> salto_corriendo -> corriendo            (direccion pulsada al tocar suelo)
+corriendo  -> salto_corriendo -> aterrizaje_correr -> respirando   (soltada)
+respirando -> agacharse -> agachado (mientras abajo) -> incorporarse -> respirando
+agachado   -> arranque_agachado -> andar_agachado -> parada_agachado -> agachado
+agachado   -> giro_agachado -> agachado (mirando al otro lado)
+```
+
+**Agacharse.** Mantener abajo (flecha o S) lo agacha; soltar, lo levanta.
+Agachado no anda ni salta: para hacer otra cosa hay que levantarse. Andando o
+corriendo, la tecla abajo anula la direccion: frena como al soltarla y se agacha
+al quedar quieto; en el aire, al caer. Cualquier cambio de idea a medias se
+deshace por el mismo camino, la animacion hacia atras desde el fotograma en que
+iba: soltar mientras baja lo sube, volver a pulsar mientras se levanta lo baja y
+vuelve al bucle por el fotograma que va justo antes del levantarse. Asi nunca
+salta de pose. El agacharse sale de un video pedido para el
+(`peregrino_agacharse_flow`, 2026-10-06): de nuestro reposo a nuestro agachado
+(el c_089 del bucle), entero, con enlaces exactos en los dos lados. Baja de un
+tiron, se pasa un poco y sube despacio 7 px de pantalla hasta quedarse (en un
+solo sentido; el video viejo bajaba, subia y volvia a caer). La bajada va a 60
+fps y el asentarse a 1,5 refrescos por sprite: 1,4 s. Antes estaba hecho a
+trozos del video viejo para esquivar su rebote y los empalmes se notaban ("un
+click de la cabeza al final de agacharse"); detalle en
+`peregrino_agacharse_flow/como_se_hizo.txt`. Soltar en cualquier punto lo deshace
+hacia atras. La respiracion no
+se corta al agacharse: si venia jadeando, sigue y se va apagando (el agachado
+cuenta como descanso). Suenan dos roces de ropa (`agacharse_db`). Se apaga entera
+con `agacharse_activo`. Como se monto la animacion, y por que empieza con un
+puente de cinco sprites, en `peregrino_agacharse/como_se_hizo.txt`.
+
+**Andar agachado.** Agachado, la direccion hacia donde mira lo pone a andar
+agachado: `arranque_agachado` (1,35 s, del agachado a la zancada), el ciclo
+`andar_agachado` y, al soltar la direccion o la tecla abajo, sigue hasta un
+punto del paso desde el que la parada casa y `parada_agachado` (1,55 s) lo deja
+en el agachado; sin la tecla abajo, ahi se levanta. Quieto y agachado, la
+direccion contraria lo gira sin levantarse (`giro_agachado`, 2,8 s, por detras:
+el giro entero de un video de Flow hecho con el propio agachado como primer y
+ultimo fotograma, con todos sus fotogramas a su ritmo, 24 fps,
+`peregrino_giro_agachado_video/como_se_hizo.txt`); si se mantiene,
+al acabar de girar echa a andar agachado hacia alli. Andando agachado no gira: se para antes. Andando agachado va mas
+erguido y con la zancada abierta, y ningun fotograma del ciclo casa con el
+agachado quieto: de ahi el arranque y la parada. La parada solo casa desde seis
+fotogramas del ciclo (empieza con un pie concreto), asi que tras soltar anda
+hasta 1,8 s mas (0,9 de media). Por eso un toque corto da UN paso con su propia
+animacion (`paso_agachado`, 2026-10-06): soltar la direccion en los fotogramas
+0-4 del arranque, que aun son el agachado, pasa a ella (un pie sale, el cuerpo
+avanza y el otro se junta; +39 px, 1,7 s, y acaba en el agachado). Soltar abajo
+en los tres primeros lo deja agachado sin mas. El ciclo va por la distancia, como andar; el
+arranque y la parada mueven el nodo por sus tablas de avance, medidas en el pie
+apoyado. Pisadas flojas (`pasos_agachado_db`), sin respiracion propia: cuenta como
+andar para el esfuerzo. Todo sale de un solo video, con el zoom de la camara
+corregido en el arranque: `peregrino_andar_agachado/como_se_hizo.txt`.
+
+**La entrada es una cinematica.** `dark_stage` arranca con el peregrino 1200 px por
+encima de su marca de suelo y `caer_desde_arriba()` lo deja caer con aceleracion
+cuadratica en 1,4 s (unos 1700 px/s al llegar) con el bucle `cayendo`; al tocar
+el suelo entra `caida`, se queda `tumbado` 1,8 s (temporizador, no animacion) y
+`levantarse` (3,15 s a 20 fps) termina en la pose de reposo: su ultimo fotograma
+esta a 0,13 del primero de `respirando`, un paso normal de la propia animacion.
+Mientras dura no se acepta entrada (`Estado.CAYENDO..LEVANTARSE`, ver
+`CINEMATICA`); al acabar se emite `cinematica_terminada`. El bucle en el aire
+tiene la cabeza fijada -- el descenso lo pone el nodo -- y se arranca por el
+fotograma que deja el impacto justo en el que enlaza con `caida` (el 7,
+fotograma 32 del video), calculado a partir de la duracion. Tiempos en
+`caida_altura`, `caida_duracion` y `tumbado_espera`; `caida_al_empezar = false`
+en la escena la desactiva. Los primeros valores (1,1 s y 1,2 s, levantarse a
+24 fps) se vieron rapidos y sin peso.
+
+Sus sonidos salen del audio del propio video, con `construye.py` (seccion
+CAIDA): `peregrino_caida_aire.ogg` es el silbido del descenso, recortado para que
+acabe en el golpe, y el script lo arranca `caida_duracion` antes del impacto;
+`peregrino_caida_golpe.wav` se dispara en el sprite 7 de `caida` (`golpe_sprite`),
+que es donde cae el ataque en el video, cuando el cuerpo da contra el suelo;
+`peregrino_levantarse.ogg` es el roce de la ropa, acelerado x1,65 con `atempo`
+para durar lo que dura la animacion. Niveles en `golpe_db` y `cinematica_db`.
+
+En los cinco primeros sprites de `caida` el personaje del video aun no ha tocado
+el suelo (su punto mas bajo queda 25, 20, 22, 23 y 10 px por encima de la linea
+de suelo): el nodo llegaba a ~28 px por tick y se quedaba flotando 0,17 s.
+`CAIDA_APOYO` baja el sprite esos px para que llegue y apoye a la vez. El bucle
+`cayendo` se arranca truncando `caida_duracion * fps` (no redondeando), para
+que el impacto caiga en su fotograma 7, el que enlaza con `caida`.
+
+En **andar** el enlace es exacto: `arranque_andar` acaba en el fotograma
+inmediatamente anterior al que abre `andando` en el video original (52 -> 53).
+
+En **correr** no, porque el ciclo bueno viene de otro video. El desajuste medido
+al entrar es 0,172 y al salir 0,274; como el paso normal entre dos fotogramas de
+una carrera a 24 fps ya vale ~0,19, la entrada queda por debajo del ruido. Si se
+quiere afinar, los mejores puntos son entrar por el fotograma 13 y salir por el 22.
+
+Las paradas enganchan con el primer fotograma del bucle de respirar con una
+diferencia de 0,046 y 0,051 (entre fotogramas seguidos de una animacion quieta el
+ruido es 0,013).
+
+**El ciclo de correr es `corriendo`.** Hubo un `corriendo_v2` sacado del mismo
+video que las transiciones: enlazaba en fotogramas consecutivos, pero su bucle
+cerraba tres veces peor (0,070 frente a 0,021). Como en una carrera a 24 fps el
+paso normal entre fotogramas ya vale ~0,19, la ventaja del enlace quedaba por
+debajo del ruido, mientras que el cierre del bucle se ve una vez por segundo.
+Esta guardado en `raw/master_mason/anim/_archivo/` por si se prefiere lo otro.
+
+## Velocidad, para que los pies no patinen
+
+El numero que importa es **cuanto avanza el cuerpo por fotograma de animacion**.
+La primera vez se dedujo de la zancada (separacion maxima entre los dos pies) y
+salio mal: esa separacion va del talon de atras a la punta de delante, o sea
+incluye un pie de mas, y sobrestima el paso. Con eso el cuerpo recorria un 48%
+mas de lo que decian las piernas y el personaje se deslizaba.
+
+La medida buena se saca siguiendo, fotograma a fotograma, **el pie que esta
+plantado** respecto al eje del tronco: lo que ese pie retrocede en la imagen es
+exactamente lo que avanza el cuerpo. Sobre las mascaras de `04_limpios`
+(584x720), quedandose con el pie que mas pixeles tiene tocando la linea de suelo:
+
+| | por fotograma (master) | por fotograma (hoja 1/2) | ciclo | velocidad nativa a 24 fps |
+|---|---|---|---|---|
+| andando | 12,8 px | **6,4 px** | 34 fotogramas | 154 px/s |
+| corriendo | 28,9 px | **14,5 px** | 24 fotogramas | 347 px/s |
+
+Esos son los valores de `avance_andar` / `avance_correr` en `peregrino.gd`. Los
+antiguos (9,5 y 17,3) estaban sacados de la zancada y son los que patinaban.
+
+La velocidad nativa es a lo que anda el personaje si la animacion va a sus 24 fps
+de origen. En el juego van mas rapido, y la animacion se acelera sola para
+compensar. No patina igualmente: si la cadencia de piernas se ve nerviosa, lo
+que hay que bajar es la **velocidad**, nunca el avance.
+
+### La velocidad no es libre: tiene que dar ticks enteros
+
+El fotograma solo cambia en un tick de fisica, asi que su duracion en pantalla es
+por fuerza un numero entero de ticks. Si `velocidad / avance` no divide a los 60
+Hz de la fisica, unos fotogramas duran un tick mas que otros y la cadencia va a
+tirones. No es problema de los sprites: es aliasing entre dos relojes.
+
+Estaba pasando. Con 229 y 416 salian 1,677 y 2,091 ticks por fotograma, o sea
+que andando unos fotogramas duraban 17 ms y otros 33, una variacion de 2 a 1.
+
+| | velocidad | fotogramas/s | ticks por fotograma |
+|---|---|---|---|
+| andando | **192 px/s** | 30 | 2 justos |
+| corriendo | **435 px/s** | 30 | 2 justos |
+
+La regla para cambiarlas: `velocidad = 30 * avance` (2 ticks) o `20 * avance`
+(3 ticks, mas lento pero igual de regular). Cualquier otro numero devuelve el
+tiron.
+
+Queda un detalle de coma flotante: 192/60 da 3,2 px por tick y el avance es 6,4,
+pero ninguno de los dos es exacto en binario y la suma se queda en 6,3999..., asi
+que sin margen un fotograma de cada veintitantos duraba un tick de mas. Por eso
+el calculo del fotograma en `peregrino.gd` lleva un epsilon. Corriendo no pasaba,
+porque 435/60 = 7,25 y 14,5 si son exactos.
+
+Pero lo mejor no es fijar la velocidad, sino **mover la animacion con la
+distancia**: en vez de reproducirla a fps constante, avanzar el fotograma segun lo
+recorrido. Asi no patina a ninguna velocidad y la aceleracion sale gratis.
+
+```gdscript
+const AVANCE := 14.5          # px recorridos por fotograma de animacion
+var recorrido := 0.0
+
+func _physics_process(delta):
+    recorrido += absf(velocity.x) * delta
+    var n := sprite.sprite_frames.get_frame_count("correr")
+    sprite.frame = int(recorrido / AVANCE) % n
+```
+
+Si el nodo lleva `scale` distinto de 1, hay que multiplicar `AVANCE` por ese factor.
+
+## El encuadre, que es lo que las mantiene alineadas
+
+Dentro de cada casilla de 292 x 360:
+
+- **linea de suelo**: a 15 px del borde inferior, es decir la **fila 345**.
+- **eje del personaje**: centrado, **columna 146**.
+
+Las tres animaciones se procesaron ancladas a esos dos valores, por eso el
+personaje no pega un salto al cambiar de una a otra.
+
+**La fila 345 es la teorica; la real es donde apoya el pie plantado.**
+`centrar.ps1` ancla el pixel mas bajo de cada job a la 690 del master (345 en la
+hoja), y ese pixel no es lo mismo en todas: en el reposo es la punta del pie, en
+la carrera el pie que empuja, en la cuclilla del salto el pie aplastado. Medido en
+2026-09-24 con la moda de la fila del pie mas bajo sobre los sprites con el pie
+plantado: reposo, andar, paradas y giro apoyaban en la 677, pero correr en la 683,
+arranque de correr en la 681, parada de correr en la 679 y el salto de parado en
+la 686. En pantalla eran 1-4,5 px de hundimiento al cambiar de animacion, y el
+mas visible el del salto: se hundia al saltar y subia al acabar. Se corrigieron
+desplazando esos cuatro jobs en `04_limpios` (`alinear.py --bajar -6/-4/-2/-9`,
+copia previa en `_sin_alinear/`) y ahora **todas apoyan en la 677** (338,5 de
+hoja, 6,5 px por encima del origen del nodo). El salto de parado se queda con 5 px
+de margen arriba en la hoja y `hoja.ps1` lo avisa: el atlas mezclaria casillas
+por debajo de 1/5 de escala, y el juego no baja de 1/2.
+
+Para una animacion nueva: despues de `centrar.ps1`, medir esa moda y llevarla a
+677 antes de exportar. Las cuatro de la caida y la cola del salto ya salieron asi.
+
+Para que el nodo se apoye en el suelo, el origen tiene que caer en la fila 345 y
+no en el centro de la casilla:
+
+```gdscript
+# Sprite2D / AnimatedSprite2D con centered = true
+offset = Vector2(0, -165)   # 180 (centro) - 345 (suelo)
+```
+
+Asi la posicion del nodo **es** el punto donde pisa, que es lo comodo para
+colocarlo sobre el terreno y para la fisica.
+
+## Voltear para el otro lado
+
+Los sprites miran a la **derecha**. Para ir a la izquierda, `flip_h = true`.
+
+Un fallo que habia: el **doble toque hacia el otro lado** cortaba el giro. El
+primer toque lanza el giro (entonces de 0,25 s; hoy 1,6 s) y el segundo llegaba con el giro a medias;
+como el doble toque arrancaba a correr sin mirar el estado, volteaba en seco con
+el sprite de otro angulo. Ahora, si el segundo toque llega girando, solo deja
+dicho que al terminar salga corriendo (`_giro_corriendo`), que es lo que ya hace
+`_al_terminar`. Medido con el piloto: giro 14,02-14,27 s completo y arranque de
+correr justo despues.
+
+El cambio de sentido **nunca gira a toda velocidad**: pulsar hacia atras en marcha,
+en una parada a medio frenar, en la cola de un salto o en el aterrizaje del
+salto corriendo deja el giro pendiente (`_giro_pendiente`) y lo lanza
+`_resolver_giro` cuando ya ha frenado (30 % de la de andar; en la parada de
+correr, pasado `frenada_correr`, y ahi suena el pie que planta aunque la parada
+se corte antes de su sprite 5). Andando, la parada del cambio de sentido entra
+por `POSE_ANDAR_A_PARADA` como al soltar, sin la espera.
+
+**Saltar durante el giro** no lo corta: el salto se guarda (`margen_salto`,
+0,15 s, que se mantiene vivo mientras dura el giro) y sale al terminar, ya
+mirando al lado nuevo. El mismo buffer vale para un salto pulsado justo antes de
+caer: sale en cuanto el salto en curso deja cortarse, y lo relanza desde el
+principio (antes esa pulsacion se tragaba pero subia el esfuerzo). La cola del
+salto corriendo es la excepcion: relanzar ahi como "saltar" frenaba de ~514 a
+192 px/s en un tick, asi que el buffer se mantiene vivo esos 0,1 s y el salto
+sale en el primer tick del aterrizaje (217 px/s, la misma que deja la cola), o
+del ciclo si la direccion sigue pulsada.
+
+**En el aire no se arranca.** Un doble toque hacia delante durante el vuelo
+cortaba el salto en seco (el arco y la altura cocida a 0 en un tick); ahora se
+ignora y, al caer, manda la tecla que siga pulsada. Hacia atras si cuenta: deja
+el giro pendiente (corriendo, si es doble), como en tierra. Y una direccion
+pulsada en la cola del salto corriendo (los ultimos 6 fotogramas) sigue
+corriendo por el ciclo, igual que si se hubiera mantenido desde antes; antes
+salia andando a 192 px/s desde ~465.
+
+**Una tecla mantenida** arranca igual que una pulsacion nueva: si venia pulsada
+durante la cinematica de entrada o se cambio a mitad del giro, al quedar libre
+el personaje sale andando. `andar_hasta()` usa el mismo camino; si el objetivo
+queda mas alla de un limite del mundo, el limite cuenta como llegada y `llegado`
+sale igual (antes no salia nunca y un `await llegado` se quedaba colgado).
+
+La casilla se hizo simetrica a proposito (292 de ancho para un personaje que
+ocupa como mucho 262 hacia un lado): al voltearla, el personaje **no se
+desplaza**. Si algun dia se recorta la casilla para ahorrar, esto se rompe.
+
+### La animacion de giro
+
+**Hoy sale de un video** (`peregrino_giro_pie_rapido`, 2026-10-05): un giro de
+espaldas a la camara, como el agachado, pedido ya a la velocidad del juego (dos
+pasos, `_fuentes/prompt_giro_pie_rapido.txt`) y usado entero y a su ritmo: 47
+fotogramas a 30 fps (el video va a 24), 1,6 s, empezando y acabando en el reposo
+(enlaces exactos). Arranca y frena solo, sin saltarse ningun fotograma.
+
+Las cinco poses de abajo el usuario las veia "a saltitos y a una velocidad rara
+comparado con como anda". Una primera version del video (los dos tramos de giro
+del video empalmados, sin el rato de frente, a 60 fps) tampoco: "a tirones, como
+en dos partes". El video gira la primera mitad en 45 fotogramas y la segunda en
+25, y a 2,5 veces su velocidad su temblor se veia. Con todos los fotogramas a 30
+fps (3,2 s) se veia bien pero "tarda un monton, no es jugable", y fundir el frente
+con su espejo en cinco fotogramas dejaba "un blur raro" (el mosaico de la tunica
+doblado). Elegir fotogramas a paso parejo para dejarlo en 1 s tampoco: el video
+estaba pedido lento, "en unos cinco segundos con pasitos cortos", y acelerado
+los pasitos eran un arrastre de pies "rarisimo". La regla: **pedir el movimiento
+a la velocidad del juego y usarlo a su ritmo, entero y seguido**. Detalle en
+`peregrino_giro_pie_rapido/como_se_hizo.txt` (y lo probado, en
+`peregrino_giro_pie_video/como_se_hizo.txt`).
+
+Lo que sigue es como se hizo **el de antes**, de cinco poses (`peregrino_giro`, ya
+no se usa); queda por las medidas, que sirven para cualquier hoja de IA.
+
+Las ocho animaciones de movimiento son **perfil puro**, asi que cambiar de
+sentido saltaba de un perfil al otro sin nada en medio y cantaba. Disimularlo
+deformando el sprite se probo y no colaba: con una silueta tan marcada -- capucha,
+barba, capa -- se lee como un fallo de dibujo, no como un giro.
+
+La solucion son fotogramas de verdad, y **no salen de un video**: son una hoja de
+rotacion pedida a una IA de imagen (`_fuentes/giro360.jpeg`), con el prompt en
+`_fuentes/prompt_giro.txt` y `referencia_peregrino_perfil.png` como referencia.
+
+**La hoja no venia ordenada, y hay que comprobarlo siempre.** Se pidieron 0, 22,
+45, 67 y 90 grados y llegaron **0, 22, 45, 135 y 90**: la cuarta pose se paso de
+largo del frontal en vez de quedarse antes. Montada en el orden en que venia, el
+personaje giraba, saltaba al otro lado y volvia.
+
+Como se detecta sin ojo clinico, con dos medidas sobre las siluetas:
+
+- **Simetria de cada pose**, o sea su distancia consigo misma volteada. Tiene que
+  bajar sin parar hasta el frontal y volver a subir. Salia 17, 16, 12, **15**, 3:
+  la cuarta rompia la progresion.
+- **Cada pose contra el espejo de las demas.** La cuarta contra el espejo de la
+  tercera daba 7, el valor mas bajo de toda la matriz, por debajo incluso de la
+  simetria propia de la tercera (12). Era la tercera espejada.
+
+De ahi sale la animacion: **pasos de 45 grados clavados**, quedandose con 0, 45,
+90, 135 y 180. El de 180 es el de 0 **volteado contra el centro de la casilla**,
+que es exactamente lo que hace `flip_h`, asi que el ultimo fotograma encaja al
+pixel con los sprites de siempre del otro lado, y la misma animacion vale para
+los dos sentidos: reproducida volteada se lee de izquierda a derecha.
+
+Las poses de 22 grados se descartan. Metiendolas, los pasos quedaban en 15, 8,
+17, 17, 10, 15 -- una razon de 2,1 entre el mayor y el menor, porque falta la de
+67 grados -- y se veia acelerar al pasar por delante. Con solo las de 45 los
+pasos son **17, 17, 17, 18**, razon 1,06.
+
+Total: **5 fotogramas a 20 fps, 0,25 s**, que ademas son 3 ticks de fisica justos
+por fotograma.
+
+Si algun dia se consigue la pose de **67 grados** que falta, con ella y su espejo
+salen 9 fotogramas a 22,5 grados de paso, igual de uniformes y mas suaves.
+
+Hubo que ajustar tres cosas a mano, y las tres se notaban como **"los pies
+centellean"** o como un salto al entrar y salir del giro:
+
+- **La escala.** `centrar.ps1` alinea pero no reescala. Las poses venian a 1470
+  px de alto y se redujeron a **628**, que es lo que mide el personaje en el
+  reposo.
+- **El color de los pies.** La IA los ilumino distinto en cada pose: medidos
+  sobre la piel del pie (calida, r-g > 15, lo que la separa de la pierna, que es
+  gris neutro) la luminancia iba 70, 89, 68, 92, 70 -- **34% alternando
+  oscuro-dorado**, mientras el cuerpo entero solo variaba un 3%. Se corrige con
+  una ganancia por canal que lleva cada pose a la media de los pies del reposo.
+  Despues: 0,4%.
+- **La linea de suelo.** `centrar.ps1` ancla el suelo *medido* al margen pedido,
+  y en un video ese suelo lo marca el pie de apoyo, que cae por debajo del pixel
+  mas bajo de un fotograma de pie; con cinco poses quietas coinciden. El giro
+  salia en y=690 y el reposo esta en y=677 clavado en sus 30 fotogramas, o sea
+  que el personaje **bajaba 13 px** al entrar en el giro. Se corrige subiendo los
+  cinco fotogramas hasta 677.
+
+El resto lo hizo el flujo de siempre.
+
+El volteo del sprite se hace al **terminar** la animacion, no al empezar
+(`_al_terminar` en `peregrino.gd`): durante el giro se conserva el `flip_h` que
+hubiera.
+
+### Arrancar y parar de correr
+
+**El arranque de correr alcanzaba el crucero en el fotograma 8, no en el 28.**
+Midiendo el pie plantado: 6 fotogramas quieto, el 6 avanza 5,4 px master, el 7
+dieciseis, y del 8 en adelante ya va a 29-33, que es el crucero del ciclo (28,9).
+La rampa recta daba 5,7 en el fotograma 8: las piernas a tope con el cuerpo al
+20 %, el pie resbalando hacia atras todo el arranque. Ahora la velocidad sale de
+`AVANCE_ARRANQUE_CORRER` (0 x6, 81, 240, 435...) y el corte baja del 28 al **22**,
+entrando al ciclo por el **f9** (0,72 pasos, mejor que el 0,76 de antes y seis
+fotogramas mas corto).
+
+**Y `arranque_correr` y `parada_correr` iban a 24 fps con el ciclo a 30** (435
+px/s son 30 fotogramas/s de 14,5 px). Las dos a 30.
+
+**La parada de correr solo casa con una fase.** A diferencia de la de andar,
+entrar por el fotograma mas parecido no sirve: el mejor es siempre el 0. La
+distancia desde el ciclo va de 1,2 (f22) a 2,1 (f12-f15). Asi que se espera a una
+fase que case, igual que al andar.
+
+### El dial: tolerancia_parada_*
+
+Cuanto salto de pose se acepta al entrar en la parada, en pasos normales del
+ciclo. Se espera a un fotograma del ciclo que baje de eso. Es el unico numero que
+hay que tocar para elegir entre que se vea bien y que responda:
+
+| | tolerancia | fases que valen | espera maxima | medido |
+|---|---|---|---|---|
+| correr | 1,25 | solo f22 | 23 fotogramas | 0-46 ticks, hasta **341 px** |
+| correr | 1,60 | once fases | 9 fotogramas | 0-6 ticks, hasta **51 px** |
+| andar | 1,30 | f2-f3, f24-f30 | 20 fotogramas | 0-40 ticks, hasta **131 px** |
+
+Puesto en 1,25 y 1,30, que es lo pedido: que se vea bien aunque cueste
+responsividad. El personaje no se queda quieto esperando, **termina el paso**,
+que es lo que hace una persona al soltar. Las distancias medidas estan en
+`DIST_PARADA_ANDAR` y `DIST_PARADA_CORRER`.
+
+### Parar de andar: terminar el paso y frenar como los pies
+
+La parada de andar esta grabada desde **una sola fase** de la zancada: sus 21
+fotogramas casan con el ciclo alrededor de f26-f29 (y f3), siempre a >= 1,1
+pasos, y la otra mitad del ciclo no tiene equivalente. Entrando siempre por su
+fotograma 0, el salto de pose al soltar iba de 1,1 a **3,8 pasos** segun donde
+soltaras (media 2,4): el efecto raro al pararse. Y ademas la parada iba a 24 fps
+con el ciclo a 30: cambio de cadencia en seco.
+
+Segundo problema, medido siguiendo el pie plantado: en la parada el pie sigue
+avanzando 3-6 px master por fotograma durante 14 fotogramas antes de plantarse,
+mientras la frenada del nodo cortaba en ~5. Los pies seguian andando con el nodo
+ya parado.
+
+Lo montado, que es lo que hacen los juegos con una sola animacion de parada:
+
+- La parada a **30 fps**, como el ciclo.
+- Al soltar, el personaje **termina el paso**: se espera a un fotograma del ciclo
+  desde el que la entrada queda a <= 1,3 pasos (`DIST_PARADA_ANDAR` por debajo
+  de `tolerancia_parada_andar`: f2-f3 y f24-f30). El tope,
+  `espera_parada_andar`, esta hoy en 34 (el ciclo entero, o sea esperar
+  siempre): la espera real es de hasta 20 fotogramas (0,67 s).
+- Se entra por el fotograma de la parada mas parecido a la pose actual
+  (`POSE_ANDAR_A_PARADA`).
+- El nodo frena siguiendo el **perfil medido** de los pies
+  (`FRENADA_ANDAR_PERFIL`), escalado para arrancar exacto en la velocidad que
+  traia: entra a 192 px/s en todos los casos, sin bajon, y para en 50-56 px.
+
+Queda un caso peor: soltando entre f4 y f12 la ventana buena esta a 12-20
+fotogramas. Con la espera en 10 se entraba con salto de pose; hoy se espera
+siempre, y el precio es hasta 0,67 s andando solo. Lo que lo arreglaria del todo es una **segunda
+parada** grabada desde la otra fase de la zancada (el otro pie delante).
+
+### El arranque de andar: velocidad medida, no una rampa recta
+
+La rampa de subida del arranque de andar era una recta de 0 a la velocidad de
+crucero repartida en los 32 fotogramas tras la zona muerta. El video no hace
+eso. Midiendo el avance real del pie plantado respecto al eje del tronco
+(master px por fotograma): 0, 0.7, 2.2, 2.6, 4.6, 6.3, 7.1, 8.2, 8.3, 9.9,
+10.3, 12.1, 11.3, 11.0, 11.7, 11.7, 13.5, 12.6, 12.6... y luego, del 26 al 33,
+**afloja a 10, 8.6, 8.7, 12.8, 12.2, 9.6, 6, 1.3** mientras la recta seguia
+subiendo hasta 16. En esa cola el nodo iba de +2 a +15 px master por fotograma
+por delante de los pies: el deslizamiento "sutil pero se nota" de los primeros
+segundos de andar.
+
+Dos cosas mas salieron de la medida. Comparando cada fotograma del arranque con
+el ciclo, del 18 en adelante **el arranque ya es el ciclo**: el 18 casa con el
+f19 del ciclo (0,54 pasos), el 22 con el f22 (0,40), el 25 con el f25 (0,40)...
+Y el arranque iba a 24 fps mientras el ciclo, en el juego, va a 30 (192 px/s
+son 30 fotogramas/s de 6,4 px): los pies del arranque iban un 25 % mas lentos
+que los del ciclo.
+
+Lo montado ahora:
+
+- `arranque_andar` a **30 fps**, misma cadencia que el ciclo.
+- Su velocidad sale de `AVANCE_ARRANQUE_ANDAR`, la tabla medida a media escala
+  y a 30 fps (v = master/2 * 30), fotograma a fotograma. El primero es 0 y el
+  segundo 10,5: la zona muerta ya no hace falta como fraccion. Soltar hasta el
+  fotograma 3 (`ARRANQUE_ANDAR_DE_PIE`) vuelve a reposo en vez de pasar por la
+  parada: es lo que pasa entre los dos toques de un doble real (80-120 ms), y
+  meter ahi la parada, que empieza a media zancada, daba tres poses sueltas en
+  0,2 s (arranque -> parada f0 -> arranque de correr f6).
+- Se **corta en el 18** (`corte_arranque_andar`) y el ciclo entra por el **19**
+  (`entrada_andar`). Al empalme llega a 189 px/s contra 192 del ciclo.
+
+Comprobado: en el arranque el nodo recorre **72,1 px** y los pies, por la tabla,
+72. Antes el nodo hacia 128 (256 master) frente a 146 (292) de los pies, y ademas
+mal repartidos: corto al principio y largo al final.
+
+### Pedir correr cuando ya se anda: entrar por la pose, no por la velocidad
+
+La primera pulsacion de un doble arranca a andar sin remedio -- no se sabe que
+era doble hasta que llega la segunda -- y si la segunda llega tarde, uno ya esta
+andando y pide correr desde el ciclo de andar. Entrar en el arranque de correr
+por el fotograma que da la velocidad que se lleva (el 14 a 192 px/s) dejaba la
+pose a **2,2-2,8 pasos** de cualquier fotograma de andar: mas que el rebote del
+brazo que se quito (1,8). Se veia como que "detecta que anda y luego pasa a
+correr".
+
+Ahora se entra por el fotograma del arranque de correr que **mas se parece** a la
+pose que se trae (tablas `POSE_DESDE_ARRANQUE_ANDAR` y `POSE_DESDE_ANDAR` en
+`peregrino.gd`, medidas por silueta y color): media 1,05 y 1,34 pasos, peor caso
+1,87. Como esos fotogramas (4-8) tienen la rampa de velocidad aun baja, la
+velocidad que se traia se sostiene aparte (`_velocidad_suelo`) hasta que la rampa
+la alcanza: sin bajon, comprobado (minimo 192 px/s viniendo de andar). El cambio
+andar->correr en si, con la segunda pulsacion a tiempo, ya era pequeno:
+0,23-0,68 pasos.
+
+### Soltar en la zona muerta del arranque vuelve a reposo, no a la parada
+
+Un doble toque real es pulsar-**soltar**-pulsar. Al soltar en pleno arranque de
+andar el script entraba en la parada, y la parada empieza **a media zancada**
+(esta hecha para venir del ciclo). Con la segunda pulsacion se encadenaban tres
+animaciones en 0,25 s -- arranque f0, parada f0-4, arranque de correr f0 -- con
+dos saltos de pose de 0,97 y 1,25 pasos. Se veia como un sprite que se pone
+encima de otro sin coincidir.
+
+Si al soltar va por el fotograma 3 o antes del arranque de andar
+(`ARRANQUE_ANDAR_DE_PIE`; unos 8 ticks, ~0,13 s), los pies casi no se han movido
+y no hay nada que frenar: se vuelve a `reposo`, que es la misma pose de pie (de
+arranque f0 a arranque de correr f0 hay 0,23 pasos). Mas tarde, la parada sigue
+igual. En el arranque de correr, lo mismo mientras la velocidad es cero.
+
+La segunda pulsacion del doble llega entonces desde `reposo`, y el arranque de
+correr entra por su fotograma **3** (`ARRANQUE_CORRER_DESDE_REPOSO`), no por el
+0: medido contra el reposo f0, el 0 esta a 0,84 pasos y el 3 a 0,67 (el 1 y el
+2, 0,64-0,66; el 4, 0,83). Sigue quieto hasta el 5, pero ahorra 0,1 s: echa a
+correr unos 0,1 s mas tarde que cuando el doble entraba por el 6 ya andando, a
+cambio de no pasar por la parada. Una doble pulsacion lenta (soltar pasado el
+fotograma 3, mas de ~0,14 s pulsado) sigue pasando por la parada como antes.
+
+Efecto colateral: un toque de menos de ~0,14 s ya no da un pasito (antes 3-14 px
+a traves de la parada); se queda en el sitio y vuelve a reposo. El paso mas corto
+son ahora unos 24 px, con 0,15 s o mas de pulsacion.
+
+**Saltar en esos fotogramas quietos** del arranque de correr (hasta que pasa de
+192 px/s, el 7) no sale en el acto: se guarda y sale como salto corriendo en
+cuanto corre (como mucho 0,13 s entrando por el 3). Saltar ahi daba un salto de
+parado y, al caer con la tecla pulsada, salia andando: se perdia la carrera. Y
+**direccion y salto a la vez desde parado** (salto en la zona muerta del
+arranque de andar) da el salto de parado, no el de andar en el sitio.
+
+### El salto corriendo, y por que tiene casilla propia
+
+`salto_correr` sale de un video en el que el personaje corre, salta una piedra y
+se para; se usan solo los 38 fotogramas del salto (128-165). El detalle
+completo, con la piedra, las sombras y el polvo, esta en
+`raw/.../peregrino_salto_corriendo/como_se_hizo.txt`. Dos cosas afectan al juego:
+
+**No cabe en la casilla comun.** En el apogeo llega a 313 px a la izquierda del
+eje y 691 por encima del suelo, y la casilla de 584x720 se queda corta por arriba
+y por la izquierda. Lo detecto el chequeo de margen de `hoja.ps1` (0 px). En vez
+de agrandar las nueve animaciones -- un 22 % mas de VRAM para ocho que no lo
+necesitan -- este salto va en su propia hoja de **340x400** por casilla, y
+`peregrino.gd` cambia `_sprite.offset` al entrar y salir de la animacion
+(`offset_comun` -165, `offset_salto_correr` -185: alto/2 menos los 15 px de
+margen de suelo). Si algun dia otra animacion se sale, es el mismo mecanismo.
+
+**Entra desde cualquier fotograma de la carrera.** Se midio el primer fotograma
+del salto contra los 24 del ciclo: 2,75 pasos normales en el mejor caso, 3,86 en
+el peor, 3,41 de media. Elegir el momento perfecto ahorraria un 30 % a cambio de
+hasta 0,8 s de latencia al pulsar, asi que no se espera a nada. El desajuste no
+lo domina la zancada sino que la pose de despegue es un agachado que no existe en
+el ciclo, y el propio salto avanza 2,08 pasos de correr por fotograma: entrar con
+2,75 equivale a 1,3 fotogramas del salto, que es lo que un corte seco absorbe.
+
+El video viene a camara lenta (1,1 s de vuelo); a 60 fps queda en 0,45 s. Y el
+video recorta la punta de la capucha en el apogeo, que se reconstruye
+geometricamente: es la punta, no la cabeza.
+
+### Repaso de las catorce animaciones
+
+Hay dos cosas que comprobar, y **no aplican a todas por igual**.
+
+La regla de los **ticks enteros** -- que 60/fps sea entero -- solo vale para
+`andar` y `correr`, que son las unicas cuyo fotograma pone el script desde
+`_physics_process`: ahi la duracion se cuantiza a ticks y si no es entera, unos
+fotogramas duran 17 ms y otros 33. Las demas las reproduce el `AnimatedSprite2D`
+en `_process`, con duracion de reloj, y su fps es una eleccion libre de ritmo.
+
+Lo que si aplica a los arranques y paradas es **igualar la cadencia del ciclo con
+el que empalman**: a 24 fps las piernas cambiarian de ritmo un 25 % al cruzar la
+costura hacia un ciclo que va a 30. Por eso estan a 30, no por los ticks.
+
+Y la linea de suelo tiene que caer donde el `offset` del sprite la espera.
+
+| animacion | fps | cuantizacion | casilla |
+|---|---|---|---|
+| reposo | 11,6 | (de reloj) | 292x360 |
+| arranque_andar, parada_andar | 30 | (de reloj) | 292x360 |
+| **andar** | 30 | **2** | 292x360 |
+| arranque_correr, parada_correr | 30 | (de reloj) | 292x360 |
+| **correr** | 30 | **2** | 292x360 |
+| giro | 30 | (de reloj) | 292x360 |
+| saltar | 60 | (de reloj) | 292x360 |
+| salto_correr | 60 | (de reloj) | **340x400** |
+| cayendo, caida | 24 | (de reloj) | **380x360** |
+| levantarse | 20 | (de reloj) | **380x360** |
+| tumbado | 1 | (un fotograma) | 380x360 |
+
+`andar` y `correr` los mueve el script por distancia -- el nodo esta parado --
+asi que su fps del .tres no se usa; se deja en 30 para no despistar.
+
+Las de caida se quedan a 24 (`levantarse` a 20, que a 24 se veia rapida): no las mueve el script ni empalman con ningun ciclo
+movido por distancia, asi que su ritmo es una decision de animacion y no hay nada
+que igualar. (`caer_desde_arriba()` calcula el fotograma de entrada del bucle con
+`get_animation_speed`, asi que aguanta cualquier fps que se les ponga.)
+
+Alineacion comprobada sobre los sprites: el suelo de las animaciones de la
+casilla comun cae entre 675 y 683 (master), y el de `tumbado`/`levantarse` en
+672, cinco pixeles = 1,3 en pantalla. Dentro del ruido.
+
+### Lo que no tiene arreglo sin material nuevo
+
+- **El salto en carrera entra y sale con 2,8-3,9 pasos de salto de pose.** Viene
+  de otro video, y el despegue y el aterrizaje son agachados que no existen en el
+  ciclo. Se compensa con que va a 60 fps: ese salto equivale a 1,4 fotogramas del
+  propio salto, o sea un parpadeo de 16 ms.
+- **Solo hay una parada por accion,** grabada desde una fase de la zancada. De ahi
+  la espera de `tolerancia_parada_*`. Una segunda parada con el otro pie delante
+  lo cerraria, pero los modelos de IA no la dan consistente.
+
+## Importacion en Godot
+
+Tres ajustes que importan, sobre todo si la camara va a cambiar de zoom:
+
+- **Mipmaps activadas.** Sin ellas, el personaje pequeno con bordes facetados
+  centellea al moverse. Cuestan un 33% mas de memoria y los valen. Con una
+  condicion, que ahora mismo se cumple: ver el margen entre casillas aqui abajo.
+  **Y solo cuentan si el filtro del CanvasItem es `*_WITH_MIPMAPS`**: con el
+  lineal por defecto del proyecto se suben a la GPU pero no se leen nunca, y
+  asi esta hoy: el `Sprite` de `peregrino.tscn` sigue con el filtro por defecto.
+  Se probo `texture_filter = 4` (lineal con mipmaps): a la resolucion nativa
+  (2912x1632) no cambia nada, pero reducido a 0,527 (pantalla de 1536x864) el
+  personaje pierde ~20 % de contraste en los bordes y se ve desenfocado contra
+  fondos sin mipmaps. Queda pendiente de decidir a ojo: o se pone el filtro
+  (quiza con `rendering/textures/default_filters/texture_mipmap_bias` negativo,
+  que es de todo el proyecto), o se apagan las mipmaps en los `.import` de
+  el peregrino y se ahorran los ~80 MiB.
+- **Filtro lineal**, no nearest. Esto es pintado, no pixel art.
+- El zoom se hace en la **`Camera2D`**, no escalando el nodo del personaje: asi
+  escala toda la escena a la vez y el personaje no se despega del fondo.
+
+### Escala: memoria de video
+
+Van a entrar muchas animaciones mas, y con las hojas en rejilla sin comprimir no
+escalaba: las 17 de hoy costaban **389 MiB** con mipmaps y cada fotograma nuevo
+0,53 MiB (una animacion de 60, 32 MiB). Desde 2026-09-28 las hojas del juego
+cuestan **40 MiB** entre todas (45 con las tres del andar agachado, 22
+animaciones y 808 fotogramas; sin esto serian 443), por dos cosas que no tocan
+los masters ni cambian nada en pantalla:
+
+- **Compresion en la GPU.** Cada `.import` del peregrino va con `compress/mode=2` y
+  `high_quality=true`: BC7 en escritorio, 1 byte por pixel en vez de 4. Medido
+  con un muestrario de doce animaciones a escala 1 y a 0,527: diferencia media
+  1,2/255, ningun pixel cambia mas de 21, PSNR 47 dB. `_spriteframes.py` deja
+  esos ajustes en el `.import` cada vez que corre (y lo crea si la hoja es
+  nueva), asi que ya no hay que acordarse de las mipmaps. Windows y la web de
+  escritorio usan BC7; solo una web en movil necesitaria ademas
+  `rendering/textures/vram_compression/import_etc2_astc`.
+- **Atlas recortado.** El personaje llena entre el 21 y el 52 % de su casilla.
+  `empaquetar.py` recorta cada casilla usada a su dibujo (alineado a bloques de
+  4 px, los de BC7) y las junta con 8 px de separacion; el `AtlasTexture` lleva
+  `margin = (dx, dy, casilla - recorte)`, que es lo que hace que Godot lo dibuje
+  con el tamano de la casilla entera y el dibujo en su sitio. Comprobado en el
+  muestrario, normal y volteado: mismas cajas, y la unica diferencia es un pixel
+  del borde mas tenue en dos figuras (el `fix_alpha_border` del importador
+  depende de los vecinos). La separacion de 8 px deja el atlas limpio hasta 1/8
+  de escala; antes el margen mas justo, el del salto de parado, era de 3 px.
+
+Para revisar todas las animaciones como las ve el juego (saltos de pose, suelo,
+temblor, recortes, motas, restos de croma y los enlaces que encadena
+`peregrino.gd`): `python tools/anim/revisar.py`. Ver `tools/anim/README.md`.
+
+`python _spriteframes.py <tres>` hace las dos cosas y al final imprime lo que
+cuesta cada hoja; `--rejilla` vuelve a las rejillas enteras. Para comprobar una
+importacion a ojo y con numeros, `scenes/dev/muestrario_texturas.tscn` pinta
+fotogramas sueltos a escala 1 y 0,527 (`-- voltear` los voltea).
+
+Hoy todas las hojas cargan a la vez, porque van en un solo `SpriteFrames`. A 45
+MiB da igual. Cuando haya un juego de animaciones con baculo, lo natural es un
+segundo `SpriteFrames` (el generador puede sacar dos) y cambiar `sprite_frames`
+al cogerlo: asi solo se carga el que se usa.
+
+### El margen entre casillas, que es lo que hace seguras las mipmaps
+
+La hoja es un **atlas**: Godot la muestrea con filtrado bilineal y cada nivel de
+mipmap promedia bloques de la hoja entera, sin saber donde acaba una casilla y
+empieza la siguiente. Si el personaje llegara al borde de su casilla, el vecino
+se colaria por ahi y se verian fotogramas mezclados.
+
+Lo que lo impide es el **margen transparente** que el personaje deja dentro de su
+casilla. Un margen de M px aguanta mientras el texel del mipmap mida menos que M:
+el nivel L usa texels de 2^L px y se emplea a escala 1/2^L.
+
+(Esto era asi con las hojas en rejilla. Desde que van empaquetadas -- ver
+"Escala: memoria de video" -- la separacion entre fotogramas es fija, 8 px
+transparentes, y el atlas queda limpio hasta 1/8 de escala en todas.)
+
+Medido sobre las ocho hojas actuales, casilla a casilla, el margen mas justo es
+de **12 px** (izq 15, der 28, arr 12, abj 16), asi que el atlas esta limpio hasta
+**1/8 de escala**. El juego dibuja a 0,527 -- viewport 2912x1632 sobre una
+pantalla de 1536x864 -- o sea muy lejos del limite, y cualquier alejamiento de
+camara razonable tambien.
+
+Ese margen no es intencionado: sale de que la casilla se dimensiono a 292 de
+ancho para un personaje que ocupa como mucho 262. Por eso `hoja.ps1` lo mide al
+terminar y avisa si baja de 8 px, que es lo que pasaria con una animacion en la
+que el personaje llenase mas la casilla. Si algun dia salta ese aviso, las
+salidas son agrandar la casilla en `centrar.ps1` o importar esa hoja sin mipmaps.
+
+## Tamano en pantalla
+
+El personaje mide **330 px** de alto en la casilla. Con el viewport de 1632 de
+alto:
+
+- plano abierto, personaje a ~200 px (12% de la pantalla): se reduce, nitido.
+- plano normal, ~330 px: 1 a 1.
+- camara cerca, ~440 px: se estira 1,3x y queda algo blando, lo que de paso
+  suaviza las facetas del modelo.
+
+Esta dimensionado para el **zoom maximo**, no para el tamano habitual: a una
+textura le sienta bien que la achiques y mal que la estires.
+
+## Avisos sobre el material
+
+**El salto viejo giraba.** El primer `peregrino_saltando` rotaba 30-45 grados hacia
+camara en pleno vuelo; venia asi del video. Se sustituyo por `peregrino_salto_andando`,
+sacado de un video en el que el personaje anda, se agacha, salta y aterriza sin
+girar (fotogramas 89-158; detalle en su `como_se_hizo.txt`). Es un solo salto
+para parado y andando: el centrado va anclado al tronco, asi que el sprite no
+lleva desplazamiento cocido y el movimiento horizontal lo pone el nodo. Medido
+contra el resto: desde reposo entra a 0,052 (como las paradas), desde el ciclo
+de andar a 0,037 (~3 pasos) y acaba a 0,024 del reposo. El job viejo sigue en
+`raw/master_mason/anim/peregrino_saltando/` por si hace falta.
+
+Dos cosas de este salto que afectan al encuadre: en el apogeo llega a 671 px
+sobre el suelo, 19 px por debajo del techo de la casilla comun (hubo que anadir
+40 px de verde arriba al video para poder recortar), y `centrar.ps1` le mide el
+suelo 4 px bajo porque en la cuclilla el pie aplasta mas que de pie: apoya en la
+fila 686 de la casilla en vez de en la 690, dentro del rango de las demas.
+
+**El brazo de la carrera va al doble de frecuencia.** Las piernas hacen su ciclo
+en 24 fotogramas, dos pasos. El brazo deberia hacer una sola oscilacion completa
+en esos 24 -- cada brazo va en oposicion a su pierna -- y hace dos. Medido
+rastreando la mano cercana en los 192 fotogramas del video y autocorrelando su
+altura: el minimo cae en periodo 12, cuando para un brazo correcto el 12 tendria
+que ser un maximo, porque a media zancada el brazo esta en el extremo contrario
+de su recorrido.
+
+Pasa en el video entero, no en un tramo: no es una ventana mal elegida ni unos
+fotogramas rotos, es como el modelo entendio la carrera, asi que **ninguna
+seleccion lo arregla**. El sintoma es que el codo hace algo que no cuadra al
+volver a subir.
+
+Si se vuelve a pedir el video, hay que decirlo explicito, que es justo lo que los
+modelos se inventan cuando no se les dice:
+
+> The arms swing in opposition to the legs: when the left leg is forward the
+> right arm is forward. Each arm completes exactly ONE full forward-and-back
+> swing per full stride cycle (two steps), not one per step. Elbows stay bent at
+> roughly 90 degrees throughout, the forearms never straighten.
+
+La alternativa sin pedir nada es retocar los 24 limpios para que la capa tape el
+brazo siempre -- ya lo tapa en buena parte del ciclo -- a cambio de perder el
+gesto de los brazos al correr.
+
+**El salto de parado ya tiene su animacion.** `saltar` sale de un video en el
+que el personaje ya anda cuando se agacha: su primer sprite esta a 0,38 del
+reposo, y saltar quieto arrancaba una zancada de la nada. Desde 2026-09-24,
+saltar desde el reposo (o desde una parada ya frenada) usa `salto_parado`, de un
+video propio (`salto_en_parado.mp4`): quieto en la pose de reposo, se agacha,
+salta vertical y vuelve a quedarse quieto. Entra a 0,092 del reposo y sale a
+0,074. El video traia dos saltos seguidos sin incorporarse entre medias y polvo
+al caer; como se monto esta en `peregrino_salto_parado/como_se_hizo.txt`. `saltar`
+sigue siendo el salto andando.
+
+**El giro de cinco poses venia con la tunica mas clara y mas roja** que los videos: hasta un
+11 % mas de valor y un 19 % mas de rojo sobre azul en el frontal, y al girar el
+abrigo se encendia y se apagaba. Se igualo al reposo con una ganancia por canal
+sobre lo calido (`peregrino_giro/igualar_color.py`); capucha, barba y pies no
+estaban desviados y no se tocan. Detalle y numeros en su `como_se_hizo.txt`.
+
+**Los bordes no son iguales en los dos lotes.** Las hojas antiguas (reposo,
+andar, correr y sus transiciones, salto de parado) llevan un borde suave de
+1-2 px con 1200-2300 px semitransparentes por sprite y un ribete magenta tenue en
+la barba, herencia del croma magenta de aquellos videos; las nuevas (salto
+corriendo, aterrizaje, las cuatro de la caida) salen del croma verde con
+`-Radio 4` y `-Tolerancia 70`: borde mas duro, 50-90 px semitransparentes y algun
+ribete verdoso en el pelo. A tamano de juego es medio pixel y no se ve, pero si
+algun dia se rehace un lote, que sea con los parametros del otro para que la
+silueta pese igual en todas.
+
+**Lo que queda por pedir fuera:**
+
+- video de **carrera con el brazo bien** (ver el aviso del brazo);
+- **respirar de perfil mas largo** o con dos ciclos, para que el bucle de 2,5 s no
+  se note al minuto de estar quieto: ahora es una sola respiracion repetida.
+
+## Regenerar o anadir una animacion
+
+**La hoja no se copia al juego a mano.** Se exporta la rejilla con `hoja.ps1`,
+se anade la animacion a `ANIMACIONES` en `_spriteframes.py` y se corre este:
+empaqueta la hoja, la deja en `assets/characters/peregrino/`, le pone al `.import`
+compresion y mipmaps (Godot, por su cuenta, crea las hojas nuevas sin mipmaps) y
+escribe el `.tres`. Despues, `godot --headless --import`.
+
+Las herramientas estan en `tools\anim\` (ver su README). Para una accion
+nueva del peregrino, con los mismos numeros:
+
+```powershell
+cd C:\Users\santiago.ochoa\godot\projects\master_mason\tools\anim
+.\nuevo.ps1    -Job peregrino_<accion> -Fuente <video.mp4>
+.\frames.ps1   -Job peregrino_<accion>
+.\contacto.ps1 -Job peregrino_<accion>
+.\elegir.ps1   -Job peregrino_<accion> -Frames "<rango>"
+.\centrar.ps1  -Job peregrino_<accion> -Ancho 584 -Alto 720 -MargenSuelo 30
+.\fondo.ps1    -Job peregrino_<accion> -Tolerancia 35 -Radio 4
+.\hoja.ps1     -Job peregrino_<accion> -Cols <n> -Fps <n> -Escala 2
+python _spriteframes.py "..\..\resources\characters\peregrino_frames.tres"
+```
+
+Con mas de 99 fotogramas no pasa nada: `elegir.ps1` y `centrar.ps1` numeran con
+las cifras que hagan falta (hasta el agacharse numeraban a dos y `p_100` se
+ordenaba antes que `p_11`).
+
+Si la animacion nueva sube mas alto que el salto no cabra en los 720, habra que
+subir el alto y **reprocesar tambien las tres anteriores** con el valor nuevo.
+
+## Grabar al personaje sin nadie al teclado
+
+Para ver una animacion en el juego con los mismos gestos cada vez, hay pilotos de
+teclas en `scenes/dev/`: `piloto_salto_correr.tscn` arranca a correr con doble
+toque, salta con la direccion pulsada y vuelve a saltar soltandola en el aire.
+El guion es un export (`[segundo, accion, pulsar]`), y `piloto_traza.tscn`
+imprime ademas cada tick el estado, el fotograma, la velocidad y la posicion.
+
+```powershell
+# video (2912x1632, MJPEG con audio dentro; --resolution se ignora)
+godot --path . --write-movie salto.avi --fixed-fps 60 --quit-after 450 res://scenes/dev/piloto_salto_correr.tscn
+# solo la traza, sin ventana. --fixed-fps tambien aqui: sin el, en headless los
+# frames van a toda velocidad y el reloj de fisica no llega a los tiempos del guion
+godot --headless --path . --fixed-fps 60 --quit-after 230 res://scenes/dev/piloto_traza.tscn
+```
+
+Las pulsaciones se inyectan con `Input.parse_input_event`, que llega a
+`_unhandled_input` y actualiza `Input.get_axis` como una tecla real. Ojo con el
+reloj: grabando, el juego va al 4 % de la velocidad real, y cualquier cosa que
+mida tiempo con `Time.get_ticks_msec()` se descuadra. El doble toque lo hacia, y
+en las grabaciones el personaje salia andando en vez de corriendo hasta que paso
+al reloj de fisica (`_reloj` en `peregrino.gd`).

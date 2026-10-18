@@ -1,0 +1,34 @@
+GUARDAR EL BASTON DE ESPALDAS, VIDEO B (2026-10-11)
+===================================================
+Video: _fuentes/Pilgrim_slinging_staff_on_back_20261011153604.mp4 (Flow; inicio =
+referencia_baston_mano_espaldas.png, fin = referencia_baston_espalda_espaldas.png con
+la espalda nueva). El sencillo de los dos que hizo el usuario: lo levanta un poco,
+lo inclina y lo deja en la espalda. Montaje y animacion: ver
+../peregrino_sacar_baston_espalda_v2/como_se_hizo.txt (animar.py hace los dos).
+
+EL FALLO: el baston atraviesa al peregrino. Veo deja la mitad de abajo DENTRO del
+cuerpo (como si fuera por delante de el; asoma la punta por la izquierda) y en
+c_062-c_066 la pasa a la espalda atravesandolo.
+
+EL ARREGLO (arreglar.py, c_049-c_065; Veo intacto en _todos_veo/): el palo POR
+ENCIMA de la espalda, con NUESTRA textura (assets/characters/baston/baston.png, la
+que copio Veo), desde un poco por debajo de la mano hasta el pie; de Veo se quedan la
+garra y el palo hasta la mano, y se borra lo que asoma fuera del cuerpo mas abajo
+(con su orla); la mano se vuelve a poner encima. El eje: de la bola (la garra
+seguida, garra.json) a la punta de Veo donde asoma (54-65); antes (49-53), el giro de
+la plantilla de la garra. El largo, el de la mano (597 px de master de la bola al
+pie) hasta el 60 y luego acortandose hasta 450 en el 65: Veo lo pasa de golpe al de
+la correa (~440, c_066). Lo que se probo y no valio: unir la parte de arriba con la
+punta por el punto de la parte de arriba mas cercano (al abrirse la garra salian dos
+palos), el eje de la garra sola (no sigue el baston al cruzarlo: palo doble junto al
+hombro), la textura sacada del c_001 (la cara en sombra: mas oscura) y la cola casi
+transparente de baston.png (alfa 28 bajo la fila 220: se veia verdosa; cortada).
+05_salida: arreglo_veo_vs_nuevo_24fps.mp4 y _6fps.mp4 (Veo a la izquierda).
+
+SUSTITUIDO (2026-10-12)
+-----------------------
+Aun con el arreglo el usuario lo veia atravesar el cuerpo: el fallo es el gesto (el
+baston gira sobre la mano quieta en el hombro y el pie barre la espalda hasta asomar
+por la cadera izquierda). El guardar de espaldas sale ahora del video A con nuestro
+baston: ../peregrino_guardar_baston_espalda_a/como_se_hizo.txt. Este job se queda como
+estaba (ya no va en _spriteframes.py).

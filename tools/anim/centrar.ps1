@@ -12,8 +12,8 @@
     .\centrar.ps1 -Job dominus_run -Margen 40 -Sobrescribir
 .EXAMPLE
     # casilla y suelo comunes a varias animaciones del mismo personaje
-    .\centrar.ps1 -Job magnus_corriendo  -Ancho 584 -Alto 688 -MargenSuelo 30 -Sobrescribir
-    .\centrar.ps1 -Job magnus_respirando -Ancho 584 -Alto 688 -MargenSuelo 30 -Sobrescribir
+    .\centrar.ps1 -Job peregrino_corriendo  -Ancho 584 -Alto 688 -MargenSuelo 30 -Sobrescribir
+    .\centrar.ps1 -Job peregrino_respirando -Ancho 584 -Alto 688 -MargenSuelo 30 -Sobrescribir
 .EXAMPLE
     # camara quieta: misma ventana exacta en todas, sin medir nada por fotograma
     .\centrar.ps1 -Job aracnobat_volando -Ancho 1088 -Alto 680 -Eje 640 -Techo 38

@@ -113,7 +113,7 @@ Salen unas 11 animaciones.
 
 ## 4. Sistemas y orden de construcción
 
-1. **`RealityState`.** Presets de gravedad, salto, carrerilla, aliento, daño por caída y sostén de las hojas, con transición interpolada. Magnus ya expone casi todo como variables. Va primero porque es la tesis del juego.
+1. **`RealityState`.** Presets de gravedad, salto, carrerilla, aliento, daño por caída y sostén de las hojas, con transición interpolada. El peregrino ya expone casi todo como variables. Va primero porque es la tesis del juego.
 2. **Estado y guardado.** Flags de las elecciones, afecto, orbes y capítulo; las marcas blancas son los puntos de guardado. Cuanto antes exista, menos se rehace.
 3. **Báculo** (el prototipo ya tiene los estados NINGUNO, ESPALDA y MANO), la **rueda de orbes** y **clavar** (un nodo de efecto en un radio).
 4. **Cono rojo:** shader, un `Area2D` de gravedad y el grupo `se_para_con_luz`.
@@ -165,10 +165,10 @@ En orden:
 
 ## 7. Contradicciones con lo que existe o está congelado
 
-1. **El claro no hace fundido (1.2).** Lo que existe es un **mundo que da la vuelta**, con una copia de Magnus junto al borde.
+1. **El claro no hace fundido (1.2).** Lo que existe es un **mundo que da la vuelta**, con una copia del peregrino junto al borde.
 2. **Árboles en el claro (1.1, 1.4).** El usuario **rechazó** los árboles de las esquinas, el primer plano y la franja delantera fija. El «tronco caído» debería ser una raíz o un montículo de hojarasca a ras de suelo.
 3. **La salida del claro.** El pendiente del usuario era un **torbellino que se lleva las hojas y descubre el camino**, y el guion lo cambia por «el haz se abre». Conviene quedarse con su torbellino.
-4. **Doble caída (1.11).** `bosque.tscn` **empieza con Magnus cayendo del cielo**. Enlazarlo obliga a tocar la escena congelada (quitar la caída y el cartel «Fin de la demo»). Hay que **pedir permiso**, o cargarla desde una escena envoltorio que se salte la caída.
+4. **Doble caída (1.11).** `bosque.tscn` **empieza con el peregrino cayendo del cielo**. Enlazarlo obliga a tocar la escena congelada (quitar la caída y el cartel «Fin de la demo»). Hay que **pedir permiso**, o cargarla desde una escena envoltorio que se salte la caída.
 5. **La casa congelada (1.12, 2.1).** Ya tiene su cámara, su recorrido, **su elección de nombre** y el diálogo hasta «Iram». El guion redefine el plano y **añade a Argos y el humo del péndulo**. Propuesta: el encuadre del cap. 8 es el que ya existe, y Argos y el humo van en capas de un envoltorio.
 6. **La sombra.** El guion dice «sin sombra hasta el nombre», pero la hojarasca ya tiene **sombra de contacto**. Propuesta: lo que nace en 2.3 es la sombra en la pared. En 10.6 se quitan las dos.
 7. **Respiración constante en Bronce.** Va contra lo que pidió el usuario. Mejor un umbral casi nulo, pero que se vaya en reposo.

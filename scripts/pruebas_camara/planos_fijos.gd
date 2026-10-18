@@ -1,17 +1,17 @@
 extends Node2D
 ## PRUEBA de planos fijos al estilo Alone in the Dark, sin motor 3D: una galeria
 ## descrita en 3D (caras planas), proyectada a mano desde la camara del plano
-## activo, y Magnus (su sprite de siempre) puesto en el punto que le toca y con
+## activo, y el peregrino (su sprite de siempre) puesto en el punto que le toca y con
 ## el tamano que da la distancia. Cada plano (plano_fijo.gd, hijos de Planos)
 ## cubre un tramo de x; al cruzar a otro tramo hay corte.
 ##
-## Magnus no sabe nada de esto: anda en x como siempre, metido en el nodo
+## El peregrino no sabe nada de esto: anda en x como siempre, metido en el nodo
 ## Proyeccion, al que se le pone cada fotograma la escala, el giro y la
 ## posicion de pantalla de sus pies. Por eso solo vale para planos en los que
 ## la galeria se vea de lado o en diagonal: sus animaciones son de perfil.
 ##
 ## Orden de dibujo: Sala (suelo, techo, paredes y las columnas que quedan
-## detras de Magnus), Proyeccion (Magnus) y Delante (columnas por delante).
+## detras del peregrino), Proyeccion (el peregrino) y Delante (columnas por delante).
 ## Teclas: F alterna corte seco / fundido, M menu de pruebas, H oculta el texto.
 
 const PANTALLA := Vector2(2912, 1632)
@@ -22,7 +22,7 @@ const ALTO := 1100.0
 ## Plano cercano: lo que queda mas cerca de la camara se recorta.
 const CERCA := 20.0
 
-@export var magnus_x_inicial: float = 350.0
+@export var peregrino_x_inicial: float = 350.0
 ## Corte con un pestaneo a negro en vez de seco.
 @export var fundido: bool = false
 @export var histeresis: float = 60.0
@@ -30,7 +30,7 @@ const CERCA := 20.0
 @export var niebla: float = 5000.0
 @export var luz_ambiente: float = 0.07
 
-@onready var _magnus: Node2D = $Proyeccion/Magnus
+@onready var _peregrino: Node2D = $Proyeccion/Peregrino
 @onready var _proyeccion: Node2D = $Proyeccion
 @onready var _sala: Node2D = $Sala
 @onready var _delante: Node2D = $Delante
@@ -56,16 +56,16 @@ var _escala_orto := 1.0
 var _alabeo := 0.0
 var _ref_niebla := 0.0
 var _seguido := 0.0
-var _z_magnus := 0.0
+var _z_peregrino := 0.0
 
 func _ready() -> void:
 	WindAmbience.gust_db = 0.0
 	WindAmbience.fade_to(-14.0, 0.0)
-	_magnus.position = Vector2(magnus_x_inicial, 0.0)
-	_magnus.limite_izquierdo = 150.0
-	_magnus.limite_derecho = LARGO - 150.0
-	_magnus.frenada_limite_andar = 200.0
-	_magnus.frenada_limite_correr = 380.0
+	_peregrino.position = Vector2(peregrino_x_inicial, 0.0)
+	_peregrino.limite_izquierdo = 150.0
+	_peregrino.limite_derecho = LARGO - 150.0
+	_peregrino.frenada_limite_andar = 200.0
+	_peregrino.frenada_limite_correr = 380.0
 	_construir()
 	_sala.draw.connect(_dibujar_sala)
 	_delante.draw.connect(_dibujar_delante)
@@ -79,7 +79,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 			KEY_F: fundido = not fundido
 
 func _process(delta: float) -> void:
-	var x := _magnus.position.x
+	var x := _peregrino.position.x
 	if _elegir_plano(x):
 		_seguido = x
 		if fundido:
@@ -88,7 +88,7 @@ func _process(delta: float) -> void:
 	if _plano == null:
 		return
 	_poner_camara(x, delta)
-	_colocar_magnus(x)
+	_colocar_peregrino(x)
 	_sala.queue_redraw()
 	_delante.queue_redraw()
 	if _texto.visible:
@@ -141,11 +141,11 @@ func _a_pantalla(c: Vector3) -> Vector2:
 func _niebla(z: float) -> float:
 	return exp(-maxf(z - _ref_niebla, 0.0) / niebla)
 
-## Pone el nodo de Magnus para que sus pies (x, suelo, z = 0) caigan donde los
+## Pone el nodo del peregrino para que sus pies (x, suelo, z = 0) caigan donde los
 ## proyecta la camara, con la escala de esa distancia y el giro del encuadre.
-func _colocar_magnus(x: float) -> void:
+func _colocar_peregrino(x: float) -> void:
 	var c := _a_camara(Vector3(x, 0.0, 0.0))
-	_z_magnus = c.z
+	_z_peregrino = c.z
 	_proyeccion.visible = _orto or c.z > CERCA
 	if not _proyeccion.visible:
 		return
@@ -177,12 +177,12 @@ func _dibujar_delante() -> void:
 			_meter_cara(tri, cara)
 	tri.dibujar(_delante)
 
-## Columnas detras (o delante) de Magnus, de la mas lejana a la mas cercana.
+## Columnas detras (o delante) del peregrino, de la mas lejana a la mas cercana.
 func _cajas_ordenadas(detras: bool) -> Array:
 	var lista := []
 	for caja in _cajas:
 		var z := _a_camara(caja.centro).z
-		if (z > _z_magnus) == detras:
+		if (z > _z_peregrino) == detras:
 			lista.append([z, caja])
 	lista.sort_custom(func(a, b): return a[0] > b[0])
 	return lista.map(func(e): return e[1])

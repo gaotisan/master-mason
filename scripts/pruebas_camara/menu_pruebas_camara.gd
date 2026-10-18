@@ -1,7 +1,7 @@
 extends Control
 ## Menu de las pruebas de camara. Nada del juego lleva aqui: se abre a mano
 ## (pruebas_camara.bat, o F6 sobre la escena en el editor).
-## 1 capas (Inside), 2 planos fijos (Alone in the Dark), 3 Magnus 3D, Esc sale.
+## 1 capas (Inside), 2 planos fijos (Alone in the Dark), 3 el peregrino 3D, Esc sale.
 
 const ESCENAS := {
 	KEY_1: "res://scenes/pruebas_camara/capas_inside.tscn",

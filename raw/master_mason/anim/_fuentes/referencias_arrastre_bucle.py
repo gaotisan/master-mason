@@ -1,17 +1,17 @@
 """Referencias 1920x1080 (16:9) para el BUCLE DEL ARRASTRE (prompt_arrastre_bucle.txt;
-Flow, fotogramas a video; 2026-10-15). El arrastre del juego (magnus_tumbarse,
+Flow, fotogramas a video; 2026-10-15). El arrastre del juego (peregrino_tumbarse,
 c075-c123) es una brazada entera del video y al repetirse salta (el usuario: "da
 un salto en cada avance"); el video nuevo de 2026-10-15
-(magnus_arrastrarse_v2/estudio.txt) no casa con el tumbarse ni con el levantarse.
+(peregrino_arrastrarse_v2/estudio.txt) no casa con el tumbarse ni con el levantarse.
 Aqui se pide uno que empiece y acabe en el MISMO fotograma de nuestro arrastre,
-c096 de magnus_tumbarse/04_limpios (a mitad de brazada, donde mas deprisa va:
+c096 de peregrino_tumbarse/04_limpios (a mitad de brazada, donde mas deprisa va:
 con uno quieto Flow arranca y frena en los extremos), el del final corrido
 AVANCE px a la derecha (4 brazadas de 95 px de master, lo que hace el arrastre
 del juego en 8 s). En el juego: tumbarse -> arrastre viejo hasta c096 -> este
 bucle -> arrastre viejo desde c097 -> levantarse.
 
 Escala de master 1:1 (la casilla de 920x720 tal cual), el suelo de la casilla
-(raiz_fila de magnus_tumbarse/raiz.json) en y=1040, croma #24D732.
+(raiz_fila de peregrino_tumbarse/raiz.json) en y=1040, croma #24D732.
   python referencias_arrastre_bucle.py [carpeta de salida; por defecto esta]"""
 import json
 import os
@@ -20,7 +20,7 @@ import sys
 from PIL import Image
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-JOB = os.path.join(AQUI, "..", "magnus_tumbarse")
+JOB = os.path.join(AQUI, "..", "peregrino_tumbarse")
 SALIDA = sys.argv[1] if len(sys.argv) > 1 else AQUI
 CROMA = (0x24, 0xD7, 0x32, 255)
 SUELO = 1040

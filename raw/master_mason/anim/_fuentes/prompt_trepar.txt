@@ -13,7 +13,7 @@ el baston en la mano no se trepa.
 
 En Flow, modo de fotogramas a video, EN VERTICAL (9:16):
   - fotograma inicial: referencia_trepar_inicio.png  (el reposo del juego,
-    magnus_respirando c_01, mirando a la derecha, pegado al muro: 50 px de la
+    peregrino_respirando c_01, mirando a la derecha, pegado al muro: 50 px de la
     punta del pie a la cara del muro; el abrigo casi lo toca)
   - fotograma final:   referencia_trepar_fin.png     (el mismo reposo de pie
     encima del muro, el talon 138 px dentro del borde)

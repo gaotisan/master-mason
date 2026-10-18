@@ -54,7 +54,7 @@ Por que estos numeros:
                  medida. Peor aun al abrir las alas, porque el "tronco" que mide
                  centrar.ps1 pasa de ser las patas a ser las alas y el cuerpo
                  pegaria un salto lateral.
-  tolerancia 35  la misma que en Magnus, y por lo mismo.
+  tolerancia 35  la misma que en el peregrino, y por lo mismo.
   radio 4        croma: la banda de mezcla del borde son ~7 px.
   derrame 12     con el 25 de fabrica, el exceso de verde se quedaba CLAVADO en
                  25 en todos los fotogramas -- justo la trampa que avisa el
@@ -71,7 +71,7 @@ Este video trae una sombra DURA sobre el croma, y eso rompe fondo.ps1. Medido:
   pixel del bicho mas cercano al fondo          46
 
 O sea que se solapan enteras: no hay tolerancia que se coma la sombra sin
-comerse tambien al bicho. En Magnus esto no pasaba y por eso no habia salido
+comerse tambien al bicho. En el peregrino esto no pasaba y por eso no habia salido
 antes.
 
 Lo que si las separa es el TONO: una sombra es el croma con menos luz,
@@ -143,11 +143,11 @@ coger cualquier tramo: los de 12-15 y 39-42 se salen del cuadro directamente.
 
 abrir_alas empieza en el 86, que es el fotograma siguiente al ultimo del ciclo de
 andar, y termina en el 107, el anterior al que abre el ciclo de vuelo. Esos dos
-enlaces son perfectos por construccion, igual que los arranques de Magnus.
+enlaces son perfectos por construccion, igual que los arranques del peregrino.
 Sus 9 primeros sprites son todavia araña andando: si se quiere el despliegue
 seco, empezar en c_10.
 
-Enganches (misma medida que en Magnus: diferencia media de color premultiplicado
+Enganches (misma medida que en el peregrino: diferencia media de color premultiplicado
 x100; lo que hay que comparar es el "paso normal" de cada animacion)
 
   paso normal entre fotogramas seguidos
@@ -177,14 +177,14 @@ recolocandose) o hacerle una animacion de reposo aparte.
 Escala de exportacion: 1/2
 ==========================
 Los sprites de 04_limpios se quedan a resolucion completa como MASTER
-(1168x704). Las hojas van a la mitad, como en Magnus:
+(1168x704). Las hojas van a la mitad, como en el peregrino:
 
   casilla exportada  584 x 352 px
   envergadura        552 px con las alas del todo abiertas
   memoria de video   48,5 MB las cuatro (5,0 MB en disco)
 
 Ese tamaño es el que conserva calidad, no el que va a hacer falta. 552 px de
-envergadura es casi el doble de ancho que Magnus de alto (330). Si al final es
+envergadura es casi el doble de ancho que el peregrino de alto (330). Si al final es
 un enemigo normal y no un jefe, lo suyo es 1/4:
 
   .\hoja.ps1 -Job aracnobat_<accion> -Cols <n> -Fps 24 -Escala 4

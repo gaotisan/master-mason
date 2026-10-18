@@ -7,10 +7,10 @@ Dos videos, cada uno con fotograma inicial Y final (Flow los admite los dos):
 
 Las dos imagenes salen del juego (2026-10-07), asi que el video empieza y
 acaba en poses que ya encajan:
-  - baston_ref_guardado.png: el reposo de Magnus (magnus_respirando c_01) con
+  - baston_ref_guardado.png: el reposo del peregrino (peregrino_respirando c_01) con
     el baston colocado a la espalda igual que lo pone el juego.
   - baston_ref_en_mano.png: el reposo con el baston en la mano que usa el
-    piloto (magnus_andar_baston c_180).
+    piloto (peregrino_andar_baston c_180).
   Las dos en 1280x720, croma #24D732, misma escala (627 px de alto, pies en
   y=677) y alineadas por el borde de la espalda.
 

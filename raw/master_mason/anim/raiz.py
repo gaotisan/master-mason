@@ -4,7 +4,7 @@ una casilla que lo sigue, y apunta cuanto se mueve: la RAIZ.
 Los videos de estas acciones son de camara quieta y el peregrino cruza el
 cuadro: sube 721 px de master al trepar el muro, baja otros tantos de un
 saltito, avanza con el sillar al empujar. En el juego eso lo hace el nodo
-(magnus.gd: la posicion del nodo es donde pisa), asi que aqui cada fotograma
+(peregrino.gd: la posicion del nodo es donde pisa), asi que aqui cada fotograma
 se recorta en una casilla colocada en la raiz de ese fotograma y la raiz se
 guarda: nodo + casilla = video, al pixel. Como el nodo hace el viaje, la
 casilla no tiene que abarcar el recorrido entero, y la altura del salto o del
@@ -12,7 +12,7 @@ muro se puede retocar en el juego sin tocar el dibujo (ver "s" en raiz.json).
 
 La raiz:
   - en el primer fotograma y en el ultimo, donde pisaria el reposo del juego
-    (magnus_respirando c_01) encajado sobre el peregrino: linea de suelo de la
+    (peregrino_respirando c_01) encajado sobre el peregrino: linea de suelo de la
     casilla comun (fila 690, la planta en la 677) y eje en el centro;
   - entre medias, de la una a la otra al ritmo del cuerpo: por cada eje, lo que
     lleva recorrido el centro de la silueta respecto al total (0 a 1, sin
@@ -36,7 +36,7 @@ from PIL import Image
 from scipy import ndimage as ndi
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-REPOSO = os.path.join(AQUI, 'magnus_respirando', '04_limpios', 'c_01.png')
+REPOSO = os.path.join(AQUI, 'peregrino_respirando', '04_limpios', 'c_01.png')
 CW0, CH0, RX0, RY0 = 584, 720, 292, 690      # casilla comun y su raiz
 ALTO = 627                                    # alto del reposo (alfa > 128)
 MARGEN = 30

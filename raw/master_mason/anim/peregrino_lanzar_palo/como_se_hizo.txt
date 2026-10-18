@@ -1,0 +1,13 @@
+LANZAR EL PALO (animacion "lanzar_palo")
+========================================
+Fuente: _fuentes/Pilgrim_picks_up_and_throws_20261012122857.mp4 (venia en la carpeta de clavar), de prompt_lanzar_palo.txt.
+Tramo: f004 - f100. El palo se quita del dibujo al soltarlo (el 57); el juego lo lanza desde ahi.
+
+Como todas las acciones de perfil (ver ../acciones_perfil.txt):
+  1. nuevo.ps1 + frames.ps1 (01_frames)
+  2. python raiz.py peregrino_lanzar_palo --desde 4 --hasta 100 --origen 01_frames
+  3. ../fondo_paralelo.py peregrino_lanzar_palo  y  ../baston/pulir.py --oscuras peregrino_lanzar_palo  y  --bolsas-verdes
+  4. ../montar_accion.py peregrino_lanzar_palo  -> 04_acciones/, accion.json y assets/characters/peregrino/acciones_perfil.json
+  5. hoja.ps1 -Job peregrino_lanzar_palo -Desde 04_acciones -Fps 24 -Escala 2 -Cols 10
+  6. tools/anim/_spriteframes.py y ../baston/seguir.py
+Se prueba en scenes/dev/piloto_baston.tscn (scripts/dev/acciones/acciones_perfil.gd).

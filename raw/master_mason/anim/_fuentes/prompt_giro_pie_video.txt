@@ -1,12 +1,12 @@
 PROMPT PARA EL VIDEO DEL GIRO DE PIE (Google Flow / Veo, "Frames to Video")
 =========================================================================
-El giro de pie (magnus_giro) son 5 vistas a 45 grados de una hoja de IA: se ve
+El giro de pie (peregrino_giro) son 5 vistas a 45 grados de una hoja de IA: se ve
 brusco al lado del resto, que sale de video. Con un video del giro hay angulos
 de sobra para elegir y queda tan fluido como andar o correr.
 
 En Flow, modo de fotogramas a video:
   - fotograma inicial: referencia_giro_pie_video_inicio.png  (el reposo del juego,
-    magnus_respirando c_08, mirando a la derecha, a su tamano de master: 628 px de
+    peregrino_respirando c_08, mirando a la derecha, a su tamano de master: 628 px de
     alto en 1920x1080, pies en la fila 880)
   - fotograma final:   referencia_giro_pie_video_fin.png     (el mismo, espejado)
   (las dos estan aqui en _fuentes/ y copiadas en Descargas)

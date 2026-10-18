@@ -1,7 +1,7 @@
 PROMPTS PARA LAS IMAGENES DEL BASTON (capa a la espalda)
 ========================================================
-Las dos se hacen EDITANDO referencia_magnus_perfil.png (subirla como imagen
-de entrada), no generando de cero: asi Magnus sale a la misma escala y en el
+Las dos se hacen EDITANDO referencia_peregrino_perfil.png (subirla como imagen
+de entrada), no generando de cero: asi el peregrino sale a la misma escala y en el
 mismo sitio. Lienzo 1280x720, croma #24D732, pies en y=677, alto 627 px.
 
 La bola NO se pinta: va por codigo. El baston termina en una garra de raices
@@ -11,7 +11,7 @@ vacia.
 1) baston_solo.png  -- el sprite del baston  (Gemini, 2026-10-07)
 -----------------------------------------------------------------
 Referencias, en este orden:
-  imagen 1 = referencia_magnus_perfil.png   (escala y estilo; se edita esta)
+  imagen 1 = referencia_peregrino_perfil.png   (escala y estilo; se edita esta)
   imagen 2 = baston_lamina_poses.png         (como es el baston y la garra)
 
 Edit image 1. Keep the old man exactly as he is: same pose, same size, same
@@ -95,4 +95,4 @@ NOTA: la funda no se ve nunca en el juego. Los giros (de pie y agachado) se
 hicieron girando HACIA la camara, sin ensenar la espalda; en las vistas de
 frente y tres cuartos el baston va por detras y solo asoma la garra por
 encima del hombro. Si algun dia hay una vista de espaldas, hara falta una
-imagen de Magnus de espaldas con la funda.
+imagen del peregrino de espaldas con la funda.

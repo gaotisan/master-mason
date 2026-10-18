@@ -1,7 +1,7 @@
-PROMPT PARA EL VIDEO DE MAGNUS RECOGIENDO EL BASTON
+PROMPT PARA EL VIDEO DE PEREGRINO RECOGIENDO EL BASTON
 ===================================================
 Primer fotograma: primer_fotograma_recoger_baston.png (1280x720). Es
-referencia_magnus_perfil.png sin tocar, sobre el mismo croma #24D732, con el
+referencia_peregrino_perfil.png sin tocar, sobre el mismo croma #24D732, con el
 personaje a la izquierda (eje en x=300, pies en y=677) para que tenga sitio de
 andar hacia la derecha. Mismo alto que en los otros videos (627 px).
 

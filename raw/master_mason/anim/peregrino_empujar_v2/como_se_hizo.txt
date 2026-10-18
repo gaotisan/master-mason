@@ -1,0 +1,17 @@
+EMPUJAR EL SILLAR ALTO, MANOS PLANAS (animacion "empujar_v2")
+=============================================================
+Fuente: _fuentes/Pilgrim_pushing_stone_block_20261012095752.mp4 (16:9), de prompt_empujar_v2.txt (no calca sus referencias).
+Tramo: f012 - f180, a x1,4858 (el peregrino venia un 1,7 % mas grande). Las manos van al pecho, no a la cadera: para el sillar alto. Andaba en el sitio con los pies resbalando: raiz por los pies, el sillar anda 202 px de juego.
+
+Como todas las acciones de perfil (ver ../acciones_perfil.txt):
+  1. nuevo.ps1 + frames.ps1 (01_frames)
+  2. python quitar_objeto.py peregrino_empujar_v2 --placa 1-20 --caja 600,300,910,700 --mueve
+  3. python raiz.py peregrino_empujar_v2 --desde 12 --hasta 180 --suelo-fijo --escala 1.4858
+  4. ../fondo_paralelo.py peregrino_empujar_v2  (fondo.ps1 -Tolerancia 35 -Radio 4 en paralelo)
+     ../baston/pulir.py --oscuras peregrino_empujar_v2  y  --bolsas-verdes  (repulir.py: el pulido normal agujereaba la capucha)
+     (las casillas se rellenaron luego hasta multiplos de 8: las copias de
+     _con_fondo/ son del tamano anterior; si se vuelve a pulir, rehacer desde raiz.py)
+  5. ../montar_accion.py peregrino_empujar_v2  -> 04_acciones/, accion.json y assets/characters/peregrino/acciones_perfil.json
+  6. hoja.ps1 -Job peregrino_empujar_v2 -Desde 04_acciones -Fps 24 -Escala 2 -Cols 10
+  7. tools/anim/_spriteframes.py (entrada "empujar_v2") y ../baston/seguir.py
+Se prueba en scenes/dev/piloto_baston.tscn (scripts/dev/acciones/acciones_perfil.gd).

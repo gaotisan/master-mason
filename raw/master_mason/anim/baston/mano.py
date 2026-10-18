@@ -1,4 +1,4 @@
-"""Animaciones con el baston EN LA MANO (prueba): de magnus_andar_baston/04_limpios
+"""Animaciones con el baston EN LA MANO (prueba): de peregrino_andar_baston/04_limpios
 saca las cuatro que cambia el piloto (reposo, arranque_andar, andar,
 parada_andar), las monta en hojas a media escala y apunta en cada fotograma
 donde esta la garra, para poner encima la bola por codigo.
@@ -9,26 +9,26 @@ from PIL import Image
 from celdas import PROY
 
 ANIM = PROY / "raw/master_mason/anim"
-ORIGEN = ANIM / "magnus_andar_baston_v2/04_limpios"
+ORIGEN = ANIM / "peregrino_andar_baston_v2/04_limpios"
 DESTINO = PROY / "assets/characters/baston"
 COLS = 8
 # Andar con el baston: video Character_walking_on_green_screen_20261007224913
-# (magnus_andar_baston_v2, c_NNN = fotograma NNN del video; empieza y acaba en
+# (peregrino_andar_baston_v2, c_NNN = fotograma NNN del video; empieza y acaba en
 # el reposo con el baston, que es baston_ref_en_mano). Los tramos salen de
 # medir (paso.py -> paso_medido.json y andar_v2() aqui abajo):
 #   reposo c_001-c_020 (quieto), arranque c_021 -> c_070 y al ciclo (BUCLE,
-#   abajo), parada c_137 -> quieto (c_136 es la imagen del bucle). Antes (magnus_andar_baston, otro video): el baston iba a
+#   abajo), parada c_137 -> quieto (c_136 es la imagen del bucle). Antes (peregrino_andar_baston, otro video): el baston iba a
 #   su aire, se arrastraba, y la tunica cambiaba de dibujo entre el principio
 #   y el final.
 # Ciclo: video aparte hecho bucle (Old_master_builder_walking_cycle_
-# 20261008085011, job magnus_andar_baston_bucle; prompt_baston_andar_bucle.txt):
+# 20261008085011, job peregrino_andar_baston_bucle; prompt_baston_andar_bucle.txt):
 # Flow con la misma imagen de inicio y de fin, el c_136 de v2 con la capucha
 # recortada. Cierra 192 -> 1 con silueta 0,35 y color 0,54 pasos normales.
 # El de v2 no se repetia exacto: cada vuelta cambia el brazo del baston, la
 # mano que cuelga y la tunica, y ningun empalme casaba a la vez piernas y
 # brazos (por color "cambia el paso", por silueta "fluctua el brazo"); un
 # fundido por flujo optico entre vueltas dejaba manos y pies dobles.
-BUCLE = "magnus_andar_baston_bucle"
+BUCLE = "peregrino_andar_baston_bucle"
 # Del bucle se usa un tramo: 192 fotogramas enteros llevaban el baston a su
 # aire (el video lo balancea cada ~55 fotogramas y los pasos van cada ~41: unas
 # veces lo adelanta poco y una vez mucho, fotogramas 28-48; el usuario: "primero
@@ -64,7 +64,7 @@ REPOSO = (1, 20)          # el reposo quieto de v2: ancla de los pies y pose de 
 # 20261008122010): bucle c_002-c_076, dos respiraciones; empieza en la pose de
 # baston_ref_en_mano (la de v2 c_001) y cierra 76 -> 2 a 0,71 pasos de silueta
 # y 1,22 de color. A 30 fps dura 2,5 s, como el respirar sin baston (2,46).
-REPOSO_JOB = "magnus_reposo_baston"
+REPOSO_JOB = "peregrino_reposo_baston"
 REPOSO_BUCLE = (2, 76)
 ARRANQUE_DESDE = 21
 # Largo maximo del arranque (fotogramas de v2): el que ya tenia, 49-50 (1,65 s).
@@ -111,11 +111,11 @@ ANIMS = {
     # transiciones (videos de Flow): a velocidad del video, sin bola (la garra
     # va moviendose por todos lados; la bola se esconde mientras duran)
     # sacar: video del 2026-10-11 (Character_unslings_staff_animation_20261011100434,
-    # job magnus_sacar_baston_v4): lo descuelga de la espalda (la punta de abajo
+    # job peregrino_sacar_baston_v4): lo descuelga de la espalda (la punta de abajo
     # sale hacia delante), lo endereza girandolo en la mano y lo planta delante;
     # f22-f84, 2,6 s. El de antes (v3, Character_drawing_staff_for_game_...,
     # f5-f184, 7,5 s) lo llevaba en horizontal dando la vuelta a la cabeza como
-    # una helice ("un giro raro"); antes aun, magnus_sacar_baston (garra "sacar").
+    # una helice ("un giro raro"); antes aun, peregrino_sacar_baston (garra "sacar").
     # Casilla ancha (margen: px de master de mas a cada lado): al descolgarlo la
     # punta del baston sale 64 px por delante de la casilla de 584. La bola sale
     # de donde esta a la espalda (bola_desde) y llega a la del reposo en la mano.
@@ -129,20 +129,20 @@ ANIMS = {
     # empalme_forma: en los fundidos de los extremos el video se lleva primero
     # a la forma del reposo (la garra y la mano difieren 3-6 px) y luego se funde.
     "sacar_baston":   {"desde": 1, "hasta": 63, "fps": 24.0, "bucle": False,
-                       "job": "magnus_sacar_baston_v4", "sin_orbe": True, "garra": "sacar_v4",
+                       "job": "peregrino_sacar_baston_v4", "sin_orbe": True, "garra": "sacar_v4",
                        "margen": 80, "bola_desde": "espalda", "a_su_ritmo": True, "alinear_y": True,
                        "empalme_forma": True},
     # guardar empieza en el 17: los 16 primeros son el reposo casi quieto (0,7 s
     # de espera tras pulsar)
     "guardar_baston": {"desde": 17, "hasta": 93, "fps": 24.0, "bucle": False,
-                       "job": "magnus_guardar_baston", "sin_orbe": True},  # video f1-f93
+                       "job": "peregrino_guardar_baston", "sin_orbe": True},  # video f1-f93
 }
 
 def andar_v2():
     """Tramos y paso del andar con el baston. Reposo, arranque y parada de
-    magnus_andar_baston_v2; el ciclo, de BUCLE. Devuelve (anims, paso): anims
+    peregrino_andar_baston_v2; el ciclo, de BUCLE. Devuelve (anims, paso): anims
     con desde/hasta (y job y dx_fijo para el ciclo); paso con lo que baston.gd
-    le pone a magnus.gd.
+    le pone a peregrino.gd.
       - avance de cada fotograma = lo que se mueve el pie plantado (paso.py),
         limpio de los fotogramas en que la franja del suelo engana (un pie que
         se levanta: saltos de +4/+6 en medio de -7/-8);
@@ -174,7 +174,7 @@ def andar_v2():
         else:
             dxc = np.where(malo, med, dx)
         return -dxc / 2                # px de hoja que avanza cada fotograma (c_k -> c_k+1)
-    v2, vb = limpio("magnus_andar_baston_v2"), limpio(BUCLE)
+    v2, vb = limpio("peregrino_andar_baston_v2"), limpio(BUCLE)
     V = lambda k: max(0.0, float(v2[k - 1]))
     VB = lambda k: max(0.0, float(vb[k - 1]))
     s, L = CICLO
@@ -211,7 +211,7 @@ def andar_v2():
     cand = range(168, 193)
     p1 = min(cand, key=lambda k: D(P(k), P(REPOSO[0])))
     print("parada c_%03d-c_%03d (a %.2f pasos del reposo)" % (PARADA_DESDE, p1, D(P(p1), P(REPOSO[0])) / paso))
-    # Entradas a la parada, por lo que SE VE (2026-10-10): magnus.gd entra en
+    # Entradas a la parada, por lo que SE VE (2026-10-10): peregrino.gd entra en
     # el primer tick del fotograma i del ciclo, que apenas se ve (16 ms); lo
     # que se ve es el i-1 y luego el de la parada. Antes se comparaba la parada
     # con el i+1 (dos fotogramas mas alla) y por silueta, que no ve el cambio de
@@ -536,8 +536,8 @@ def garra_espalda():
 
 
 # Los pies tienen que caer en el mismo sitio de la casilla en TODAS las
-# animaciones de Magnus, o al pasar de una a otra pega un salto. El reposo
-# normal (magnus_respirando c_01) los tiene con el borde izquierdo en x=285.
+# animaciones del peregrino, o al pasar de una a otra pega un salto. El reposo
+# normal (peregrino_respirando c_01) los tiene con el borde izquierdo en x=285.
 # Los videos del baston son de camara quieta y el personaje no da un paso al
 # sacar o guardar, pero centrar.ps1 ancla al tronco y el brazo con el baston
 # lo desplazaba: se ancla por los pies, fotograma a fotograma.
@@ -562,7 +562,7 @@ def desplazar(a, dx):
 
 
 # Y la planta del pie, en la misma fila en todas (el reposo normal, c_01 de
-# magnus_respirando, y el reposo con el baston la tienen en la 677). Las
+# peregrino_respirando, y el reposo con el baston la tienen en la 677). Las
 # transiciones se anclaban solo en x: el sacar v4, centrado con otro margen de
 # suelo, quedaba 13 px mas bajo y al fundirse con los reposos se veian dos
 # figuras ("un pedazo de blur, como si los tamanos no coincidieran").

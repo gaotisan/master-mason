@@ -202,7 +202,7 @@ Dos cosas cambian en los ajustes:
      interior es color propio del abrigo. Dentro de `RADIO_BORDE` px del alfa se
      usa `--derrame-borde` (8); mas adentro, `--derrame` (25).
 
-  Medido sobre magnus_andando: pixeles con exceso de verde >= 20 por fotograma,
+  Medido sobre peregrino_andando: pixeles con exceso de verde >= 20 por fotograma,
   de **264-379 a 0-24**, sin tocar el color del abrigo.
 
 `centrar.ps1` tambien funciona con cualquier fondo: mide el color en las esquinas
@@ -239,8 +239,8 @@ el suelo en una fila distinta del original. Por eso `centrar.ps1` tiene
 siempre a la misma altura dentro de la casilla.
 
 ```powershell
-.\centrar.ps1 -Job magnus_corriendo  -Ancho 584 -Alto 688 -MargenSuelo 30
-.\centrar.ps1 -Job magnus_respirando -Ancho 584 -Alto 688 -MargenSuelo 30
+.\centrar.ps1 -Job peregrino_corriendo  -Ancho 584 -Alto 688 -MargenSuelo 30
+.\centrar.ps1 -Job peregrino_respirando -Ancho 584 -Alto 688 -MargenSuelo 30
 ```
 
 La casilla se hace **simetrica** alrededor del eje del tronco a proposito: al
@@ -336,7 +336,7 @@ con el keyeado y el retoque a mano. La reduccion se hace **al exportar la hoja**
 con `-Escala`:
 
 ```powershell
-.\hoja.ps1 -Job magnus_corriendo -Cols 6 -Fps 24 -Escala 2
+.\hoja.ps1 -Job peregrino_corriendo -Cols 6 -Fps 24 -Escala 2
 ```
 
 Asi, si mas adelante hace falta otra escala, se reexporta en un comando sin
@@ -344,7 +344,7 @@ repetir keyeado ni alineacion.
 
 Por que no se hace en Godot: poner `scale` al nodo **no ahorra memoria**, la
 textura se carga entera igual. Y el PNG comprime pero la textura en VRAM no: son
-ancho x alto x 4 bytes. Las tres animaciones de Magnus a resolucion completa eran
+ancho x alto x 4 bytes. Las tres animaciones del peregrino a resolucion completa eran
 22 MB en disco y **218 MB en memoria de video**; a la mitad, 5,9 y 54,5.
 
 Dos cuidados:
@@ -360,26 +360,26 @@ Dos cuidados:
   generar mipmaps, asi que si el personaje llega al borde de la suya se mezcla
   con la vecina. El margen aguanta mientras el texel del mipmap mida menos que
   el: M px de margen dan atlas limpio hasta 1/M de escala. `hoja.ps1` lo mide al
-  terminar (`_margenes.py`) y avisa si baja de 8 px. En magnus el mas justo son
+  terminar (`_margenes.py`) y avisa si baja de 8 px. En peregrino el mas justo son
   12 px, de sobra. Si salta el aviso: agrandar la casilla en `centrar.ps1`, o
   importar esa hoja sin mipmaps.
 
 ## Llevarlo a Godot
 
-Para Magnus no se hace a mano: se anade la animacion a `ANIMACIONES` en
+Para el peregrino no se hace a mano: se anade la animacion a `ANIMACIONES` en
 `_spriteframes.py` y se corre `python _spriteframes.py <destino.tres>`. Empaqueta
 cada rejilla de `05_salida` en un atlas con los fotogramas recortados a su dibujo
 (`empaquetar.py`), lo deja en el juego con el nombre de la hoja, pone el `.import`
 con compresion BC7 y mipmaps, y escribe el `SpriteFrames` con el `margin` de cada
 fotograma, que es lo que lo devuelve a su sitio dentro de la casilla. Cuesta un
 10 % de lo que costaba la rejilla sin comprimir. Detalle en
-`docs/sprites_magnus.md` (del proyecto), "Escala: memoria de video".
+`docs/sprites_peregrino.md` (del proyecto), "Escala: memoria de video".
 
 **Antes de darla por buena**, `python revisar.py`: recorre todas las animaciones
 de `ANIMACIONES` como las dibuja el juego y avisa de fotogramas que no casan con
 sus vecinos, cierres de bucle, pies que se hunden o flotan de golpe, temblor del
 tronco, dibujo recortado en el borde, motas y restos de croma, y mide los enlaces
-que encadena `magnus.gd` (pose, suelo, eje y color de la tunica). Si se anade un
+que encadena `peregrino.gd` (pose, suelo, eje y color de la tunica). Si se anade un
 enlace nuevo en el codigo, se anade tambien a `ENLACES` en `revisar.py`. Correr y
 saltar dan avisos de suelo y de eje por su propio movimiento: lo que importa es
 lo que cambia de golpe en una animacion que va lenta, y los enlaces marcados con

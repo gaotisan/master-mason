@@ -12,7 +12,7 @@ prompts de abajo ya van corregidos ("bare" fuera, los pies descritos); las
 referencias, las mismas (los pies ya salen oscuros en ellas).
 SOLO SE REPITE EL DE ESPALDAS (piernas claras, dedos, un pie como una pezuna):
 el de frente tiene las piernas oscuras y se salvo oscureciendo los pies
-(magnus_secuencia_frontal/oscurecer_pies.py).
+(peregrino_secuencia_frontal/oscurecer_pies.py).
 
 La D1 de acciones_del_guion.md: se corre de frente y de espaldas solo con el
 baculo en la funda (con el baculo en la mano no se corre en ninguna vista). Es
@@ -27,7 +27,7 @@ Dos videos, cada uno con el MISMO fotograma de inicio y de fin (nuestro reposo):
   - referencia_frente_sin_baston.png: reposo_frente_sb_000 (secuencia_frontal_sin,
     fotograma base), sin la garra que asoma (la pone la escena).
   - referencia_espalda_sin_baston.png: la espalda NUEVA del modo sin baston (2026-10-11,
-    la del chevron: magnus_espalda_sin_baston), sin baston ni correa.
+    la del chevron: peregrino_espalda_sin_baston), sin baston ni correa.
   1920x1080, croma #24D732, a escala de master en (668, 286) como las demas
   referencias (aire sobre la capucha ~405 px, pies a ~40 px del borde). Capucha
   ya al color estandar (igualar_capucha.py).
@@ -37,7 +37,7 @@ frente, corriendo, se le echaria encima). Con el mismo fotograma de inicio y fin
 tiene que acabar donde empezo: queda corriendo en el sitio, a tamano fijo; el
 avance lo pone la escena.
 
-RITMO, el de perfil (magnus_corriendo): ciclo de 0,8 s = un paso cada 0,4 s;
+RITMO, el de perfil (peregrino_corriendo): ciclo de 0,8 s = un paso cada 0,4 s;
 arranque_correr 1,27 s y parada_correr 1,30 s. Pedido a la velocidad del juego
 (acelerar o diezmar despues se ve a saltitos). Estilo, el de perfil: carrera de
 verdad, no trote: cuerpo inclinado, zancadas rapidas, codos doblados y punos

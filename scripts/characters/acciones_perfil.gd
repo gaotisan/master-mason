@@ -2,11 +2,11 @@ extends Node2D
 ## ACCIONES DE PERFIL DEL PEREGRINO (PRUEBA, 2026-10-12), en la escena de perfil
 ## (scenes/dev/piloto_baston.tscn), con los objetos justos para probarlas: un
 ## muro, dos sillares que se mueven (el alto con argolla), una mesa, una
-## piedrecita, el palo de Argos y el baculo clavado. Sin tocar magnus.gd:
+## piedrecita, el palo de Argos y el baculo clavado. Sin tocar peregrino.gd:
 ##   - Mientras dura una accion le quita el control (control_bloqueado, como al
 ##     sacar el baston), pone la animacion en su Sprite y la lleva a mano,
 ##     fotograma a fotograma, y mueve el nodo por la raiz del video
-##     (assets/characters/magnus/acciones_perfil.json, que escribe
+##     (assets/characters/peregrino/acciones_perfil.json, que escribe
 ##     raw/master_mason/anim/montar_accion.py): nodo + casilla = video, al
 ##     pixel. Al acabar le deja el reposo de siempre en el sitio nuevo.
 ##   - Fuera de las acciones le pone en cada tick los limites (limite_izquierdo
@@ -21,7 +21,7 @@ extends Node2D
 ##     mediano con el empuje v1, manos en el filo; el alto con el v2, manos
 ##     planas como en una puerta).
 ##   - arriba, andando hacia el borde: se deja caer sin pararse (2026-10-13; lo
-##     hace Magnus con su salto andando, ver suelo_en en magnus.gd: despega en
+##     hace el peregrino con su salto andando, ver suelo_en en peregrino.gd: despega en
 ##     el borde, aterriza abajo y, con la tecla, sigue andando). Saltando desde
 ##     encima de un bloque tambien aterriza abajo.
 ##   - parado en el borde, pulsando hacia el vacio: baja de un saltito (bajar),
@@ -42,15 +42,15 @@ extends Node2D
 ## EN TODAS LAS ESCENAS (2026-10-13, el usuario: "una vez revisado, metelo para
 ## irlo probando en todas las escenas"): va tambien en dark_stage.tscn (todos
 ## los pilotos), en la hojarasca y en las pruebas de camara y del storyboard,
-## como hermano de Magnus y con `generico`: sin objetos, solo lo que no los
+## como hermano del peregrino y con `generico`: sin objetos, solo lo que no los
 ## necesita (tumbarse y arrastrarse, golpe, derribo, clavar y arrancar si lleva
 ## el baston), y sin tocar los limites ni el suelo de la escena. Si la escena
 ## trae su propio nodo de acciones (los pilotos de acciones, con sus objetos),
 ## manda ese y el generico se quita.
 
-const DATOS := "res://assets/characters/magnus/acciones_perfil.json"
+const DATOS := "res://assets/characters/peregrino/acciones_perfil.json"
 const TEXTURAS := "res://assets/pruebas_acciones/%s.png"
-## Esfuerzo con el que acaba cada accion (la respiracion de Magnus).
+## Esfuerzo con el que acaba cada accion (la respiracion del peregrino).
 const ESFUERZO := {"trepar": 1.0, "trepar_mediano": 0.6, "bajar": 0.3, "empujar": 0.8,
 		"empujar_v2": 0.8, "tirar": 0.8, "derribo": 0.9, "golpe": 0.5, "levantarse_tumbado": 0.6}
 const GRAVEDAD_PALO := 1500.0
@@ -71,10 +71,10 @@ const VELOCIDAD := {"trepar": 1.5, "trepar_mediano": 1.5, "bajar": 1.3, "empujar
 ## a media escala): los objetos apoyan ahi, como en los videos y sus referencias.
 const PLANTA := 6.5
 
-@export var magnus_ruta: NodePath = ^"../DarkStage/Magnus"
+@export var peregrino_ruta: NodePath = ^"../DarkStage/Peregrino"
 ## Objetos que estorban: [textura, x de la cara izquierda, ancho, alto, empuje
 ## ("" = quieto), accion con E en su cara ("" = ninguna), se puede trepar], en
-## px de juego; el suelo es donde pisa Magnus al empezar.
+## px de juego; el suelo es donde pisa el peregrino al empezar.
 @export var objetos: Array = [
 	# escalon bajo para probar los saltos (2026-10-13): de 95 px no se trepa (no
 	# hay video tan bajo), se salta encima andando o corriendo; con la mesa al
@@ -95,7 +95,7 @@ const PLANTA := 6.5
 ## reparte en el avance de la accion (en el cuerpo, no en los pies quietos).
 @export var tolerancia := 40.0
 ## Al trepar, algo mas (lo que se queda tras empujar el sillar alto: 70 px; menos
-## de un paso de Magnus, que no anda tan poco): se reparte en lo que avanza el
+## de un paso del peregrino, que no anda tan poco): se reparte en lo que avanza el
 ## cuerpo al subir.
 @export var tolerancia_trepar := 75.0
 ## Con mas de esto (y menos de acercarse_max) primero se acerca andando.
@@ -150,7 +150,7 @@ class Suelto:
 	var activo := true
 
 var _modo := Modo.LIBRE
-var _magnus: Node2D
+var _peregrino: Node2D
 var _sprite: AnimatedSprite2D
 var _suelo := 0.0
 var _obj: Array[Objeto] = []
@@ -182,46 +182,46 @@ var _seguir := true
 var _al_acabar := Callable()
 var _ultima := ""
 var _trepa_pedido := 0.0             # segundos que queda guardado un salto para trepar
-var _x_antes := NAN                  # x de Magnus en el tick anterior (limites)
+var _x_antes := NAN                  # x del peregrino en el tick anterior (limites)
 var _quieto := 0.0                   # segundos que lleva sin moverse (andar, correr, saltar)
 
 func _enter_tree() -> void:
-	add_to_group("acciones_magnus")
+	add_to_group("acciones_peregrino")
 
 func _ready() -> void:
 	if generico:
-		# (el de la misma escena que lleve al mismo Magnus: no el de una escena
+		# (el de la misma escena que lleve al mismo peregrino: no el de una escena
 		# que aun se esta yendo)
-		var mio := get_node_or_null(magnus_ruta)
-		for otro in get_tree().get_nodes_in_group("acciones_magnus"):
+		var mio := get_node_or_null(peregrino_ruta)
+		for otro in get_tree().get_nodes_in_group("acciones_peregrino"):
 			if otro != self and not otro.generico and not otro.is_queued_for_deletion() \
-					and otro.get_node_or_null(otro.magnus_ruta) == mio:
+					and otro.get_node_or_null(otro.peregrino_ruta) == mio:
 				set_physics_process(false)
 				set_process_unhandled_input(false)
 				queue_free()
 				return
 		objetos = []
 		sueltos = []
-	_magnus = get_node_or_null(magnus_ruta)
-	if _magnus == null or not _magnus.has_method("datos_movimiento"):
-		push_warning("acciones_perfil: no encuentro a Magnus en %s" % magnus_ruta)
+	_peregrino = get_node_or_null(peregrino_ruta)
+	if _peregrino == null or not _peregrino.has_method("datos_movimiento"):
+		push_warning("acciones_perfil: no encuentro al peregrino en %s" % peregrino_ruta)
 		set_physics_process(false)
 		set_process_unhandled_input(false)
 		return
-	_sprite = _magnus.get_node("Sprite")
-	_suelo = _magnus.position.y
-	_limites = Vector2(_magnus.limite_izquierdo, _magnus.limite_derecho)
-	_frenadas = Vector2(_magnus.frenada_limite_andar, _magnus.frenada_limite_correr)
-	_espera_parada = _magnus.espera_parada_andar
+	_sprite = _peregrino.get_node("Sprite")
+	_suelo = _peregrino.position.y
+	_limites = Vector2(_peregrino.limite_izquierdo, _peregrino.limite_derecho)
+	_frenadas = Vector2(_peregrino.frenada_limite_andar, _peregrino.frenada_limite_correr)
+	_espera_parada = _peregrino.espera_parada_andar
 	_datos = JSON.parse_string(FileAccess.open(DATOS, FileAccess.READ).get_as_text())
 	if not objetos.is_empty():
 		# el suelo de cada x (los bloques): andando hacia un borde se deja caer, y
-		# saltando desde un bloque aterriza abajo (SUELO VARIABLE de magnus.gd)
-		_magnus.suelo_en = _nivel
+		# saltando desde un bloque aterriza abajo (SUELO VARIABLE de peregrino.gd)
+		_peregrino.suelo_en = _nivel
 		# y hasta donde puede llegar un salto: los limites de la escena (las caras
 		# las lleva el vuelo)
-		_magnus.limites_salto = _limites
-	# despues de Magnus: sus limites se le ponen para el tick siguiente y lo
+		_peregrino.limites_salto = _limites
+	# despues del peregrino: sus limites se le ponen para el tick siguiente y lo
 	# que se pase de una cara se le devuelve en el mismo tick
 	process_physics_priority = 10
 	for o in objetos:
@@ -353,7 +353,7 @@ func _siguiente(x: float, y: float, d: float) -> Dictionary:
 	return {}
 
 func _baston() -> Node:
-	for c in _magnus.get_children():
+	for c in _peregrino.get_children():
 		if "en_mano" in c:
 			return c
 	return null
@@ -367,7 +367,7 @@ func _baston_encima() -> bool:
 	return b != null and (b.en_mano or b.puesto)
 
 func _estado() -> String:
-	return _magnus.datos_movimiento()["estado"]
+	return _peregrino.datos_movimiento()["estado"]
 
 ## Que accion empieza en esa cara o borde y desde donde (el nodo, en x).
 func _accion_en(sig: Dictionary, y: float, d: float) -> Dictionary:
@@ -435,11 +435,11 @@ func _physics_process(delta: float) -> void:
 	# (ACCIONES_TRAZA=2: cada tick, con la altura de los pies)
 	var traza := _traza
 	if traza != "" and (_tick % 6 == 0 or traza == "2"):
-		var dm: Dictionary = _magnus.datos_movimiento()
-		print("traza %.2f x %.1f y %.1f %s %s f%d v%.0f lim %.1f-%.1f fren %.0f pies %.1f" % [_tick / 60.0, _magnus.position.x, _magnus.position.y,
-			dm["estado"], dm["animacion"], dm["fotograma"], dm["velocidad"], _magnus.limite_izquierdo, _magnus.limite_derecho, _magnus.frenada_limite_andar,
-			_magnus.call("_pies_sobre_despegue")] + (" cuerpo %.1f cima %.1f tau %.2f vuelo %d" % [_magnus.get("_vuelo_y"),
-			_magnus.get("_vuelo_cima"), _magnus.get("_vuelo_tau"), _magnus.get("_vuelo")] if traza == "2" else ""))
+		var dm: Dictionary = _peregrino.datos_movimiento()
+		print("traza %.2f x %.1f y %.1f %s %s f%d v%.0f lim %.1f-%.1f fren %.0f pies %.1f" % [_tick / 60.0, _peregrino.position.x, _peregrino.position.y,
+			dm["estado"], dm["animacion"], dm["fotograma"], dm["velocidad"], _peregrino.limite_izquierdo, _peregrino.limite_derecho, _peregrino.frenada_limite_andar,
+			_peregrino.call("_pies_sobre_despegue")] + (" cuerpo %.1f cima %.1f tau %.2f vuelo %d" % [_peregrino.get("_vuelo_y"),
+			_peregrino.get("_vuelo_cima"), _peregrino.get("_vuelo_tau"), _peregrino.get("_vuelo")] if traza == "2" else ""))
 	# (acercandose lo lleva andar_hasta: ver _acercarse)
 	_cortar_por_cinematica()
 	match _modo:
@@ -452,7 +452,7 @@ func _physics_process(delta: float) -> void:
 	_volar_palo(delta)
 	if _ayuda:
 		var que := ("[" + _anim + "]") if _modo == Modo.ACCION else ("[tumbado]" if _modo == Modo.TUMBADO else _ultima)
-		var teclas := "abajo x2 tumbarse   1 golpe   2 derribo   V giro x%s" % str(_magnus.giro_ritmo)
+		var teclas := "abajo x2 tumbarse   1 golpe   2 derribo   V giro x%s" % str(_peregrino.giro_ritmo)
 		if _baston() != null:
 			teclas = "K clavar   " + teclas
 		if _obj.is_empty() and _sueltos.is_empty():
@@ -462,19 +462,19 @@ func _physics_process(delta: float) -> void:
 				+ "E accion   " + teclas + "   R recolocar      " + que)
 
 func _libre(delta: float) -> void:
-	var m := _magnus
+	var m := _peregrino
 	var x := m.position.x
 	var y := m.position.y
 	if is_nan(_x_antes):
 		_x_antes = x
-	# En el aire (un salto, o dejandose caer de un borde) lo lleva Magnus hasta
+	# En el aire (un salto, o dejandose caer de un borde) lo lleva el peregrino hasta
 	# que toca suelo (las caras y los limites del salto los lleva el vuelo). Al
 	# tocar, ya en el suelo nuevo, vuelven los limites de aqui: con los de antes
 	# del salto (los de abajo, al caer encima de la mesa) no podia salir andando
 	# con la tecla y se quedaba parado. Y lo que llevaba esperando para empujar o
 	# bajar no cuenta: subido a la mesa, bajaba nada mas tocar. Sin objetos, los
 	# limites y el suelo son los de la escena: no se tocan.
-	if (_estado() == "SALTAR" and not _magnus.tras_tocar_suelo()) or _obj.is_empty():
+	if (_estado() == "SALTAR" and not _peregrino.tras_tocar_suelo()) or _obj.is_empty():
 		_x_antes = x
 		_espera = 0.0
 		return
@@ -526,7 +526,7 @@ func _libre(delta: float) -> void:
 			_saltar_pegado(false)
 			if _modo != Modo.LIBRE:
 				return
-	# hacia el otro lado con un limite cerca por alli: Magnus no deja ni girarse
+	# hacia el otro lado con un limite cerca por alli: el peregrino no deja ni girarse
 	# (ignora la tecla hacia un limite que tiene a menos de su frenada), asi que
 	# se le da la vuelta aqui; luego, si sigue la tecla, baja o empuja
 	if not is_zero_approx(eje) and signf(eje) != d and _estado() == "REPOSO" and not m.control_bloqueado:
@@ -552,8 +552,8 @@ func _libre(delta: float) -> void:
 
 ## El limite de un lado: donde empieza lo que haya alli (la parada). Hacia un
 ## borde que se puede bajar, andando o corriendo con la tecla hacia el, no: se
-## deja caer (lo hace Magnus, ver suelo_en), y el limite es la cara de lo que
-## haya mas alla, abajo, a 60 px (Magnus acorta el salto para no meterse en
+## deja caer (lo hace el peregrino, ver suelo_en), y el limite es la cara de lo que
+## haya mas alla, abajo, a 60 px (el peregrino acorta el salto para no meterse en
 ## ella, y cayendo no pasa del limite).
 func _limite_lado(a: Dictionary, s: float, eje: float) -> float:
 	if a.is_empty():
@@ -570,7 +570,7 @@ func _limite_lado(a: Dictionary, s: float, eje: float) -> float:
 ## Va hacia ese borde para dejarse caer: andando o corriendo hacia alli con la
 ## tecla, y sin el baston en la mano (con el no salta; se para en el filo).
 func _cae_andando(a: Dictionary, s: float, eje: float) -> bool:
-	if not a.has("baja") or _en_mano() or _magnus.mirando() != s or signf(eje) != s:
+	if not a.has("baja") or _en_mano() or _peregrino.mirando() != s or signf(eje) != s:
 		return false
 	# (y si se movia hace nada: al caer de un salto junto al filo, con la tecla,
 	# sigue andando y se deja caer, no hace el saltito de parado)
@@ -624,17 +624,17 @@ func _unhandled_input(event: InputEvent) -> void:
 			if not _obj.is_empty() or not _sueltos.is_empty():
 				_recolocar()
 		KEY_V:
-			# probar el ritmo del giro (ver giro_ritmo en magnus.gd)
+			# probar el ritmo del giro (ver giro_ritmo en peregrino.gd)
 			var ritmos := [1.0, 1.5, 2.0, 2.5, 3.0]
-			var i := ritmos.find(_magnus.giro_ritmo)
-			_magnus.giro_ritmo = ritmos[(i + 1) % ritmos.size()]
-			_ultima = "(giro a x%s: %.1f s de pie)" % [str(_magnus.giro_ritmo), 61.0 / 24.0 / _magnus.giro_ritmo]
+			var i := ritmos.find(_peregrino.giro_ritmo)
+			_peregrino.giro_ritmo = ritmos[(i + 1) % ritmos.size()]
+			_ultima = "(giro a x%s: %.1f s de pie)" % [str(_peregrino.giro_ritmo), 61.0 / 24.0 / _peregrino.giro_ritmo]
 
-## (y con Magnus en juego: la hojarasca lo esconde y lo para mientras entra
+## (y con el peregrino en juego: la hojarasca lo esconde y lo para mientras entra
 ## desde negro, antes de su caida)
 func _listo() -> bool:
-	return _modo == Modo.LIBRE and _estado() == "REPOSO" and not _magnus.control_bloqueado \
-		and _magnus.is_visible_in_tree() and _magnus.can_process()
+	return _modo == Modo.LIBRE and _estado() == "REPOSO" and not _peregrino.control_bloqueado \
+		and _peregrino.is_visible_in_tree() and _peregrino.can_process()
 
 ## Si la escena le pone una cinematica (la caida del cielo) a media accion,
 ## la accion se deja: el sprite y el estado son de la cinematica.
@@ -648,11 +648,11 @@ func _cortar_por_cinematica() -> bool:
 	_tramos = []
 	_bloque = null
 	_al_acabar = Callable()
-	_magnus.control_bloqueado = false
+	_peregrino.control_bloqueado = false
 	return true
 
 func _saltar_pegado(desde_tecla := true) -> void:
-	var m := _magnus
+	var m := _peregrino
 	if _modo != Modo.LIBRE or _en_mano():
 		return
 	var d: float = m.mirando()
@@ -660,8 +660,8 @@ func _saltar_pegado(desde_tecla := true) -> void:
 	if a.get("trepa", "") == "":
 		return
 	# andando o corriendo hacia algo a lo que llega el salto: salta encima (SUELO
-	# VARIABLE de magnus.gd); parado al lado, o si no llega, trepa
-	# (frenando aun cuenta: el salto sale andando con lo que le queda, y Magnus
+	# VARIABLE de peregrino.gd); parado al lado, o si no llega, trepa
+	# (frenando aun cuenta: el salto sale andando con lo que le queda, y el peregrino
 	# ajusta el avance para caer encima, ver SALTAR ENCIMA). Corriendo, salta
 	# siempre, como en Prince of Persia: si no llega (poca carrerilla), da contra
 	# la cara y cae delante, y de ahi se trepa.
@@ -674,7 +674,7 @@ func _saltar_pegado(desde_tecla := true) -> void:
 		return
 	if not _listo():
 		# aun parandose (o girando) junto a algo que se trepa: se guarda el salto
-		# y trepa en cuanto este quieto (Magnus no salta contra el muro)
+		# y trepa en cuanto este quieto (el peregrino no salta contra el muro)
 		var ideal0: float = a["cara"] - d * float(_datos[a["trepa"]]["cara"])
 		if desde_tecla and absf((ideal0 - m.position.x) * d) <= acercarse_max + 150.0:
 			get_viewport().set_input_as_handled()
@@ -683,7 +683,7 @@ func _saltar_pegado(desde_tecla := true) -> void:
 	var anim: String = a["trepa"]
 	var ideal: float = a["cara"] - d * float(_datos[anim]["cara"])
 	if _se_llega(anim, ideal, d):
-		# se queda con la tecla (que Magnus no salte) antes de acercarse
+		# se queda con la tecla (que el peregrino no salte) antes de acercarse
 		if desde_tecla:
 			get_viewport().set_input_as_handled()
 		_acercarse(ideal, d, func(): _empezar_una(anim, _accion_en(_siguiente(m.position.x, m.position.y, d), m.position.y, d), d), tolerancia_trepar)
@@ -693,7 +693,7 @@ func _tolerancia(anim: String) -> float:
 
 ## Si desde aqui se puede empezar la accion (ya esta, o algo lejos y se acerca).
 func _se_llega(anim: String, ideal: float, d: float) -> bool:
-	var falta: float = (ideal - _magnus.position.x) * d
+	var falta: float = (ideal - _peregrino.position.x) * d
 	if absf(falta) <= _tolerancia(anim) or (falta > 0.0 and falta <= acercarse_max):
 		return true
 	_ultima = "(" + anim + ": demasiado " + ("cerca" if falta < 0.0 else "lejos") + ")"
@@ -703,7 +703,7 @@ func _se_llega(anim: String, ideal: float, d: float) -> bool:
 ## lejos, se acerca andando y luego la empieza (ver _se_llega). Mas cerca que
 ## lo que tarda en pararse (frenada_obstaculo) no llega a andar: tambien empieza.
 func _acercarse(ideal: float, d: float, empezar: Callable, tol := -1.0) -> void:
-	var m := _magnus
+	var m := _peregrino
 	var falta: float = (ideal - m.position.x) * d
 	if tol < 0.0:
 		tol = tolerancia
@@ -729,17 +729,17 @@ func _acercarse(ideal: float, d: float, empezar: Callable, tol := -1.0) -> void:
 const ASENTAR := 80.0
 func _asentar(x: float, luego: Callable) -> void:
 	_modo = Modo.ACERCANDOSE
-	_magnus.control_bloqueado = true
+	_peregrino.control_bloqueado = true
 	var t := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
-	t.tween_property(_magnus, "position:x", x, absf(x - _magnus.position.x) / ASENTAR)
+	t.tween_property(_peregrino, "position:x", x, absf(x - _peregrino.position.x) / ASENTAR)
 	await t.finished
 	_modo = Modo.LIBRE
-	_magnus.control_bloqueado = false
+	_peregrino.control_bloqueado = false
 	luego.call()
 
 ## E: lo que haya delante, lo mas cerca primero.
 func _accion() -> void:
-	var m := _magnus
+	var m := _peregrino
 	if not _listo() or _en_mano():
 		return
 	var d: float = m.mirando()
@@ -790,11 +790,11 @@ func _hacer(c: Dictionary, d: float) -> void:
 	# lo que coge o arranca va en el dibujo, donde lo tiene el video respecto a
 	# el: si no esta justo en su sitio, al empezar saltaria lo que falte. Antes
 	# se desliza hasta alli, despacio (andando se queda unos px corto)
-	if not dat["objetos_ini"].is_empty() and absf(c["ideal"] - _magnus.position.x) > 0.5:
+	if not dat["objetos_ini"].is_empty() and absf(c["ideal"] - _peregrino.position.x) > 0.5:
 		_asentar(c["ideal"], func(): _hacer(c, d))
 		return
-	_corr = (c["ideal"] - _magnus.position.x) * d
-	_y_fin = _magnus.position.y
+	_corr = (c["ideal"] - _peregrino.position.x) * d
+	_y_fin = _peregrino.position.y
 	_bloque = null
 	_tira = false
 	match anim:
@@ -822,9 +822,9 @@ func _hacer(c: Dictionary, d: float) -> void:
 					_bola.visible = false
 		"tirar":
 			# anda hacia atras lo que dura el tiron: tiene que haber sitio detras
-			var atras := _siguiente(_magnus.position.x, _magnus.position.y, -d)
+			var atras := _siguiente(_peregrino.position.x, _peregrino.position.y, -d)
 			var hace_falta: float = absf(float(dat["viaje"][0])) + 60.0
-			if not atras.is_empty() and absf(float(atras["x"]) - _magnus.position.x) < hace_falta:
+			if not atras.is_empty() and absf(float(atras["x"]) - _peregrino.position.x) < hace_falta:
 				_ultima = "(tirar: no hay sitio detras)"
 				return
 			_bloque = c["objeto"]
@@ -841,9 +841,9 @@ func _hacer(c: Dictionary, d: float) -> void:
 func _clavar() -> void:
 	if not _listo() or not _en_mano() or not _datos.has("clavar"):
 		return
-	var d: float = _magnus.mirando()
+	var d: float = _peregrino.mirando()
 	_corr = 0.0
-	_y_fin = _magnus.position.y
+	_y_fin = _peregrino.position.y
 	_bloque = null
 	_al_acabar = func(): _poner_clavado(d)
 	_bola_del_baculo()
@@ -878,7 +878,7 @@ func _bola_del_baculo() -> void:
 ## al centro de la casilla, como la de mano.json del baston.
 func _colocar_bola(o: Array) -> void:
 	var lado := -1.0 if _sprite.flip_h else 1.0
-	_bola.position = _magnus.position + _sprite.position + _sprite.offset + Vector2(float(o[0]) * lado, float(o[1]))
+	_bola.position = _peregrino.position + _sprite.position + _sprite.offset + Vector2(float(o[0]) * lado, float(o[1]))
 	_bola.visible = true
 
 ## El baculo clavado donde lo deja clavar (el mismo dibujo que al empezar arrancar).
@@ -890,16 +890,16 @@ func _poner_clavado(d: float) -> void:
 	_clavado = _sprite_de("baculo_clavado")
 	_clavado.z_index = -1
 	var w: float = _clavado.texture.get_width()
-	var x: float = _magnus.position.x + float(caja[0]) if d > 0.0 else _magnus.position.x - float(caja[0]) - w
+	var x: float = _peregrino.position.x + float(caja[0]) if d > 0.0 else _peregrino.position.x - float(caja[0]) - w
 	_clavado.flip_h = d < 0.0
-	_clavado.position = Vector2(x, _magnus.position.y + float(caja[1]))
+	_clavado.position = Vector2(x, _peregrino.position.y + float(caja[1]))
 	add_child(_clavado)
 	# su bola, donde la tiene arrancar al empezar, con el nodo ya donde se queda
 	# (en el ultimo fotograma de clavar iba 1 px mas arriba)
 	if _bola and dat.has("orbe"):
 		var o: Array = dat["orbe"][0]
 		var ofs := Vector2(float(dat["offset"][0]), float(dat["offset"][1]))
-		_bola.position = _magnus.position + _sprite.position + ofs + Vector2(float(o[0]) * d, float(o[1]))
+		_bola.position = _peregrino.position + _sprite.position + ofs + Vector2(float(o[0]) * d, float(o[1]))
 
 ## DOBLE TOQUE ABAJO = TUMBARSE (2026-10-14; el usuario: "no quiero que sea con
 ## una T sino con una doble pulsacion abajo"). Dos toques de agacharse en menos
@@ -912,8 +912,8 @@ func _tumbarse_doble_toque() -> void:
 	if _baston_encima():
 		_ultima = "(tumbarse: solo sin el baculo encima)"
 		return
-	if _estado() in ["AGACHANDO", "AGACHADO", "INCORPORANDO"] and not _magnus.control_bloqueado:
-		_magnus._cambiar(_magnus.Estado.REPOSO)
+	if _estado() in ["AGACHANDO", "AGACHADO", "INCORPORANDO"] and not _peregrino.control_bloqueado:
+		_peregrino._cambiar(_peregrino.Estado.REPOSO)
 	_tumbarse()
 
 func _tumbarse() -> void:
@@ -923,10 +923,10 @@ func _tumbarse() -> void:
 		_ultima = "(tumbarse: solo sin el baculo encima; G o K)"
 		return
 	_corr = 0.0
-	_y_fin = _magnus.position.y
+	_y_fin = _peregrino.position.y
 	_bloque = null
 	_al_acabar = func(): _quedar_tumbado("tumbarse")
-	_empezar(["tumbarse"], _magnus.mirando())
+	_empezar(["tumbarse"], _peregrino.mirando())
 
 ## Tumbado: el ultimo fotograma de lo que lo dejo tumbado (tumbarse o
 ## arrastrarse), quieto, hasta que se arrastre o se levante. El arrastre es un
@@ -934,7 +934,7 @@ func _tumbarse() -> void:
 ## (montar_accion.py), asi que se puede encadenar de cualquier manera.
 func _quedar_tumbado(anim: String) -> void:
 	_modo = Modo.TUMBADO
-	_magnus.control_bloqueado = true
+	_peregrino.control_bloqueado = true
 	var dat: Dictionary = _datos[anim]
 	_sprite.offset = Vector2(dat["offset"][0], dat["offset"][1])
 	_sprite.animation = anim
@@ -950,39 +950,39 @@ func _quedar_tumbado(anim: String) -> void:
 ## en ese c096: mientras se mantenga la direccion se repite, sin pararse) y
 ## arrastre_salida (el arrastre de antes desde el c097: termina la brazada y se
 ## tumba). Los empalmes son los del propio video viejo (ver raw/master_mason/
-## anim/magnus_arrastrarse_bucle). Sin el bucle en la tabla, como antes.
+## anim/peregrino_arrastrarse_bucle). Sin el bucle en la tabla, como antes.
 func _tumbado() -> void:
 	var eje := Input.get_axis("mover_izquierda", "mover_derecha")
-	if is_zero_approx(eje) or signf(eje) != _magnus.mirando():
+	if is_zero_approx(eje) or signf(eje) != _peregrino.mirando():
 		return
 	_corr = 0.0
-	_y_fin = _magnus.position.y
+	_y_fin = _peregrino.position.y
 	_bloque = null
 	if _datos.has("arrastrarse_bucle"):
 		_al_acabar = func(): _quedar_tumbado("arrastre_salida")
-		_empezar(["arrastre_entrada", "arrastrarse_bucle", "arrastre_salida"], _magnus.mirando())
+		_empezar(["arrastre_entrada", "arrastrarse_bucle", "arrastre_salida"], _peregrino.mirando())
 	elif _datos.has("arrastrarse"):
 		_al_acabar = func(): _quedar_tumbado("arrastrarse")
-		_empezar(["arrastrarse"], _magnus.mirando())
+		_empezar(["arrastrarse"], _peregrino.mirando())
 
 func _levantarse() -> void:
 	if not _datos.has("levantarse_tumbado"):
 		return
 	_corr = 0.0
-	_y_fin = _magnus.position.y
+	_y_fin = _peregrino.position.y
 	_bloque = null
 	_al_acabar = Callable()
-	_empezar(["levantarse_tumbado"], _magnus.mirando())
+	_empezar(["levantarse_tumbado"], _peregrino.mirando())
 
 ## Acciones sin objeto (golpe, derribo): donde este.
 func _sin_mas(anim: String) -> void:
 	if not _listo() or _en_mano() or not _datos.has(anim):
 		return
 	_corr = 0.0
-	_y_fin = _magnus.position.y
+	_y_fin = _peregrino.position.y
 	_bloque = null
 	_al_acabar = Callable()
-	_empezar([anim], _magnus.mirando())
+	_empezar([anim], _peregrino.mirando())
 
 func _recolocar() -> void:
 	for s in _sueltos:
@@ -1003,7 +1003,7 @@ func _soltar_palo(dat: Dictionary) -> void:
 	_palo_vuela.z_index = 0
 	var p: Array = su["pos"]
 	var v: Array = su["vel"]
-	_palo_vuela.position = _magnus.position + Vector2(float(p[0]) * _d, float(p[1]))
+	_palo_vuela.position = _peregrino.position + Vector2(float(p[0]) * _d, float(p[1]))
 	_palo_vel = Vector2(float(v[0]) * _d, float(v[1])) * float(VELOCIDAD.get(_anim, 1.0))   # suelta al ritmo de la accion
 	_palo_vuela.flip_h = _d < 0.0
 	add_child(_palo_vuela)
@@ -1048,8 +1048,8 @@ func _empezar(tramos: Array, d: float) -> void:
 	_tramos = tramos
 	_k = 0
 	_d = d
-	_base = _magnus.position
-	_magnus.control_bloqueado = true
+	_base = _peregrino.position
+	_peregrino.control_bloqueado = true
 	_modo = Modo.ACCION
 	_ultima = ""
 	if _traza != "":
@@ -1064,7 +1064,7 @@ func _empezar_una(anim: String, a: Dictionary, d: float) -> void:
 		return
 	var dat: Dictionary = _datos[anim]
 	var cara: float = a["cara"]
-	_corr = (cara - _magnus.position.x) * d - float(dat["cara"])
+	_corr = (cara - _peregrino.position.x) * d - float(dat["cara"])
 	if anim == "bajar":
 		var x_fin: float = cara + d * float(dat["cara_fin"])
 		_y_fin = _nivel(x_fin)
@@ -1094,9 +1094,9 @@ func _empezar_empuje(a: Dictionary, d: float) -> void:
 	var ent: Dictionary = _datos[tramos[0]]
 	_bloque = o
 	_tira = false
-	_corr = (a["cara"] - _magnus.position.x) * d - float(ent["cara"])
+	_corr = (a["cara"] - _peregrino.position.x) * d - float(ent["cara"])
 	_contacto = int(ent["contacto"])
-	_y_fin = _magnus.position.y
+	_y_fin = _peregrino.position.y
 	_seguir = true
 	_al_acabar = Callable()
 	_empezar(tramos, d)
@@ -1151,7 +1151,7 @@ func _avanzar(delta: float) -> void:
 	else:
 		x = _base.x + float(r[0]) * _d
 		y = _base.y + float(r[1])
-	_magnus.position = Vector2(x, y)
+	_peregrino.position = Vector2(x, y)
 	if _bola and dat.has("orbe"):
 		_colocar_bola(dat["orbe"][f])
 	if _bloque and (_k > 0 or f >= _contacto) and dat.has("objeto"):
@@ -1209,13 +1209,13 @@ func _terminar() -> void:
 	var r: Array = dat["raiz"][int(dat["n"]) - 1]
 	if _bloque == null or _tira:
 		# acaba en su altura: la de llegada (trepar, bajar) o la de salida (lo demas)
-		_magnus.position = Vector2(_base.x + (float(r[0]) + _corr) * _d, _y_fin)
+		_peregrino.position = Vector2(_base.x + (float(r[0]) + _corr) * _d, _y_fin)
 	else:
-		_magnus.position.y = _y_fin
+		_peregrino.position.y = _y_fin
 	var acabada := _tramos[0] as String
-	_x_antes = _magnus.position.x
+	_x_antes = _peregrino.position.x
 	if _traza != "":
-		print("acciones: acaba %s en (%.1f, %.1f)%s" % [_anim, _magnus.position.x, _magnus.position.y,
+		print("acciones: acaba %s en (%.1f, %.1f)%s" % [_anim, _peregrino.position.x, _peregrino.position.y,
 		(" sillar en %.1f" % _bloque.x0) if _bloque else ""])
 	_ultima = "(" + _anim + ")"
 	_bloque = null
@@ -1223,14 +1223,14 @@ func _terminar() -> void:
 	_modo = Modo.LIBRE
 	var despues := _al_acabar
 	_al_acabar = Callable()
-	_sprite.offset = _magnus.offset_comun
+	_sprite.offset = _peregrino.offset_comun
 	_sprite.play("reposo")
-	_magnus.control_bloqueado = false
+	_peregrino.control_bloqueado = false
 	if despues.is_valid():
 		despues.call()
-	# llega sin aliento (la respiracion de Magnus va por su esfuerzo, 0..1, y
+	# llega sin aliento (la respiracion del peregrino va por su esfuerzo, 0..1, y
 	# solo arranca al entrar en el reposo: aqui se entra a mano)
 	var esfuerzo: float = ESFUERZO.get(acabada, 0.0)
-	if _modo == Modo.LIBRE and esfuerzo > float(_magnus.get("_esfuerzo")):
-		_magnus.set("_esfuerzo", esfuerzo)
-		_magnus.call("_respirar", true)
+	if _modo == Modo.LIBRE and esfuerzo > float(_peregrino.get("_esfuerzo")):
+		_peregrino.set("_esfuerzo", esfuerzo)
+		_peregrino.call("_respirar", true)

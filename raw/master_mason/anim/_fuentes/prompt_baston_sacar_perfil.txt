@@ -1,10 +1,10 @@
 PROMPT PARA SACAR EL BASTON DE PERFIL, COMO EL DE FRENTE (Google Flow / Veo 3.1, "Frames to Video", 2026-10-11)
 ==============================================================================================================
-Por que: el sacar de perfil de ahora (job magnus_sacar_baston_v3, video
+Por que: el sacar de perfil de ahora (job peregrino_sacar_baston_v3, video
 Character_drawing_staff_for_game_20261007173433) estira el brazo hacia delante y
 luego lleva el baston en horizontal dando la vuelta alrededor de la cabeza, como
 una helice (fotogramas 30-80 de la animacion), antes de ponerlo vertical: el
-usuario lo ve "un giro raro". El de frente (magnus_sacar_baston_frente) gusta:
+usuario lo ve "un giro raro". El de frente (peregrino_sacar_baston_frente) gusta:
 sube la mano por encima del hombro, saca el baston hacia arriba y lo baja
 delante, sin barridos. Aqui se pide ese mismo gesto, visto de lado.
 

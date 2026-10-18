@@ -10,4 +10,4 @@ caida_al_empezar = false
 
 [node name="Piloto" type="Node" parent="."]
 script = ExtResource("2")
-personaje = NodePath("../CaidaHojarasca/Magnus")
+personaje = NodePath("../CaidaHojarasca/Peregrino")

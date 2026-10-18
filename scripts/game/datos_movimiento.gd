@@ -1,5 +1,5 @@
 extends CanvasLayer
-## Panel de estudio del movimiento de Magnus, solo para el escenario negro: un
+## Panel de estudio del movimiento del peregrino, solo para el escenario negro: un
 ## texto discreto en una esquina con el estado y la animacion, la velocidad, la
 ## carrerilla y lo que midio el ultimo salto (distancia del despegue al reposo
 ## y altura de los pies sobre el suelo). La
@@ -15,7 +15,7 @@ extends CanvasLayer
 
 signal salto_medido(datos: Dictionary)
 
-@export var magnus: NodePath = ^"../Magnus"
+@export var peregrino: NodePath = ^"../Peregrino"
 @export var visible_al_empezar: bool = true
 ## Gris apagado: por debajo del brillo de la tunica iluminada, que no compita
 ## con el personaje.
@@ -53,7 +53,7 @@ var _altura := 0.0
 func _ready() -> void:
 	layer = 50
 	visible = visible_al_empezar
-	_personaje = get_node_or_null(magnus)
+	_personaje = get_node_or_null(peregrino)
 	_texto = Label.new()
 	_texto.position = margen
 	_texto.add_theme_font_size_override("font_size", tamano_letra)
@@ -67,7 +67,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 		visible = not visible
 		get_viewport().set_input_as_handled()
 
-## Va detras de Magnus en el arbol, asi que lee el tick ya resuelto.
+## Va detras del peregrino en el arbol, asi que lee el tick ya resuelto.
 func _physics_process(_delta: float) -> void:
 	if _personaje == null or not _personaje.has_method("datos_movimiento"):
 		return

@@ -1,9 +1,9 @@
 extends Node2D
-## Una capa de hojarasca de verdad, a la profundidad por la que anda Magnus: las
+## Una capa de hojarasca de verdad, a la profundidad por la que anda el peregrino: las
 ## hojas estan apiladas por columnas (COL px de ancho) y la altura del monton en
 ## cada x es cuantas hay (alto_hoja px por hoja). No hay dibujo fijo debajo: lo
 ## que se ve es lo que hay, y si se lleva una hoja de arriba el monton baja.
-## La escena tiene dos capas: una algo detras de Magnus y otra algo delante
+## La escena tiene dos capas: una algo detras del peregrino y otra algo delante
 ## (esta le tapa los pies).
 ##
 ## Lo que la mueve:
@@ -139,13 +139,13 @@ var pausa := 0.0
 ## camino): las que vuelan suben remolineando mientras sopla.
 var viento_arriba := 0.0
 ## LAS HOJAS DE LA LUZ (2026-10-11). Las que caen de arriba (soltar con
-## `ligera`) pesan poco en la luz, como Magnus: su gravedad se multiplica por
+## `ligera`) pesan poco en la luz, como el peregrino: su gravedad se multiplica por
 ## lerp(1, gravedad_luz, ligereza(p)) y bajan por el haz despacio. Las que
 ## levantan los pies no (el lecho se queda como estaba). La escena pone
-## ligereza y gravedad_luz (las de Magnus).
+## ligereza y gravedad_luz (las del peregrino).
 ## Las de la escalera (escalon(): con un sitio) bajan planeando hasta su sitio
 ## y se quedan alli flotando, con un vaiven leve. Son las unicas que aguantan a
-## Magnus: apoyo() busca la que tiene bajo los pies y pisar() la hunde un palmo,
+## El peregrino: apoyo() busca la que tiene bajo los pies y pisar() la hunde un palmo,
 ## girando; la luz la vuelve a subir a su sitio (un muelle amortiguado) y,
 ## cuando llega, vuelve a aguantar. Asi la escalera siempre esta.
 var ligereza: Callable

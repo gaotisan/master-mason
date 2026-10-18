@@ -1,7 +1,7 @@
 class_name PeregrinoFrontal
 extends Node2D
 ## El peregrino visto de frente y de espaldas: el componente del juego, el mismo
-## en todas las escenas (como magnus.tscn el de perfil). Salio de la prueba
+## en todas las escenas (como peregrino.tscn el de perfil). Salio de la prueba
 ## (scripts/dev/prueba_frontal.gd, que ahora lo usa) el 2026-10-15: lo que se
 ## mejore aqui se ve en todas.
 ##
@@ -18,7 +18,7 @@ extends Node2D
 ## despues). gastar(cuanto) gasta magia.
 ## girar_desde_perfil() empieza la vuelta en el perfil y girar_a_perfil() la
 ## hace hasta el perfil y se queda ahi (emite en_perfil): para empalmar con el
-## de perfil, magnus.tscn, en los dos sentidos.
+## de perfil, peregrino.tscn, en los dos sentidos.
 ##
 ## DONDE VA: andando, la escala cambia fotograma a fotograma como en el video
 ## (1/escala recta en el tiempo: los pies no patinan) y, con ella, la fila de los
@@ -53,7 +53,7 @@ extends Node2D
 ## Gemini) va aqui como capa encima del sprite, donde y con la inclinacion que
 ## dice frontal.json; la bola, detras, en su hueco. De espaldas y en la vuelta
 ## la garra ya viene en el dibujo. La bola es scenes/characters/baston.tscn sin su
-## script (baston.gd va colgado de Magnus).
+## script (baston.gd va colgado del peregrino).
 
 signal colocado
 ## En cada pisada (los fotogramas de PISADAS), con donde estan los pies (espacio
@@ -62,10 +62,10 @@ signal piso(pies: Vector2)
 ## girar_a_perfil() ha llegado al perfil (y ahi se queda).
 signal en_perfil
 
-const FRAMES := preload("res://resources/characters/magnus_frames.tres")
+const FRAMES := preload("res://resources/characters/peregrino_frames.tres")
 const BASTON := preload("res://scenes/characters/baston.tscn")
 ## EL BASTON A LA ESPALDA VISTO DE ESPALDAS: el mismo que lleva en la mano (la
-## plantilla de magnus_guardar_baston_espalda_a/arreglar.py: garra de cuerna y
+## plantilla de peregrino_guardar_baston_espalda_a/arreglar.py: garra de cuerna y
 ## tramo retorcido, marron), a su tamano, de raw/master_mason/anim/baston/
 ## baston_espalda.py (2026-10-15). Antes era baston.png (el del perfil: naranja,
 ## liso, otra garra) a 1,2 de ancho y los videos de sacar y guardar, que pintan el
@@ -77,17 +77,17 @@ const BASTON_ESPALDA_TEX := preload("res://assets/characters/baston/baston_espal
 const BASTON_ESPALDA_FICHA := "res://assets/characters/baston/baston_espalda.json"
 const FRONTAL := "res://assets/characters/baston/frontal.json"
 ## Con baston: la secuencia de un solo video (reposo, arranque, andar, vuelta y
-## puentes; raw/master_mason/anim/magnus_secuencia_frontal/secuencia.py).
-const SECUENCIA := "res://assets/characters/magnus/secuencia_frontal.json"
+## puentes; raw/master_mason/anim/peregrino_secuencia_frontal/secuencia.py).
+const SECUENCIA := "res://assets/characters/peregrino/secuencia_frontal.json"
 ## Sin baston: lo mismo de su propio video (sufijo _sb, puentes ps_), con el
 ## baston a la espalda en la funda de cuero.
-const SECUENCIA_SIN := "res://assets/characters/magnus/secuencia_frontal_sin.json"
+const SECUENCIA_SIN := "res://assets/characters/peregrino/secuencia_frontal_sin.json"
 ## Sacar y guardar el baston de frente, de un reposo al otro (videos de Flow con
 ## fotograma inicial y final sacados de esta escena; raw/master_mason/anim/
-## magnus_sacar_baston_frente/animar.py): la bola sigue a la garra del video,
+## peregrino_sacar_baston_frente/animar.py): la bola sigue a la garra del video,
 ## filas [x, y, escala, giro].
-const BASTON_FRENTE := "res://assets/characters/magnus/baston_frente.json"
-const ACCIONES_ESPALDA := "res://assets/characters/magnus/acciones_espalda.json"   # sacar / guardar de espaldas
+const BASTON_FRENTE := "res://assets/characters/peregrino/baston_frente.json"
+const ACCIONES_ESPALDA := "res://assets/characters/peregrino/acciones_espalda.json"   # sacar / guardar de espaldas
 const ORBE_EN_MADERA := Vector2(-0.6, -24)   # posicion del Orbe dentro de Madera
 const COLORES: Array[Color] = [
 	Color(1.0, 0.62, 0.18), Color(0.35, 0.75, 1.0), Color(0.55, 1.0, 0.45),
@@ -132,7 +132,7 @@ const PISADAS := {
 	"arranque_frente_cb": [6], "arranque_espalda_cb": [15],
 	"andar_frente_sb": [0, 16], "andar_espalda_sb": [17, 35],
 	"arranque_frente_sb": [20], "arranque_espalda_sb": [12, 32]}
-const DOBLE_TOQUE := 0.30        # dos pulsaciones a menos: correr (como doble_pulsacion de magnus.gd)
+const DOBLE_TOQUE := 0.30        # dos pulsaciones a menos: correr (como doble_pulsacion de peregrino.gd)
 
 ## Con el baston en la mano (true) o guardado a la espalda (false) al empezar.
 ## Lo decide la escena (la de antes sabe como lo dejo); despues, cambiar_baston().
@@ -288,8 +288,8 @@ var _halo0 := 1.1
 var _pendiente := false           # una pulsacion de B que espera (pulsar_baston)
 ## La vuelta con baston pasa la garra por delante de la cara (vuelta_cb 8-11): la
 ## esfera delante del cuerpo y encima los dedos de la garra del propio fotograma
-## (raw/master_mason/anim/magnus_secuencia_frontal/garra_vuelta.py).
-const VUELTA_GARRA := "res://assets/characters/magnus/vuelta_garra.json"
+## (raw/master_mason/anim/peregrino_secuencia_frontal/garra_vuelta.py).
+const VUELTA_GARRA := "res://assets/characters/peregrino/vuelta_garra.json"
 var _vuelta_garra: Dictionary = {}     # anim -> {fotograma: [esquina, textura]}
 var _esfera_delante: Sprite2D
 var _garra_vuelta: Sprite2D
@@ -400,7 +400,7 @@ func _ready() -> void:
 			_vuelta_garra[anim] = {}
 			for f in vg[anim]:
 				_vuelta_garra[anim][int(f)] = [Vector2(vg[anim][f][0], vg[anim][f][1]),
-					load("res://assets/characters/magnus/vuelta_garra/%s_%03d.png" % [anim, int(f)])]
+					load("res://assets/characters/peregrino/vuelta_garra/%s_%03d.png" % [anim, int(f)])]
 	_halo_delante.show_behind_parent = false
 	_halo_delante.z_as_relative = false
 	_halo_delante.z_index = Z_BOLA_DELANTE["Orbe"]

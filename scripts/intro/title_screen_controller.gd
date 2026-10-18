@@ -161,7 +161,7 @@ extends Node2D
 ## camara arranca (zoom_in_start), porque lo que lo asusta es justamente que algo
 ## se mueva. Este numero es solo el tiempo de reaccion, y por eso es pequeno.
 @export var spider_reaccion: float = 0.15
-## A donde se pasa tras el negro: la caida en la hojarasca, donde cae Magnus.
+## A donde se pasa tras el negro: la caida en la hojarasca, donde cae el peregrino.
 ## (dark_stage, el escenario negro, queda para pruebas de animaciones.)
 ## Se empieza a cargar en segundo plano cuando la pantalla ya esta en negro
 ## (ver _pedir_carga), para no tocar la fluidez de nada de lo que se ve.
@@ -548,7 +548,7 @@ func _run_exit(t0: float) -> Tween:
 	# negro haga de junta entre las dos escenas.
 	tw.tween_callback(MusicAmbience.apagar_titulo.bind(music_fade_out)).set_delay(t0 + zoom_in_start)
 
-	# La escena siguiente (Magnus y sus hojas de sprites) se empieza a cargar
+	# La escena siguiente (el peregrino y sus hojas de sprites) se empieza a cargar
 	# cuando la pantalla ya esta en negro del todo, y no antes: cargar en segundo
 	# plano resta fluidez, y ni los creditos, ni la entrada de la luz con el tema,
 	# ni el zoom por el cristal se pueden tocar. Lo que no haya acabado para

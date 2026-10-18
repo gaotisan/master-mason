@@ -14,4 +14,4 @@ guion = [[1.0, "mover_derecha", true], [8.0, "mover_derecha", false], [10.0, "mo
 eventos = [[0.3, "mano_directo"]]
 ignorar_teclado = true
 x_inicial = 900.0
-personaje = NodePath("../DarkStage/Magnus")
+personaje = NodePath("../DarkStage/Peregrino")

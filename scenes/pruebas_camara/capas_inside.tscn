@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/pruebas_camara/camara_capas.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/pruebas_camara/capa_profundidad.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/pruebas_camara/zona_camara.gd" id="3"]
-[ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/characters/peregrino.tscn" id="4"]
 [ext_resource type="Script" path="res://scripts/characters/acciones_perfil.gd" id="acciones"]
 
 [node name="CapasInside" type="Node2D"]
@@ -46,12 +46,12 @@ tipo = 3
 color = Color(0.12, 0.11, 0.105, 1)
 semilla = 44
 
-[node name="Magnus" parent="Capas/Accion" instance=ExtResource("4")]
+[node name="Peregrino" parent="Capas/Accion" instance=ExtResource("4")]
 position = Vector2(400, 1200)
 
 [node name="Acciones" type="Node2D" parent="Capas/Accion"]
 script = ExtResource("acciones")
-magnus_ruta = NodePath("../Magnus")
+peregrino_ruta = NodePath("../Peregrino")
 generico = true
 ayuda_arriba = true
 
@@ -82,7 +82,7 @@ suavidad = 1.2
 
 [node name="Inmensidad" type="Node" parent="Zonas"]
 script = ExtResource("3")
-nombre = "Inmensidad: se aleja y Magnus se queda pequeno"
+nombre = "Inmensidad: se aleja y Peregrino se queda pequeno"
 desde = 5100.0
 hasta = 9000.0
 zoom = 0.5
@@ -92,7 +92,7 @@ suavidad = 2.2
 
 [node name="Vertigo" type="Node" parent="Zonas"]
 script = ExtResource("3")
-nombre = "Vertigo: Magnus igual, el fondo se estira"
+nombre = "Vertigo: Peregrino igual, el fondo se estira"
 desde = 9000.0
 hasta = 10900.0
 focal_desde = 5000.0

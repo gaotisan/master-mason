@@ -27,7 +27,7 @@ no extra steps and no bounce. He holds that pose, still, until the end. No music
 
 
 SEGUNDO CLIP (2026-10-06): el primer video (Crouching_pilgrim_stepping_forward_
-20261006205235.mp4, job magnus_paso_agachado) da medio paso: el pie de delante
+20261006205235.mp4, job peregrino_paso_agachado) da medio paso: el pie de delante
 sale unos 77 px de master (39 del juego) y se queda con los pies abiertos; Flow
 no uso la imagen final que adelantaba al personaje. Para que acabe en nuestro
 agachado (pies juntos) y enlace con el bucle, falta juntar el pie de atras:

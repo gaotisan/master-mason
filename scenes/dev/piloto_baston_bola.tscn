@@ -15,4 +15,4 @@ eventos = [[2.0, "gastar"], [2.7, "gastar"], [3.4, "gastar"], [4.1, "gastar"], [
 ignorar_teclado = true
 zoom = 3.0
 x_inicial = 900.0
-personaje = NodePath("../DarkStage/Magnus")
+personaje = NodePath("../DarkStage/Peregrino")

@@ -15,7 +15,7 @@ Sin baston en el video: el guardado lo pinta el juego encima (seguir.py).
 
 En Flow, modo de fotogramas a video, 16:9 (a esta altura cabe de pie arriba):
   - fotograma inicial: referencia_trepar_mediano_inicio.png  (el reposo del
-    juego, magnus_respirando c_01, mirando a la derecha, pegado al sillar: 50
+    juego, peregrino_respirando c_01, mirando a la derecha, pegado al sillar: 50
     px de la punta del pie a su cara)
   - fotograma final:   referencia_trepar_mediano_fin.png     (el mismo reposo de
     pie encima del sillar, el talon 138 px dentro del borde)

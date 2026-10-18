@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/dark_stage.gd" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/characters/peregrino.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/game/datos_movimiento.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/characters/acciones_perfil.gd" id="4"]
 
@@ -11,15 +11,15 @@ script = ExtResource("1")
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2(1456, 816)
 
-[node name="MagnusSpawn" type="Marker2D" parent="."]
+[node name="PeregrinoSpawn" type="Marker2D" parent="."]
 position = Vector2(1456, 1200)
 
-[node name="Magnus" parent="." instance=ExtResource("2")]
+[node name="Peregrino" parent="." instance=ExtResource("2")]
 position = Vector2(1456, 1200)
 
 [node name="Acciones" type="Node2D" parent="."]
 script = ExtResource("4")
-magnus_ruta = NodePath("../Magnus")
+peregrino_ruta = NodePath("../Peregrino")
 generico = true
 
 [node name="DatosMovimiento" type="CanvasLayer" parent="."]

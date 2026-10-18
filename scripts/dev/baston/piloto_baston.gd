@@ -1,6 +1,6 @@
 extends "res://scripts/dev/piloto.gd"
-## Piloto del baston (PRUEBA). Le cuelga a Magnus scenes/characters/baston.tscn sin
-## tocar magnus.tscn. Teclas, ademas de las de Magnus:
+## Piloto del baston (PRUEBA). Le cuelga al peregrino scenes/characters/baston.tscn sin
+## tocar peregrino.tscn. Teclas, ademas de las del peregrino:
 ##   B  baston a la espalda / en la mano
 ##   G  guardarlo del todo / sacarlo (a la espalda)
 ##   M  gastar un cuarto de magia
@@ -16,7 +16,7 @@ const BASTON := preload("res://scenes/characters/baston.tscn")
 ## Grabando: se comen las teclas de verdad (ESC incluido, que cerraria el juego)
 ## por si la ventana de la grabacion coge el foco mientras se escribe en otra.
 @export var ignorar_teclado := false
-## Para mirar la bola de cerca: >1 acerca la camara y la pone a seguir a Magnus.
+## Para mirar la bola de cerca: >1 acerca la camara y la pone a seguir al peregrino.
 @export var zoom := 1.0
 @export var camara: NodePath = ^"../DarkStage/Camera"
 

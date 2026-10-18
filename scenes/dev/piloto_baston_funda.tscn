@@ -15,4 +15,4 @@ eventos = [[13.0, "mano_directo"]]
 ignorar_teclado = true
 zoom = 2.2
 x_inicial = 1400.0
-personaje = NodePath("../DarkStage/Magnus")
+personaje = NodePath("../DarkStage/Peregrino")

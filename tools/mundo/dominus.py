@@ -1,5 +1,5 @@
 """Dominus sentado a su mesa: genera las piezas del recorte en el estilo facetado
-de Magnus (low-poly pintado: facetas triangulares planas, colores apagados,
+del peregrino (low-poly pintado: facetas triangulares planas, colores apagados,
 bordes pintados y sin contorno).
 
     python dominus.py <carpeta_png> [--escena <ruta_tscn>] [--preview <png>]
@@ -29,11 +29,11 @@ importacion, para que las texturas nuevas entren con su uid).
 
     python dominus.py <carpeta_png> --solo-escena --escena <ruta_tscn>
 
-COLOR. El estilo de Magnus es apagado (saturacion media ~0,30). La luz de la
+COLOR. El estilo del peregrino es apagado (saturacion media ~0,30). La luz de la
 vela aporta calor sobre todo con el VALOR, no con el croma: el color de la luz
 esta tirado hacia su luminancia y cada material lleva un 'sat' que desatura la
 faceta ya sombreada. La casa pone su propio tono encima (el fuego, el modulate
-de Magnus); si el recorte ya viniera naranja, se doblaria.
+del peregrino); si el recorte ya viniera naranja, se doblaria.
 """
 from __future__ import annotations
 
@@ -61,7 +61,7 @@ VELA_X, VELA_BASE = -205.0, -157.0
 LLAMA = (-205.0, -207.0)
 LUZ_POS = np.array([LLAMA[0], LLAMA[1], 45.0])
 # Color de vela (1, .77, .54) tirado un 40 % hacia su luminancia: con el
-# original la piel salia a saturacion 0,49 y la mesa a 0,6, el doble que Magnus.
+# original la piel salia a saturacion 0,49 y la mesa a 0,6, el doble que el peregrino.
 _LUZ_VELA = np.array([1.0, 0.77, 0.54])
 _LUM = float(_LUZ_VELA @ np.array([0.2126, 0.7152, 0.0722]))
 LUZ_COLOR = _LUZ_VELA + (_LUM - _LUZ_VELA) * 0.40
@@ -90,7 +90,7 @@ MAT = {
     'toga_sombra': dict(colores=[rgb('#221c20'), rgb('#281d17'), rgb('#1d1b27'), rgb('#161416')],
                         pesos=[3, 3, 2, 2], var=0.06, rim=0.06, sat=0.9),
     # Piel: la base ya es apagada; el calor lo ponia la luz. Con 'sat' 0,72 queda
-    # en ~0,33 de saturacion media, como el bajo del abrigo de Magnus.
+    # en ~0,33 de saturacion media, como el bajo del abrigo del peregrino.
     'piel': dict(colores=[rgb('#bda296'), rgb('#b3988d'), rgb('#c4a899'), rgb('#ab918a')],
                  pesos=[3, 2, 2, 1], var=0.035, rim=0.10, sat=0.72,
                  # sombras de la piel calientes: con el ambiente general salian malva
@@ -266,7 +266,7 @@ def poisson(mask1: np.ndarray, ox: int, oy: int, r: float, aniso: tuple[float, f
     """Disco de Poisson por lanzamiento de dardos dentro de la mascara (a 1x).
     aniso estira la distancia: (1, 2) da facetas el doble de largas en vertical.
     variar hace que el radio cambie de una zona a otra (ruido suave), para que
-    no salga la malla regular del 'low poly' generico: en Magnus conviven
+    no salga la malla regular del 'low poly' generico: en el peregrino conviven
     facetas grandes y pequenas."""
     dist = ndimage.distance_transform_edt(mask1 > 0.5)
     h, w = mask1.shape
@@ -303,7 +303,7 @@ def facetar(pz: Pieza, poli, mat: str, esp: float, *, aniso=(1.0, 1.0), extra=()
     'extra' puestos a mano (para la cara, donde cada plano tiene que caer en su
     sitio). fusion = probabilidad de que un triangulo se funda con un vecino y
     formen un cuadrilatero del mismo color: rompe la malla de triangulos y se
-    parece mas al parcheado de Magnus."""
+    parece mas al parcheado de Peregrino."""
     rng = pz.rng
     m = MAT[mat]
     k_rim = m['rim'] if rim is None else rim
@@ -1016,12 +1016,12 @@ def escribir_escena(reg: dict, ruta: str, res_png: str = 'res://assets/character
     print('escena ->', ruta)
 
 
-MAGNUS_HOJA = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'assets', 'characters', 'magnus',
-                           'magnus_respirando.png')
+PEREGRINO_HOJA = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'assets', 'characters', 'peregrino',
+                           'peregrino_respirando.png')
 
 
 def preview_estatico(carpeta: str, reg: dict, ruta: str) -> None:
-    """Dominus en reposo junto a un fotograma de Magnus en reposo, los dos sobre
+    """Dominus en reposo junto a un fotograma del peregrino en reposo, los dos sobre
     la misma linea de suelo y a escala de juego, sobre un fondo ambar oscuro
     como el del titulo. Guarda tambien la version a 0,53 (lo que se ve en una
     pantalla de 1536x864)."""
@@ -1036,8 +1036,8 @@ def preview_estatico(carpeta: str, reg: dict, ruta: str) -> None:
     fondo[SUELO:] = fondo[SUELO:] * 0.55
     fondo[SUELO:SUELO + 2] *= 0.7
     img = Image.fromarray((np.clip(fondo, 0, 1) * 255).astype(np.uint8), 'RGB').convert('RGBA')
-    # Magnus: casilla de 292x360 con el sprite desplazado -165 (pies en el origen)
-    hoja = Image.open(MAGNUS_HOJA).convert('RGBA')
+    # El peregrino: casilla de 292x360 con el sprite desplazado -165 (pies en el origen)
+    hoja = Image.open(PEREGRINO_HOJA).convert('RGBA')
     mag = hoja.crop((0, 0, 292, 360))
     mx = 250
     img.alpha_composite(mag, (mx - 146, SUELO - 345))

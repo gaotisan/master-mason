@@ -1,12 +1,12 @@
-"""Tono ESTANDAR de la tunica de Magnus para todas sus animaciones (2026-10-09).
+"""Tono ESTANDAR de la tunica del peregrino para todas sus animaciones (2026-10-09).
 
 El usuario: "necesito un tono estandar" para la tunica en todas las animaciones;
 la luz de cada escena se retoca luego encima. Cada video de IA trae la tunica
 con su propio tono, y al empalmar animaciones se nota el cambio (el giro por
-delante, magnus_giro_frente, venia con un 3,5-4,7 % menos de rojo y algo mas de
+delante, peregrino_giro_frente, venia con un 3,5-4,7 % menos de rojo y algo mas de
 verde: "mas apagado"; al volver a andar cambiaba de color).
 
-El estandar es el del REPOSO (magnus_respirando, los tres primeros sprites):
+El estandar es el del REPOSO (peregrino_respirando, los tres primeros sprites):
 la animacion que mas se ve, la referencia que ya se uso al igualar el giro de
 poses y el agachado, y con la que casi todo el resto ya va a menos del 2 %.
 
@@ -16,7 +16,7 @@ digan, a la del reposo (o a la de otro job ya igualado, si el empalme es con
 el). Se aplica en proporcion a la saturacion (solo lo calido, sin borde entre
 paneles), asi que capucha, barba, pies, piel y madera del baston casi no se
 tocan. Parte siempre de una copia sin igualar (<job>/_sin_igualar_tono/), asi
-que se puede repetir. Copiado de magnus_andar_agachado/igualar_color.py.
+que se puede repetir. Copiado de peregrino_andar_agachado/igualar_color.py.
 
   python igualar_tono.py <job> <fotogramas> [<job_ref> <fotogramas_ref>]
      fotogramas: "1,2,84,85" o "1-5" (numeros c_NNN de 04_limpios)
@@ -69,7 +69,7 @@ def fichero(carpeta, k):
 
 
 def tono_reposo():
-    return media([leer(fichero(os.path.join(AQUI, 'magnus_respirando', '04_limpios'), k)) for k in (1, 2, 3)])
+    return media([leer(fichero(os.path.join(AQUI, 'peregrino_respirando', '04_limpios'), k)) for k in (1, 2, 3)])
 
 
 def igualar(job, fotos, ref):

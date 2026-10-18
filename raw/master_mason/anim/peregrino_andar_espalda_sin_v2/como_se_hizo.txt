@@ -1,0 +1,4 @@
+Montado en la secuencia sin baston de la escena frontal: ver
+../peregrino_secuencia_frontal/como_se_hizo.txt (2026-10-12) y secuencia.py (TRAMOS).
+Pasos: nuevo / frames / elegir "1-192"; croma.py; ../peregrino_secuencia_frontal/medir.py;
+../peregrino_secuencia_frontal/montar_en_sitio.py peregrino_andar_espalda_sin_v2

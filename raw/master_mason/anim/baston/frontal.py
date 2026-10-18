@@ -20,7 +20,7 @@ se cierran). Se le pone la garra:
     sprite, que viene de video: nitida se veia pegada.
     Color: las puntas igualadas (ganancia por canal, a la misma media) a la garra del de espaldas, el tallo al baston del de frente,
     fundiendo entre medias. Abajo, el tallo se desvanece para empalmar.
-  - En 04_limpios de magnus_andar_frente se borra el pincho: lo que hay del
+  - En 04_limpios de peregrino_andar_frente se borra el pincho: lo que hay del
     baston por encima de CORTE px bajo la punta (el nudo donde se ensancha). La
     copia con pincho queda en _con_pincho/ (de ahi se mide), y un archivo
     .sin_pincho en 04_limpios dice que ya esta hecho (normalizar.py lo quita).
@@ -28,7 +28,7 @@ se cierran). Se le pone la garra:
     del baston a CORTE bajo la punta y con su inclinacion (recta por los centros
     del baston entre la punta y la mano), suavizado en el tiempo. La bola,
     detras, en su hueco.
-Tras correrlo, si cambio el borrado: hoja.ps1 -Job magnus_andar_frente y
+Tras correrlo, si cambio el borrado: hoja.ps1 -Job peregrino_andar_frente y
 tools/anim/_spriteframes.py.
     python frontal.py
 """
@@ -82,7 +82,7 @@ def stats(px):
 
 # ---------------------------------------------------------------- espaldas
 datos = {}
-fs = sorted(glob.glob(os.path.join(ANIM, 'magnus_andar_espalda', '04_limpios', 'c_*.png')))
+fs = sorted(glob.glob(os.path.join(ANIM, 'peregrino_andar_espalda', '04_limpios', 'c_*.png')))
 tops, xs, anchos = [], [], []
 for f in fs:
     top, x0, x1 = punta(np.asarray(Image.open(f).convert('RGBA')), +1)
@@ -104,7 +104,7 @@ for f in fs:
 obj_puntas = stats(np.concatenate(pix_garra))
 
 # ---------------------------------------------------------------- frente
-JF = os.path.join(ANIM, 'magnus_andar_frente')
+JF = os.path.join(ANIM, 'peregrino_andar_frente')
 LIMPIOS, CON = os.path.join(JF, '04_limpios'), os.path.join(JF, '_con_pincho')
 MARCA = os.path.join(LIMPIOS, '.sin_pincho')
 if not os.path.exists(MARCA):
@@ -216,13 +216,13 @@ for f, a, tip in zip(ff, ims, puntas_y):
 open(MARCA, 'w').write('pincho borrado por baston/frontal.py; la copia con pincho esta en _con_pincho/\n')
 
 # ---------------------------------------------------------------- vuelta
-# El giro de frente a espaldas (magnus_vuelta_frontal, casilla propia 584x800)
+# El giro de frente a espaldas (peregrino_vuelta_frontal, casilla propia 584x800)
 # trae la garra en el dibujo (el video se hizo con la garra puesta en la
 # referencia). Se sigue por color: lo saturado y calido (madera y oro; la
 # capucha es gris) mas alto por encima de los hombros; la bola centrada en los
 # 40 px de arriba y a 0,43 anchos de garra (la de frente, 79 px de master) bajo
 # las puntas. De canto, a mitad del giro, queda centrada en ella.
-fv = sorted(glob.glob(os.path.join(ANIM, 'magnus_vuelta_frontal', '04_limpios', 'c_*.png')))
+fv = sorted(glob.glob(os.path.join(ANIM, 'peregrino_vuelta_frontal', '04_limpios', 'c_*.png')))
 ALTO_V = 800
 tops, xs = [], []
 for f in fv:
@@ -287,12 +287,12 @@ def _de(job, desde=0, hasta=None):
     return sorted(glob.glob(os.path.join(ANIM, job, '04_limpios', 'c_*.png')))[desde:hasta]
 
 
-for anim, fs, alto in (('andar_frente_sin', _de('magnus_andar_frente_sin'), 720),
-                       ('andar_espalda_sin', _de('magnus_andar_espalda_sin'), 720),
-                       ('vuelta_frontal_sin', _de('magnus_vuelta_frontal_sin'), 720),
-                       ('parada_frente_sin', _de('magnus_reposo_frente_sin', 0, 100), 720),
-                       ('reposo_frente_sin', _de('magnus_reposo_frente_sin', 100), 720),
-                       ('reposo_espalda_sin', _de('magnus_reposo_espalda_sin'), 720)):
+for anim, fs, alto in (('andar_frente_sin', _de('peregrino_andar_frente_sin'), 720),
+                       ('andar_espalda_sin', _de('peregrino_andar_espalda_sin'), 720),
+                       ('vuelta_frontal_sin', _de('peregrino_vuelta_frontal_sin'), 720),
+                       ('parada_frente_sin', _de('peregrino_reposo_frente_sin', 0, 100), 720),
+                       ('reposo_frente_sin', _de('peregrino_reposo_frente_sin', 100), 720),
+                       ('reposo_espalda_sin', _de('peregrino_reposo_espalda_sin'), 720)):
     filas = []
     for f in fs:
         a = np.asarray(Image.open(f).convert('RGBA')).astype(float)
@@ -329,20 +329,20 @@ for anim, fs, alto in (('andar_frente_sin', _de('magnus_andar_frente_sin'), 720)
 datos['baston_espalda'] = baston_espalda
 
 # La parada de frente se acerca (da un par de pasitos): cuanto crece cada uno de
-# sus fotogramas respecto al ultimo (video 3-102; magnus_reposo_frente_sin/
+# sus fotogramas respecto al ultimo (video 3-102; peregrino_reposo_frente_sin/
 # medidas.json, de su montar.py). La escena escala al personaje con eso.
-med = json.load(open(os.path.join(ANIM, 'magnus_reposo_frente_sin', 'medidas.json')))
-datos['escala_relativa'] = {'parada_frente_sin': [round(v / med['magnus_reposo_frente_sin']['escala_relativa'][101], 4)
-                                                  for v in med['magnus_reposo_frente_sin']['escala_relativa'][2:102]]}
+med = json.load(open(os.path.join(ANIM, 'peregrino_reposo_frente_sin', 'medidas.json')))
+datos['escala_relativa'] = {'parada_frente_sin': [round(v / med['peregrino_reposo_frente_sin']['escala_relativa'][101], 4)
+                                                  for v in med['peregrino_reposo_frente_sin']['escala_relativa'][2:102]]}
 
-# Los puentes entre andares y vuelta (magnus_puentes_frontal/puente.py): la bola
+# Los puentes entre andares y vuelta (peregrino_puentes_frontal/puente.py): la bola
 # interpolada entre la de sus extremos (bola.json).
-_pb = os.path.join(ANIM, 'magnus_puentes_frontal', 'bola.json')
+_pb = os.path.join(ANIM, 'peregrino_puentes_frontal', 'bola.json')
 if os.path.exists(_pb):
     for nombre, filas in json.load(open(_pb)).items():
         datos[nombre] = {'orbe': [[f[0], f[1]] for f in filas], 'escala_bola': filas[0][2]}
 
-_ps = os.path.join(ANIM, 'magnus_puentes_frontal_sin', 'baston.json')
+_ps = os.path.join(ANIM, 'peregrino_puentes_frontal_sin', 'baston.json')
 if os.path.exists(_ps):
     datos['baston_espalda'].update(json.load(open(_ps)))
 

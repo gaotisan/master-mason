@@ -11,4 +11,4 @@
 script = ExtResource("2")
 guion = [[0.5, "mover_derecha", true], [0.6, "mover_derecha", false], [0.7, "mover_derecha", true], [12.0, "mover_derecha", false], [13.5, "mover_derecha", true], [22.0, "mover_derecha", false], [29.0, "mover_derecha", true], [29.2, "mover_derecha", false]]
 x_inicial = 300.0
-personaje = NodePath("../Storyboard/Magnus")
+personaje = NodePath("../Storyboard/Peregrino")

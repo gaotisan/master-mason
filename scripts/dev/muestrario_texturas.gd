@@ -1,5 +1,5 @@
 extends Node2D
-## Desechable: pinta fotogramas sueltos de varias animaciones de Magnus en
+## Desechable: pinta fotogramas sueltos de varias animaciones del peregrino en
 ## rejilla, a escala 1 (la del viewport) y a 0,527 (la de una pantalla de
 ## 1536x864), para comparar la importacion de las hojas grabando un fotograma.
 
@@ -8,7 +8,7 @@ const MUESTRAS := [["reposo", 0], ["andar", 10], ["correr", 5], ["saltar", 30],
 	["levantarse", 40], ["agacharse", 60], ["incorporarse", 20], ["parada_correr", 10]]
 
 func _ready() -> void:
-	var frames: SpriteFrames = load("res://resources/characters/magnus_frames.tres")
+	var frames: SpriteFrames = load("res://resources/characters/peregrino_frames.tres")
 	var voltear := "voltear" in OS.get_cmdline_user_args()
 	for i in MUESTRAS.size():
 		for escala in [1.0, 0.527]:

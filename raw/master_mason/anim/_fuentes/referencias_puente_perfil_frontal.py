@@ -16,14 +16,14 @@ en dos modos: _mano (baculo en la mano) y _guardado (a la espalda, en la correa)
 Fuentes = lo que pinta el juego en ese momento:
   perfil mano      baston_ref_en_mano_1080.png  (el reposo con el baculo en la mano)
   perfil guardado  baston_ref_guardado_1080.png (el reposo con el baculo a la espalda)
-  espaldas mano    magnus_secuencia_frontal reposo_espalda_cb_000
-  frente mano      magnus_secuencia_frontal reposo_frente_cb_000
-  espaldas guard.  magnus_guardar_baston_espalda_a, ultimo (= la escena con la capa)
-  frente guardado  magnus_guardar_baston_frente, ultimo
+  espaldas mano    peregrino_secuencia_frontal reposo_espalda_cb_000
+  frente mano      peregrino_secuencia_frontal reposo_frente_cb_000
+  espaldas guard.  peregrino_guardar_baston_espalda_a, ultimo (= la escena con la capa)
+  frente guardado  peregrino_guardar_baston_frente, ultimo
 Escala: los masters del perfil 1:1 (capucha-pies 628) y los del frontal a 0,98
 (salida_escala de la hojarasca, medida para que casen en el juego). Pies en la
 fila 1040. En x: el centro de la casilla del perfil en 960 (se busca en las de
-1080 casando la silueta del bajo de la tunica con magnus_respirando c_01) y el
+1080 casando la silueta del bajo de la tunica con peregrino_respirando c_01) y el
 frontal 4 px por delante (salida_dx). Croma #24D732, sin bola en la garra (la
 pone el juego).
 
@@ -58,7 +58,7 @@ def perfil(nombre):
     quede en CENTRO_X y la planta en PIE_Y."""
     ref = Image.open(os.path.join(AQUI, nombre)).convert('RGBA')
     m = alfa_de_croma(ref)
-    rep = Image.open(os.path.join(ANIM, 'magnus_respirando', '04_limpios', 'c_01.png')).convert('RGBA')
+    rep = Image.open(os.path.join(ANIM, 'peregrino_respirando', '04_limpios', 'c_01.png')).convert('RGBA')
     mr = np.asarray(rep)[..., 3] > 128
     pie_r = np.where(mr.any(1))[0].max()
     pie = np.where(m.any(1))[0].max()
@@ -105,13 +105,13 @@ def guardar(im, nombre):
 VISTAS = {
     'mano': {
         'perfil': lambda: perfil('baston_ref_en_mano_1080.png'),
-        'espaldas': lambda: frontal(os.path.join(ANIM, 'magnus_secuencia_frontal', '04_limpios', 'reposo_espalda_cb_000.png')),
-        'frente': lambda: frontal(os.path.join(ANIM, 'magnus_secuencia_frontal', '04_limpios', 'reposo_frente_cb_000.png')),
+        'espaldas': lambda: frontal(os.path.join(ANIM, 'peregrino_secuencia_frontal', '04_limpios', 'reposo_espalda_cb_000.png')),
+        'frente': lambda: frontal(os.path.join(ANIM, 'peregrino_secuencia_frontal', '04_limpios', 'reposo_frente_cb_000.png')),
     },
     'guardado': {
         'perfil': lambda: perfil('baston_ref_guardado_1080.png'),
-        'espaldas': lambda: frontal(ultimo('magnus_guardar_baston_espalda_a')),
-        'frente': lambda: frontal(ultimo('magnus_guardar_baston_frente')),
+        'espaldas': lambda: frontal(ultimo('peregrino_guardar_baston_espalda_a')),
+        'frente': lambda: frontal(ultimo('peregrino_guardar_baston_frente')),
     },
 }
 

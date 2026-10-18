@@ -3,7 +3,7 @@ PROMPT PARA GIRARSE EN EL AIRE FLOTANDO (DE DERECHA A IZQUIERDA)
 ================================================================
 Por que: en la luz se juega en el aire, saltando de hoja en hoja a izquierda y
 derecha, y hay que poder darse la vuelta sin tocar el suelo. Hoy en el aire no
-se gira: se desliza de espaldas. Como el giro de pie (magnus_giro_simetrico),
+se gira: se desliza de espaldas. Como el giro de pie (peregrino_giro_simetrico),
 se pide simetrico: empieza en la pose de flotar mirando a la derecha y acaba en
 la misma pose ESPEJADA; la vuelta al otro lado es este video volteado. Pasa por
 delante, de cara a la camara, como el giro de pie.

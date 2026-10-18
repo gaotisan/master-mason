@@ -1,4 +1,4 @@
-"""Hojarasca: las hojas de la escena en que Magnus cae del cielo (el cuento empieza
+"""Hojarasca: las hojas de la escena en que el peregrino cae del cielo (el cuento empieza
 con el anciano levantandose y sacudiendose "la hojarasca que se habia quedado
 adherida a sus ropas", en un atardecer de otono).
 
@@ -12,9 +12,9 @@ Salida en assets/world/hojarasca/:
   hojas.png       atlas COLS x FILAS de hojas sueltas, punta arriba y rabillo
                   abajo en el centro de cada casilla. Son las hojas de verdad
                   del juego (scripts/game/hojas_voladoras.gd): las apiladas a la
-                  altura de Magnus y las que vuelan.
+                  altura del peregrino y las que vuelan.
   lecho.png       el suelo pintado, lejos y cerca (2912 x ALTO_LECHO, empieza en
-                  Y_LECHO). En la franja por donde anda Magnus queda oscuro: ahi
+                  Y_LECHO). En la franja por donde anda el peregrino queda oscuro: ahi
                   la hojarasca son hojas de verdad, y al apartarlas asoma tierra
                   en sombra, no mas dibujo de hojas que no se mueven.
   follaje_izq.png / follaje_der.png  (solo con el argumento `follaje`) ramas con
@@ -39,10 +39,10 @@ SS = 4                  # sobremuestreo de cada hoja
 CELDA = (64, 128)       # casilla del atlas (ancho, alto): hoja de ~118 px de largo
 COLS, FILAS = 8, 4
 W_PANTALLA = 2912
-Y_SUELO = 1200          # linea de suelo de Magnus (pies en 1192)
+Y_SUELO = 1200          # linea de suelo del peregrino (pies en 1192)
 Y_LECHO = 1150          # el lecho empieza aqui (puntas de hojas que asoman)
 ALTO_LECHO = 1632 - Y_LECHO
-X_CAIDA = 1456          # donde cae Magnus: ahi esta el monton y el haz de luz
+X_CAIDA = 1456          # donde cae el peregrino: ahi esta el monton y el haz de luz
 BRUMA = (0.42, 0.28, 0.16)  # color de la bruma del fondo (la del haz, apagada)
 
 # Paleta sacada de la imagen (RGB 0..1): del oro claro al pardo.
@@ -109,7 +109,7 @@ def pintar_hoja(rng, color, largo=118, ancho_rel=None, curva=None, forma=None):
     lado_luz = rng.choice([-1, 1])
     # Plegado por el nervio: una mitad recibe mas luz que la otra.
     # Plegado por el nervio con arista marcada: cada mitad casi plana, como una
-    # faceta. Asi la hoja habla el mismo idioma que Magnus (facetado) y no el
+    # faceta. Asi la hoja habla el mismo idioma que el peregrino (facetado) y no el
     # de una foto; con el pliegue suave de antes chocaban los dos estilos.
     plegado = 0.84 + 0.2 * np.tanh(14.0 * s * lado_luz)
     # Abombado: el centro de cada mitad mas claro, el borde algo mas oscuro.
@@ -226,7 +226,7 @@ def generar_lecho(rng, hojas):
         n = int(2300 * (0.7 + 0.6 * (1 - prof)))
         for _ in range(n):
             x = rng.uniform(-40, W_PANTALLA + 40)
-            # Mas hojas cerca del suelo de Magnus; hacia abajo, menos y mas grandes.
+            # Mas hojas cerca del suelo del peregrino; hacia abajo, menos y mas grandes.
             yr = rng.beta(1.25, 3.2)
             y = Y_SUELO - altura_monton(x) * rng.uniform(0.3, 1.0) * (1 - yr) + yr * (ALTO_LECHO - 30)
             cerca = (y - Y_SUELO) / (1632 - Y_SUELO)
@@ -260,14 +260,14 @@ def generar_lecho(rng, hojas):
     manchas = 0.62 + 0.5 * _ruido(rng, W_PANTALLA, ALTO_LECHO, 150) ** 1.3
     a[..., :3] *= (viñeta * np.clip(manchas, 0, 1.08))[..., None]
     img = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8), "RGBA")
-    # Profundidad de campo: enfocado donde pisa Magnus, cada vez mas borroso
+    # Profundidad de campo: enfocado donde pisa el peregrino, cada vez mas borroso
     # hacia delante (abajo). Lejos (el borde de atras) algo blando y con bruma.
     yy = np.arange(ALTO_LECHO, dtype=np.float32) + Y_LECHO
     radio = np.where(yy > Y_SUELO + 40, 6.0 * np.clip((yy - Y_SUELO - 40) / 330.0, 0, 1) ** 1.2,
                      1.2 * np.clip((Y_SUELO - yy) / 40.0, 0, 1))
     img = desenfoque_por_filas(img, radio)
     a = np.asarray(img, np.float32)
-    # La franja de Magnus (hojas de verdad encima): tierra en sombra.
+    # La franja del peregrino (hojas de verdad encima): tierra en sombra.
     franja = 1 - 0.62 * np.exp(-((yy - (Y_SUELO + 4)) / 20.0) ** 2)
     a[..., :3] *= franja[:, None, None]
     # El borde de atras no corta a regla: se funde con la oscuridad.

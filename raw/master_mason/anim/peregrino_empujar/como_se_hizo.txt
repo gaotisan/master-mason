@@ -1,0 +1,17 @@
+EMPUJAR EL SILLAR MEDIANO, MANOS EN EL FILO (animacion "empujar", v1)
+=====================================================================
+Fuente: _fuentes/Pilgrim_pushing_stone_block_20261012095800.mp4 (16:9), de prompt_empujar.txt.
+Tramo: f006 - f178. Una pasada entera (entrada, empuje y salida): no hay ciclo que cierre. Raiz por los pies (los pies resbalaban): el sillar anda 271 px de juego.
+
+Como todas las acciones de perfil (ver ../acciones_perfil.txt):
+  1. nuevo.ps1 + frames.ps1 (01_frames)
+  2. python quitar_objeto.py peregrino_empujar --placa 1-20 --caja 445,440,720,700 --mueve
+  3. python raiz.py peregrino_empujar --desde 6 --hasta 178 --suelo-fijo
+  4. ../fondo_paralelo.py peregrino_empujar  (fondo.ps1 -Tolerancia 35 -Radio 4 en paralelo)
+     ../baston/pulir.py --oscuras peregrino_empujar  y  --bolsas-verdes  (repulir.py: el pulido normal agujereaba la capucha)
+     (las casillas se rellenaron luego hasta multiplos de 8: las copias de
+     _con_fondo/ son del tamano anterior; si se vuelve a pulir, rehacer desde raiz.py)
+  5. ../montar_accion.py peregrino_empujar  -> 04_acciones/, accion.json y assets/characters/peregrino/acciones_perfil.json
+  6. hoja.ps1 -Job peregrino_empujar -Desde 04_acciones -Fps 24 -Escala 2 -Cols 10
+  7. tools/anim/_spriteframes.py (entrada "empujar") y ../baston/seguir.py
+Se prueba en scenes/dev/piloto_baston.tscn (scripts/dev/acciones/acciones_perfil.gd).

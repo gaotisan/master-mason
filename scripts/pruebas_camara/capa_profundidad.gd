@@ -2,12 +2,12 @@ extends Node2D
 ## Una capa de la prueba de camara de capas: un plano de dibujo a cierta
 ## profundidad. La camara (camara_capas.gd) le pone escala y posicion cada
 ## fotograma; aqui se dibuja en coordenadas del mundo (suelo en y = 1200, como
-## Magnus) y la perspectiva la pone la camara. El dibujo es de relleno, por
+## El peregrino) y la perspectiva la pone la camara. El dibujo es de relleno, por
 ## codigo, solo para que se lea la profundidad: no es arte del juego.
 
 enum Tipo { ARCADA, COLUMNAS, CERCA, SUELO, PRIMER_PLANO }
 
-## Distancia detras del plano de Magnus (negativa: delante de el).
+## Distancia detras del plano del peregrino (negativa: delante de el).
 @export var profundidad: float = 0.0
 @export var tipo: Tipo = Tipo.SUELO
 @export var color: Color = Color(0.1, 0.1, 0.12)
@@ -79,7 +79,7 @@ func _columnas() -> void:
 	_coloso(7200.0)
 	draw_rect(Rect2(DESDE, SUELO_Y, HASTA - DESDE, 4000), color.darkened(0.25))
 
-## Cerca de Magnus por detras: columnas rotas, cadenas colgando, escombros.
+## Cerca del peregrino por detras: columnas rotas, cadenas colgando, escombros.
 func _cerca() -> void:
 	var borde := color.lightened(0.1)
 	var x := DESDE
@@ -94,7 +94,7 @@ func _cerca() -> void:
 		x += _rng.randf_range(600.0, 1300.0)
 	draw_rect(Rect2(DESDE, SUELO_Y, HASTA - DESDE, 4000), color.darkened(0.2))
 
-## El plano de Magnus: el suelo, la cripta baja (3000-5000), las velas y la
+## El plano del peregrino: el suelo, la cripta baja (3000-5000), las velas y la
 ## sala fija del final (11000-14000).
 func _suelo() -> void:
 	var piedra := color
@@ -136,7 +136,7 @@ func _suelo() -> void:
 		x += _rng.randf_range(260.0, 520.0)
 	draw_line(Vector2(DESDE, SUELO_Y + 90), Vector2(HASTA, SUELO_Y + 90), piedra.darkened(0.3), 3.0)
 
-## Delante de Magnus: siluetas casi negras que pasan entre el y la camara.
+## Delante del peregrino: siluetas casi negras que pasan entre el y la camara.
 func _primer_plano() -> void:
 	var x := DESDE
 	while x < HASTA:

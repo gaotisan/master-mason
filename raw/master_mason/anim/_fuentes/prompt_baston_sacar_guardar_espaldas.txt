@@ -10,10 +10,10 @@ Se queda la espalda del chevron para el modo sin baston (vuelta y andar de
 espaldas nuevos, prompt_espalda_sin_baston_vuelta_andar.txt).
 
 2026-10-11 (tarde): CON LA ESPALDA NUEVA DEL MODO SIN BASTON. El primer video
-(magnus_sacar_baston_espalda) cambiaba de tunica a mitad del gesto: la espalda sin
+(peregrino_sacar_baston_espalda) cambiaba de tunica a mitad del gesto: la espalda sin
 baston era otra tunica. Ahora referencia_baston_espalda_espaldas.png es la espalda
 nueva (la del chevron, la misma tunica que la de con baston:
-magnus_espalda_sin_baston/hacer_espalda.py) con el baston en la correa, en la fila de
+peregrino_espalda_sin_baston/hacer_espalda.py) con el baston en la correa, en la fila de
 la correa vacia del reposo con baston (capa_espalda.gd, CAPTURA_FILA_DE): la correa
 en el mismo sitio en los dos modos. Entre las dos referencias solo cambian el brazo
 derecho y el baston. Los prompts insisten en que la tunica no cambia.

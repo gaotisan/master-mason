@@ -1,0 +1,12 @@
+﻿animacion:  peregrino_tirar
+origen:     04_acciones
+hoja:       peregrino_tirar_sheet.png
+casilla:    292 x 360 px
+escala:     1/2   (master en 04_limpios: 584 x 720)
+hframes:    10
+vframes:    18
+fotogramas: 171   (las 9 casillas sobrantes van vacias)
+fps:        24
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 171.

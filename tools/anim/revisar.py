@@ -1,4 +1,4 @@
-"""Revisa las animaciones de Magnus tal como las ve el juego y avisa de defectos.
+"""Revisa las animaciones del peregrino tal como las ve el juego y avisa de defectos.
 
 Lee las rejillas de 05_salida con la lista de _spriteframes.ANIMACIONES (los
 mismos fotogramas y en el mismo orden que el SpriteFrames) y coloca cada
@@ -17,7 +17,7 @@ Por animacion:
   borde      dibujo tocando el borde de la casilla: recortado
   motas      manchas sueltas de menos de MOTA px aparte del personaje
   fondo      pixeles con color del croma (magenta o verde) que se quedaron
-Y los enlaces entre animaciones que encadena magnus.gd, con los fotogramas por
+Y los enlaces entre animaciones que encadena peregrino.gd, con los fotogramas por
 los que entra: distancia en pasos de la mas movida de las dos, salto del suelo y
 del eje, y cambio de color de la tunica.
 
@@ -103,7 +103,7 @@ def revisar_celda(c):
     return borde, motas, int(croma.sum())
 
 
-# Enlaces de magnus.gd: (de, fotograma o None = cualquiera, a, fotograma, voltear)
+# Enlaces de peregrino.gd: (de, fotograma o None = cualquiera, a, fotograma, voltear)
 ENLACES = [
     ('reposo', None, 'arranque_andar', 0, False),
     ('arranque_andar', 18, 'andar', 19, False),

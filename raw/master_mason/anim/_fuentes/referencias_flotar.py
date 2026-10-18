@@ -35,7 +35,7 @@ SALIDAS = [sys.argv[1]] if len(sys.argv) > 1 else [AQUI, DESCARGAS]
 
 rep, H, PIE_Y, ESPALDA, TALON, PUNTA, DELANTE = E.peregrino()
 SUELO = 1040
-flota = Image.open(os.path.join(E.ANIM, 'magnus_salto_parado', '04_limpios', 'c_38.png')).convert('RGBA')
+flota = Image.open(os.path.join(E.ANIM, 'peregrino_salto_parado', '04_limpios', 'c_38.png')).convert('RGBA')
 op = np.asarray(flota)[..., 3] > 128
 ys = np.where(op.any(1))[0]
 F_ARRIBA, F_PIE = int(ys.min()), int(ys.max())        # fila de la capucha y de los pies en su casilla

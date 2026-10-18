@@ -2,7 +2,7 @@
 mesa, TIRAR de un sillar (arrastrarlo) y TUMBARSE / ARRASTRARSE / LEVANTARSE
 (prompt_coger_suelo.txt, prompt_coger_mesa.txt, prompt_tirar.txt,
 prompt_tumbarse_arrastrarse.txt; Flow, fotogramas a video). Todos empiezan y
-acaban en el reposo del juego (magnus_respirando c_01, sin baston: el guardado lo
+acaban en el reposo del juego (peregrino_respirando c_01, sin baston: el guardado lo
 pinta el juego encima) a escala de master 1:1, pies en y=1040, croma #24D732.
 Los objetos son de relleno (low-poly, piedra clara como el sillar de empujar) y
 se quitan al montar:
@@ -221,7 +221,7 @@ guardar(lien, 'referencia_derrumbarse_inicio.png', X0)
 #    piernas estirandose para tocar suelo), con los pies a ALTURA del suelo (en el
 #    salto van a 62 px), y acaba en el reposo en el mismo sitio: el salto parado cae
 #    donde despego, con la misma casilla
-salto = Image.open(os.path.join(E.ANIM, 'magnus_salto_parado', '04_limpios', 'c_41.png')).convert('RGBA')
+salto = Image.open(os.path.join(E.ANIM, 'peregrino_salto_parado', '04_limpios', 'c_41.png')).convert('RGBA')
 pie_salto = int(np.where((np.asarray(salto)[..., 3] > 128).any(1))[0].max())   # 615
 ALTURA = round(0.30 * H)
 X0 = (1920 - 584) // 2

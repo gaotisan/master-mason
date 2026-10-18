@@ -2,7 +2,7 @@ PLANEAR CON EL ABRIGO ABIERTO (abrir, planear y cerrar)
 (Google Flow / Veo 3.1, "Frames to Video", 2026-10-17; 16:9)
 ======================================================
 Por que: en la luz, manteniendo salto mientras baja, el peregrino planea (cae
-a 50 px/s en vez de 120; magnus.gd, PLANEAR). El usuario: "como si abrimos mas
+a 50 px/s en vez de 120; peregrino.gd, PLANEAR). El usuario: "como si abrimos mas
 el abrigo y controlamos la velocidad de bajada". No hay ningun video con el
 abrigo abierto. Este empieza y acaba en la pose de flotar del juego (la misma
 imagen que el flotar quieto, que salio bien), asi que empalma con todo lo que

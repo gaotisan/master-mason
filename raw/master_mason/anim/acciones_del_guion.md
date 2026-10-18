@@ -9,7 +9,7 @@
 Reglas para cada vídeo nuevo: pedirlo a la velocidad del juego y usarlo entero (sin
 acelerar, ralentizar, diezmar ni empalmar); que empiece y acabe en un fotograma nuestro;
 un solo vídeo con toda la secuencia cuando haya arranque, ciclo y parada; casilla y suelo
-de `magnus_comun.txt`.
+de `peregrino_comun.txt`.
 
 ---
 

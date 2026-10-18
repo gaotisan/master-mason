@@ -33,7 +33,7 @@ AQUI = os.path.dirname(os.path.realpath(__file__))
 PROY = os.path.abspath(os.path.join(AQUI, '..', '..', '..', '..'))
 FUENTE = os.path.join(PROY, 'raw', 'master_mason', 'anim', '_fuentes', 'baston_correa_gemini.jpeg')
 DST = os.path.join(PROY, 'assets', 'characters', 'baston')
-REPOSO = os.path.join(PROY, 'raw', 'master_mason', 'anim', 'magnus_secuencia_frontal', '04_limpios', 'reposo_espalda_cb_000.png')
+REPOSO = os.path.join(PROY, 'raw', 'master_mason', 'anim', 'peregrino_secuencia_frontal', '04_limpios', 'reposo_espalda_cb_000.png')
 # a mano, sobre la imagen (px del original): la correa de punta a punta y las presillas
 P0, P1 = (1465.0, 482.0), (1288.0, 1182.0)
 PRESILLAS = [(1420, 615, 70, 30), (1350, 945, 70, 28)]      # centro x, y, ancho, alto

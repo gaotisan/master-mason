@@ -59,7 +59,7 @@ const PISADAS_HOJAS: Array[AudioStream] = [
 const PANTALLA := Vector2(2912, 1632)
 const HORIZONTE := 980.0
 ## Alto de la persona con escala 1, de la capucha a los pies (las casillas de
-## magnus_frames: 324 sin baston; con el en la mano, 340 con la garra encima).
+## peregrino_frames: 324 sin baston; con el en la mano, 340 con la garra encima).
 const ALTO_ESCALA_1 := 324.0
 const ALTO_POR_PIES := ALTO_ESCALA_1 / 195.3
 ## Fotogramas que sigue andando desde que deja de querer andar: el resto del

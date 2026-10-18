@@ -1,5 +1,5 @@
 """Referencias 1920x1080 para el video de EMPUJAR (Flow, fotogramas a video):
-  referencia_empujar[_v2]_inicio.png  el reposo del juego (magnus_respirando
+  referencia_empujar[_v2]_inicio.png  el reposo del juego (peregrino_respirando
       c_01, sin baston: el guardado lo pinta el juego encima) con un sillar
       delante;
   referencia_empujar[_v2]_fin.png     lo mismo desplazado D a la derecha (lo
@@ -38,7 +38,7 @@ VARIANTES = {
 def peregrino():
     """El reposo del juego y sus medidas: imagen, alto, fila de la planta, x de
     la espalda, del talon, de la punta del pie y de lo mas adelantado."""
-    rep = Image.open(os.path.join(ANIM, 'magnus_respirando', '04_limpios', 'c_01.png')).convert('RGBA')
+    rep = Image.open(os.path.join(ANIM, 'peregrino_respirando', '04_limpios', 'c_01.png')).convert('RGBA')
     op = np.asarray(rep)[..., 3] > 128
     ys, xs = np.where(op)
     pie_y = ys.max()                          # 677

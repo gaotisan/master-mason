@@ -11,7 +11,7 @@ Juego 2D en Godot 4 (pixel/pintado, arte con IA y por código), terror poético.
 - Otra secuencia congelada: bosque al atardecer con ciudad lejana en el valle → casa imposible (ciudadela en miniatura) → Dóminus en la mesa pregunta el nombre (con elección) → "Iram" → el favor.
 
 ## Personajes y reparto decidido
-- **Jugador = el peregrino anciano sin memoria** (en código "Magnus"; Dóminus le llama "Iram", por Hiram Abif, constructor del Templo de Salomón). Es una proyección de Dóminus: al final ve que tiene su misma cara. Oficio: cantero / maestro constructor (Magister muri).
+- **Jugador = el peregrino anciano sin memoria** (Dóminus le llama "Iram", por Hiram Abif, constructor del Templo de Salomón). Es una proyección de Dóminus: al final ve que tiene su misma cara. Oficio: cantero / maestro constructor (Magister muri).
 - **Dóminus**: el niño quemado-huérfano encerrado en el sarcófago que imagina todo el mundo; dentro del sueño es un anciano curandero e inventor (con los rasgos de su padre), mirada infantil y perversa. Casa imposible con péndulo que no obedece a la física.
 - **El hijo** inacabado (niño sin rostro, raíces en el pelo, plantado como semilla). Muere bebiendo la sopa envenenada que Iram puso para Dóminus.
 - **Argos**: el perro de Dóminus niño (en el relato solo se menciona). El usuario quiere que sea el amigo animal del peregrino y que al final el peregrino tenga que matarlo (o algo equivalente), y que la culpa sea de Dóminus. Nombre homérico (el perro de Ulises que reconoce a su amo y muere).

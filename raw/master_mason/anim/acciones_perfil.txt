@@ -20,7 +20,7 @@ Pasos (todo en esta carpeta salvo hoja.ps1, de tools/anim):
   1. nuevo.ps1 + frames.ps1: 01_frames (192 fotogramas, 24 fps).
   2. quitar_objeto.py: quita el objeto de relleno de la referencia (muro, sillar,
      mesa) restando su imagen, o siguiendolo si se mueve (--mueve, empujar).
-     El de tirar se ladea y va por color: magnus_tirar/quitar_sillar.py.
+     El de tirar se ladea y va por color: peregrino_tirar/quitar_sillar.py.
      Lo pequeno que coge o lanza (piedrecita, palo) y el baculo clavado NO se
      quitan: van en el dibujo y el juego esconde los suyos mientras dura.
      -> 01b_sin_objeto/ y objeto.json.
@@ -43,7 +43,7 @@ Pasos (todo en esta carpeta salvo hoja.ps1, de tools/anim):
      (flujo + fundido, como en los giros; con los objetos que traiga dibujados
      ese fotograma; arrancar acaba en el reposo con el baston en la mano), los
      tramos y la tabla del juego: <job>/accion.json y todos juntos en
-     assets/characters/magnus/acciones_perfil.json (casilla, offset, raiz y s por
+     assets/characters/peregrino/acciones_perfil.json (casilla, offset, raiz y s por
      fotograma, la cara del objeto, donde van los objetos al empezar y al acabar,
      el palo al soltarlo...). -> 04_acciones/.
   6. hoja.ps1 -Job <job> -Desde 04_acciones -Fps 24 -Escala 2 -Cols 10.
@@ -55,16 +55,16 @@ Pasos (todo en esta carpeta salvo hoja.ps1, de tools/anim):
 Todas a su ritmo (24 fps) y con todos sus fotogramas.
 
 Por job (video, tramo, lo que paso):
-  magnus_trepar          Man_climbing_stone_wall_20261012100057 (9:16), f012-f123;
+  peregrino_trepar          Man_climbing_stone_wall_20261012100057 (9:16), f012-f123;
                          sube 724 px de master y avanza 241 (la referencia: 721 y 239).
-  magnus_trepar_mediano  Pilgrim_climbing_onto_stone_block_20261012100630, f010-f100
+  peregrino_trepar_mediano  Pilgrim_climbing_onto_stone_block_20261012100630, f010-f100
                          (tras ponerse de pie da un pasito y se asienta en el 100).
-  magnus_bajar           Pilgrim_hopping_off_stone_platform_20261012101834 (9:16),
+  peregrino_bajar           Pilgrim_hopping_off_stone_platform_20261012101834 (9:16),
                          f006-f115; baja 726 y avanza 336. Al caer levanta un poco
                          de "polvo" claro en los pies (se va con el croma).
-  magnus_empujar         Pilgrim_pushing_stone_block_20261012095800 (v1, sillar
+  peregrino_empujar         Pilgrim_pushing_stone_block_20261012095800 (v1, sillar
                          mediano, manos en el filo), f006-f178.
-  magnus_empujar_v2      Pilgrim_pushing_stone_block_20261012095752 (v2, sillar
+  peregrino_empujar_v2      Pilgrim_pushing_stone_block_20261012095752 (v2, sillar
                          alto, manos planas: a la altura del pecho, no de la cadera),
                          f012-f180. Este video no calca sus referencias (el
                          peregrino sale un 1,7 % mas grande, mas lejos del sillar, y
@@ -79,40 +79,40 @@ Por job (video, tramo, lo que paso):
     Ninguno trae un ciclo que cierre (la mejor costura, a mas de 2 pasos
     normales): cada empuje es una pasada entera. Para empujar lo que se quiera,
     pedir un video con inicio = fin = un fotograma del empuje.
-  magnus_golpe           Pilgrim_pushed_by_invisible_force_20261012115902, f016-f120;
+  peregrino_golpe           Pilgrim_pushed_by_invisible_force_20261012115902, f016-f120;
                          recula 38 px de juego.
-  magnus_derribo         Pilgrim_knocked_down_and_getting..._20261012120145, f008-f150.
+  peregrino_derribo         Pilgrim_knocked_down_and_getting..._20261012120145, f008-f150.
                          f028-f029 traian un proyectil (varilla con estela verde que
                          sale de la mano y plumas por la espalda):
-                         magnus_derribo/borrar_rayo.py lo pinta de croma antes del
+                         peregrino_derribo/borrar_rayo.py lo pinta de croma antes del
                          fondo. Cae de espaldas pero acaba 222 px de juego POR
                          DELANTE (la referencia pedia 0,6 del alto detras).
-  magnus_coger_suelo     Pilgrim_picks_up_pebble_20261012111626, f008-f120 (la
+  peregrino_coger_suelo     Pilgrim_picks_up_pebble_20261012111626, f008-f120 (la
                          piedrecita en el dibujo).
-  magnus_coger_mesa      Pilgrim_picking_up_pebble_20261012111834, f005-f090; la mesa
+  peregrino_coger_mesa      Pilgrim_picking_up_pebble_20261012111834, f005-f090; la mesa
                          se quita con la placa de los ULTIMOS fotogramas (sin la
                          piedrecita), asi la piedrecita queda en el dibujo.
-  magnus_lanzar_palo     Pilgrim_picks_up_and_throws_20261012122857 (venia en la
-                         carpeta de clavar; la otra toma, magnus_lanzar_palo_b, sin
+  peregrino_lanzar_palo     Pilgrim_picks_up_and_throws_20261012122857 (venia en la
+                         carpeta de clavar; la otra toma, peregrino_lanzar_palo_b, sin
                          usar), f004-f100. El palo se quita del dibujo en cuanto
                          suelta (el 57) y el juego lo lanza desde ahi con su
                          velocidad ("suelta" en la tabla) y lo deja caer.
-  magnus_arrancar        Pilgrim_pulling_staff_from_ground_20261012123455, f004-f096,
+  peregrino_arrancar        Pilgrim_pulling_staff_from_ground_20261012123455, f004-f096,
                          acaba en el reposo con el baston en la mano (giro_mano.
                          reposo_mano). CLAVAR = arrancar al reves (no hay video de
                          clavar en la carpeta): las mismas casillas en orden inverso.
                          La garra del video va vacia: 'garra' (seguir_garra) apunta
                          donde va la bola en cada fotograma ("orbe" en la tabla) y el
                          juego la pone ahi, y en el baculo clavado.
-  magnus_tumbarse        Character_animation_sprite_extra..._20261012115715, f003-f182,
+  peregrino_tumbarse        Character_animation_sprite_extra..._20261012115715, f003-f182,
                          tres tramos: tumbarse c1-c74, arrastrarse c75-c123 (vuelve
                          a empezar en el c75: el mas parecido al c124, a 1,8 pasos
                          normales; se nota un poco) y levantarse c124-c180.
-  magnus_tirar           Pilgrim_pulling_stone_block_20261012113049, f006-f176. El
+  peregrino_tirar           Pilgrim_pulling_stone_block_20261012113049, f006-f176. El
                          sillar se ladea a mitad (~10 grados): quitar_sillar.py lo
                          quita por color (y la argolla, a 0,45 del alto). Retrocede
                          226 px de juego con el sillar.
-  magnus_bajar           al caer pinta polvo blanco en los pies: montar_accion.py
+  peregrino_bajar           al caer pinta polvo blanco en los pies: montar_accion.py
                          ('polvo') lo quita.
 
 En la escena (scripts/characters/acciones_perfil.gd): los objetos apoyan donde
@@ -126,9 +126,9 @@ Dejarse caer andando (2026-10-13). El usuario: "esta andando, se para, se toma
 unos segundos y luego se deja caer [...] es injugable, tienes que seguir andando
 y de forma natural dejarse caer". Antes el limite lo paraba en el filo y, tras
 0,15 s pulsando, bajar (que empieza parado y acaba de rodillas: 4,6 s). Ahora:
-  - Andando o corriendo hacia un borde con la tecla, sin parar: Magnus salta solo
+  - Andando o corriendo hacia un borde con la tecla, sin parar: el peregrino salta solo
     justo antes (su salto andando o corriendo, despegando en el borde), cae al
-    suelo de abajo y, con la tecla, sigue andando. Va en magnus.gd (SUELO
+    suelo de abajo y, con la tecla, sigue andando. Va en peregrino.gd (SUELO
     VARIABLE: suelo_en, la escena le da _nivel): en el aire el nodo sigue a la
     altura del despegue y el sprite baja; al tocar suelo el nodo baja. Por debajo
     del despegue cae con gravedad_caida (1841 px/s^2, la del salto de parado).
@@ -154,12 +154,12 @@ deberiamos poder saltarlos", "el giro tarda 2,5 s [...] toma como referencia
 otros juegos" y luego "quiza el 2,5 es un pelin rapido". Referencia: Prince of
 Persia (SDLPoP, 12 fps): girarse de pie 0,67 s, subir un piso 2,6 s, saltar
 corriendo 0,92 s; en Inside y Limbo el salto salva algo mas de media altura.
-  - Giro: giro_ritmo x2 en magnus.gd (2,54 -> 1,27 s; V en la escena lo cambia
+  - Giro: giro_ritmo x2 en peregrino.gd (2,54 -> 1,27 s; V en la escena lo cambia
     para probar). Acciones: VELOCIDAD en la escena (trepar x1,5, bajar x1,3,
     empujar x1,25, coger/lanzar/clavar/arrancar x1,2); esperas de 0,1 s.
   - Salto andando a oscuras: salto_andando_altura_oscuro 110 (los pies a ~187
     px; antes ~102) con la gravedad de verdad (1841).
-  - SALTAR ENCIMA (magnus.gd): en el aire, una cara mas alta que los pies es
+  - SALTAR ENCIMA (peregrino.gd): en el aire, una cara mas alta que los pies es
     una pared, y tambien si el cuerpo no va a llegar a tocar encima con la pose
     de tocar suelo (si no, al pasarla subia de golpe 30 px). Al despegar sin luz
     mira la primera cara que tiene delante y, si llega, ajusta el arco (lo que
@@ -175,7 +175,7 @@ corriendo 0,92 s; en Inside y Limbo el salto salva algo mas de media altura.
     delante). El sillar alto y el muro (362) solo se trepan.
   - Arreglos: subido al escalon se paraba donde se coge la piedrecita de la mesa
     (eso solo desde el suelo); frenando de correr hacia un limite salia andando
-    de golpe (435 -> 192 px/s): magnus.gd mira la frenada de correr hasta que
+    de golpe (435 -> 192 px/s): peregrino.gd mira la frenada de correr hasta que
     para; tras caer de un salto delante de un sillar lo cruzaba entero andando
     por dentro (el limite cogia la x de mas adentro); al caer encima de la mesa
     con la tecla pulsada se quedaba parado (seguia con los limites de antes del
@@ -183,8 +183,8 @@ corriendo 0,92 s; en Inside y Limbo el salto salva algo mas de media altura.
     saltar): la escena vuelve a poner los limites en cuanto toca suelo.
   - En todas las escenas: dark_stage.tscn (todos los pilotos), caida_hojarasca,
     capas_inside, planos_alone y storyboard llevan el nodo de acciones como
-    hermano de Magnus, con generico (sin objetos: T, 1, 2, V y K/E con el
-    baculo; no toca limites ni suelo; espera a que Magnus este en juego, la
+    hermano del peregrino, con generico (sin objetos: T, 1, 2, V y K/E con el
+    baculo; no toca limites ni suelo; espera a que el peregrino este en juego, la
     hojarasca lo esconde al entrar desde negro, y se corta si la escena le pone
     una cinematica). En los pilotos de acciones manda el suyo.
 Pruebas: scenes/dev/piloto_acciones_saltos_grabar.tscn (suelo -> mesa -> escalon

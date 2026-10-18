@@ -1,0 +1,12 @@
+﻿animacion:  peregrino_golpe
+origen:     04_acciones
+hoja:       peregrino_golpe_sheet.png
+casilla:    512 x 360 px
+escala:     1/2   (master en 04_limpios: 1024 x 720)
+hframes:    10
+vframes:    11
+fotogramas: 105   (las 5 casillas sobrantes van vacias)
+fps:        24
+
+En Godot: Sprite2D/AnimatedSprite2D -> Animation -> Hframes/Vframes con esos valores,
+o SpriteFrames -> Add frames from sheet, usando solo los primeros 105.

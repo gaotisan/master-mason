@@ -1,5 +1,5 @@
 """Le quita a la capucha la punta de sombrero de mago que le sale al andar en
-magnus_andar_baston_v2 (Character_walking_on_green_screen_...). En el
+peregrino_andar_baston_v2 (Character_walking_on_green_screen_...). En el
 fotograma 1 la capucha es la de siempre (la de baston_ref_en_mano); en cuanto
 echa a andar, la IA le estira el vertice de atras en una punta hacia atras y
 arriba.
@@ -19,7 +19,7 @@ from PIL import Image
 from scipy import ndimage
 from celdas import PROY
 
-JOB = next((a for a in sys.argv[1:] if not a.startswith("--")), "magnus_andar_baston_v2")
+JOB = next((a for a in sys.argv[1:] if not a.startswith("--")), "peregrino_andar_baston_v2")
 ENGORDE = 1
 
 

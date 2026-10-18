@@ -1,0 +1,13 @@
+GOLPE: UN EMPUJON SIN CAERSE (animacion "golpe")
+================================================
+Fuente: _fuentes/Pilgrim_pushed_by_invisible_force_20261012115902.mp4, de prompt_golpe.txt.
+Tramo: f016 - f120. Recula 38 px de juego. Casilla ancha (1024): la capa vuela al recibir el golpe.
+
+Como todas las acciones de perfil (ver ../acciones_perfil.txt):
+  1. nuevo.ps1 + frames.ps1 (01_frames)
+  2. python raiz.py peregrino_golpe --desde 16 --hasta 120 --origen 01_frames
+  3. ../fondo_paralelo.py peregrino_golpe  y  ../baston/pulir.py --oscuras peregrino_golpe  y  --bolsas-verdes
+  4. ../montar_accion.py peregrino_golpe  -> 04_acciones/, accion.json y assets/characters/peregrino/acciones_perfil.json
+  5. hoja.ps1 -Job peregrino_golpe -Desde 04_acciones -Fps 24 -Escala 2 -Cols 10
+  6. tools/anim/_spriteframes.py y ../baston/seguir.py
+Se prueba en scenes/dev/piloto_baston.tscn (scripts/dev/acciones/acciones_perfil.gd).

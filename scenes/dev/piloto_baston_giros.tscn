@@ -14,4 +14,4 @@ guion = [[1.0, "mover_izquierda", true], [1.15, "mover_izquierda", false], [3.0,
 ignorar_teclado = true
 zoom = 2.2
 x_inicial = 1400.0
-personaje = NodePath("../DarkStage/Magnus")
+personaje = NodePath("../DarkStage/Peregrino")

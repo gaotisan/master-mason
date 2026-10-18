@@ -2,22 +2,22 @@ extends Node2D
 ## El baculo del peregrino, que baja del cielo por el haz y se queda flotando.
 ## Dentro de la luz las cosas pesan poco: no cae, desciende como una pluma,
 ## meciendose de lado y enderezandose, y al llegar a su altura se queda
-## suspendido con un vaiven lento. No es Magnus flotando como en el espacio:
+## suspendido con un vaiven lento. No es el peregrino flotando como en el espacio:
 ## es un objeto ligero que el aire sostiene.
 ##
-## Es el mismo baston que Magnus llevara a la espalda: se instancia su escena
+## Es el mismo baston que el peregrino llevara a la espalda: se instancia su escena
 ## (scenes/characters/baston.tscn: madera, bola, halo y chispas) sin su script, que
-## lo ata al Sprite de Magnus. Asi el aspecto sale de un solo sitio. Mientras
+## lo ata al Sprite del peregrino. Asi el aspecto sale de un solo sitio. Mientras
 ## flota, la bola esta apagada; encender() la enciende.
 ##
-## Lo ilumina la misma luz que a Magnus (magnus_luz.gdshader).
+## Lo ilumina la misma luz que al peregrino (peregrino_luz.gdshader).
 ##
 ##   bajar()          aparece arriba del todo y desciende; emite `posado`.
 ##   encender(color)  enciende la bola poco a poco.
 ##   vara()           los dos extremos de la vara, en la escena (para tocarlo).
 ##   alcanzado()      la bola late una vez (el destello; ver estallar).
-##   coger() ...      al cogerlo: queda solo la bola, en la garra del dibujo de
-##                    Magnus, y se descarga (ver COGIDO).
+##   coger() ...      al cogerlo: queda solo la bola, en la garra del dibujo del
+##                    peregrino, y se descarga (ver COGIDO).
 ##
 ## 2026-10-11: sin el halo de la garra (la "luz extra en la punta"). 2026-10-12:
 ## baja ya con la bola encendida (sin chispas) y arriba del todo (y_flotar
@@ -31,7 +31,7 @@ signal posado
 
 const BASTON := preload("res://scenes/characters/baston.tscn")
 
-## Eje del haz: de su vertice al suelo donde cae Magnus. Lo pone la escena con
+## Eje del haz: de su vertice al suelo donde cae el peregrino. Lo pone la escena con
 ## poner_haz (el del material del fondo: una sola geometria del haz); estos son
 ## los de fondo_haz por si no.
 var _haz_origen := Vector2(1620.0, -700.0)
@@ -84,9 +84,9 @@ func _ready() -> void:
 	_media_vara = madera.texture.get_height() * 0.5 * absf(madera.scale.y)
 	madera.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	var luz := ShaderMaterial.new()
-	luz.shader = preload("res://scripts/game/magnus_luz.gdshader")
+	luz.shader = preload("res://scripts/game/peregrino_luz.gdshader")
 	# No esta en el suelo: sin rebote de las hojas ni oclusion de pies. Borde de
-	# luz fino: con el de Magnus (3 px) las puntas de la garra se encendian
+	# luz fino: con el del peregrino (3 px) las puntas de la garra se encendian
 	# enteras y, al girar, parpadeaban como puntitos.
 	luz.set_shader_parameter(&"rebote_fuerza", 0.0)
 	luz.set_shader_parameter(&"oclusion", 0.0)
@@ -94,7 +94,7 @@ func _ready() -> void:
 	luz.set_shader_parameter(&"borde_fuerza", 0.3)
 	madera.material = luz
 	# La bola, apagada. Sus materiales se copian: los de la escena del baston
-	# son compartidos y no hay que tocar el que lleve Magnus a la espalda.
+	# son compartidos y no hay que tocar el que lleve el peregrino a la espalda.
 	_orbe = madera.get_node("Orbe")
 	_luz_orbe = madera.get_node("Luz")
 	for s in [_orbe, _luz_orbe]:
@@ -136,7 +136,7 @@ func vara() -> Array:
 	var centro := _pivote.global_position
 	return [centro - eje, centro + eje]
 
-## Magnus lo ha alcanzado: la bola late una vez (un destello que sube y se va).
+## El peregrino lo ha alcanzado: la bola late una vez (un destello que sube y se va).
 func alcanzado() -> void:
 	for s in [_orbe, _luz_orbe]:
 		var m := s.material as ShaderMaterial
@@ -164,10 +164,10 @@ func encender(color: Color, efectos := true) -> void:
 	(madera.get_node("Chispas") as CPUParticles2D).emitting = true
 
 ## COGIDO (caida_hojarasca.gd, coger el baculo): la madera ya va en el dibujo
-## de Magnus (el video del agarre); aqui queda solo la bola, que el nivel pone
+## del peregrino (el video del agarre); aqui queda solo la bola, que el nivel pone
 ## en la garra del dibujo (bola_en) y que se descarga (descargar) hasta quedar
 ## vacia: un cristal apagado con la brasa del fondo (orbe.gdshader, carga 0).
-## Va delante de Magnus: detras, la cara la tapaba cuando la garra le pasa por
+## Va delante del peregrino: detras, la cara la tapaba cuando la garra le pasa por
 ## delante.
 func coger() -> void:
 	_estado = 3

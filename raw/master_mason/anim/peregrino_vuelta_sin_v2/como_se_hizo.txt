@@ -1,0 +1,11 @@
+Montado en la secuencia sin baston de la escena frontal: ver
+../peregrino_secuencia_frontal/como_se_hizo.txt (2026-10-12) y secuencia.py (TRAMOS).
+Pasos: nuevo / frames / elegir "1-192"; croma.py; ../peregrino_secuencia_frontal/medir.py;
+../peregrino_secuencia_frontal/montar_en_sitio.py peregrino_vuelta_sin_v2 --fijo
+
+PIES OSCUROS (2026-10-12). Veo los saco descalzos (el prompt decia "bare feet"): pies
+color carne, con dedos y unas claras. Las piernas, oscuras como en lo aceptado, asi que
+no se repite el video: ../peregrino_secuencia_frontal/oscurecer_pies.py lleva lo claro de
+los pies al marron del pie del andar de frente aceptado (los de Veo, en _todos_veo/;
+el arreglo, sobre _todos/). Si se vuelve a montar, volver a pasarlo. Comparacion en
+05_salida/pies_veo_vs_oscurecidos_24fps.mp4 y _8fps.mp4 (Veo a la izquierda).

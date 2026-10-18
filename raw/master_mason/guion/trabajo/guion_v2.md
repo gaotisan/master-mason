@@ -135,7 +135,7 @@ En 1ª persona: Dóminus enfrente y una **balanza de cantero**. El jugador pone 
 
 ## 2. Personajes
 
-**Iram, el peregrino (el jugador; en código, «Magnus»).** Anciano sin memoria, cantero, *Magister muri*. Es la proyección de Dóminus: la parte adulta que habría podido crecer. Llega como hijo del sueño, se vuelve el padre que enseña y al final mata al padre. Habla poco. Su cara se ve tres veces en **primer plano ilustrado** y con el mismo encuadre: en el reflejo del río (2.6), junto a la cara tallada de Eco (6.7) y entre los escombros (10.5).
+**Iram, el peregrino (el jugador).** Anciano sin memoria, cantero, *Magister muri*. Es la proyección de Dóminus: la parte adulta que habría podido crecer. Llega como hijo del sueño, se vuelve el padre que enseña y al final mata al padre. Habla poco. Su cara se ve tres veces en **primer plano ilustrado** y con el mismo encuadre: en el reflejo del río (2.6), junto a la cara tallada de Eco (6.7) y entre los escombros (10.5).
 
 **Dóminus.** El niño encerrado en el sarcófago que imagina este mundo. Dentro del sueño es un curandero e inventor alto, de toga oscura y con la cara de su padre, de mirada infantil y perversa. **Es monstruoso por egoísmo de creador:** cose animales, presta a su hijo para azotarlo, seca un río tarareando y se lleva un perro a rastras. **Da pena:** quemaron a su padre delante de él, su madre le salió un monstruo, y cada mañana empuja el péndulo como un niño que da cuerda a un juguete. **Quiere saber aunque le mate**: es el árbol de la ciencia. Sin música de villano. *Producción:* el NPC facetado que ya existe, como títere.
 

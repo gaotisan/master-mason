@@ -1,6 +1,6 @@
 """Referencias 1080x1920 (9:16) para los videos de TREPAR un muro alto y de
 BAJAR de el de un saltito (prompt_trepar.txt, prompt_bajar_saltando.txt; Flow,
-fotogramas a video). Empiezan y acaban en el reposo del juego (magnus_respirando
+fotogramas a video). Empiezan y acaban en el reposo del juego (peregrino_respirando
 c_01, sin baston: el guardado lo pinta el juego encima):
   referencia_trepar_inicio.png  abajo, pegado al muro (mirando a la derecha)
   referencia_trepar_fin.png     de pie encima del muro, un paso dentro del borde
@@ -35,7 +35,7 @@ VERDE = (36, 215, 50, 255)
 ANCHO, ALTO, SUELO = 1080, 1920, 1880         # SUELO: fila de la planta del pie abajo
 SS = 3                                        # supermuestreo del muro
 
-rep = Image.open(os.path.join(ANIM, 'magnus_respirando', '04_limpios', 'c_01.png')).convert('RGBA')
+rep = Image.open(os.path.join(ANIM, 'peregrino_respirando', '04_limpios', 'c_01.png')).convert('RGBA')
 op = np.asarray(rep)[..., 3] > 128
 ys, xs = np.where(op)
 H = ys.max() - ys.min()                       # 627: alto del peregrino

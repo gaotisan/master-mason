@@ -55,7 +55,7 @@ PUERTA_X = 800        # centro de la puerta en la imagen
 SS = 2                # el lienzo de valor va a SS veces el tamano final
 AA = 4                # y cada forma se rasteriza a AA veces mas, en su caja
 
-# Puerta: vano apuntado. El nivel pide ~220 x 390; Magnus mide 330.
+# Puerta: vano apuntado. El nivel pide ~220 x 390; el peregrino mide 330.
 PUERTA_ANCHO = 220
 PUERTA_ALTO = 390
 PUERTA_ARRANQUE = 225  # altura a la que empieza el arco apuntado
@@ -769,7 +769,7 @@ def construir(rnd: random.Random):
     s.forma(rect(PUERTA_X - 150, PUERTA_X + 150, -6, 16), piedra_fina, prof=1.0, sombra=0.03)
 
     # ---- 11. Farol junto a la puerta ----
-    # Colgado de un brazo de hierro a la izquierda: Magnus pasa por debajo al
+    # Colgado de un brazo de hierro a la izquierda: el peregrino pasa por debajo al
     # llegar. Es la luz mas cercana a camara, asi que va algo mas grande.
     fx, fh = PUERTA_X - 196, 470
     s.forma(rect(fx - 6, fx + 82, fh + 6, fh + 13), None, prof=0.98, sombra=0, borde=0.03)
@@ -1167,14 +1167,14 @@ def previsualizar(out, carpeta, alfa, valor, rgb_w, a_w, ha, hv, rgb_l, a_l, lo)
     lx, ly = ox - lo[0], 1200 - lo[1]
     k = 0.35
     fondo[ly:ly + a_l.shape[0], lx:lx + a_l.shape[1]] += rgb_l * a_l[..., None] * k
-    # Magnus para la escala
+    # El peregrino para la escala
     try:
         mg = Image.open(Path(__file__).resolve().parents[2] /
-                        'assets/characters/magnus/magnus_respirando.png').crop((0, 0, 292, 360))
+                        'assets/characters/peregrino/peregrino_respirando.png').crop((0, 0, 292, 360))
         mg = np.asarray(mg.convert('RGBA'), np.float32) / 255.0
         componer(fondo, mg, ox - 60 - 146, 1200 - 345)
     except Exception as e:  # noqa: BLE001
-        print('sin magnus', e)
+        print('sin peregrino', e)
     img = Image.fromarray((np.clip(fondo, 0, 1) * 255).astype(np.uint8))
     img.save(carpeta / 'py_preview.png')
     img.resize((1456, 816), Image.LANCZOS).save(carpeta / 'py_preview_s.png')

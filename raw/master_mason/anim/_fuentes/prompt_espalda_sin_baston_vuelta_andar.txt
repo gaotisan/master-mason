@@ -11,14 +11,14 @@ un solo marron muy oscuro desde el bajo de la tunica hasta la punta del pie. Los
 prompts de abajo ya van corregidos ("bare" fuera, los pies descritos); las
 referencias, las mismas (los pies ya salen oscuros en ellas).
 SOLO SE REPITE EL ANDAR DE ESPALDAS (piernas color carne): la vuelta tiene las
-piernas oscuras y se salvo oscureciendo los pies (magnus_secuencia_frontal/
+piernas oscuras y se salvo oscureciendo los pies (peregrino_secuencia_frontal/
 oscurecer_pies.py).
 
 Por que: la espalda del modo sin baston era otra tunica (sin el chevron gris de la de
 con baston y del giro de pie de perfil) y al sacar el baston de espaldas se veia el
-cambio (magnus_sacar_baston_espalda/como_se_hizo.txt). La solucion de fondo: el modo
+cambio (peregrino_sacar_baston_espalda/como_se_hizo.txt). La solucion de fondo: el modo
 sin baston pasa a la espalda del chevron. La espalda nueva es la de con baston sin el
-baston y con la manga derecha espejada de la izquierda (magnus_espalda_sin_baston,
+baston y con la manga derecha espejada de la izquierda (peregrino_espalda_sin_baston,
 hacer_espalda.py; comparacion en su 05_salida/comparar_espaldas.png). El frente sin
 baston se queda como esta.
 

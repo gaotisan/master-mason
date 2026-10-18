@@ -5,7 +5,7 @@ Por que: el giro de ahora sale de un video de exhibicion lento (360 grados con
 paradas) que en el juego va 2,5 veces mas rapido: cada paso dura ~0,15 s (al
 andar, ~0,57 s) y el usuario lo ve "a trompicones". Ademas la tunica tiene otro
 dibujo y otra luz a cada lado, y para que el giro case con su espejo hay que
-retocarla mucho (magnus_giro_frente/espejo.py: "sastre", barba, brazos...).
+retocarla mucho (peregrino_giro_frente/espejo.py: "sastre", barba, brazos...).
 Aqui se pide el giro ya a la velocidad del juego, POR DELANTE, y con la tunica
 igual a los dos lados: asi se usa a su ritmo y casi sin apanos.
 

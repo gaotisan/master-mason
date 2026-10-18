@@ -3,7 +3,7 @@
   referencia_clavar_inicio.png  = referencia_arrancar_fin.png: el reposo con el
       baston en la mano del juego (giro_mano.reposo_mano), garra VACIA
   referencia_clavar_fin.png     = referencia_arrancar_inicio.png: el reposo
-      normal (magnus_respirando c_01) con el baston clavado delante, donde lo
+      normal (peregrino_respirando c_01) con el baston clavado delante, donde lo
       tenia en la mano, hundido HUNDIDO px en el suelo
 Casilla master 1:1 en x=668 (como las de sacar el baston), pies en y=1040, croma
 #24D732. El baston clavado sale del propio reposo con baston, para que sea el

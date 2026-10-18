@@ -1,5 +1,5 @@
 """Saca el sprite del baston para Godot desde la imagen de Gemini y escribe el
-seguimiento. Todo a la escala de las hojas de Magnus (media escala).
+seguimiento. Todo a la escala de las hojas del peregrino (media escala).
   python exportar.py"""
 import json
 import numpy as np
@@ -10,8 +10,8 @@ from celdas import PROY
 FUENTE = "../_fuentes/baston_solo_gemini_v1.jpeg"
 RECORTE = (1270, 280, 1520, 2170)        # x0, y0, x1, y1 en la imagen de Gemini
 FONDO = np.array([39, 208, 52.])
-ALTO_MAGNUS_GEMINI = 1995                 # px, medido en la misma imagen
-ESCALA = 628 / ALTO_MAGNUS_GEMINI / 2 * 0.9   # a media escala y al 90 % (mas corto queda mejor a la espalda)
+ALTO_PEREGRINO_GEMINI = 1995                 # px, medido en la misma imagen
+ESCALA = 628 / ALTO_PEREGRINO_GEMINI / 2 * 0.9   # a media escala y al 90 % (mas corto queda mejor a la espalda)
 GARRA = (105 / 218, 125 / 1860)           # centro del hueco de la garra, en fraccion del sprite
 PIVOTE = 40                               # px (ya escalado) desde la punta: el punto que sigue a la espalda
 RECORTE_ABAJO = 0.13                      # se le quita esto por abajo: a la espalda esa parte va siempre

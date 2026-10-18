@@ -1,7 +1,7 @@
 extends Node2D
-## Baston de Magnus (a la espalda y en la mano; se prueba en scenes/dev/piloto_baston.tscn).
+## Baston del peregrino (a la espalda y en la mano; se prueba en scenes/dev/piloto_baston.tscn).
 ##
-## Se cuelga como hijo de Magnus, al lado de su Sprite, y en cada fotograma se
+## Se cuelga como hijo del peregrino, al lado de su Sprite, y en cada fotograma se
 ## coloca con lo que dice baston_seguimiento.json para esa animacion y ese
 ## fotograma: posicion respecto al centro de la casilla, giro y si va delante
 ## del cuerpo (de espaldas, en los giros) o detras (siempre lo demas). Con
@@ -30,7 +30,7 @@ extends Node2D
 ## recargarse, motas de luz que entran en la bola; llena, chispas que suben
 ## despacio. El resto (brillo, espiral, halo, latido) lo hace orbe.gdshader.
 ##
-## EN LA MANO (en_mano = true): a Magnus se le pone una copia de sus
+## EN LA MANO (en_mano = true): al peregrino se le pone una copia de sus
 ## SpriteFrames con reposo, arranque_andar, andar y parada_andar cambiadas por
 ## las del video del baston (mano.json, de raw/.../baston/mano.py), y se le
 ## ajusta el paso (mas lento: 90 px/s, 3 px por fotograma). En esas cuatro la
@@ -39,7 +39,7 @@ extends Node2D
 ## espalda, como sin el; en los giros, la funda vacia (ver arriba).
 ##
 ## Sacar y guardar (alternar_mano) van con su animacion (sacar_baston,
-## guardar_baston, de los videos de Flow) cuando Magnus esta en reposo: se le
+## guardar_baston, de los videos de Flow) cuando el peregrino esta en reposo: se le
 ## bloquea el control mientras dura (control_bloqueado, lo que usan los
 ## niveles) y al acabar queda en el reposo del otro modo. En marcha, o con
 ## la animacion sin hacer, cambia en el sitio como antes. Mientras dura, el
@@ -68,13 +68,13 @@ const HASTA_FUNDA := 12.0
 ## ahora). El paso en si (lo que avanza cada fotograma del ciclo, el arranque,
 ## la parada y sus entradas, las pisadas) va medido sobre el video en
 ## mano.json["paso"] (raw/.../baston/paso.py y mano.py). Todo se le pone a
-## Magnus al sacarlo y se le devuelve como estaba al guardarlo.
+## El peregrino al sacarlo y se le devuelve como estaba al guardarlo.
 const PASO_MANO := {"correr_bloqueado": true, "agacharse_activo": false, "salto_bloqueado": true}
-const PISADA_A := preload("res://assets/audio/magnus_paso_a.wav")
-const PISADA_B := preload("res://assets/audio/magnus_paso_b.wav")
+const PISADA_A := preload("res://assets/audio/peregrino_paso_a.wav")
+const PISADA_B := preload("res://assets/audio/peregrino_paso_b.wav")
 const MANO_ANIMS := ["andar", "arranque_andar", "parada_andar", "reposo"]
 ## Con el baston en la mano tambien cambia el giro (de pie): por delante,
-## cambiando el baston de mano, del video del job magnus_giro_baston_mano
+## cambiando el baston de mano, del video del job peregrino_giro_baston_mano
 ## (giro_mano.py). No esta en MANO_ANIMS para que no se pueda sacar ni guardar
 ## el baston a mitad de giro.
 const MANO_GIRO := ["giro"]
@@ -155,12 +155,12 @@ func alternar() -> void:
 func alternar_mano() -> void:
 	if _en_transicion:
 		return
-	var magnus := get_parent()
+	var peregrino := get_parent()
 	var anim := "guardar_baston" if en_mano else "sacar_baston"
-	if _sprite.animation == &"reposo" and _sprite.sprite_frames.has_animation(anim) 			and not magnus.control_bloqueado:
+	if _sprite.animation == &"reposo" and _sprite.sprite_frames.has_animation(anim) 			and not peregrino.control_bloqueado:
 		_en_transicion = true
 		puesto = true
-		magnus.control_bloqueado = true
+		peregrino.control_bloqueado = true
 		_sprite.play(anim)
 		_colocar()
 		return
@@ -184,39 +184,39 @@ func poner_en_mano(si: bool) -> void:
 		return
 	en_mano = si
 	puesto = true
-	var magnus := get_parent()
+	var peregrino := get_parent()
 	if si:
-		var paso := _paso_mano(magnus)
+		var paso := _paso_mano(peregrino)
 		for k in paso:
-			_paso_espalda[k] = magnus.get(k)
-			magnus.set(k, paso[k])
+			_paso_espalda[k] = peregrino.get(k)
+			peregrino.set(k, paso[k])
 	else:
 		for k in _paso_espalda:
-			magnus.set(k, _paso_espalda[k])
+			peregrino.set(k, _paso_espalda[k])
 	_cambiar_frames(_frames_mano if si else _frames_espalda)
 
-## Lo que se le cambia a Magnus con el baston en la mano: los bloqueos y el
+## Lo que se le cambia al peregrino con el baston en la mano: los bloqueos y el
 ## paso medido de mano.json. Las pisadas van como "a"/"b" por fotograma y aqui
 ## se cambian por los sonidos; las de arranque y parada van en golpes_anim.
-func _paso_mano(magnus: Node) -> Dictionary:
+func _paso_mano(peregrino: Node) -> Dictionary:
 	var paso := PASO_MANO.duplicate()
 	var medido: Dictionary = _mano.get("paso", {})
 	for k in medido:
 		if k in ["pisadas", "golpes"]:
 			continue
 		# el JSON da todos los numeros como float
-		paso[k] = int(medido[k]) if typeof(magnus.get(k)) == TYPE_INT else medido[k]
+		paso[k] = int(medido[k]) if typeof(peregrino.get(k)) == TYPE_INT else medido[k]
 	var sonido := func(d: Dictionary) -> Dictionary:
 		var r := {}
 		for f in d:
 			r[int(f)] = PISADA_A if d[f] == "a" else PISADA_B
 		return r
 	if medido.has("pisadas"):
-		var p: Dictionary = magnus.pisadas.duplicate()
+		var p: Dictionary = peregrino.pisadas.duplicate()
 		p["andar"] = sonido.call(medido["pisadas"])
 		paso["pisadas"] = p
 	if medido.has("golpes"):
-		var g: Dictionary = magnus.golpes_anim.duplicate()
+		var g: Dictionary = peregrino.golpes_anim.duplicate()
 		for anim in medido["golpes"]:
 			g[anim] = sonido.call(medido["golpes"][anim])
 		paso["golpes_anim"] = g

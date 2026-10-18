@@ -3,7 +3,7 @@ REM Abre las pruebas de camara (scenes/pruebas_camara), aparte del juego.
 REM   pruebas_camara.bat          menu (1 capas, 2 planos)
 REM   pruebas_camara.bat capas    directo a la de capas (Inside)
 REM   pruebas_camara.bat planos   directo a la de planos fijos (Alone in the Dark)
-REM   pruebas_camara.bat vitrina  directo al Magnus 3D
+REM   pruebas_camara.bat vitrina  directo al peregrino 3D
 REM Se puede indicar otro Godot con la variable de entorno GODOT.
 setlocal
 set PROJECT_DIR=%~dp0

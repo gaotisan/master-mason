@@ -11,4 +11,4 @@
 script = ExtResource("2")
 guion = [[0.5, "mover_derecha", true], [0.6, "mover_derecha", false], [0.7, "mover_derecha", true], [9.0, "saltar", true], [9.1, "saltar", false], [34.0, "mover_derecha", false]]
 x_inicial = 600.0
-personaje = NodePath("../CapasInside/Capas/Accion/Magnus")
+personaje = NodePath("../CapasInside/Capas/Accion/Peregrino")

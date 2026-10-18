@@ -4,8 +4,8 @@ json que lee el juego.
 
   - Tono estandar de la tunica (igualar_tono.py), medido en el primer fotograma
     (el reposo del video).
-  - Restos del croma: quitar_verde() de magnus_giro_frente/espejo.py.
-  - El primer fotograma y el ultimo, al reposo del juego (magnus_respirando
+  - Restos del croma: quitar_verde() de peregrino_giro_frente/espejo.py.
+  - El primer fotograma y el ultimo, al reposo del juego (peregrino_respirando
     c_01), que es lo que hay antes y despues: primero la forma, moviendo pixeles
     (flujo optico hasta el reposo, que se apaga en N_EXT fotogramas viajando con
     el movimiento del video) y lo que queda con un fundido de N_FUNDIDO, con el
@@ -16,7 +16,7 @@ json que lee el juego.
 
 Todo va en una sola hoja por job (04_acciones/, c_001.. en orden); los tramos
 son rangos de casillas (indices en _spriteframes.py). El json (<job>/accion.json,
-y todos juntos en assets/characters/magnus/acciones_perfil.json) lleva, por
+y todos juntos en assets/characters/peregrino/acciones_perfil.json) lleva, por
 animacion y en px de la hoja (los del juego): la casilla y el offset del sprite
 (la raiz en el origen del nodo, como offset_comun), la raiz de cada fotograma
 respecto al primero del tramo, lo que avanza cada eje (s, 0..1: para cambiar en
@@ -33,12 +33,12 @@ from PIL import Image
 from scipy import ndimage
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(AQUI, 'magnus_giro_frente'))
+sys.path.insert(0, os.path.join(AQUI, 'peregrino_giro_frente'))
 import espejo as E                      # mover, flujo, deformar, llevar, fundir, quitar_verde, suave
 tono = E.tono
 
-REPOSO = os.path.join(AQUI, 'magnus_respirando', '04_limpios', 'c_01.png')
-JUEGO = os.path.abspath(os.path.join(AQUI, '..', '..', '..', 'assets', 'characters', 'magnus', 'acciones_perfil.json'))
+REPOSO = os.path.join(AQUI, 'peregrino_respirando', '04_limpios', 'c_01.png')
+JUEGO = os.path.abspath(os.path.join(AQUI, '..', '..', '..', 'assets', 'characters', 'peregrino', 'acciones_perfil.json'))
 N_EXT, N_FUNDIDO = 8, 5
 FPS = 24.0
 
@@ -59,34 +59,34 @@ FPS = 24.0
 # salida); para repetirlo hace falta un video con inicio = fin = un fotograma
 # del empuje, como el del andar con el baston.
 ACCIONES = {
-    'magnus_trepar': {'tramos': [('trepar', 1, None)], 'cara': 'izquierda'},
-    'magnus_trepar_mediano': {'tramos': [('trepar_mediano', 1, None)], 'cara': 'izquierda'},
-    'magnus_bajar': {'tramos': [('bajar', 1, None)], 'cara': 'derecha', 'polvo': True,
+    'peregrino_trepar': {'tramos': [('trepar', 1, None)], 'cara': 'izquierda'},
+    'peregrino_trepar_mediano': {'tramos': [('trepar_mediano', 1, None)], 'cara': 'izquierda'},
+    'peregrino_bajar': {'tramos': [('bajar', 1, None)], 'cara': 'derecha', 'polvo': True,
                      'tapar': [(70, 73, (350, 570, 400, 620))],      # el agujero de la cadera al levantarse
                      'rehacer_bajo': [(69, (200, 663, 362, 743)), (70, (245, 663, 362, 743))]},
-    'magnus_empujar': {'tramos': [('empujar', 1, None)], 'pies': True},
-    'magnus_empujar_v2': {'tramos': [('empujar_v2', 1, None)], 'pies': True},
+    'peregrino_empujar': {'tramos': [('empujar', 1, None)], 'pies': True},
+    'peregrino_empujar_v2': {'tramos': [('empujar_v2', 1, None)], 'pies': True},
     # segunda tanda (2026-10-12): sin objeto que se mueva. Lo pequeno que coge o
     # lanza (piedrecita, palo) y el baculo clavado van en el dibujo (el juego
     # esconde los suyos mientras dura); la mesa se quita (quitar_objeto.py).
-    'magnus_golpe': {'tramos': [('golpe', 1, None)]},
-    'magnus_derribo': {'tramos': [('derribo', 1, None)]},
-    'magnus_coger_suelo': {'tramos': [('coger_suelo', 1, None)]},
-    'magnus_coger_mesa': {'tramos': [('coger_mesa', 1, None)], 'cara': 'izquierda'},
-    'magnus_lanzar_palo': {'tramos': [('lanzar_palo', 1, None)], 'lanza': True},
+    'peregrino_golpe': {'tramos': [('golpe', 1, None)]},
+    'peregrino_derribo': {'tramos': [('derribo', 1, None)]},
+    'peregrino_coger_suelo': {'tramos': [('coger_suelo', 1, None)]},
+    'peregrino_coger_mesa': {'tramos': [('coger_mesa', 1, None)], 'cara': 'izquierda'},
+    'peregrino_lanzar_palo': {'tramos': [('lanzar_palo', 1, None)], 'lanza': True},
     # arrancar acaba en el reposo con el baston en la mano; clavar es arrancar
     # del reves (las mismas casillas en orden inverso), hasta que haya video.
     # 'garra': donde va la bola en cada fotograma (el baculo del video no la
     # lleva; la pone el juego, como con el baston en la mano)
-    'magnus_arrancar': {'tramos': [('arrancar', 1, None)], 'ref_fin': 'mano', 'reverso': {'arrancar': 'clavar'},
+    'peregrino_arrancar': {'tramos': [('arrancar', 1, None)], 'ref_fin': 'mano', 'reverso': {'arrancar': 'clavar'},
                         'garra': True},
     # tumbarse: se tumba (c1-c74), se arrastra (c75-c123, el arrastre: vuelve a
     # empezar en el c75, que es el mas parecido al c124, a 1,8 pasos) y se
     # levanta (c124-). Tumbado se queda en el ultimo de tumbarse o del arrastre.
-    'magnus_tumbarse': {'tramos': [('tumbarse', 1, 74), ('arrastrarse', 75, 123), ('levantarse_tumbado', 124, None)],
+    'peregrino_tumbarse': {'tramos': [('tumbarse', 1, 74), ('arrastrarse', 75, 123), ('levantarse_tumbado', 124, None)],
                         'bucle': 'arrastrarse'},
     # tirar: el sillar (quitado por color, se ladea en el video) va con las manos
-    'magnus_tirar': {'tramos': [('tirar', 1, None)], 'pies': 'tira'},
+    'peregrino_tirar': {'tramos': [('tirar', 1, None)], 'pies': 'tira'},
 }
 PLANTA = 13          # la planta del pie, px de master sobre la linea de suelo (677 de 690)
 

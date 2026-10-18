@@ -216,7 +216,7 @@ En 1ª persona: Dóminus enfrente y una **balanza de cantero**. El jugador pone 
 
 ## 2. Personajes
 
-**El peregrino (Iram)** (el jugador; en código, «Magnus»). Hasta que Dóminus le nombra en 2.1, el guion le llama **el peregrino** (o la figura encapuchada, el viejo): el jugador tampoco sabe su nombre. Anciano sin memoria, cantero, *Magister muri*. Habla poco. Llega como hijo del sueño, se vuelve el que enseña y acaba siendo alguien que Dóminus no puso.
+**El peregrino (Iram)** (el jugador). Hasta que Dóminus le nombra en 2.1, el guion le llama **el peregrino** (o la figura encapuchada, el viejo): el jugador tampoco sabe su nombre. Anciano sin memoria, cantero, *Magister muri*. Habla poco. Llega como hijo del sueño, se vuelve el que enseña y acaba siendo alguien que Dóminus no puso.
 **Quién es (canon §1, lectura obligatoria):**
 - **La persona del prólogo es Dóminus**, el niño real encerrado, que cae en el sueño. **Iram no**: es una **criatura del sueño de Dóminus**, soñada como uno de los maestros constructores de los legajos de su padre y **hecha con el rostro que Dóminus recordaba de su padre**. Iram nunca estuvo en el espacio del prólogo y no puede recordarlo.
 - **El juego deja que el jugador crea al principio** que el encerrado del prólogo es el mismo peregrino que controla (la primera persona, el negro y, justo después, él cayendo). Lo desmiente el corte de 6.2 (el niño de carboncillo, la caja, la misma ventanilla) y la frase de 6.3 («en la caja soñé un peregrino»); 10.5 lo cierra con las caras.

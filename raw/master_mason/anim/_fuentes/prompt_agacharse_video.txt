@@ -1,7 +1,7 @@
 PROMPT PARA EL VIDEO DE AGACHARSE (Google Flow / Veo, "Frames to Video")
 =======================================================================
 Por que (2026-10-06): el agacharse sale de Pilgrim_squatting_animation (job
-magnus_agacharse), que al bajar REBOTA (la cabeza baja, sube 8 px y cae 16) y
+peregrino_agacharse), que al bajar REBOTA (la cabeza baja, sube 8 px y cae 16) y
 empieza en una pose de pie mas encorvada que el reposo del juego. Para esquivarlo
 el agacharse del juego esta hecho a trozos: un puente de 5 sprites al principio
 y, a media bajada, un empalme con el levantarse al reves. Se nota un poco
@@ -16,10 +16,10 @@ Lo que se pide aqui es SOLO LA BAJADA, de nuestro reposo a nuestro agachado:
 
 En Flow, modo de fotogramas a video:
   - fotograma inicial: referencia_agacharse_inicio.png  (el reposo del juego,
-    magnus_respirando c_08, mirando a la derecha, a tamano de master en
+    peregrino_respirando c_08, mirando a la derecha, a tamano de master en
     1920x1080, pies en la fila 879, fondo verde #24D732)
   - fotograma final:   referencia_agacharse_fin.png     (el agachado del juego,
-    magnus_agacharse c_089, mismo lienzo y misma fila de pies)
+    peregrino_agacharse c_089, mismo lienzo y misma fila de pies)
   (las dos estan aqui en _fuentes/ y copiadas en Descargas)
   - 16:9, 8 s, el modelo de mas calidad. Sacar 2-4 tomas.
   - Fondo VERDE y no magenta: el magenta de las hojas antiguas dejo un ribete en
@@ -103,8 +103,8 @@ Descargas/agacharse_claves/), todas en el mismo lienzo 1920x1080 verde, con la
 casilla del juego en (671, 202): los pies en la fila 879 y en el mismo sitio, como
 en el juego (las referencias de antes centraban cada figura y el agachado quedaba
 10 px a la derecha).
-  01_reposo.png      el reposo del juego (magnus_respirando c_08)
-  02_bajando.png     la bajada a media altura (magnus_agacharse c_018)
+  01_reposo.png      el reposo del juego (peregrino_respirando c_08)
+  02_bajando.png     la bajada a media altura (peregrino_agacharse c_018)
   03_casi_abajo.png  el ultimo bueno antes del rebote (c_027)
   04_agachado.png    el agachado del bucle (c_089)
   00_secuencia.png   las cuatro en fila, solo como referencia visual

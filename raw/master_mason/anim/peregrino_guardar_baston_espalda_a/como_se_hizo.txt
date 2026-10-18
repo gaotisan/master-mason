@@ -1,0 +1,97 @@
+GUARDAR EL BASTON DE ESPALDAS, VIDEO A (2026-10-12)
+===================================================
+Video: _fuentes/Character_slinging_staff_animation_20261011153608.mp4 (Flow; 144
+fotogramas; inicio = referencia_baston_mano_espaldas.png, fin =
+referencia_baston_espalda_espaldas.png con la espalda nueva). Se habia descartado el
+2026-10-11 porque voltea el baston en el aire; pasa a ser EL guardar de espaldas
+porque el de B (peregrino_guardar_baston_espalda_b) atravesaba el cuerpo aun arreglado.
+
+POR QUE A Y NO B
+  El usuario: "el baston parece atravesar el cuerpo". En B el gesto mismo es el
+  fallo: con la mano quieta en el hombro, el baston gira sobre ella y el pie barre la
+  espalda de derecha a izquierda y asoma por la cadera izquierda (como un pincho que
+  atraviesa al peregrino); pintarlo por encima de la tunica (su arreglar.py) no lo
+  quita. A tiene el gesto bueno: lo sube, se lo lleva por detras y lo baja a la
+  correa. Lo malo de A (la garra ABAJO, que no puede ser nunca, y un segundo palo) se
+  arregla con nuestro baston.
+
+LO QUE TRAE A
+  1-42   reposo con baston y lo sube con la garra arriba: bien tal cual.
+  43-61  gira la muneca: el baston se tumba sobre la cabeza (53-56) y la garra va
+         ABAJO por la espalda (57-61); pinta sus sombras en la capucha y la espalda.
+  62-65  aparece ya en la correa con la garra arriba, pero doble (el baston y uno
+         fantasma mas inclinado) y del extremo viejo sale un segundo palo hacia arriba.
+  66-74  el baston en la correa, bien; el segundo palo sale de la punta derecha de la
+         garra (la deforma).
+  75-144 la mano lo suelta, baja el brazo y queda como el reposo de la escena (97 %).
+  Luz: Veo oscurece el baston al subirlo (garra L 68 frente a 93 en reposo) y lo
+  aclara en la correa (102-113).
+
+EL ARREGLO (arreglar.py; Veo intacto en _todos_veo/, el arreglo en _todos/)
+  43-65  nuestro baston, el MISMO de Veo en reposo (c_010: garra de cuerna, tramo
+         retorcido; la vara de abajo del reposo es fina y oscura y lleva la orla verde
+         del croma, asi que la vara es el final del tramo retorcido repetido). La
+         garra y el tramo retorcido (168 px bajo la bola) no se estiran; la vara, si
+         (escorzo). Lo lleva el PUNO (lo alto de la piel de la mano: debajo asoman la
+         muneca y el antebrazo):
+           43-49 sube y se inclina hacia fuera como el de Veo (en el 43 calca su bola y
+                 su pie); la vara POR DETRAS de todo el cuerpo (solo asoma fuera de la
+                 silueta) y fina (65 %: lejos), como la de Veo;
+           50-62 gira por detras de la espalda: el pie pasa de la derecha a la
+                 izquierda por DELANTE de la espalda y por DETRAS del brazo levantado
+                 (bajo la manga asoma poco a poco); y cae a la correa (la bola baja
+                 hacia la mano: la mano lo suelta un poco);
+           hasta la pose de Veo en la correa del 66: su bola y el giro MEDIDO de su
+           vara, -17,5 (lo claro de la vara frente a sus lados). El giro de la
+           plantilla de la garra (-22 / -28) no vale para la vara: con el, el 61 y el
+           62 no empalmaban.
+         La garra nunca por encima de y = 56 (margen en la hoja: 6,5 px). La luz, de
+         0,73 a 1,10 de la del reposo. El cuerpo de 48-65, el del 47 (quieto en el
+         video): sin las sombras del baston volteado ni el fantasma; el brazo, el de
+         cada fotograma; la mano, siempre encima.
+  66-74  la garra de Veo fuera (tambien lo de dentro de su contorno, que deja ver el
+         arranque del segundo palo) y la nuestra encima, fundida en su vara.
+  La bola: garra.py en lo de Veo (1-47 desde el reposo con baston, 144-62 desde el
+  de la correa) y la nuestra exacta en 43-65 -> garra.json.
+
+LO QUE SE PROBO Y NO VALIO
+  - nuestra textura (assets/characters/baston/baston.png): mas naranja y otra garra
+    que la de Veo en la mano;
+  - la vara de abajo del reposo: fina, oscura y verdosa;
+  - llegar a la pose de Veo en el 62 (su baston aun doble) y con el giro de la
+    plantilla (-28): el 61 no casaba con el 62;
+  - la vara por delante del brazo desde el principio: en el 42 la de Veo va por
+    detras del antebrazo y en el 43 saltaba delante; y con un corte recto bajo la
+    manga se veia "empezar" en medio de la manga;
+  - el giro con PCHIP hasta el 62: se quedaba inclinado hacia fuera 49-57 y giraba
+    de golpe en 4 fotogramas (ahora suave del 49 al 62).
+
+MONTAJE
+  python arreglar.py
+  python ../peregrino_sacar_baston_espalda_v2/animar.py    (tramo 19-106: en el 19 al
+      95 % del reposo con baston, en el 106 al 97 % del de la correa; 3 + 4 de puente;
+      95 fotogramas, 4 s)
+  hoja.ps1 -Job peregrino_guardar_baston_espalda_a -Cols 16 -Fps 24 -Escala 2
+      (casilla 332x452; a veces se cuelga en _margenes.py con la hoja ya escrita)
+  tools/anim/_spriteframes.py (este job en lugar del de B) y --import
+05_salida: arreglo_veo_vs_nuevo_24fps.mp4 y _6fps.mp4 (30-89; Veo a la izquierda).
+
+EL BACULO MAS GORDO EN LA CORREA (2026-10-16)
+---------------------------------------------
+El usuario: al guardar de espaldas el baculo "se hace algo mas gordo y se guarda, y
+luego adelgaza" (y al reves al sacar); le gusta el delgado (el de la escena).
+Causa: las capas que pinta la escena (capa_espalda.gd: baston_en_correa.png,
+funda_vacia_reposo_espalda.png, capas/correa_vacia_*.png) se capturaban sobre fondo
+transparente y la mezcla de Godot dejaba los bordes casi negros (luminancia 3 con
+alfa 10-60, 76 dentro). Pegadas en los videos, el palo y la correa llevaban un
+contorno oscuro y se veian mas gruesos; al acabar, la escena los pinta sin el.
+Arreglo: capa_espalda.gd pinta sobre negro y sobre blanco y saca alfa y color
+exactos; de espaldas, el baston con baston_espalda_master.png a media escala (con
+fix_alpha_edges, como al importar) en vez de la de hoja ampliada. Las cuatro capas
+rehechas (mismo alfa, solo cambia el color del borde) y todo el montaje otra vez.
+Ademas, el halo del orbe: en la animacion la bola va detras del sprite (como en la
+mano) y en la espalda delante, y la capucha se encendia de golpe al acabar
+(peregrino_frontal.gd, _halo_de_espaldas: una copia de solo el halo delante, con la
+mascara del baston, que entra segun la escala de la bola).
+Salto al acabar el guardar (px que cambian mas de 30): 2860 -> 83; al empezar el
+sacar: 2959 -> 371 (lo de un fotograma normal de la animacion).

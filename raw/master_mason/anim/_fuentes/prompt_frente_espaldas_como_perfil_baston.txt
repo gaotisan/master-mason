@@ -1,5 +1,5 @@
 EN _fuentes LAS REFERENCIAS SE LLAMAN referencia_perfil_*.png (las mismas que en
-Descargas/magnus_frente_espaldas_como_perfil/ sin el "perfil_").
+Descargas/peregrino_frente_espaldas_como_perfil/ sin el "perfil_").
 
 PROMPTS CON EL BASTON: ANDAR DE FRENTE Y DE ESPALDAS, LA VUELTA, SACARLO Y GUARDARLO
 (Google Flow, Frames to Video, 2026-10-14)

@@ -11,7 +11,7 @@ extends Node
 ##   SONDA_OCULTAR="Bosque,FondoImagen"  (a los 4 s esconde esos nodos de la
 ##   escena, para ver cuanto cuesta cada cosa en la grafica; vale "*ColorRect*"
 ##   para los que no tienen nombre; SONDA_OCULTAR_T=12 lo hace a esa hora)
-##   SONDA_VARS="HojasDelante:_vuelan,Magnus:velocity"  (anade a cada linea esas
+##   SONDA_VARS="HojasDelante:_vuelan,el peregrino:velocity"  (anade a cada linea esas
 ##   variables de nodos de la escena: de un Array o Dictionary, su tamano)
 ##   SONDA_FOTO="8:C:/ruta/foto.png"  (guarda la pantalla a esa hora, para
 ##   comparar antes y despues de un cambio). Con SONDA_FOTOS=30 saca esas
@@ -20,9 +20,9 @@ extends Node
 ##   SONDA_FOTO_SI="Sprite:animation=flotar_pisar"  (en vez de a una hora:
 ##   cada vez que esa propiedad pasa a valer eso, guarda los SONDA_ANTES=6
 ##   fotogramas de antes y SONDA_FOTOS de despues, en SONDA_FOTO="0:C:/ruta/f.png"
-##   como f_<vez>_<n>.png; con SONDA_SIGUE="Magnus,400,600" el recorte va centrado
+##   como f_<vez>_<n>.png; con SONDA_SIGUE="Peregrino,400,600" el recorte va centrado
 ##   en ese nodo, de ese tamano en pixeles de la pantalla; leer la pantalla
-##   cuesta: con SONDA_FOTO_MIENTRAS="Magnus:_vuelo=2" solo se guardan los de
+##   cuesta: con SONDA_FOTO_MIENTRAS="Peregrino:_vuelo=2" solo se guardan los de
 ##   antes mientras pase eso)
 ## Uso: Godot --path ... res://scenes/dev/sonda_rendimiento.tscn --windowed
 ##      --resolution 1920x1080 (con LUZ_PRUEBA y demas, para los pilotos).
@@ -180,7 +180,7 @@ func _process(d: float) -> void:
 	if real * 1000.0 > TIRON_MS and _t > 0.5:
 		var e := get_tree().current_scene
 		var anim := ""
-		var mg := e.find_child("Magnus", true, false) if e else null
+		var mg := e.find_child("Peregrino", true, false) if e else null
 		if mg and mg.has_node("Sprite"):
 			anim = " (%s)" % (mg.get_node("Sprite") as AnimatedSprite2D).animation
 		print("TIRON t=%6.2f (reloj %6.2f) %5.0f ms en %s%s%s" % [_t, Time.get_ticks_msec() / 1000.0, real * 1000.0, e.name if e else "-", anim, _vars(e)])

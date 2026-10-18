@@ -1,9 +1,9 @@
-"""Color ESTANDAR de la capucha de Magnus (2026-10-09), como igualar_tono.py hace con
+"""Color ESTANDAR de la capucha del peregrino (2026-10-09), como igualar_tono.py hace con
 lo calido de la tunica.
 
 El usuario: al guardar el baston de frente, al acabar en el reposo sin baston la
 capucha es "bastante mas azul". Medido (gris azulado de la capucha, media):
-  perfil (magnus_respirando, el estandar)   RGB (121, 131, 135)  tono 199  sat 0,11  luz 0,53
+  perfil (peregrino_respirando, el estandar)   RGB (121, 131, 135)  tono 199  sat 0,11  luz 0,53
   de frente con baston (secuencia)          RGB (131, 135, 141)  tono 218  sat 0,07  luz 0,55
   de frente sin baston (secuencia_sin)      RGB (108, 122, 128)  tono 198  sat 0,16  luz 0,50
   sacar / guardar (Veo)                     de gris a algo azulada y mas oscura al final
@@ -92,5 +92,5 @@ def aplicar(im, fuente, destino):
 
 def estandar():
     """Los tres primeros sprites del reposo de perfil (como igualar_tono.py)."""
-    fs = sorted(glob.glob(os.path.join(AQUI, 'magnus_respirando', '04_limpios', '*.png')))[:3]
+    fs = sorted(glob.glob(os.path.join(AQUI, 'peregrino_respirando', '04_limpios', '*.png')))[:3]
     return [Image.open(f) for f in fs]

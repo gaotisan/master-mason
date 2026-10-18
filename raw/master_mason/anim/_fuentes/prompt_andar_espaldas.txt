@@ -1,15 +1,15 @@
 PROMPT PARA EL VIDEO DE ANDAR DE ESPALDAS (Google Flow / Veo, "Frames to Video")
 ===============================================================================
 Por que (2026-10-07): el andar de espaldas de prueba (Wizard_walking_away_from_
-camera, job magnus_andar_espalda) es otro personaje: tunica de mosaico, baston en
+camera, job peregrino_andar_espalda) es otro personaje: tunica de mosaico, baston en
 la mano. Este se pide con NUESTRO peregrino de espaldas, sacado del giro de pie.
 
-Referencia: referencia_magnus_espaldas.png (fotograma 87 de
+Referencia: referencia_peregrino_espaldas.png (fotograma 87 de
 Wizard_turning_around_green_screen_20261005230414.mp4, el giro de pie del juego,
 el mas simetrico del giro; mismo tamano, posicion y verde #24D732 que
 referencia_giro_pie_video_inicio.png). Sin baston: va a la espalda como capa.
 
-En Flow: fotograma inicial = referencia_magnus_espaldas.png, SIN fotograma final
+En Flow: fotograma inicial = referencia_peregrino_espaldas.png, SIN fotograma final
 (que pueda alejarse). 16:9, 8 s, el modelo de mas calidad, 2-4 tomas.
 
 Que mirar en cada toma, por orden:
@@ -18,7 +18,7 @@ Que mirar en cada toma, por orden:
   2. que ande ya al ritmo del juego (un paso cada ~0,7 s), pasos de verdad, sin
      arrastrar los pies (acelerar despues no vale)
   3. camara quieta. Que se aleje y encoja NO es problema (lo normaliza
-     magnus_andar_frente/normalizar.py), pero que no se salga del cuadro ni
+     peregrino_andar_frente/normalizar.py), pero que no se salga del cuadro ni
      cambie de tamano a saltos
   4. sin sombra en el suelo (la del otro video costo mucho de limpiar)
   5. nada encima del personaje

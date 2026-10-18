@@ -1,7 +1,7 @@
 [gd_scene load_steps=46 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/caida_hojarasca.gd" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/characters/magnus.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/characters/peregrino.tscn" id="2"]
 [ext_resource type="Shader" path="res://scripts/game/fondo_haz.gdshader" id="3"]
 [ext_resource type="Shader" path="res://scripts/game/niebla_suelo.gdshader" id="4"]
 [ext_resource type="Shader" path="res://scripts/game/gradacion.gdshader" id="5"]
@@ -172,15 +172,15 @@ y_base = 1196.0
 alto_hoja = 5.0
 brillo = 0.8
 
-[node name="MagnusSpawn" type="Marker2D" parent="."]
+[node name="PeregrinoSpawn" type="Marker2D" parent="."]
 position = Vector2(950, 1200)
 
-[node name="Magnus" parent="." instance=ExtResource("2")]
+[node name="Peregrino" parent="." instance=ExtResource("2")]
 position = Vector2(950, 1200)
 
 [node name="Acciones" type="Node2D" parent="."]
 script = ExtResource("acciones")
-magnus_ruta = NodePath("../Magnus")
+peregrino_ruta = NodePath("../Peregrino")
 generico = true
 ayuda = false
 

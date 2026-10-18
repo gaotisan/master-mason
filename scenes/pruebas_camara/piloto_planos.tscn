@@ -11,4 +11,4 @@
 script = ExtResource("2")
 guion = [[0.5, "mover_derecha", true], [7.0, "mover_derecha", false], [7.6, "mover_derecha", true], [7.7, "mover_derecha", false], [7.8, "mover_derecha", true], [11.0, "saltar", true], [11.1, "saltar", false], [19.0, "mover_derecha", false]]
 x_inicial = 350.0
-personaje = NodePath("../PlanosAlone/Proyeccion/Magnus")
+personaje = NodePath("../PlanosAlone/Proyeccion/Peregrino")

@@ -2,15 +2,15 @@
 "giro" de mano.json, la que pone baston.gd con el baculo sacado).
 
 2026-10-10: video nuevo Pilgrim_turning_with_staff_20261010115731 (job
-magnus_giro_baston_mano), pedido con _fuentes/prompt_baston_giro_mano.txt en Flow:
+peregrino_giro_baston_mano), pedido con _fuentes/prompt_baston_giro_mano.txt en Flow:
 fotograma inicial = el reposo con el baculo en la mano (baston_ref_en_mano_1080)
 y final = el mismo espejado (baston_ref_en_mano_izquierda_1080), con el baculo
 en la otra mano. El de antes (Master_builder_walking_animation..._20261008163432,
-job magnus_andar_giro_baston; ver el commit 35d3fe6) llegaba al cambio de mano
+job peregrino_andar_giro_baston; ver el commit 35d3fe6) llegaba al cambio de mano
 pero no a la pose final, y lo que faltaba se completaba espejando el principio
 del giro y fundiendolo: en la union se veia borroso ("hace blur"). Este llega
 solo, asi que se usa entero y en orden, a su ritmo (24 fps), con las piezas del
-giro de pie sin baculo (magnus_giro_simetrico/giro_video.py):
+giro de pie sin baculo (peregrino_giro_simetrico/giro_video.py):
   - tramo f046 -> f114 del video (antes, quieto; despues, ya asentado);
   - tono: el del reposo con el baculo (el que se ve antes y despues del giro);
   - colocacion: encaje con el reposo al empezar y con su espejo al acabar, con
@@ -43,12 +43,12 @@ from celdas import PROY
 import mano
 
 ANIM = PROY / "raw/master_mason/anim"
-sys.path.insert(0, str(ANIM / "magnus_giro_simetrico"))
+sys.path.insert(0, str(ANIM / "peregrino_giro_simetrico"))
 import giro_video as GV                  # sombra de la cara, campo_hacia (y E = espejo.py)
 E = GV.E
 _cabeza_video = GV.cabeza
 
-JOB = "magnus_giro_baston_mano"
+JOB = "peregrino_giro_baston_mano"
 ORIGEN = ANIM / JOB / "04_limpios"       # c_01 = f001 (reposo), c_02..c_84 = f040..f122, c_85 = f192
 REF_INI, REF_FIN = 1, 85
 c_de = lambda f: f - 38

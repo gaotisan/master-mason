@@ -1,4 +1,4 @@
-# Quita el croma verde de las fuentes de Magnus/Iram y deja referencias limpias para --oref de Midjourney.
+# Quita el croma verde de las fuentes de Peregrino/Iram y deja referencias limpias para --oref de Midjourney.
 import numpy as np
 from PIL import Image
 from pathlib import Path

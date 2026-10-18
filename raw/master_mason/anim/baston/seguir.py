@@ -1,6 +1,6 @@
-"""Seguimiento del baston a la espalda de Magnus.
+"""Seguimiento del baston a la espalda del peregrino.
 
-Para cada fotograma de resources/characters/magnus_frames.tres saca donde va
+Para cada fotograma de resources/characters/peregrino_frames.tres saca donde va
 el baston: un punto de su eje, su giro y si va detras o delante del cuerpo.
 Todo en pixeles de la casilla a media escala (la de la hoja).
 
@@ -109,8 +109,8 @@ def sin_baston(nombre):
 
 GIROS = {"giro", "giro_agachado"}
 # Giros que pasan POR DELANTE (de cara a la camara; 2026-10-08; el de pie sale
-# de magnus_giro_simetrico desde el 2026-10-10, el agachado de
-# magnus_giro_agachado_simetrico desde el 2026-10-11). Ahi la espalda no se ve
+# de peregrino_giro_simetrico desde el 2026-10-10, el agachado de
+# peregrino_giro_agachado_simetrico desde el 2026-10-11). Ahi la espalda no se ve
 # nunca: el baston va siempre detras del cuerpo y pasa de su sitio de perfil
 # derecho al de perfil izquierdo siguiendo a la capucha, al ritmo del giro
 # medido por la barba (colocar_giro_delante). Sin funda ni parche: no se llega a

@@ -15,7 +15,7 @@ guion = [[14.0, "mover_izquierda", true], [14.15, "mover_izquierda", false]]
 eventos = [[0.5, "mano"]]
 x_inicial = 900.0
 ignorar_teclado = true
-personaje = NodePath("../DarkStage/Magnus")
+personaje = NodePath("../DarkStage/Peregrino")
 
 [node name="Acciones" type="Node2D" parent="."]
 script = ExtResource("3")

@@ -1,6 +1,6 @@
 extends Node2D
-## Prueba del andar en diagonal (andar_diagonal, de magnus_andar_diagonal), aparte
-## del peregrino del juego: magnus.gd no se toca.
+## Prueba del andar en diagonal (andar_diagonal, de peregrino_andar_diagonal), aparte
+## del peregrino del juego: peregrino.gd no se toca.
 ##   izquierda / derecha           anda de perfil (andar)
 ##   abajo + izquierda / derecha   anda en diagonal hacia la camara (andar_diagonal,
 ##                                 espejado a la izquierda) y crece con la cercania
@@ -9,7 +9,7 @@ extends Node2D
 ##   R                             vuelve al sitio de salida; Esc, sale
 ## La escala va con la fila del suelo: en la 1200 (la del juego) es 1.
 
-const FRAMES := preload("res://resources/characters/magnus_frames.tres")
+const FRAMES := preload("res://resources/characters/peregrino_frames.tres")
 const SUELO_JUEGO := 1200.0
 const FONDO_Y := 820.0          # fila mas lejana a la que se puede ir
 const CERCA_Y := 1560.0         # fila mas cercana

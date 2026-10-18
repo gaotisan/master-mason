@@ -1,0 +1,41 @@
+SACAR EL BASTON DE ESPALDAS (2026-10-11): PRIMER VIDEO, ESTUDIADO Y APARCADO
+============================================================================
+Video: _fuentes/Pilgrim_drawing_staff_from_strap_20261011014839.mp4 (Flow, Veo 3.1,
+1280x720, 192 f a 24 fps). Inicio = _fuentes/referencia_baston_espalda_espaldas.png,
+fin = _fuentes/referencia_baston_mano_espaldas.png
+(_fuentes/prompt_baston_sacar_guardar_espaldas.txt, la coreografia de los de frente).
+
+PASOS (como los de frente)
+  nuevo / frames / elegir "1-192"
+  python peregrino_andar_frente/croma.py peregrino_sacar_baston_espalda
+  python peregrino_sacar_baston_frente/montar.py peregrino_sacar_baston_espalda
+      -> _todos/c_001..c_192 (casilla 664x904, transformacion fija como los de frente)
+
+LO QUE TRAE
+  - Calca las referencias: silueta al 98,5 % (f1) y al 97,9 % (f192), color < 5.
+  - La coreografia de los de frente: agarra 1-2 s, lo saca recto 2-2,5 s, lo cruza
+    y lo planta hacia 3,75 s; se asienta hacia el 175 (7,3 s). Sin sombra.
+  - Pies: el derecho da un pasito hacia dentro (22-38, bien); el izquierdo resbala
+    12 px sin levantarse (40-48, contorno algo doble en 40-44). Es porque los dos
+    reposos tienen los pies en sitios distintos.
+  - EL CAMBIO DE TUNICA en c_050-c_053 (2,04-2,17 s): de la espalda sin baston a la
+    de con baston, de abajo arriba, con papilla en medio. Rehacerlo con los puentes
+    de flujo de los de frente sale peor: el baston va tan rapido que deja garras
+    fantasma y rompe la capucha.
+  05_salida: veo_en_bruto_24fps.mp4 (con el numero de fotograma),
+  zona_cambio_36_60_a_4fps.mp4, cambio_de_tunica_44_56.png, tres_espaldas.png.
+
+POR QUE SE APARCA: LA ESPALDA SIN BASTON ES OTRA TUNICA
+  tres_espaldas.png: la espalda del giro de pie de perfil (referencia_peregrino_espaldas,
+  f87) y el reposo de espaldas CON baston son la misma tunica (chevron gris). La del
+  reposo SIN baston salio del video de la secuencia sin baston con otra tunica: sin
+  chevron, mas estrecha, otra capucha (silueta al 82 % de la de con baston).
+  Decidido con el usuario (2026-10-11), la solucion de fondo: el modo sin baston pasa
+  a la espalda "oficial" (chevron).
+    1. Reposo de espaldas sin baston nuevo: el de con baston sin el baston y con el
+       brazo derecho colgando.
+    2. Flow, con inicio y fin de nuestros fotogramas: vuelta sin baston (reposo de
+       frente de ahora -> espalda nueva) y andar de espaldas sin baston (camara que
+       le sigue).
+    3. Sacar y guardar de espaldas otra vez, ya sin cambio de tunica.
+  Este video ya no vale: empieza con la espalda vieja.

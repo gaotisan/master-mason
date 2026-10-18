@@ -1,0 +1,21 @@
+CORRER DE ESPALDAS, v2 (2026-10-12)
+===================================
+Video: _fuentes/Old_man_running_on_green_20261012112604.mp4 (Flow; inicio = fin =
+referencia_espalda_sin_baston.png; prompt "CORRER DE ESPALDAS" de
+_fuentes/prompt_correr_frente_espaldas.txt, ya con los pies oscuros). Repite
+peregrino_correr_espalda, que salio descalzo (piernas claras, dedos, un pie como una
+pezuna) y con sombra. Este: pies oscuros, sin sombra (no hace falta quitar_sombra.py),
+corre en el sitio (camara que va con el) con un ciclo de 19 (0,79 s, el de perfil) y
+mucho mas regular que el primero (diferencia media a un ciclo 2,5 contra 6,5).
+Montado en la secuencia sin baston de la escena frontal: ver
+../peregrino_secuencia_frontal/como_se_hizo.txt y secuencia.py (CARRERAS espalda:
+arranque 18-47, entra en la fase 8; bucle 78-96, cierra a 1,52; corre a su ritmo hasta el
+145, frena del 146 al 170; parada 146-184 desde la fase 7 con un puente de 3).
+Pasos: nuevo / frames / elegir "1-192"; croma.py; ../peregrino_secuencia_frontal/medir.py;
+../peregrino_secuencia_frontal/montar_en_sitio.py peregrino_correr_espalda_v2
+
+PIERNAS (2026-10-12): Veo las saco grises (calzas) y gruesas. ../peregrino_secuencia_frontal/
+igualar_piernas.py las lleva al color del reposo de espaldas sin baston (transferencia en
+Lab con las estadisticas de todo el video; brillos comprimidos) y las adelgaza (correr
+x0,72, andar x0,85: espinilla y pie como en el andar aceptado). Veo intacto en _todos_veo/;
+el arreglo, sobre _todos/. Si se vuelve a montar, volver a pasarlo.

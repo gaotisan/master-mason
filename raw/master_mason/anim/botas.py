@@ -1,8 +1,8 @@
 """Botas para las vistas de frente y de espaldas (2026-10-12).
 
 De frente y de espaldas el peregrino parecia descalzo (pie marron con dedos, suelas
-claras, piernas pardo-moradas); de perfil (magnus_andando, magnus_corriendo,
-magnus_respirando) lleva calzas GRISES y un pie MARRON de un solo tono, como una
+claras, piernas pardo-moradas); de perfil (peregrino_andando, peregrino_corriendo,
+peregrino_respirando) lleva calzas GRISES y un pie MARRON de un solo tono, como una
 bota o un zapato. El usuario: "no rehacer el dibujo, solo cambiar el color de esa
 parte para que parezcan botas". Medido en los de perfil (px de master, Lab de OpenCV):
   piernas  rgb ~(63, 60, 60), L 65 +- 13, a* +2, b* +0,5   (gris neutro)
@@ -21,7 +21,7 @@ import os, sys
 import numpy as np, cv2
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(AQUI, 'magnus_secuencia_frontal'))
+sys.path.insert(0, os.path.join(AQUI, 'peregrino_secuencia_frontal'))
 import igualar_piernas as IP                     # noqa: E402  (la mascara de las piernas)
 
 PIERNA = dict(L=65.0, a=2.0, b=0.5)              # Lab de OpenCV (L 0-255, a y b sin el 128)

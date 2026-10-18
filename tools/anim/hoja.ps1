@@ -15,7 +15,7 @@
     .\hoja.ps1 -Job dominus_run -Cols 4 -Fps 10
 .EXAMPLE
     # reducida a la mitad para el juego; el master se queda intacto
-    .\hoja.ps1 -Job magnus_corriendo -Cols 6 -Fps 24 -Escala 2
+    .\hoja.ps1 -Job peregrino_corriendo -Cols 6 -Fps 24 -Escala 2
 #>
 param(
     [Parameter(Mandatory = $true)][string]$Job,

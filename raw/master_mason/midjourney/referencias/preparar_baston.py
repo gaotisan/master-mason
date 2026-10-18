@@ -1,4 +1,4 @@
-# Reconstruye el baculo de Magnus/Iram entero y sin bola para usarlo de referencia en Midjourney.
+# Reconstruye el baculo de Peregrino/Iram entero y sin bola para usarlo de referencia en Midjourney.
 # En baston_lamina_poses.png el baculo siempre queda detras del cuerpo: solo se ve la garra
 # de la punta. Se recorta esa garra (pose agachada, la mas limpia) y se le pinta debajo una
 # vara con el color y el sombreado de su propio tallo, estrechandose hacia el pie.

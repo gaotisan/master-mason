@@ -1,4 +1,4 @@
-"""Mide el andar con el baston en la mano (magnus_andar_baston/04_limpios) para
+"""Mide el andar con el baston en la mano (peregrino_andar_baston/04_limpios) para
 que en el juego no patine ni vaya a tirones. Escribe paso_medido_<job>.json, que
 lee mano.py:
 
@@ -19,18 +19,18 @@ lee mano.py:
 
 Hace falta que 04_limpios este centrado con ventana FIJA (camara del video):
 centrado por el tronco, la ventana bailaba +-10 px y era el traqueteo.
-  python paso.py [job]   (por defecto magnus_andar_baston_v2)"""
+  python paso.py [job]   (por defecto peregrino_andar_baston_v2)"""
 import json
 import numpy as np
 from PIL import Image
 from celdas import PROY
 
 import sys
-NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "magnus_andar_baston_v2"
+NOMBRE = sys.argv[1] if len(sys.argv) > 1 else "peregrino_andar_baston_v2"
 JOB = PROY / "raw/master_mason/anim" / NOMBRE / "04_limpios"
 SALIDA = PROY / "raw/master_mason/anim/baston" / f"paso_medido_{NOMBRE}.json"
 
-VIDEO_0 = 12 if NOMBRE == "magnus_andar_baston" else 1   # c_001 = ese fotograma del video
+VIDEO_0 = 12 if NOMBRE == "peregrino_andar_baston" else 1   # c_001 = ese fotograma del video
 
 
 def cargar_todo():

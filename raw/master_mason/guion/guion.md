@@ -216,7 +216,7 @@ En 1ª persona: Dóminus enfrente y una **balanza de cantero**. El jugador pone 
 
 ## 2. Personajes
 
-**El peregrino (Iram)** (el jugador; en código, «Magnus»). Hasta que Dóminus le nombra en 2.1, el guion le llama **el peregrino** (o la figura encapuchada, el viejo): el jugador tampoco sabe su nombre. Anciano sin memoria, cantero, *Magister muri*. Habla poco. Llega como hijo del sueño, se vuelve el que enseña y acaba siendo alguien que Dóminus no puso.
+**El peregrino (Iram)** (el jugador). Hasta que Dóminus le nombra en 2.1, el guion le llama **el peregrino** (o la figura encapuchada, el viejo): el jugador tampoco sabe su nombre. Anciano sin memoria, cantero, *Magister muri*. Habla poco. Llega como hijo del sueño, se vuelve el que enseña y acaba siendo alguien que Dóminus no puso.
 **Quién es (canon §1, lectura obligatoria):**
 - **La persona del prólogo es Dóminus**, el niño real encerrado, que cae en el sueño. **Iram no**: es una **criatura del sueño de Dóminus**, soñada como uno de los maestros constructores de los legajos de su padre y **hecha con el rostro que Dóminus recordaba de su padre**. Iram nunca estuvo en el espacio del prólogo y no puede recordarlo.
 - **El juego deja que el jugador crea al principio** que el encerrado del prólogo es el mismo peregrino que controla (la primera persona, el negro y, justo después, él cayendo). Lo desmiente el corte de 6.2 (el niño de carboncillo, la caja, la misma ventanilla) y la frase de 6.3 («en la caja soñé un peregrino»); 10.5 lo cierra con las caras.
@@ -353,7 +353,7 @@ Dos momentos muestran que **Iram necesita creer en él**, con un pensamiento cor
 - **Logro:** «Ligero como una hoja», sin aviso en pantalla.
 - **SON:** el golpe de la caída y el remolino.
 - *Producción:* el plano detalle tapa la caída, así que no hace falta caer ni aterrizar con el báculo en la mano: se vuelve a lateral con el reposo con báculo (existe), de pie. No se tumba: un primer logro no se castiga.
-- *Hecha (2026-10-14), sin plano detalle:* con el vídeo del usuario (agarrar el báculo y bajar con él, magnus_coger_baculo). Al alcanzarlo lo agarra en el aire con un **destello** (la luz de la bola se abre), la racha levanta las hojas y **abre el camino**; colgado del báculo aún flota un momento mientras **la bola se descarga** y queda **vacía** (cristal apagado); luego, sin la magia, **cae** (la luz pierde su espesor), aterriza agachado y se incorpora con el báculo en la mano (sistema del bastón, bola vacía: solo anda).
+- *Hecha (2026-10-14), sin plano detalle:* con el vídeo del usuario (agarrar el báculo y bajar con él, peregrino_coger_baculo). Al alcanzarlo lo agarra en el aire con un **destello** (la luz de la bola se abre), la racha levanta las hojas y **abre el camino**; colgado del báculo aún flota un momento mientras **la bola se descarga** y queda **vacía** (cristal apagado); luego, sin la magia, **cae** (la luz pierde su espesor), aterriza agachado y se incorpora con el báculo en la mano (sistema del bastón, bola vacía: solo anda).
 
 **1.8 El báculo en la mano** *(nueva)*
 - **CÁM:** lateral.

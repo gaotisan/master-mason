@@ -9,7 +9,7 @@ que se mueven por separado. Todo lo quieto va horneado en el fondo; lo que se
 anima (puerta, pendulo, humo, fuego, burbujas, halos) sale en PNG pequenos.
 
 COMO SE PINTA. No es un render 3D ni un collage: son poligonos planos, como
-las facetas del abrigo de Magnus, pero iluminados como un cuadro.
+las facetas del abrigo del peregrino, pero iluminados como un cuadro.
 
   1. Cada objeto se rellena con FACETAS: una triangulacion de Delaunay sobre
      puntos en rejilla temblada, y cada triangulo se colorea con el color base
@@ -29,7 +29,7 @@ nivel pueda tintar a los personajes igual que al decorado.
 
 Coordenadas: las de la pantalla. Suelo de los personajes en y = 1200; la
 union pared-suelo esta algo mas arriba (PARED_Y) para que lo que se apoya en
-la pared quede DETRAS de los pies de Magnus y no a su altura.
+la pared quede DETRAS de los pies del peregrino y no a su altura.
 """
 from __future__ import annotations
 
@@ -1700,7 +1700,7 @@ ESQ_DER = (2500, 1380, 412, 252)
 def sprite_esquina_izq() -> np.ndarray:
     """Respaldo de un sillon de brazos visto por detras, pegado a la camara:
     enmarca la esquina y quita suelo vacio. Queda por debajo de los pies de
-    Magnus (y = 1200), asi que nunca lo tapa. Canto azul de luna por la
+    el peregrino (y = 1200), asi que nunca lo tapa. Canto azul de luna por la
     izquierda (la puerta) y calido por la derecha."""
     x0, y0, w, h = ESQ_IZQ
     p = Pintor(w, h, x0, y0, semilla=111)

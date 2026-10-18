@@ -22,7 +22,7 @@ Sin baston en el video: el guardado lo pinta el juego encima (seguir.py).
 
 En Flow, modo de fotogramas a video, EN VERTICAL (9:16):
   - fotograma inicial: referencia_bajar_inicio.png  (el reposo del juego,
-    magnus_respirando c_01, mirando a la derecha, de pie encima del muro junto
+    peregrino_respirando c_01, mirando a la derecha, de pie encima del muro junto
     al borde: 63 px de la punta del pie al borde)
   - fotograma final:   referencia_bajar_fin.png     (el mismo reposo abajo, el
     talon a 219 px del pie del muro: donde cae con el saltito)

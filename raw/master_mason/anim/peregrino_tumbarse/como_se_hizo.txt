@@ -1,0 +1,13 @@
+TUMBARSE, ARRASTRARSE Y LEVANTARSE (animaciones "tumbarse", "arrastrarse", "levantarse_tumbado")
+================================================================================================
+Fuente: _fuentes/Character_animation_sprite_extra..._20261012115715.mp4, de prompt_tumbarse_arrastrarse.txt.
+Tramo: f003 - f182; tumbarse c1-c74, arrastrarse c75-c123 (se repite desde el c75, a 1,8 pasos del c124), levantarse c124-c180.
+
+Como todas las acciones de perfil (ver ../acciones_perfil.txt):
+  1. nuevo.ps1 + frames.ps1 (01_frames)
+  2. python raiz.py peregrino_tumbarse --desde 3 --hasta 182 --origen 01_frames
+  3. ../fondo_paralelo.py peregrino_tumbarse  y  ../baston/pulir.py --oscuras peregrino_tumbarse  y  --bolsas-verdes
+  4. ../montar_accion.py peregrino_tumbarse  -> 04_acciones/, accion.json y assets/characters/peregrino/acciones_perfil.json
+  5. hoja.ps1 -Job peregrino_tumbarse -Desde 04_acciones -Fps 24 -Escala 2 -Cols 10
+  6. tools/anim/_spriteframes.py y ../baston/seguir.py
+Se prueba en scenes/dev/piloto_baston.tscn (scripts/dev/acciones/acciones_perfil.gd).

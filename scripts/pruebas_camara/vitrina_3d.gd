@@ -1,6 +1,6 @@
 extends Node3D
-## PRUEBA: el Magnus 3D (assets/pruebas_3d/magnus.glb, sacado de la hoja de
-## giro con raw/master_mason/magnus3d) en una sala oscura con luz de luna y una
+## PRUEBA: el peregrino 3D (assets/pruebas_3d/peregrino.glb, sacado de la hoja de
+## giro con raw/master_mason/peregrino3d) en una sala oscura con luz de luna y una
 ## vela, girando, y la camara cortando entre planos: frente, tres cuartos,
 ## picado, contrapicado y cenital. Es para juzgar el modelo con luz real.
 ## Teclas: espacio para/sigue el giro, flechas cambian de plano, M menu.
@@ -24,7 +24,7 @@ var _plano := 0
 var _t_plano := 0.0
 var _girando := true
 
-@onready var _modelo: Node3D = $Magnus
+@onready var _modelo: Node3D = $Peregrino
 @onready var _camara: Camera3D = $Camara
 
 func _ready() -> void:

@@ -1,6 +1,6 @@
-PROMPT PARA LOS FOTOGRAMAS DEL GIRO DE MAGNUS
+PROMPT PARA LOS FOTOGRAMAS DEL GIRO DE PEREGRINO
 =============================================
-Adjuntar SIEMPRE referencia_magnus_perfil.png como imagen de referencia de
+Adjuntar SIEMPRE referencia_peregrino_perfil.png como imagen de referencia de
 personaje y estilo, con el peso mas alto que permita la herramienta.
 Croma de todo el proyecto: #24D732
 
