@@ -12,7 +12,13 @@ sirve tal cual. Que pasa en el video:
 
     1-4      la imagen de partida, gris (se quitan: el video IA arranca de
              ahi y en 4 fotogramas vira al pardo oscuro, saturacion 0,20->0,30)
-    5-56     de perfil, mira; gira hacia la camara y da un paso
+    5-11     se quitan tambien (2026-10-17, lo vio el usuario): 5-7 aun es el
+             pajaro de la imagen de partida (cabeza parda y peluda, ojo sin
+             pupila), 8-10 la IA lo transforma (la cabeza se alisa, se queda sin
+             ojo) y desde 11-12 es el emu del resto del video (cabeza gris con
+             cerdas, ojo con pupila). En el juego el primero se ve quieto 1,5 s
+             en el fundido de entrada: el cambio de pajaro se notaba.
+    12-56    de perfil, mira; gira hacia la camara y da un paso
     57-150   de frente, mira; graznido fuerte en 115-127 (el del sonido)
     152-     carga hacia la camara: toca el borde de abajo (155), el de arriba
              (183) y el de la izquierda (187), gira la cabeza de lado (184-190)
@@ -90,7 +96,7 @@ AUDIO = os.path.join(PROYECTO, "assets", "audio", "emu_camino.ogg")
 
 W, H, FPS = 1280, 720, 24
 PANT_W, PANT_H = 2912, 1632
-DESDE = 5            # del 1 al 4, la imagen de partida (gris)
+DESDE = 12           # 1-4 la imagen de partida (gris), 5-11 aun otro pajaro (ver arriba)
 ESCALA = 1.0
 CARGA = 170          # desde aqui, ESCALA_CARGA (de cerca y movido)
 ESCALA_CARGA = 0.75

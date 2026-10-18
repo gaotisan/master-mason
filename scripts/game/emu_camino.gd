@@ -25,12 +25,10 @@ const FICHA := "res://assets/world/camino_bosque/emu.json"
 ## en _ready eran ~75 ms del tiron de entrada). Tantas como "paginas" de la ficha
 ## (si construye.py saca mas, se cargan aqui: anadirlas).
 const PAGINAS: Array[Texture2D] = [preload("res://assets/world/camino_bosque/emu_0.png"),
-	preload("res://assets/world/camino_bosque/emu_1.png"), preload("res://assets/world/camino_bosque/emu_2.png"),
-	preload("res://assets/world/camino_bosque/emu_3.png")]
+	preload("res://assets/world/camino_bosque/emu_1.png"), preload("res://assets/world/camino_bosque/emu_2.png")]
 ## El relieve de cada pagina (normales y grosor, a la mitad: emu_camino.gdshader).
 const RELIEVES: Array[Texture2D] = [preload("res://assets/world/camino_bosque/emu_relieve_0.png"),
-	preload("res://assets/world/camino_bosque/emu_relieve_1.png"), preload("res://assets/world/camino_bosque/emu_relieve_2.png"),
-	preload("res://assets/world/camino_bosque/emu_relieve_3.png")]
+	preload("res://assets/world/camino_bosque/emu_relieve_1.png"), preload("res://assets/world/camino_bosque/emu_relieve_2.png")]
 const MEDIO := preload("res://assets/world/camino_bosque/medio.png")
 ## Sonidos de la embestida (raw/master_mason/camino_bosque/emu/sonidos.py).
 const PISADAS: Array[AudioStream] = [preload("res://assets/audio/emu_pisada_1.wav"),
@@ -58,7 +56,7 @@ const RESPLANDOR := Vector2(1440, 520)
 @export var hojas_al_pasar := 24
 ## Tension de la camara (camino_bosque.gd: se le acerca despacio) desde este
 ## fotograma del video hasta que embiste; al embestir se suelta en tension_suelta s.
-@export var tension_desde := 24
+@export var tension_desde := 17
 @export var tension_suelta := 0.35
 ## Cuando saliendo ya solo le queda en pantalla esta fraccion de su ancho, se
 ## va del todo en salida_s: si no, quedaba en el borde una franja oscura como un
@@ -79,7 +77,7 @@ const RESPLANDOR := Vector2(1440, 520)
 ## y se va de foco con mucho barrido (tapa_desenfoque px de pantalla), todo en
 ## tapa_entra s. (Se probo a taparlo con un cuerpo pintado por shader: se leia
 ## como un rectangulo con rayas.)
-@export var tapa_desde := 174
+@export var tapa_desde := 167
 @export var tapa_vel := 1.8
 @export var tapa_entra := 0.06
 @export var tapa_desenfoque := 70.0
@@ -87,7 +85,7 @@ const RESPLANDOR := Vector2(1440, 520)
 ## Pisadas encima de las del video (que se oian flojas y sin crecer): en que
 ## segundo del sonido del emu (medido en emu_camino.ogg) y a cuantos dB cada
 ## una; van creciendo, se le oye venir.
-@export var pisadas_t := PackedFloat32Array([6.29, 6.62, 6.92, 7.25, 7.54])
+@export var pisadas_t := PackedFloat32Array([6.0, 6.33, 6.63, 6.95, 7.25])
 @export var pisadas_db := PackedFloat32Array([-15.0, -11.0, -7.5, -4.5, -3.0])
 ## El aire que mueve al pasar (su pico cae cuando tapa) y el golpe grave.
 @export var aire_db := -5.0
