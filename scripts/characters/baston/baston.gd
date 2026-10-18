@@ -7,7 +7,7 @@ extends Node2D
 ## del cuerpo (de espaldas, en los giros) o detras (siempre lo demas). Con
 ## flip_h se refleja. Las animaciones que no estan (la caida del cielo) lo
 ## esconden. En los giros, mientras se ve la espalda, aparece encima la funda
-## (funda.png, tela de la tunica) que lo sujeta. El json sale de raw/master_mason/anim/baston/exportar.py.
+## (funda.png, tela de la tunica) que lo sujeta. El json sale de raw/master_builder/anim/baston/exportar.py.
 ##
 ## FUNDA DE CUERO EN LOS GIROS (2026-10-08; el usuario: "la funda y el cambio
 ## es solo para cuando da el giro"). En giro y giro_agachado el baston va

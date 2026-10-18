@@ -23,7 +23,7 @@ import empaquetar as _emp
 # godot/tools (el enlace que quedo en el sitio de antes) que por el proyecto.
 AQUI = os.path.dirname(os.path.realpath(__file__))
 RAIZ = os.path.abspath(os.path.join(AQUI, '..', '..'))          # el proyecto
-ANIM_RAW = os.path.join(RAIZ, 'raw', 'master_mason', 'anim')
+ANIM_RAW = os.path.join(RAIZ, 'raw', 'master_builder', 'anim')
 ASSETS = os.path.join(RAIZ, 'assets', 'characters', 'peregrino')
 
 CASILLA = (292, 360)
@@ -100,7 +100,7 @@ ANIMACIONES = [
     # queda de frente; empieza y acaba en el reposo, con fundidos. 60 fps, 2 s:
     # cada fotograma cambia como andar a 30 fps. peregrino.gd voltea al terminar.
     # (Antes: 5 vistas de una hoja de IA a 20 fps, 0,25 s: se veia brusco.) Ver
-    # raw/master_mason/anim/peregrino_giro_pie_video/como_se_hizo.txt.
+    # raw/master_builder/anim/peregrino_giro_pie_video/como_se_hizo.txt.
     # Giro de pie POR DELANTE (de cara a la camara; 2026-10-08/09), de un video
     # de un giro de 360 sin baston (Wizard_performing_360-degree_rot..._
     # 20261008170411, job peregrino_giro_frente). Por delante el baston a la
@@ -113,7 +113,7 @@ ANIMACIONES = [
     # reposo y acaba exactamente en el reposo espejado; en el frente, el dibujo
     # de la tunica se invierte fundido en 6 fotogramas con manos y mangas
     # encajadas. 92 fotogramas a 60 fps, 1,53 s; tono estandar. Ver
-    # raw/master_mason/anim/peregrino_giro_frente/espejo.py. El de antes (por la
+    # raw/master_builder/anim/peregrino_giro_frente/espejo.py. El de antes (por la
     # espalda): peregrino_giro_pie_rapido, 47 a 30 fps.
     # Ahora (2026-10-10): ese iba 2,5 veces mas rapido que su video y los pasos
     # se veian "a trompicones". Video nuevo pedido a la velocidad del juego y con
@@ -137,7 +137,7 @@ ANIMACIONES = [
     # ciclo de correr. A 60 fps como el salto, 0,57 s. Casilla comun.
     ('aterrizaje_correr', 'peregrino_aterrizaje_correr', 34, 7, 60.0, False),
     # Caida (cinematica de entrada): un solo video partido en cuatro estados,
-    # ver raw/master_mason/anim/peregrino_caida/como_se_hizo.txt. Tumbado mide 678
+    # ver raw/master_builder/anim/peregrino_caida/como_se_hizo.txt. Tumbado mide 678
     # px de master de ancho y no cabe en la comun, asi que los cuatro comparten
     # casilla propia. La linea de suelo esta en la MISMA fila que en la comun
     # (pies en 677 de 720, como respirando) y la casilla mide lo mismo de alto,
@@ -163,7 +163,7 @@ ANIMACIONES = [
     # la bajada (casillas 0-41, video 32-73), el asentarse (42-60, video 75-111
     # de dos en dos: el cuerpo rebota 16 px y se queda), el agachado (61-88,
     # video 112-139) y el levantarse (89-126, video 140-177). Ver
-    # raw/master_mason/anim/peregrino_agacharse/como_se_hizo.txt.
+    # raw/master_builder/anim/peregrino_agacharse/como_se_hizo.txt.
     #   agacharse     de OTRO video (peregrino_agacharse_flow, 2026-10-06), pedido de
     #                 nuestro reposo a nuestro agachado: reposo, fundido, video
     #                 44-110 enteros, fundido y el c_089 de esta hoja. Baja de un
@@ -191,7 +191,7 @@ ANIMACIONES = [
     # dos pasos (143-184) y se para hasta el agachado (185-215). A 20 fps: el
     # ciclo va por distancia (velocidad = 20 * avance) y el arranque y la parada
     # llevan al nodo con sus tablas de avance. Ver
-    # raw/master_mason/anim/peregrino_andar_agachado/como_se_hizo.txt.
+    # raw/master_builder/anim/peregrino_andar_agachado/como_se_hizo.txt.
     ('arranque_agachado', 'peregrino_arranque_agachado', 27, 7, 20.0, False),
     ('andar_agachado',    'peregrino_andar_agachado',    42, 7, 20.0, True),
     ('parada_agachado',   'peregrino_parada_agachado',   31, 8, 20.0, False),
@@ -202,7 +202,7 @@ ANIMACIONES = [
     # peregrino.gd voltea al terminar. El de antes (peregrino_giro_agachado_video) iba
     # por detras, ensenando la espalda, y quedaba raro; por delante el baston a la
     # espalda va siempre detras del cuerpo, como en el giro de pie. Ver
-    # raw/master_mason/anim/peregrino_giro_agachado_simetrico/como_se_hizo.txt.
+    # raw/master_builder/anim/peregrino_giro_agachado_simetrico/como_se_hizo.txt.
     ('giro_agachado',     'peregrino_giro_agachado_simetrico', 59, 10, 24.0, False),
     # Andar en diagonal (tres cuartos, de cara a la derecha y hacia la camara), de
     # Cloaked_figure_walking_diagonally (job peregrino_andar_diagonal): el ciclo de dos
@@ -234,7 +234,7 @@ ANIMACIONES = [
     # Puentes por flujo optico entre los andares con baston y la vuelta (sin
     # fundido: el fundido de opacidad dejaba dos dibujos superpuestos). 4
     # intermedios cada uno, casilla de la vuelta. Ver
-    # raw/master_mason/anim/peregrino_puentes_frontal/puente.py.
+    # raw/master_builder/anim/peregrino_puentes_frontal/puente.py.
     ('puente_espalda',   'peregrino_puentes_frontal', 4, 8, 30.0, False, (292, 400), [0, 1, 2, 3]),
     ('puente_espalda_b', 'peregrino_puentes_frontal', 4, 8, 30.0, False, (292, 400), [4, 5, 6, 7]),
     ('puente_frente',    'peregrino_puentes_frontal', 4, 8, 30.0, False, (292, 400), [8, 9, 10, 11]),
@@ -261,14 +261,14 @@ ANIMACIONES = [
     # Un paso agachado (de agachado a agachado, 39 px mas alla): dos videos de
     # Flow seguidos (el pie de delante sale; el cuerpo avanza y el de atras se
     # junta), con el nodo por AVANCE_PASO_AGACHADO. Un toque agachado lo da;
-    # ver raw/master_mason/anim/peregrino_paso_agachado/como_se_hizo.txt.
+    # ver raw/master_builder/anim/peregrino_paso_agachado/como_se_hizo.txt.
     ('paso_agachado',     'peregrino_paso_agachado',     95, 10, 60.0, False),   # apagado en peregrino.gd
     # ACCIONES DE PERFIL QUE LO DESPLAZAN (2026-10-12), de videos de Flow con
     # inicio y fin en el reposo: trepar el muro alto (1,15 de su alto), subirse
     # al sillar mediano, bajar del muro de un saltito y empujar un sillar (v1:
     # manos en el filo de uno mediano; v2: manos planas, como una puerta, en uno
     # alto). Todos sus fotogramas a su ritmo (24 fps). La casilla va colocada en
-    # la RAIZ de cada fotograma (raw/master_mason/anim/raiz.py): el viaje (lo
+    # la RAIZ de cada fotograma (raw/master_builder/anim/raiz.py): el viaje (lo
     # que sube, baja o avanza) lo hace el nodo con la tabla de
     # assets/characters/peregrino/acciones_perfil.json (montar_accion.py), asi que
     # cada una tiene su casilla y su offset (el de la tabla). Por ahora solo las
@@ -296,7 +296,7 @@ ANIMACIONES = [
     ('levantarse_tumbado', 'peregrino_tumbarse',         57, 10, 24.0, False, (460, 360), list(range(123, 180))),
     # El arrastre sin salto (2026-10-15): el de arriba partido en el c096 (entrada
     # c075-c096 y salida c097-c123) y entre medias el bucle de un video aparte que
-    # empieza y acaba en ese c096 (raw/master_mason/anim/peregrino_arrastrarse_bucle:
+    # empieza y acaba en ese c096 (raw/master_builder/anim/peregrino_arrastrarse_bucle:
     # f133-f192, dos tirones; tras el ultimo, el primero).
     ('arrastre_entrada',  'peregrino_tumbarse',          22, 10, 24.0, False, (460, 360), list(range(74, 96))),
     ('arrastre_salida',   'peregrino_tumbarse',          27, 10, 24.0, False, (460, 360), list(range(96, 123))),
@@ -309,7 +309,7 @@ ANIMACIONES = [
 
 # La secuencia con baston de frente / espaldas de un solo video (reposo, arranque,
 # andar, vuelta y los puentes entre ellos, en dos hojas): la lista la escribe
-# raw/master_mason/anim/peregrino_secuencia_frontal/secuencia.py.
+# raw/master_builder/anim/peregrino_secuencia_frontal/secuencia.py.
 # Lo mismo sin baston: peregrino_secuencia_frontal_sin (secuencia.py peregrino_secuencia_frontal_sin).
 # Sacar y guardar el baston de frente (de un reposo al otro), casilla mas grande
 # (el baston sube por encima de la cabeza): peregrino_sacar_baston_frente/animar.py.

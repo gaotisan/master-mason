@@ -3,7 +3,7 @@ extends Node2D
 ## camino, mira, eriza las plumas, se te queda mirando y se viene hacia la
 ## camara hasta salirse del encuadre.
 ##
-## Sale de un video con croma (raw/master_mason/camino_bosque/emu/construye.py:
+## Sale de un video con croma (raw/master_builder/camino_bosque/emu/construye.py:
 ## fotogramas recortados en atlas, emu.json, y su sonido, emu_camino.ogg). El
 ## video va en la escena como una ventana (pantalla = o + s * video) y la
 ## trayectoria de la ventana viene calculada en la ficha, fotograma a
@@ -30,7 +30,7 @@ const PAGINAS: Array[Texture2D] = [preload("res://assets/world/camino_bosque/emu
 const RELIEVES: Array[Texture2D] = [preload("res://assets/world/camino_bosque/emu_relieve_0.png"),
 	preload("res://assets/world/camino_bosque/emu_relieve_1.png"), preload("res://assets/world/camino_bosque/emu_relieve_2.png")]
 const MEDIO := preload("res://assets/world/camino_bosque/medio.png")
-## Sonidos de la embestida (raw/master_mason/camino_bosque/emu/sonidos.py).
+## Sonidos de la embestida (raw/master_builder/camino_bosque/emu/sonidos.py).
 const PISADAS: Array[AudioStream] = [preload("res://assets/audio/emu_pisada_1.wav"),
 	preload("res://assets/audio/emu_pisada_2.wav"), preload("res://assets/audio/emu_pisada_3.wav"),
 	preload("res://assets/audio/emu_pisada_4.wav")]

@@ -3,7 +3,7 @@ shader_type canvas_item;
 // recorta nada: se desplaza la propia imagen donde la mascara dice que hay rama
 // fina, y encima se aplica el aire (niebla, rayos y luz) que pinta
 // camino_aire.gdshader a 1/4 de resolucion. Las mascaras y lo que mide cada una
-// salen de raw/master_mason/camino_bosque/mascaras.py.
+// salen de raw/master_builder/camino_bosque/mascaras.py.
 //
 // - Copa: las ramas finas a contraluz se mecen. Cinco muelles repartidos a lo
 //   ancho (camino_bosque.gd) llevan lo que se inclina la copa en cada franja,

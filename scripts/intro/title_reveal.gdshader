@@ -137,7 +137,7 @@ float border_dist(vec2 uv, vec4 r) {
 
 // Ruido de valor, como el de vaho_cristal.gdshader. El valor de cada punto de
 // la reticula es el de su hash de siempre, pero horneado en una imagen
-// (assets/intro/title_vaho_azar.png, raw/master_mason/titulo_hojas/vaho_azar.py,
+// (assets/intro/title_vaho_azar.png, raw/master_builder/titulo_hojas/vaho_azar.py,
 // los puntos de -128 a 127): leyendo en i + u con filtro lineal, la grafica
 // funde los cuatro de alrededor en una lectura. Antes eran cuatro hashes por
 // llamada, 32 por pixel del vaho (2026-10-14). Los valores son los mismos que

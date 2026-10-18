@@ -42,7 +42,7 @@ extends Node2D
 ## esperar a la vuelta.
 @export var baculo_al_empezar: bool = false
 ## El bosque de fondo (2026-10-13; encendido en la escena del juego): la imagen
-## de Midjourney (raw/master_mason/hojarasca_bosque/bosque_hojarasca.png) en dos
+## de Midjourney (raw/master_builder/hojarasca_bosque/bosque_hojarasca.png) en dos
 ## planos (bosque_cerca.png y bosque_lejos.png, de capas.py) detras del haz, en
 ## sombra (Bosque, bosque_fondo.gdshader). Antes se probaron una de Gemini y
 ## una facetada, ya borradas.
@@ -184,7 +184,7 @@ extends Node2D
 @export var vadeo_atras: float = 0.25
 @export var temblor_px: float = 7.0
 ## Sonidos de las hojas, sacados del audio de un video del peregrino andando por
-## hojas (raw/master_mason/audio/hojarasca/construye.py). Las pisadas: una al
+## hojas (raw/master_builder/audio/hojarasca/construye.py). Las pisadas: una al
 ## azar de doce, con algo de tono y volumen distintos (AudioStreamRandomizer).
 ## El arrastre es un bucle que sube con la velocidad (el roce al vadear) y
 ## calla parado o en el aire. Los pasos propios del peregrino (de suelo duro) se
@@ -202,10 +202,10 @@ extends Node2D
 @export var arrastre_db: float = -20.0
 @export var peregrino_pasos_db: float = -24.0
 ## La nota del hilo mientras baja el baculo (assets/audio/baculo_hilo.wav, de
-## raw/master_mason/audio/baculo/hilo.py): por debajo de los pasos en las hojas.
+## raw/master_builder/audio/baculo/hilo.py): por debajo de los pasos en las hojas.
 @export var hilo_db: float = -14.0
 ## Musica de fondo (2026-10-14): "The Pilgrim's Light", de Flow Music, en bucle
-## sin costura (assets/audio/musica_hojarasca.ogg, de raw/master_mason/audio/
+## sin costura (assets/audio/musica_hojarasca.ogg, de raw/master_builder/audio/
 ## musica_hojarasca/bucle.py). Ambiente de base, con las hojas y el viento
 ## por debajo (ver Equilibrio en hojas_golpe_db). Entra al levantarse, subiendo en
 ## musica_entrada s: la caida suena solo a viento y hojas. Sin caida (pruebas),
@@ -225,7 +225,7 @@ extends Node2D
 @export var cambio_musica: float = 4.0
 
 @export_group("Coger el baculo")
-## COGER EL BACULO (2026-10-14; video del usuario, raw/master_mason/anim/
+## COGER EL BACULO (2026-10-14; video del usuario, raw/master_builder/anim/
 ## peregrino_coger_baculo). Al alcanzarlo lo agarra (coger_baculo, de flotar.json,
 ## mirando hacia el; el nodo se pone para que la garra del dibujo caiga en la
 ## bola) y en ese instante el destello, que tapa el cambio de pose y de baston

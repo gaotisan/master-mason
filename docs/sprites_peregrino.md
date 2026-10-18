@@ -18,10 +18,10 @@ que rehacer las tres.
 | `scenes/game/dark_stage.tscn` | la escena negra, con el peregrino instanciado |
 | `scripts/game/datos_movimiento.gd` | el panel de estudio del escenario negro (estado, velocidad, carrerilla, ultimo salto); H lo oculta |
 
-**Sonido.** Los videos de `raw\master_mason\anim\_fuentes` traen audio, y va
+**Sonido.** Los videos de `raw\master_builder\anim\_fuentes` traen audio, y va
 sincronizado con la imagen: medido, cada golpe de pie cae medio fotograma
 despues del sprite en que el pie planta. De ahi salen los efectos, con
-`raw\master_mason\audio\peregrino\construye.py` (la ficha de que es cada archivo
+`raw\master_builder\audio\peregrino\construye.py` (la ficha de que es cada archivo
 esta al lado, en `02_salida\ficha.txt`). Las pisadas no van en bucle: andar y
 correr avanzan con la distancia, no con el reloj, asi que `peregrino.gd` dispara
 cada golpe al pasar por el sprite de contacto (andar: 1 y 17; correr: 5 y 17).
@@ -136,7 +136,7 @@ agachado). El generador es
 animacion**, que no tienen por que ser los del video:
 
 ```powershell
-cd C:\Users\santiago.ochoa\godot\projects\master_mason\tools\anim
+cd C:\Users\santiago.ochoa\godot\projects\master_builder\tools\anim
 python _spriteframes.py "..\..\resources\characters\peregrino_frames.tres"
 ```
 
@@ -271,7 +271,7 @@ Las hojas y los sprites **no estan en el repo**. Viven fuera, igual que las
 fuentes de audio:
 
 ```
-raw\master_mason\anim\peregrino_<accion>\   una carpeta por animacion
+raw\master_builder\anim\peregrino_<accion>\   una carpeta por animacion
     04_limpios\   sprites sueltos a 584x720  <- MASTER, no se importa
     05_salida\    peregrino_<accion>_sheet.png  <- la rejilla, fuente del atlas
                   peregrino_<accion>_atlas.json <- donde quedo cada fotograma
@@ -282,7 +282,7 @@ Al repo sube el **atlas** que `_spriteframes.py` saca de esa rejilla (ver
 nombre de la hoja. La rejilla no se copia a mano.
 
 Los parametros del personaje y el porque de cada numero estan en
-`raw\master_mason\anim\peregrino_comun.txt`.
+`raw\master_builder\anim\peregrino_comun.txt`.
 
 ## Las animaciones
 
@@ -324,7 +324,7 @@ Las cuatro de la caida salen de un solo video y comparten casilla propia porque
 tumbado mide 678 px de master de ancho. La casilla es mas ancha pero **igual de
 alta y con el suelo en la misma fila** que la comun (pies en 677 de 720), asi que
 usan `offset_comun`, sin offset propio. Todo el detalle, fotogramas y medidas en
-`raw/master_mason/anim/peregrino_caida/como_se_hizo.txt`.
+`raw/master_builder/anim/peregrino_caida/como_se_hizo.txt`.
 
 ## Como encadenan
 
@@ -433,7 +433,7 @@ video que las transiciones: enlazaba en fotogramas consecutivos, pero su bucle
 cerraba tres veces peor (0,070 frente a 0,021). Como en una carrera a 24 fps el
 paso normal entre fotogramas ya vale ~0,19, la ventaja del enlace quedaba por
 debajo del ruido, mientras que el cierre del bucle se ve una vez por segundo.
-Esta guardado en `raw/master_mason/anim/_archivo/` por si se prefiere lo otro.
+Esta guardado en `raw/master_builder/anim/_archivo/` por si se prefiere lo otro.
 
 ## Velocidad, para que los pies no patinen
 
@@ -1029,7 +1029,7 @@ para parado y andando: el centrado va anclado al tronco, asi que el sprite no
 lleva desplazamiento cocido y el movimiento horizontal lo pone el nodo. Medido
 contra el resto: desde reposo entra a 0,052 (como las paradas), desde el ciclo
 de andar a 0,037 (~3 pasos) y acaba a 0,024 del reposo. El job viejo sigue en
-`raw/master_mason/anim/peregrino_saltando/` por si hace falta.
+`raw/master_builder/anim/peregrino_saltando/` por si hace falta.
 
 Dos cosas de este salto que afectan al encuadre: en el apogeo llega a 671 px
 sobre el suelo, 19 px por debajo del techo de la casilla comun (hubo que anadir
@@ -1106,7 +1106,7 @@ Las herramientas estan en `tools\anim\` (ver su README). Para una accion
 nueva del peregrino, con los mismos numeros:
 
 ```powershell
-cd C:\Users\santiago.ochoa\godot\projects\master_mason\tools\anim
+cd C:\Users\santiago.ochoa\godot\projects\master_builder\tools\anim
 .\nuevo.ps1    -Job peregrino_<accion> -Fuente <video.mp4>
 .\frames.ps1   -Job peregrino_<accion>
 .\contacto.ps1 -Job peregrino_<accion>

@@ -17,10 +17,10 @@ extends Node2D
 ## distancia, no con el reloj, y a la larga se desfasarian. La respiracion sigue
 ## al esfuerzo (ver respiracion_db): tras correr o saltar se oye y se va
 ## apagando, y en reposo normal no suena. Los archivos salen de
-## raw/master_mason/audio/peregrino/.
+## raw/master_builder/audio/peregrino/.
 
 ## Medidos sobre los sprites: la zancada es la separacion maxima entre los pies.
-## Ver raw/master_mason/anim/peregrino_comun.txt.
+## Ver raw/master_builder/anim/peregrino_comun.txt.
 ## Estas dos no son libres: el fotograma solo cambia en ticks de fisica, asi que
 ## su duracion tiene que ser un numero entero de ticks o la cadencia va a
 ## tirones. Con velocidad / avance = fotogramas por segundo y la fisica a 60 Hz,
@@ -371,7 +371,7 @@ var hoja_debajo: Callable
 ##   la luz, sin tope; en el borde, el tope se abre con lo que baja la luz.
 @export var caida_max_luz: float = 120.0
 ## FLOTAR CON SUS ANIMACIONES (2026-10-12). Los videos de flotar de Flow,
-## montados por raw/master_mason/anim/peregrino_flotar/montar_flotar.py
+## montados por raw/master_builder/anim/peregrino_flotar/montar_flotar.py
 ## (assets/characters/peregrino/flotar.json y sus hojas), se anaden al cargar.
 ## Hito 1: el salto de parado que llega al apogeo con luz (flotar_luz_min o
 ## mas) baja flotando con su video y se posa sin golpe: la bajada son los
@@ -394,7 +394,7 @@ var hoja_debajo: Callable
 ## tela) mientras quede, girando cuando se quiera, y entra en flotar_bajar por
 ## el fotograma que mas se parece al que lleva ("a_bajar" de flotar.json) justo
 ## a tiempo de posarse. Bucle: tras el ultimo, flotar_quieto_vuelta (el 191
-## calca al 3). Ver raw/master_mason/anim/peregrino_flotar/montar_quieto.py.
+## calca al 3). Ver raw/master_builder/anim/peregrino_flotar/montar_quieto.py.
 @export var flotar_quieto_margen: float = 0.2
 @export var flotar_quieto_vuelta: int = 3
 ## GIRAR EN EL AIRE (2026-10-12): "no puedes ir de espaldas o avanzar de
@@ -465,7 +465,7 @@ var hoja_debajo: Callable
 ## pinta los paneles a su manera) seguia el salto de parado 21,5 (piernas
 ## separadas, tunica recta, otro video): grabado, se veia el corte (silueta
 ## 0,24, textura 1,16; un paso normal 0,03-0,10 y 0,2-0,5). Ahora sigue
-## flotar_despegar (raw/master_mason/anim/peregrino_despegue_hoja/montar.py): A, la
+## flotar_despegar (raw/master_builder/anim/peregrino_despegue_hoja/montar.py): A, la
 ## subida del mismo video de pisar (la capa se asienta sola), a su ritmo; y B,
 ## el final del video de rebote, que recoge las piernas hasta la pose de flotar
 ## (su ultimo es el 0 de flotar_bajar), y de ahi la bajada flotando de siempre.
@@ -523,7 +523,7 @@ const FLOTAR := "res://assets/characters/peregrino/flotar.json"
 ## golpe pesaba poco.
 @export var tumbado_espera: float = 1.8
 ## Sonidos de la cinematica, sacados del audio del propio video de la caida
-## (raw/master_mason/audio/peregrino/construye.py, seccion CAIDA). El aire acaba
+## (raw/master_builder/audio/peregrino/construye.py, seccion CAIDA). El aire acaba
 ## justo en el golpe, asi que se arranca caida_duracion antes del impacto; el
 ## roce de levantarse esta acelerado para durar lo que dura la animacion.
 ## golpe_sprite es el sprite de "caida" en que suena el golpe en el video
@@ -544,7 +544,7 @@ const SONIDOS_CAIDA := {
 ## Los sprites de contacto estan medidos en 04_limpios siguiendo la fila del pie
 ## mas bajo (un contacto es cuando baja hasta el suelo tras haber estado
 ## levantado); los de los saltos, ademas, contra el ataque del audio de su
-## propio video (raw/master_mason/audio/peregrino/construye.py, seccion SALTOS).
+## propio video (raw/master_builder/audio/peregrino/construye.py, seccion SALTOS).
 ## Antes todo esto era mudo: al arrancar a correr los primeros 0,6 s no sonaba
 ## nada, y los saltos ni despegaban ni caian.
 const GOLPES := {
@@ -578,7 +578,7 @@ const SALTO_CORRER_CAIDA_SPRITE := 33
 
 ## Vuelo cocido de los tres saltos, para flotar en la luz (ver
 ## FLOTAR EN LA LUZ y _volar). Medido en 04_limpios (master a la mitad = px del
-## juego) con raw/master_mason/anim/peregrino_salto_parado/tablas_vuelo.py:
+## juego) con raw/master_builder/anim/peregrino_salto_parado/tablas_vuelo.py:
 ##   despegue, toca  fotograma en que se va del suelo (el del sonido del
 ##                   despegue) y en el que el pie vuelve a tocarlo
 ##   apogeo, alto    donde la parabola del cuerpo llega arriba (fotograma con
@@ -737,7 +737,7 @@ var _esperando_llegada := false
 ## Cualquier cambio a medias se deshace por el mismo camino: soltar mientras
 ## baja lo vuelve a subir desde la pose en que iba (la misma animacion hacia
 ## atras), y volver a pulsar mientras se levanta lo vuelve a bajar. Asi nunca
-## salta de pose. Sale de raw/master_mason/anim/peregrino_agacharse.
+## salta de pose. Sale de raw/master_builder/anim/peregrino_agacharse.
 @export var agacharse_activo: bool = true
 ## Volumen del roce de la ropa al bajar y al levantarse.
 @export var agacharse_db: float = -16.0
@@ -759,7 +759,7 @@ var _esperando_llegada := false
 ## 9,8 px de master el pie cercano y 8,8 el lejano (perspectiva); con la media,
 ## 9,3, ninguno patina mas de medio px. En el juego, la mitad por la escala de la
 ## hoja. 93 px/s: la mitad de andar, a hurtadillas.
-## Sale de raw/master_mason/anim/peregrino_andar_agachado.
+## Sale de raw/master_builder/anim/peregrino_andar_agachado.
 @export var velocidad_agachado: float = 93.0
 @export var avance_agachado: float = 4.65
 ## Cuanto se espera, como mucho, a un punto del paso desde el que pararse
@@ -855,7 +855,7 @@ const AGACHADO_ANTES_DE_SUBIR := 12
 ## ningun fotograma del ciclo (42) casa con el agachado quieto (a 4,7-5,6 pasos), por
 ## eso hay arranque y parada, sacados del mismo video. Medidos sobre los sprites
 ## (distancia en pasos del ciclo, 0,170), ver
-## raw/master_mason/anim/peregrino_andar_agachado/como_se_hizo.txt y tablas.py:
+## raw/master_builder/anim/peregrino_andar_agachado/como_se_hizo.txt y tablas.py:
 ##   agachado -> arranque        1,0-1,5 pasos, desde cualquier fotograma del bucle
 ##   arranque -> ciclo           por el ENTRADA_AGACHADO, 1,0 pasos (un paso normal;
 ##                               por el 21, que era antes, 1,45: un tiron)

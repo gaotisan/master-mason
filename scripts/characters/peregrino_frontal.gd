@@ -47,7 +47,7 @@ extends Node2D
 ## La bola del baston, como en el de perfil con el baston en la mano: la madera
 ## ya viene en el dibujo y la bola es la de scenes/characters/baston.tscn (orbe, luz,
 ## chispas) puesta por codigo, por detras del sprite, donde dice frontal.json
-## (raw/master_mason/anim/baston/frontal.py): en el hueco de la garra.
+## (raw/master_builder/anim/baston/frontal.py): en el hueco de la garra.
 ## El baston del video de frente no tiene garra (acababa en pincho): en la hoja
 ## se le ha borrado el pincho y la garra (garra_frente.png, la del baston de
 ## Gemini) va aqui como capa encima del sprite, donde y con la inclinacion que
@@ -66,7 +66,7 @@ const FRAMES := preload("res://resources/characters/peregrino_frames.tres")
 const BASTON := preload("res://scenes/characters/baston.tscn")
 ## EL BASTON A LA ESPALDA VISTO DE ESPALDAS: el mismo que lleva en la mano (la
 ## plantilla de peregrino_guardar_baston_espalda_a/arreglar.py: garra de cuerna y
-## tramo retorcido, marron), a su tamano, de raw/master_mason/anim/baston/
+## tramo retorcido, marron), a su tamano, de raw/master_builder/anim/baston/
 ## baston_espalda.py (2026-10-15). Antes era baston.png (el del perfil: naranja,
 ## liso, otra garra) a 1,2 de ancho y los videos de sacar y guardar, que pintan el
 ## de la mano, se transformaban en el en los puentes (el usuario: "igualarlo todo,
@@ -77,13 +77,13 @@ const BASTON_ESPALDA_TEX := preload("res://assets/characters/baston/baston_espal
 const BASTON_ESPALDA_FICHA := "res://assets/characters/baston/baston_espalda.json"
 const FRONTAL := "res://assets/characters/baston/frontal.json"
 ## Con baston: la secuencia de un solo video (reposo, arranque, andar, vuelta y
-## puentes; raw/master_mason/anim/peregrino_secuencia_frontal/secuencia.py).
+## puentes; raw/master_builder/anim/peregrino_secuencia_frontal/secuencia.py).
 const SECUENCIA := "res://assets/characters/peregrino/secuencia_frontal.json"
 ## Sin baston: lo mismo de su propio video (sufijo _sb, puentes ps_), con el
 ## baston a la espalda en la funda de cuero.
 const SECUENCIA_SIN := "res://assets/characters/peregrino/secuencia_frontal_sin.json"
 ## Sacar y guardar el baston de frente, de un reposo al otro (videos de Flow con
-## fotograma inicial y final sacados de esta escena; raw/master_mason/anim/
+## fotograma inicial y final sacados de esta escena; raw/master_builder/anim/
 ## peregrino_sacar_baston_frente/animar.py): la bola sigue a la garra del video,
 ## filas [x, y, escala, giro].
 const BASTON_FRENTE := "res://assets/characters/peregrino/baston_frente.json"
@@ -100,7 +100,7 @@ const PARTICULAS := false
 ## hombro) y el parche de tela tapa el corte.
 ## Lo que sujeta el baston a la espalda: la CORREA en diagonal con dos presillas
 ## (2026-10-10; el usuario eligio esta composicion de Gemini: la funda de tubo,
-## funda_cuero, de espaldas quedaba "como un pegote"). raw/master_mason/anim/
+## funda_cuero, de espaldas quedaba "como un pegote"). raw/master_builder/anim/
 ## baston/correa.py: dos capas como la funda (la correa detras del baston, las
 ## presillas delante: el palo pasa por dentro) y correa.json.
 const FUNDA := "res://assets/characters/baston/correa.json"
@@ -288,7 +288,7 @@ var _halo0 := 1.1
 var _pendiente := false           # una pulsacion de B que espera (pulsar_baston)
 ## La vuelta con baston pasa la garra por delante de la cara (vuelta_cb 8-11): la
 ## esfera delante del cuerpo y encima los dedos de la garra del propio fotograma
-## (raw/master_mason/anim/peregrino_secuencia_frontal/garra_vuelta.py).
+## (raw/master_builder/anim/peregrino_secuencia_frontal/garra_vuelta.py).
 const VUELTA_GARRA := "res://assets/characters/peregrino/vuelta_garra.json"
 var _vuelta_garra: Dictionary = {}     # anim -> {fotograma: [esquina, textura]}
 var _esfera_delante: Sprite2D

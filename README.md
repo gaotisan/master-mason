@@ -4,7 +4,7 @@ Juego de terror en Godot 4 hecho con IA. Prototipo en desarrollo.
 
 ## Requisitos
 
-- Godot 4.6.2. Este repo vive en `godot\projects\master_mason\` y espera el editor en
+- Godot 4.6.2. Este repo vive en `godot\projects\master_builder\` y espera el editor en
   `godot\engine\Godot_v4.6.2\` (dos niveles arriba). Se puede indicar otra ruta con la
   variable de entorno `GODOT`.
 - Para exportar el `.exe`: plantillas de exportación 4.6.2 en
@@ -77,7 +77,7 @@ y sale. Las imágenes quedan en `%APPDATA%\Godot\app_userdata\The Master Builder
 ## Sprites de personajes
 
 El material en bruto (vídeos, fotogramas, sprites sueltos a resolución completa)
-está en `raw/master_mason/anim/`, una carpeta por animación, y las herramientas en
+está en `raw/master_builder/anim/`, una carpeta por animación, y las herramientas en
 `tools/anim/`. Las dos carpetas llevan `.gdignore`: Godot no las ve, no las importa
 ni las exporta. El juego solo usa las hojas finales, en `assets/characters/`.
 
@@ -87,5 +87,5 @@ que hay sobre el material actual.
 
 ## Fuentes de audio
 
-Los mp3 originales, wav intermedios y grabaciones están en `raw/master_mason/audio/`
+Los mp3 originales, wav intermedios y grabaciones están en `raw/master_builder/audio/`
 (fuera de lo que ve Godot). El juego usa los ogg/wav finales de `assets/audio/`.

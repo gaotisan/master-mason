@@ -3,7 +3,7 @@ extends Node2D
 ## camino de hojas que lleva a una luz) que esta viva.
 ##
 ## La imagen no se recorta: camino_fondo.gdshader desplaza las ramas finas de la
-## copa donde dice la mascara (raw/master_mason/camino_bosque/mascaras.py) y le
+## copa donde dice la mascara (raw/master_builder/camino_bosque/mascaras.py) y le
 ## pone encima el aire que pinta camino_aire.gdshader a 1/4 de resolucion en la
 ## SubViewport AireVista. Troncos, camino y suelo no se mueven: por el camino
 ## andara el peregrino. Este script lleva lo que tiene que ir a una.
@@ -20,7 +20,7 @@ extends Node2D
 ## resplandor y los haces crecen unos segundos y vuelven.
 ##
 ## SONIDO. Musica de fondo en bucle (assets/audio/musica_camino_bosque.ogg, de
-## raw/master_mason/audio/camino_bosque/construye.py): entra con la imagen y,
+## raw/master_builder/audio/camino_bosque/construye.py): entra con la imagen y,
 ## cuando el sol se abre paso, sube un pelin. La lleva MusicAmbience: es la
 ## misma que suena en la hojarasca desde que se coge el baculo y sigue por el
 ## corte sin empezar de nuevo (2026-10-16); aqui solo se lleva a musica_db. El

@@ -9,7 +9,7 @@ Es una de las **dos tecnicas** de animacion del proyecto. La otra (rig de huesos
 ## Un "job" es una animacion
 
 `dominus_run`, `dominus_idle`, `dominus_punch`... Cada uno vive en
-`raw\master_mason\anim\<job>\` y tiene sus etapas numeradas:
+`raw\master_builder\anim\<job>\` y tiene sus etapas numeradas:
 
 ```
 01_frames      fotogramas en bruto (de video, o PNG tuyos / de IA)
@@ -21,7 +21,7 @@ _con_sombra\   copia intacta de antes de aplanar la sombra, para comparar
 _con_fondo\    copia intacta de antes de quitar el fondo, para comparar
 ```
 
-`raw\` y `tools\` estan dentro del proyecto (`projects\master_mason\`), con
+`raw\` y `tools\` estan dentro del proyecto (`projects\master_builder\`), con
 `.gdignore` para que Godot no los importe. En el sitio de antes (`godot\raw`,
 `godot\tools`) quedan enlaces a ellos, asi que las rutas viejas siguen valiendo.
 Lo que se regenera solo (fotogramas, selecciones, copias intermedias) no va a git:
@@ -30,7 +30,7 @@ ver el `.gitignore` del proyecto.
 ## Uso
 
 ```powershell
-cd C:\Users\santiago.ochoa\godot\projects\master_mason\tools\anim
+cd C:\Users\santiago.ochoa\godot\projects\master_builder\tools\anim
 
 # 0. (opcional) quedarte solo con el tramo bueno del video
 .\recortar.ps1 -Fuente "$HOME\Downloads\mi_video.mp4" -Desde 7
@@ -265,7 +265,7 @@ aracnobat), y si la silueta cambia mucho de una animacion a otra -- una araña
 que saca alas -- el "tronco" que mide `centrar.ps1` deja de ser lo mismo y el
 cuerpo pega un salto lateral.
 
-Los numeros de cada personaje se guardan en `raw/master_mason/anim/<personaje>_comun.txt`,
+Los numeros de cada personaje se guardan en `raw/master_builder/anim/<personaje>_comun.txt`,
 con el porque de cada uno. Para comprobar que dos animaciones quedan alineadas:
 el pie mas bajo debe tocar la misma fila en ambas, y el eje del tronco quedar en
 el centro de la casilla.

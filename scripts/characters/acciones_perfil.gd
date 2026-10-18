@@ -7,7 +7,7 @@ extends Node2D
 ##     sacar el baston), pone la animacion en su Sprite y la lleva a mano,
 ##     fotograma a fotograma, y mueve el nodo por la raiz del video
 ##     (assets/characters/peregrino/acciones_perfil.json, que escribe
-##     raw/master_mason/anim/montar_accion.py): nodo + casilla = video, al
+##     raw/master_builder/anim/montar_accion.py): nodo + casilla = video, al
 ##     pixel. Al acabar le deja el reposo de siempre en el sitio nuevo.
 ##   - Fuera de las acciones le pone en cada tick los limites (limite_izquierdo
 ##     y limite_derecho) segun lo que tenga delante a su altura: la cara de un
@@ -949,7 +949,7 @@ func _quedar_tumbado(anim: String) -> void:
 ## arranca la brazada), arrastrarse_bucle (un video aparte que empieza y acaba
 ## en ese c096: mientras se mantenga la direccion se repite, sin pararse) y
 ## arrastre_salida (el arrastre de antes desde el c097: termina la brazada y se
-## tumba). Los empalmes son los del propio video viejo (ver raw/master_mason/
+## tumba). Los empalmes son los del propio video viejo (ver raw/master_builder/
 ## anim/peregrino_arrastrarse_bucle). Sin el bucle en la tabla, como antes.
 func _tumbado() -> void:
 	var eje := Input.get_axis("mover_izquierda", "mover_derecha")

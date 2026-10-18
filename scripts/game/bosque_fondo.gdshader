@@ -1,9 +1,9 @@
 shader_type canvas_item;
 // El bosque de fondo de la hojarasca (la imagen de Midjourney con el estilo de
-// camino_bosque, raw/master_mason/hojarasca_bosque/bosque_hojarasca.png; antes
+// camino_bosque, raw/master_builder/hojarasca_bosque/bosque_hojarasca.png; antes
 // se probaron una de Gemini y una facetada, ya borradas), sumado a la oscuridad
 // del fondo. Va en dos
-// planos (raw/master_mason/hojarasca_bosque/capas.py): la textura del sprite
+// planos (raw/master_builder/hojarasca_bosque/capas.py): la textura del sprite
 // es el de detras (bosque_lejos.png: niebla, troncos lejanos y el camino, con
 // la niebla rellenada debajo de los troncos de delante) y capa_cerca el de
 // delante (bosque_cerca.png: los troncos oscuros, con alfa).
@@ -24,7 +24,7 @@ shader_type canvas_item;
 // completa son ~4 ms en la grafica del portatil).
 //
 // VIDA (como camino_fondo.gdshader, del que sale esto; mascaras de
-// raw/master_mason/hojarasca_bosque/mascaras.py). No se recorta nada: se
+// raw/master_builder/hojarasca_bosque/mascaras.py). No se recorta nada: se
 // desplaza la propia imagen.
 // - Copa: las ramas finas se mecen. Cinco muelles a lo ancho
 //   (caida_hojarasca.gd) llevan lo que se inclina la copa en cada franja: la

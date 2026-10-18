@@ -99,7 +99,7 @@ const PASADA := 20.0
 @export var sombra_larga := 0.22
 
 @export_group("Sonido")
-## Las pisadas en las hojas del camino (las de la hojarasca: raw/master_mason/
+## Las pisadas en las hojas del camino (las de la hojarasca: raw/master_builder/
 ## audio/hojarasca/construye.py), delante; lejos suenan menos (el componente) y
 ## en la bruma del fondo, con lo que se le ve (antes sonaban sin verle).
 @export var pasos_db := -19.0

@@ -5,7 +5,7 @@
     Reconvierte (no copia el flujo) para que el corte caiga en el segundo exacto
     y no en el fotograma clave mas cercano.
 .EXAMPLE
-    .\recortar.ps1 -Fuente "..\..\raw\master_mason\anim\_fuentes\video.mp4" -Desde 6
+    .\recortar.ps1 -Fuente "..\..\raw\master_builder\anim\_fuentes\video.mp4" -Desde 6
 .EXAMPLE
     .\recortar.ps1 -Fuente video.mp4 -Desde 2.5 -Hasta 7 -Nombre dominus_run_bueno
 #>

@@ -35,7 +35,7 @@ uniform float retiro : hint_range(0.0, 1.0) = 0.0;
 
 // Ruido de valor: un valor al azar en cada punto de la reticula, fundido con
 // suavidad entre los cuatro de alrededor. Los valores se leen de una imagen
-// (ruido_valor.png, raw/master_mason/hojarasca_bosque/ruido_valor.py): con el
+// (ruido_valor.png, raw/master_builder/hojarasca_bosque/ruido_valor.py): con el
 // filtro lineal, leyendo en i + u, la grafica funde los cuatro en una lectura
 // (2026-10-14; antes eran cuatro hashes de seno por octava, 60 senos por pixel,
 // y el fondo costaba 5 ms aun a 1/4).

@@ -27,5 +27,5 @@ Una columna nueva con el código del idioma (`fr`, `de`, `it`…) en los dos fic
 
 - Una fila nueva con su clave y todos los idiomas.
 - Pensamientos: `pensamiento.<clave>.<parte>`, con las partes desde 1. Las partes salen una tras otra en el mismo sitio. La clave es la que usa la escena (`_pensar.decir("camino")`).
-- Al guardar el CSV, Godot lo importa solo. Fuera del editor: `Godot --headless --path projects/master_mason --import`.
+- Al guardar el CSV, Godot lo importa solo. Fuera del editor: `Godot --headless --path projects/master_builder --import`.
 - `python textos/comprobar.py` avisa si a alguna frase le falta un idioma o le sobra o falta algún `%s`.

@@ -18,7 +18,7 @@ extends Node2D
 ## balancea como un pendulo, gira sobre si misma (por el enves algo mas oscura)
 ## y, cuando va deprisa, deja un rastro muy tenue.
 ## Son las hojas de la hojarasca (la escena siguiente), en un atlas propio a la
-## escala y con el tono de las del fondo (raw/master_mason/titulo_hojas/
+## escala y con el tono de las del fondo (raw/master_builder/titulo_hojas/
 ## hojas_sueltas.py). Van por debajo de la mascara de luz: se encienden y se
 ## apagan con la sala.
 
@@ -33,7 +33,7 @@ const IMAGEN := Vector2(2912, 1632)
 const ONDA_PX_S := 4500.0
 
 ## Arbustos del fondo (px de la imagen): raiz, centro y radio de su zona, largo
-## de rama (los cuatro, iguales en raw/master_mason/titulo_hojas/pesos_viento.py,
+## de rama (los cuatro, iguales en raw/master_builder/titulo_hojas/pesos_viento.py,
 ## que hornea los pesos del shader), frecuencia propia del muelle (Hz) y cuantas hojas suelta por racha
 ## (min, max). Los de la izquierda sueltan mas: sus hojas cruzan por las paredes
 ## de arriba y de abajo; las de los lados cruzarian el cristal y no sueltan.

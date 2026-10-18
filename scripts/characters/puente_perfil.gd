@@ -7,7 +7,7 @@ extends Node2D
 ##
 ## Los dos personajes salen de videos distintos (otra tunica, otra capucha, el
 ## baston en otro sitio) y cortar de uno al otro saltaba. Un puente son unos
-## fotogramas que llevan el uno al otro por piezas (raw/master_mason/anim/
+## fotogramas que llevan el uno al otro por piezas (raw/master_builder/anim/
 ## peregrino_puente_perfil/puente.py): la silueta cambia de forma poco a poco, el
 ## baston va como pieza rigida y el dibujo de la tunica entra con un barrido del
 ## lado que gira hacia la camara. Empiezan en un fotograma del de un lado y

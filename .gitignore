@@ -37,29 +37,29 @@ desktop.ini
 __pycache__/
 *.pyc
 tools/ffmpeg/
-raw/master_mason/anim/*/01_frames/
-raw/master_mason/anim/*/02_contacto/
-raw/master_mason/anim/*/03_seleccion/
+raw/master_builder/anim/*/01_frames/
+raw/master_builder/anim/*/02_contacto/
+raw/master_builder/anim/*/03_seleccion/
 # los fotogramas sin el objeto de relleno (quitar_objeto.py los rehace de 01_frames)
-raw/master_mason/anim/*/01b_sin_objeto/
-raw/master_mason/anim/*/_con_fondo/
-raw/master_mason/anim/*/_sin_escalar/
-raw/master_mason/anim/*/_todos/
+raw/master_builder/anim/*/01b_sin_objeto/
+raw/master_builder/anim/*/_con_fondo/
+raw/master_builder/anim/*/_sin_escalar/
+raw/master_builder/anim/*/_todos/
 # Tampoco las copias de antes de cada paso ni las versiones descartadas (siguen
 # en el disco; si hacen falta, se suben aparte).
-raw/master_mason/anim/_archivo/
-raw/master_mason/anim/*/_sin_*/
-raw/master_mason/anim/*/_con_sombra/
-raw/master_mason/anim/*/_sobrantes/
-raw/master_mason/anim/*/_vistas/
-raw/master_mason/anim/*/04_limpios_original/
-raw/master_mason/anim/*/hojas_antes/
-raw/master_mason/anim/*/_*/
+raw/master_builder/anim/_archivo/
+raw/master_builder/anim/*/_sin_*/
+raw/master_builder/anim/*/_con_sombra/
+raw/master_builder/anim/*/_sobrantes/
+raw/master_builder/anim/*/_vistas/
+raw/master_builder/anim/*/04_limpios_original/
+raw/master_builder/anim/*/hojas_antes/
+raw/master_builder/anim/*/_*/
 # Los fotogramas finales de las acciones de perfil: montar_accion.py los rehace
 # de 04_limpios (con la tabla de cada job); la hoja va en 05_salida.
-raw/master_mason/anim/*/04_acciones/
+raw/master_builder/anim/*/04_acciones/
 
-# Blender portable y su entorno de Python (bpy) para raw/master_mason/peregrino3d:
+# Blender portable y su entorno de Python (bpy) para raw/master_builder/peregrino3d:
 # ~1,8 GB que se descargan, como ffmpeg. Las copias de seguridad de Blender, tampoco.
 tools/blender/
 tools/bpy_env/

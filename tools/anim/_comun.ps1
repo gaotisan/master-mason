@@ -9,7 +9,7 @@ $ErrorActionPreference = 'Stop'
 $RaizGodot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $FFmpeg    = Join-Path $RaizGodot 'tools\ffmpeg\bin\ffmpeg.exe'
 $FFprobe   = Join-Path $RaizGodot 'tools\ffmpeg\bin\ffprobe.exe'
-$RaizAnim  = Join-Path $RaizGodot 'raw\master_mason\anim'
+$RaizAnim  = Join-Path $RaizGodot 'raw\master_builder\anim'
 $Fuentes   = Join-Path $RaizAnim '_fuentes'
 
 # Las etapas del flujo, en orden. El numero delante es el orden de trabajo.

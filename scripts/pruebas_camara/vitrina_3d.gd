@@ -1,6 +1,6 @@
 extends Node3D
 ## PRUEBA: el peregrino 3D (assets/pruebas_3d/peregrino.glb, sacado de la hoja de
-## giro con raw/master_mason/peregrino3d) en una sala oscura con luz de luna y una
+## giro con raw/master_builder/peregrino3d) en una sala oscura con luz de luna y una
 ## vela, girando, y la camara cortando entre planos: frente, tres cuartos,
 ## picado, contrapicado y cenital. Es para juzgar el modelo con luz real.
 ## Teclas: espacio para/sigue el giro, flechas cambian de plano, M menu.
