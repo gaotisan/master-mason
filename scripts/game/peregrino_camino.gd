@@ -91,6 +91,13 @@ const PASADA := 20.0
 ## parches no se leian (se veia borroso, sucio). Con 1,2, 0,13: sigue a
 ## contraluz. Con 1,4 igualaba a los troncos y parecia iluminado de frente.
 @export var exposicion := 1.2
+## Su color y su nitidez (2026-10-18, el usuario: "muy gris", "no se ve muy
+## nitido"): antes saturacion 0,55, luces 0,7 y canto suavizado 1,2 px.
+@export var saturacion := 0.9
+@export var contraste_luces := 0.85
+@export var suavizar_px := 0.6
+## Enfoque de la textura (la hoja va a 1/2 del master y de cerca se amplia x2,7).
+@export var nitidez := 0.6
 ## Bruma de su distancia: al salir de la del fondo y delante. Apagada
 ## (2026-10-18: "se difumina demasiado en el bosque"; antes 0,4 y 0,05). Sigue
 ## saliendo de la bruma del fondo al entrar (vista).
@@ -327,6 +334,10 @@ func _luz() -> void:
 	_mat.set_shader_parameter("bruma_pies", bruma_pies_fuerza)
 	_mat.set_shader_parameter("ambiente", amb)
 	_mat.set_shader_parameter("exposicion", exposicion)
+	_mat.set_shader_parameter("saturacion", saturacion)
+	_mat.set_shader_parameter("contraste_luces", contraste_luces)
+	_mat.set_shader_parameter("suavizar_px", suavizar_px)
+	_mat.set_shader_parameter("nitidez", nitidez)
 	var cerca := clampf(inverse_lerp(_escala_entrada, _escala_hasta, escala), 0.0, 1.0)
 	var niebla := lerpf(niebla_lejos, niebla_cerca, cerca)
 	_mat.set_shader_parameter("niebla", niebla)

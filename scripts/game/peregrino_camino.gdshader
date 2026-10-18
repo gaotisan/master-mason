@@ -95,6 +95,9 @@ uniform vec3 garra = vec3(0.0);
 // copias del baston; el cuerpo, 0.
 uniform float engordar = 0.0;
 uniform float grano_px = 1.2;
+// Enfoque (mascara de desenfoque a 1 texel, solo dentro del cuerpo: en el canto
+// haria un halo). La hoja va a la mitad del master y de cerca se amplia mucho.
+uniform float nitidez = 0.0;
 
 varying vec2 img;
 varying vec2 mundo;
@@ -129,6 +132,15 @@ void fragment() {
 			maximo = max(maximo, s.a);
 		}
 		c = vec4(suma.rgb / max(suma.a, 1e-4), maximo);
+	} else if (nitidez > 0.0) {
+		vec2 tx = TEXTURE_PIXEL_SIZE;
+		vec4 s0 = texture(TEXTURE, UV + vec2(tx.x, 0.0));
+		vec4 s1 = texture(TEXTURE, UV - vec2(tx.x, 0.0));
+		vec4 s2 = texture(TEXTURE, UV + vec2(0.0, tx.y));
+		vec4 s3 = texture(TEXTURE, UV - vec2(0.0, tx.y));
+		float dentro = min(min(s0.a, s1.a), min(s2.a, s3.a)) * c.a;
+		vec3 media = (s0.rgb + s1.rgb + s2.rgb + s3.rgb) * 0.25;
+		c.rgb = max(c.rgb + (c.rgb - media) * nitidez * dentro, vec3(0.0));
 	}
 	vec2 uv = img / pantalla;
 	vec4 m = texture(medio, uv);
