@@ -27,9 +27,9 @@ static func describe_action(action: StringName) -> Dictionary:
 		KEY_DOWN: return {"kind": "arrow", "dir": Vector2.DOWN}
 		KEY_LEFT: return {"kind": "arrow", "dir": Vector2.LEFT}
 		KEY_RIGHT: return {"kind": "arrow", "dir": Vector2.RIGHT}
-		KEY_SPACE: return {"kind": "text", "text": "SPACE"}
-		KEY_ENTER: return {"kind": "text", "text": "ENTER"}
-		KEY_ESCAPE: return {"kind": "text", "text": "ESC"}
+		KEY_SPACE: return {"kind": "text", "text": TranslationServer.translate("tecla.espacio")}
+		KEY_ENTER: return {"kind": "text", "text": TranslationServer.translate("tecla.intro")}
+		KEY_ESCAPE: return {"kind": "text", "text": TranslationServer.translate("tecla.esc")}
 		_: return {"kind": "text", "text": Teclas.nombre(kc)}
 
 func _draw() -> void:

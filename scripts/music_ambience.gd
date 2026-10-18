@@ -72,6 +72,11 @@ func empezar_titulo(db: float, fundido: float, desde: float = 0.0) -> void:
 	_titulo.play(desde)
 	_tw_titulo = _fundir(_titulo, _tw_titulo, db, fundido, false)
 
+## Si el tema del titulo esta sonando (el menu del titulo lo vuelve a poner si
+## se acaba).
+func titulo_sonando() -> bool:
+	return _titulo.playing
+
 ## Apaga el tema del titulo y lo para. Se llama al empezar a entrar por el
 ## cristal, para que el silencio llegue antes que el negro.
 func apagar_titulo(duracion: float) -> void:

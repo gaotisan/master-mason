@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://0u7wj01rt4ui"
+
+[deps]
+
+files=["res://textos/pensamientos.es.translation", "res://textos/pensamientos.en.translation"]
+
+source_file="res://textos/pensamientos.csv"
+dest_files=["res://textos/pensamientos.es.translation", "res://textos/pensamientos.en.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

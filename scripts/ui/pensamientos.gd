@@ -2,8 +2,10 @@ extends CanvasLayer
 ## Pensamientos del peregrino: el texto del juego. Primera persona, sin caja,
 ## en cursiva IM Fell English. Nunca para el juego. Viene de la maqueta del
 ## capitulo 1 (rama maqueta-capitulo1), con dos cambios: los textos estan en un
-## fichero (textos/pensamientos_<idioma>.json) y no en el codigo, y el sitio
-## depende de donde este el personaje.
+## fichero (textos/pensamientos.csv, todos los idiomas juntos; ver
+## textos/LEEME.md) y no en el codigo, y el sitio depende de donde este el
+## personaje. Cada parte es una frase de las traducciones,
+## pensamiento.<clave>.<n> con n desde 1, en el idioma que este puesto (Ajustes).
 ##
 ## Uno cada vez y ninguno se repite. Cada pensamiento puede tener varias partes
 ## que salen una tras otra en el mismo sitio. Si no ha podido salir a tiempo,
@@ -26,7 +28,6 @@ signal terminado(clave: String)
 const FUENTE := preload("res://assets/fonts/IMFellEnglish-Italic.ttf")
 const ANCHO := 2912.0
 
-@export var idioma: String = "es"
 @export var tam_letra: int = 58
 @export var color: Color = Color(0.93, 0.88, 0.78)
 @export var alfa: float = 0.9
@@ -50,7 +51,6 @@ const ANCHO := 2912.0
 ## func() -> float: x del personaje en pantalla (para elegir el lado).
 var x_de: Callable
 
-var _textos := {}
 var _etiqueta: Label
 var _voz: AudioStreamPlayer
 var _cola: Array = []          # {clave, hasta}
@@ -63,7 +63,6 @@ var _tw_parte: Tween            # el del texto que se esta diciendo (ver _cortar
 
 func _ready() -> void:
 	layer = 15
-	_cargar()
 	var ajustes := LabelSettings.new()
 	ajustes.font = FUENTE
 	ajustes.font_size = tam_letra
@@ -83,17 +82,23 @@ func _ready() -> void:
 	_voz.volume_db = voz_db
 	add_child(_voz)
 
-func _cargar() -> void:
-	var ruta := "res://textos/pensamientos_%s.json" % idioma
-	var datos: Variant = JSON.parse_string(FileAccess.get_file_as_string(ruta))
-	if datos is Dictionary:
-		_textos = datos
-	else:
-		push_error("Pensamientos: no se pudo leer " + ruta)
+## Las partes de un pensamiento en el idioma de ahora: pensamiento.<clave>.1,
+## .2... hasta la primera que no exista. [] si no hay ninguna.
+func _partes(clave: String) -> Array:
+	var partes := []
+	var n := 1
+	while true:
+		var k := "pensamiento.%s.%d" % [clave, n]
+		var t := tr(k)
+		if t == k:
+			break
+		partes.append(t)
+		n += 1
+	return partes
 
 ## Pone un pensamiento en cola. No se repite nunca.
 func decir(clave: String, urgente := false) -> void:
-	if _dichos.has(clave) or not _textos.has(clave):
+	if _dichos.has(clave) or _partes(clave).is_empty():
 		return
 	_dichos[clave] = true
 	if urgente:
@@ -138,7 +143,7 @@ func _decir_ya(clave: String) -> void:
 	var turno := _turno
 	_colocar()
 	empieza.emit(clave)
-	var partes: Array = _textos[clave]
+	var partes := _partes(clave)
 	for n in partes.size():
 		if turno != _turno:
 			return

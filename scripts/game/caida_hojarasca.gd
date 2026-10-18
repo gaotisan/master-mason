@@ -140,7 +140,7 @@ extends Node2D
 ## El baculo SOLO baja tras la vuelta: es cuando se da cuenta de que no va a
 ## ninguna parte (asi lo quiere el usuario, sin atajo por tiempo; si en un
 ## minuto no ha salido por ningun borde, solo el empujon de "explorar"). Los textos
-## estan en textos/pensamientos_es.json.
+## estan en textos/pensamientos.csv.
 ## Espera tras levantarse antes del primer pensamiento (s).
 @export var espera_despertar: float = 1.0
 ## Si a los tantos segundos de levantarse aun no ha salido por ningun borde, se
@@ -678,9 +678,17 @@ func _ready() -> void:
 	process_physics_priority = 10
 	_delante.sembrar(hojas_por_columna_delante, _monton.bind(0.6))
 	_detras.sembrar(hojas_por_columna_detras, _monton.bind(0.4))
+	# Continuando donde se dejo (Partida.guardar_reanudar): sin la caida.
+	var reanudar := PARTIDA.reanudar_estado(get_tree())
 	if _resuelta:
 		_poner_resuelta.call_deferred(estado)
+		if not reanudar.is_empty():
+			_reanudar.call_deferred(reanudar)
+	elif not reanudar.is_empty():
+		_reanudar.call_deferred(reanudar)
 	elif caida_al_empezar:
+		# Primer punto de guardado de la partida: "Continuar" vuelve a esta caida.
+		PARTIDA.guardar(get_tree(), "hojarasca")
 		_entrar_desde_negro()
 	else:
 		$Entrada.hide()
@@ -1351,6 +1359,9 @@ func _acabar_coger() -> void:
 	_camino_abierto = bosque_de_fondo
 	_resuelta = true
 	PARTIDA.marcar(get_tree(), "hojarasca_resuelta")
+	# Puzle pasado: se guarda aqui, con el baculo en la mano y el camino abierto.
+	PEREGRINO_ESTADO.dejar(get_tree(), true, float(_baston_mano.get("magia")), float(_baston_mano.get("magia_recarga")))
+	PARTIDA.guardar(get_tree(), "hojarasca_resuelta")
 	# al caer con el, lo piensa (el sendero ya esta encendido)
 	get_tree().create_timer(0.8).timeout.connect(_pensar.decir.bind("camino"))
 	_empezar_ensena_baston()
@@ -2503,7 +2514,15 @@ func _al_perfil() -> void:
 ## sendero abierto y sin los pensamientos de la historia. Del camino aparece en
 ## el (_llegar_del_camino); si no, de pie en su sitio y con el mando.
 func _poner_resuelta(estado: Dictionary) -> void:
-	$Entrada.hide()
+	var del_camino: bool = estado.get("viene_de", "") == "camino_bosque"
+	if del_camino:
+		$Entrada.hide()
+	else:
+		# Continuando la partida guardada al coger el baculo: llega del negro del
+		# titulo, y entra desde negro como la caida. Y si aun no habia aprendido
+		# a guardar el baculo, se le vuelve a ensenar.
+		_abrir_desde_negro()
+		_empezar_ensena_baston()
 	# la del camino: la que ya sonaba (del camino) a su nivel de aqui, o desde
 	# el silencio; sin el extra del claro de sol de alli
 	MusicAmbience.sonar_camino(musica_camino_db, cambio_musica if MusicAmbience.camino_sonando() else musica_entrada)
@@ -2634,3 +2653,63 @@ func _al_posar_baculo() -> void:
 	get_tree().create_timer(1.2).timeout.connect(func() -> void:
 		if not _alcanzado:
 			_pensar.decir("baculo"))
+
+
+# ---------------------------------------------------------------------------
+# SEGUIR DONDE SE DEJO (2026-10-18). Al salir del juego (y al pausar y cada
+# rato) Partida.guardar_reanudar apunta lo que diga estado_reanudar(); al
+# continuar, _ready se lo pasa a _reanudar. Se apunta donde esta el peregrino y
+# en que punto de la historia de la hojarasca va, no cada detalle: un salto o un
+# flote a medias se guarda como de pie en el suelo, y la cinematica de coger el
+# baculo, como el baculo bajando otra vez. Lo que ya ha pasado (el claro
+# cerrado, el baculo aprendido...) va en los hechos de Partida, que se guardan
+# con esto.
+
+## {} mientras cae o esta tumbado (Continuar vuelve a la caida, el punto de
+## guardado de siempre).
+func estado_reanudar() -> Dictionary:
+	if not _resuelta and _con_mando < 0.0:
+		return {}
+	var peregrino := {}
+	if _resuelta and _baston_mano:
+		peregrino = {"baston_en_mano": bool(_baston_mano.get("en_mano")),
+			"magia": float(_baston_mano.get("magia")), "magia_recarga": float(_baston_mano.get("magia_recarga"))}
+	# Entrando ya al camino (va solo, sin mando): se sigue en el camino.
+	if _entrando or _cortando:
+		return {"escena": SALIDA_ESCENA, "peregrino": peregrino}
+	var x := _magnus.position.x
+	# En la toma de frente de la boca, de perfil un poco antes de la boca.
+	if _en_camino or _en_boca:
+		x = minf(x, salida_x - salida_boca - 60.0)
+	var fase := "resuelta"
+	if not _resuelta:
+		# Con el baculo ya bajando (o ya dicha la vuelta, que lo trae), vuelve a bajar.
+		fase = "baculo" if (_baculo_bajando or _vueltas > 0 or _cogiendo) else "explorar"
+	return {"fase": fase, "x": x, "mira": int(_magnus.call("mirando")), "vueltas": _vueltas,
+		"peregrino": peregrino}
+
+
+func _reanudar(r: Dictionary) -> void:
+	var x := float(r.get("x", _magnus.position.x))
+	_magnus.position.x = x
+	_ultima_x = x
+	_magnus.call("_mirar", 1 if int(r.get("mira", 1)) >= 0 else -1)
+	if _resuelta:
+		return  # el resto lo pone _poner_resuelta, que ya entra desde negro
+	# Antes del baculo: de pie, con el mando y sin la caida.
+	_abrir_desde_negro()
+	_con_mando = 0.0
+	_vueltas = int(r.get("vueltas", 0))
+	_empezar_musica()
+	if r.get("fase", "") == "baculo":
+		_bajar_baculo()
+
+
+## Quita el negro de la entrada poco a poco (sin la caida).
+func _abrir_desde_negro() -> void:
+	var negro: ColorRect = $Entrada/Negro
+	negro.color.a = 1.0
+	$Entrada.show()
+	var tw := create_tween()
+	tw.tween_property(negro, "color:a", 0.0, entrada).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_callback($Entrada.hide)

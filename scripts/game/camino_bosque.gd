@@ -189,6 +189,9 @@ var _c_fuerza := 0.0
 var _hasta_claro := 8.0
 
 func _ready() -> void:
+	# Continuando donde se dejo: el camino empieza por su principio (es corto);
+	# se gasta para que no lo recoja la hojarasca si se vuelve a ella.
+	PartidaHechos.reanudar_estado(get_tree())
 	_rng.randomize()
 	_ruido.seed = _rng.randi()
 	_ruido.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
@@ -513,3 +516,32 @@ func _subir_parametros() -> void:
 	_ma.set_shader_parameter("parpadeo", clampf(viento_en(PANTALLA.x * 0.5) + 0.25 * brisa, 0.0, 1.0))
 	_ma.set_shader_parameter("camara", camara)
 	_ma.set_shader_parameter("claro", claro)
+
+
+## Lo que el peregrino puede hacer aqui, para los controles del menu de pausa
+## (scripts/ui/menu_pausa.gd): de frente solo anda hacia el fondo o hacia la
+## camara, y lleva el baculo.
+func controles_disponibles() -> Array:
+	return [
+		{"acciones": [&"saltar"], "texto": "controles.hacia_fondo"},
+		{"acciones": [&"agacharse"], "texto": "controles.hacia_ti"},
+		{"acciones": [&"baston"], "texto": "controles.baculo", "nota": "controles.baculo_sacar"},
+	]
+
+
+
+## Para seguir donde se dejo (Partida.guardar_reanudar): en el camino se sigue
+## desde su principio, con el baculo como lo llevaba. Al final del camino (el
+## fundido a negro de la llegada) no se apunta nada.
+func estado_reanudar() -> Dictionary:
+	var p := get_node_or_null("Peregrino")
+	if p == null:
+		for n in get_children():
+			if n.get("peregrino") is PeregrinoFrontal:
+				p = n
+				break
+	if p == null or String(p.get("_estado")) in ["llegando", "fuera"]:
+		return {}
+	var frontal: PeregrinoFrontal = p.get("peregrino")
+	var peregrino := {"baston_en_mano": bool(frontal.con_baston) if frontal else true}
+	return {"fase": "camino", "peregrino": peregrino}

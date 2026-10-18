@@ -25,6 +25,33 @@ extends Node2D
 
 ## Todos los tiempos de la secuencia cuentan desde que acaban los creditos.
 @export var show_credits: bool = true
+
+@export_group("Modo menu")
+## Al abrir el juego con partida guardada (2026-10-17). Sin creditos: la musica
+## arranca donde iria al acabar los creditos, asi que el encendido cuadra con el
+## tema igual que en la version entera. Una tecla durante el encendido lo
+## adelanta (skip_speed) y, ya encendida, la sala se queda puesta hasta que se
+## elige: por ahora cualquier tecla es "Continuar", que hace la salida de
+## siempre hacia el punto guardado (Partida.cargar). El menu del cristal va
+## despues. Sin modo menu (la historia: ataud, creditos, titulo, hojarasca) todo
+## sigue como estaba.
+@export var modo_menu: bool = false
+## Cuanto mas rapido corre el encendido al saltarlo.
+@export var skip_speed: float = 6.0
+## Sin ataud delante no hay viento sonando: entra desde el silencio en este rato.
+@export var menu_wind_fade_in: float = 3.0
+## El tema entra a mitad, no por su principio: un fundido algo mas largo.
+@export var menu_music_fade_in: float = 2.5
+## Al elegir en el menu, la salida no espera los 4 s de la historia: arranca
+## con este tramo ya andado (las velas se inquietan en el acto y la camara se
+## mete antes). Las letras ya no estan: las quito el menu.
+@export var menu_salto: float = 2.0
+## Con el titulo a la vista y nadie tocando nada, el destello vuelve a recorrer
+## las letras cada tanto.
+@export var menu_glint_cada: float = 28.0
+## Si el tema se acaba con el menu puesto, vuelve a entrar desde el mismo punto
+## (donde acaban los creditos) con este fundido.
+@export var menu_music_vuelta: float = 5.0
 @export var fog_delay: float = 0.5
 @export var fog_time: float = 3.4
 @export var candle_start: float = 1.0
@@ -188,11 +215,40 @@ var _zin_listo := false
 var _zin_z0 := 1.0
 var _zin_p0 := Vector2.ZERO
 var _zin_anchor := Vector2.ZERO
+## Modo menu: el tween del encendido (para adelantarlo), si ya acabo y si ya se
+## eligio salir.
+var _seq_tween: Tween
+var _listo := false
+var _eligiendo_salida := false
+## Modo menu: lo que le falta al viento para su nivel mientras entra del silencio.
+var _wind_entrada_db := 0.0
+## Modo menu: el menu del cristal (scripts/ui/menu_titulo.gd), cuanto falta para
+## el siguiente destello y desde donde entra el tema.
+var _menu: CanvasLayer
+var _glint_espera := 0.0
+var _tema_desde := 0.0
+## Cuanto se ve la placa sin letras (0 las letras, 1 la placa); su tween.
+var _placa := 0.0
+var _tw_placa: Tween
 
 @onready var _camera: Camera2D = $Camera
 @onready var _spider: Node2D = get_node_or_null("Spider")
 
 func _ready() -> void:
+	# "Volver al titulo" del menu de pausa lo abre en modo menu.
+	if get_tree().get_meta(&"titulo_modo_menu", false):
+		get_tree().remove_meta(&"titulo_modo_menu")
+		modo_menu = true
+	if modo_menu:
+		show_credits = false
+		_wind_entrada_db = -40.0
+		# Aqui Esc no pausa (ver GlobalExit): es del menu del titulo.
+		add_to_group(&"sin_pausa")
+		# Y la precarga del peregrino espera a que la sala este encendida.
+		add_to_group(&"precarga_espera")
+		# Si se vuelve desde el camino del bosque, su musica (que es del autoload
+		# y no se va con la escena) se para.
+		MusicAmbience.apagar_camino(0.0)
 	_time_a = randf() * 100.0
 	_time_b = randf() * 100.0 + 37.0
 
@@ -284,11 +340,20 @@ func _ready() -> void:
 	# dejo justo en wind_db_start al desmayarse; aqui solo seguimos subiendolo.
 	_wind_db = wind_db_start
 	# fade_to con duracion 0 mata de paso el fade del desmayo si aun colea.
-	WindAmbience.fade_to(_wind_db, 0.0)
+	WindAmbience.fade_to(_wind_db + _wind_entrada_db, 0.0)
 	WindAmbience.gust_db = 0.0
 
 	# La musica entra con los creditos, sobre el negro, antes que ninguna luz.
-	MusicAmbience.empezar_titulo(music_db, music_fade_in, music_start_offset)
+	if modo_menu:
+		# Sin creditos, desde donde estaria al acabar ellos.
+		var creditos: Node = load("res://scripts/intro/title_credits.gd").new()
+		var saltado: float = creditos.duration()
+		creditos.free()
+		_tema_desde = music_start_offset + saltado
+		MusicAmbience.empezar_titulo(music_db, menu_music_fade_in, _tema_desde)
+		create_tween().tween_property(self, "_wind_entrada_db", 0.0, menu_wind_fade_in).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	else:
+		MusicAmbience.empezar_titulo(music_db, music_fade_in, music_start_offset)
 
 	if show_credits:
 		var credits: CanvasLayer = load("res://scripts/intro/title_credits.gd").new()
@@ -323,11 +388,57 @@ func _start_lights() -> void:
 	($Background as Sprite2D).material = _mat_hojas
 	_elapsed = 0.0
 	_run_sequence()
-	_run_exit()
+	# En modo menu la salida espera a que se elija (_continuar).
+	if not modo_menu:
+		_run_exit(exit_start)
+
+## Modo menu: una tecla adelanta el encendido. Ya encendida, las teclas son
+## del menu del cristal.
+func _unhandled_input(event: InputEvent) -> void:
+	if not modo_menu or _listo or _eligiendo_salida or not _es_pulsacion(event):
+		return
+	get_viewport().set_input_as_handled()
+	if _seq_tween and _seq_tween.is_valid():
+		_seq_tween.set_speed_scale(skip_speed)
+
+func _es_pulsacion(event: InputEvent) -> bool:
+	if event.is_echo() or not event.is_pressed():
+		return false
+	return event is InputEventKey or event is InputEventJoypadButton \
+		or event is InputEventMouseButton or event is InputEventAction
+
+## Lo elegido en el menu del cristal: la salida de siempre (velas, cristal,
+## camara) hacia esa escena, con su primer tramo ya andado (menu_salto).
+func salir_hacia(escena: String) -> void:
+	if _eligiendo_salida:
+		return
+	_eligiendo_salida = true
+	next_scene = escena
+	_run_exit(0.0).custom_step(menu_salto)
+
+## El menu del cristal quita las letras pintadas (se funden con la placa sin
+## letras) para escribirse en su sitio, y las devuelve al volver al reposo.
+func mostrar_letras(si: bool) -> void:
+	if _tw_placa and _tw_placa.is_valid():
+		_tw_placa.kill()
+	_tw_placa = create_tween()
+	_tw_placa.tween_method(_set_placa, _placa, 0.0 if si else 1.0, 0.9).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_glint_espera = menu_glint_cada * 0.5
+
+func _al_encender() -> void:
+	_listo = true
+	remove_from_group(&"precarga_espera")
+	if modo_menu and _menu == null and not _eligiendo_salida:
+		_menu = load("res://scripts/ui/menu_titulo.gd").new()
+		_menu.titulo = self
+		add_child(_menu)
+		_glint_espera = menu_glint_cada
 
 func _run_sequence() -> void:
 	# Un unico tween en paralelo; cada paso lleva su propio retardo.
 	var tw := create_tween().set_parallel(true)
+	_seq_tween = tw
+	tw.finished.connect(_al_encender)
 
 	# Vaho: entra en el negro y se apaga del todo cuando la sala ya se ve.
 	tw.tween_method(_set_fog, 0.0, 1.0, fog_time).set_delay(fog_delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -364,9 +475,10 @@ func _run_sequence() -> void:
 	tw.tween_method(_set_wind_db, wind_db_dark, wind_db_sun, reveal_start - sun_start).set_delay(sun_start).set_trans(Tween.TRANS_SINE)
 	tw.tween_method(_set_wind_db, wind_db_sun, wind_db_peak, reveal_time * 0.55).set_delay(reveal_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
-func _run_exit() -> void:
+## t0: cuanto espera desde ahora para empezar (exit_start en la historia; 0 en el
+## modo menu, que la arranca al elegir).
+func _run_exit(t0: float) -> Tween:
 	var tw := create_tween().set_parallel(true)
-	var t0 := exit_start
 
 	# Las velas se inquietan. Sube la amplitud del parpadeo que ya tienen.
 	tw.tween_method(_set_unrest, 0.0, 1.0, unrest_time).set_delay(t0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
@@ -382,7 +494,7 @@ func _run_exit() -> void:
 	# Se funden con una placa del mismo panel sin letras, en el fondo. Antes las
 	# aplanaba la mascara contra el panel con cuentas de brillo, y a medio camino
 	# quedaba un fantasma oliva en negativo y se veia el rectangulo del efecto.
-	tw.tween_method(_set_placa, 0.0, 1.0, title_fade_time).set_delay(t0 + title_fade_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_method(_set_placa, _placa, 1.0, title_fade_time).set_delay(t0 + title_fade_start).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 	# Ya entrando, el resto de la sala acompana: el rebote se va y el foco se
 	# recoge hacia arriba. Es el arranque al reves.
@@ -446,14 +558,23 @@ func _run_exit() -> void:
 	# lo suyo (instanciarlo y pintarlo), eso no lo quita la carga en segundo plano.
 	tw.tween_callback(_pedir_carga).set_delay(black_end)
 	tw.tween_callback(_leave).set_delay(t0 + zoom_in_start + zoom_in_time + black_hold)
+	return tw
 
 ## Pide la carga en segundo plano de next_scene. Con use_sub_threads las
 ## dependencias se cargan en paralelo. En la web sin hilos (preset Web,
 ## threads_enabled=false) "segundo plano" seria este mismo hilo: no se pide y
 ## _leave carga a la antigua.
+## Si la precarga del peregrino (Precarga) aun esta cargando, espera a que
+## acabe: cargar la escena a la vez, que tira de los mismos archivos, daba errores
+## de carga (paso en el modo menu eligiendo deprisa, cuando la precarga empieza
+## con la sala ya encendida).
 func _pedir_carga() -> void:
-	if not _carga_pedida and not OS.has_feature("nothreads"):
-		_carga_pedida = ResourceLoader.load_threaded_request(next_scene, "", true) == OK
+	if _carga_pedida or OS.has_feature("nothreads"):
+		return
+	if Precarga.en_marcha():
+		get_tree().create_timer(0.1).timeout.connect(_pedir_carga)
+		return
+	_carga_pedida = ResourceLoader.load_threaded_request(next_scene, "", true) == OK
 
 func _leave() -> void:
 	if _leaving:
@@ -465,6 +586,12 @@ func _leave() -> void:
 	# _process seguiria poniendo el viento y, si la espera de abajo pasa de ~1.4 s,
 	# volveria la racha de _elapsed 28.2 (+2 dB) sobre el negro.
 	set_process(false)
+	# La precarga primero (ver _pedir_carga), y luego la escena.
+	while Precarga.en_marcha():
+		await get_tree().process_frame
+		if not is_inside_tree() or get_tree().paused:
+			return
+	_pedir_carga()
 	# Lo que falte de la carga se espera sobre ese negro dejando correr los
 	# fotogramas: esperarla con load_threaded_get a secas congelaba la ventana
 	# (ni ESC ni Alt+F4, y Windows podia darla por colgada) hasta que acababa.
@@ -520,6 +647,7 @@ func _set_fog(v: float) -> void:
 	_fog_level = v
 
 func _set_placa(v: float) -> void:
+	_placa = v
 	_mat_hojas.set_shader_parameter("placa_fundido", v)
 	_mat.set_shader_parameter("placa_fundido", v)
 
@@ -538,6 +666,8 @@ func _gust_strength() -> float:
 
 func _process(delta: float) -> void:
 	_elapsed += delta
+	if modo_menu and _listo and not _eligiendo_salida:
+		_en_reposo(delta)
 
 	# Mismo parpadeo que flicker_glow.gd, una semilla distinta por vela.
 	# Cuando se inquietan, el parpadeo va mas rapido.
@@ -565,10 +695,22 @@ func _process(delta: float) -> void:
 	# Rachas de viento: suben el volumen y mueven las hojas, las dos con la misma
 	# racha. La brisa de fondo sigue al volumen base (de -14 dB a 0 dB).
 	var racha := _gust_strength()
-	WindAmbience.base_db = _wind_db
+	WindAmbience.base_db = _wind_db + _wind_entrada_db
 	WindAmbience.gust_db = racha * 2.0
 	_viento.racha = racha
 	_viento.brisa = clampf(remap(_wind_db, -14.0, 0.0, 0.15, 1.0), 0.0, 1.0)
+
+## Modo menu, con la sala puesta y esperando: el destello vuelve a las letras
+## cada menu_glint_cada s (solo con ellas a la vista) y el tema, si se acaba,
+## vuelve a entrar.
+func _en_reposo(delta: float) -> void:
+	if _placa < 0.01:
+		_glint_espera -= delta
+		if _glint_espera <= 0.0:
+			_glint_espera = menu_glint_cada
+			create_tween().tween_method(_set_shader.bind("glint"), -0.3, 1.3, glint_time).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if not MusicAmbience.titulo_sonando():
+		MusicAmbience.empezar_titulo(music_db, menu_music_vuelta, _tema_desde)
 
 ## La mascara de luz esta medida sobre la imagen: hay que decirle que trozo de la
 ## imagen tiene la camara en pantalla para que la siga en el zoom. Va enganchado

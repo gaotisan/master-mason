@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dj1anpseton5d"
+
+[deps]
+
+files=["res://textos/interfaz.es.translation", "res://textos/interfaz.en.translation"]
+
+source_file="res://textos/interfaz.csv"
+dest_files=["res://textos/interfaz.es.translation", "res://textos/interfaz.en.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

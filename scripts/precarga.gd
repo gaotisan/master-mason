@@ -12,7 +12,8 @@ extends Node
 ## del negro del titulo a la hojarasca, 1,4 s en vez de 3,6; en el ataud, un
 ## tiron de 0,3-0,6 s al empezar (los de ~0,8 s que salen mas tarde salen
 ## igual sin la precarga).
-## Un solo hilo (sin subhilos), para quitarle lo minimo al ataud.
+## Un solo hilo (sin subhilos) y una cosa cada vez, para quitarle lo minimo al
+## ataud.
 ## SIN_PRECARGA=1 en el entorno la desactiva (para medir).
 
 const RUTAS := [
@@ -50,28 +51,59 @@ func _ready() -> void:
 	set_process(false)
 	get_tree().create_timer(ESPERA).timeout.connect(_pedir)
 
+## Mientras haya alguien en este grupo, la precarga espera: el titulo en modo
+## menu (al abrir el juego con partida) se mete en el mientras se enciende la
+## sala, para que la carga no le de tirones; con la sala puesta y el menu a la
+## vista sale del grupo y la carga empieza.
+const GRUPO_ESPERA := &"precarga_espera"
+
 func _pedir() -> void:
-	for r in RUTAS:
-		if ResourceLoader.load_threaded_request(r) == OK:
-			_pedidas.append(r)
+	if get_tree().get_first_node_in_group(GRUPO_ESPERA):
+		get_tree().create_timer(0.5).timeout.connect(_pedir)
+		return
+	# Todas cuentan como pedidas desde ya (en_marcha), pero se cargan de una en
+	# una: pedidas a la vez, magnus.tscn cargaba magnus_frames.tres como
+	# dependencia mientras otra peticion cargaba el mismo archivo, y a veces
+	# chocaban ("Another resource is loaded from path ...::atlas_264", visto el
+	# 2026-10-17).
+	_pedidas.assign(RUTAS)
+	_siguiente()
 	set_process(true)
 
-## Recoge lo que vaya acabando (y lo guarda: mientras haya una referencia, la
-## cache no lo suelta).
-func _process(_delta: float) -> void:
-	var quedan := false
+## La que se esta cargando ahora ("" si ninguna).
+var _actual := ""
+
+func _siguiente() -> void:
+	_actual = ""
 	for r in _pedidas:
 		if _cargados.has(r):
 			continue
-		match ResourceLoader.load_threaded_get_status(r):
-			ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-				quedan = true
-			ResourceLoader.THREAD_LOAD_LOADED:
-				_cargados[r] = ResourceLoader.load_threaded_get(r)
-			_:
-				_cargados[r] = null
-	if not quedan:
+		if ResourceLoader.load_threaded_request(r) == OK:
+			_actual = r
+			return
+		_cargados[r] = null
+
+## Recoge la que este cargando (y la guarda: mientras haya una referencia, la
+## cache no la suelta) y pide la siguiente.
+func _process(_delta: float) -> void:
+	if _actual == "":
 		set_process(false)
+		return
+	match ResourceLoader.load_threaded_get_status(_actual):
+		ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			return
+		ResourceLoader.THREAD_LOAD_LOADED:
+			_cargados[_actual] = ResourceLoader.load_threaded_get(_actual)
+		_:
+			_cargados[_actual] = null
+	_siguiente()
+	if _actual == "":
+		set_process(false)
+
+## Si se ha pedido y aun no ha acabado: quien vaya a cargar algo que tire de lo
+## mismo (la pantalla de titulo, la escena siguiente) espera a que acabe.
+func en_marcha() -> bool:
+	return _pedidas.size() > 0 and _cargados.size() < _pedidas.size()
 
 ## Si ya esta todo (para quien quiera esperarla).
 func lista() -> bool:
