@@ -11,6 +11,8 @@ extends Node2D
 ##             para antes)
 ##   Z         camara: plano general / medio / primer plano (le sigue)
 ##   M         gastar un cuarto de magia (destello y estallido); C, otro color
+##   O         sin bola / con bola (sin magia ni recarga: la garra vacia, para ver
+##             la garra y el grosor del palo); empieza sin bola
 ##   R         vuelve al sitio de salida; Esc, sale
 ## guion: para grabarlo con --write-movie sin nadie al teclado, pasos
 ## [segundo, "abajo" | "arriba" | "", zoom(, con_baston)]; con guion se ignora
@@ -46,6 +48,9 @@ func _ready() -> void:
 	_peregrino.garra_unica = true
 	# en prueba: las hojas a la resolucion de los masters (ver alta_resolucion)
 	_peregrino.alta_resolucion = true
+	# sin bola de salida (O la pone): la garra y el palo se ven mejor
+	_peregrino.magia = 0.0
+	_peregrino.magia_recarga = 0.0
 	_peregrino.position = Vector2(1456, SUELO_SALIDA)
 	add_child(_peregrino)
 	_camara = Camera2D.new()
@@ -57,7 +62,7 @@ func _ready() -> void:
 	ayuda.text = "PRUEBA DEL ANDAR DE FRENTE / DE ESPALDAS\n" + \
 		"abajo: hacia la camara (de frente)   arriba: alejandose (de espaldas)   doble toque: correr (sin baston; parado o andando)\n" + \
 		"B: sacar / guardar el baston (de frente o de espaldas; andando, se para antes)   Z: plano general / medio / primer plano\n" + \
-		"M: gastar magia   C: color\n" + \
+		"M: gastar magia   C: color   O: sin bola / con bola\n" + \
 		"R: volver al sitio   Esc: salir"
 	ayuda.position = Vector2(60, 50)
 	ayuda.add_theme_font_size_override("font_size", 40)
@@ -88,6 +93,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_B: _peregrino.pulsar_baston()
 		KEY_M: _peregrino.gastar(0.25)
 		KEY_C: _peregrino.color += 1
+		KEY_O:
+			var con := _peregrino.magia_recarga > 0.0
+			_peregrino.magia = 0.0 if con else 1.0
+			_peregrino.magia_recarga = 0.0 if con else 0.05
 
 
 ## Va antes que el peregrino (el padre se procesa primero): le dice que quiere.

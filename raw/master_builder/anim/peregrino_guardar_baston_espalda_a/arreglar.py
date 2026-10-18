@@ -363,6 +363,9 @@ def capa(forma, T, tb, tpie, bola, phi, largo, ancho=1.0):
     R = np.array([[u[1], u[0]], [-u[0], u[1]]])   # (0, 1) de la tira -> u
     h, w = forma
     bola = np.asarray(bola, float)
+    # (2026-10-18) deformada con el alfa premultiplicado: sin, los bordes se mezclaban con
+    # el negro de lo transparente y la vara (fina) salia como dos rayas oscuras verdosas
+    T = np.dstack([T[..., :3] * T[..., 3:] / 255.0, T[..., 3:]])
     M1 = np.hstack([R, (bola - R @ tb)[:, None]])
     garra = cv2.warpAffine(T, M1, (w, h), flags=cv2.INTER_LINEAR, borderValue=0)
     sy = (largo - CORTE) / (tpie - tb[1] - CORTE)
@@ -373,7 +376,9 @@ def capa(forma, T, tb, tpie, bola, phi, largo, ancho=1.0):
     ys, xs = np.mgrid[0:h, 0:w]
     s = (xs - bola[0]) * u[0] + (ys - bola[1]) * u[1]
     wv = np.clip((s - CORTE) / 3.0 + 0.5, 0, 1)[..., None]
-    return garra * (1 - wv) + vara * wv
+    m = garra * (1 - wv) + vara * wv
+    al = m[..., 3:]
+    return np.dstack([np.where(al > 1e-3, m[..., :3] * 255.0 / np.maximum(al, 1e-3), 0), al])
 
 
 def encima(fondo, capa_):

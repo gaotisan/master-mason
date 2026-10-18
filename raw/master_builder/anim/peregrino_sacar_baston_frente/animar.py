@@ -168,6 +168,136 @@ def bola_video(job, a, b, mano_antes=None):
     return np.stack([suave(xs), suave(ys)], 1)
 
 
+# (--gu, 2026-10-18) Sacar de frente: hasta este fotograma del video la garra sigue a la
+# espalda (asomando por encima del hombro, tambien en el "hueco" 47-57, que no esta
+# tapado: ahi solo fallo el seguimiento); en el 58 sube de golpe y ya va en la mano.
+REPINTAR_SACAR = 57
+# Guardar de frente: la garra baja por detras de la capucha (64-73) y desde el 74 queda
+# a la espalda (la pequena de Veo) hasta el final; ahi la anclada es la ultima.
+REPINTAR_GUARDAR = 74
+GARRA_RADIO = 62          # px de master alrededor de la bola de Veo donde se busca su garra
+
+
+def repintar_garra(job, V, pv, a, desde, hasta, ancla, bola_reposo, limpio):
+    """La garra que Veo pinto a la espalda es la de la referencia (baston.png: pequena y
+    16 px mas baja que la de la escena); con garra_unica la escena pone baston_espalda.png
+    y en el puente la cabeza del baculo cambiaba y la bola subia (el usuario lo vio al
+    empezar el sacar). Aqui, en los fotogramas a..hasta del video: fuera la garra de Veo
+    (madera cerca de su bola, sus sombras y, fuera de la capucha y por encima del hombro,
+    todo lo que no sea la mano: piel en manchas grandes) y por detras la capa de la
+    escena (CAPA), movida y girada lo que se mueve la garra de Veo (garra.json; el hueco,
+    quieta como en el 46). Donde la garra de Veo pisaba la capucha, la del reposo limpio
+    (`limpio`, alineado por traslacion con lo gris de la capucha) con borde suave: con
+    inpaint o mezclando bordes quedaban mordiscos y escalones. La bola, en la de la escena
+    con ese mismo movimiento. Cambia V y pv en su sitio."""
+    capa = Image.open(os.path.join(AQUI, CAPA)).convert('RGBA')
+    cp = np.asarray(capa).astype(np.float32) / 255
+    cp = np.dstack([cp[..., :3] * cp[..., 3:], cp[..., 3:]])
+    g = {int(k): v for k, v in json.load(open(os.path.join(ANIM, job, 'garra.json'))).items()}
+    # seguidos sin huecos desde el anclado (el que va en el sitio del reposo: el primero
+    # al sacar, el ultimo al guardar); mas alla, quieta como en el ultimo seguido
+    paso = 1 if ancla == desde else -1
+    ultimo = ancla
+    while desde <= ultimo + paso <= hasta and ultimo + paso in g:
+        ultimo += paso
+    cual = lambda k: max(min(k, max(ancla, ultimo)), min(ancla, ultimo))
+    p0 = np.array(pv, float)      # la bola de Veo (pv se cambia al final)
+    ys, xs = np.mgrid[0:CAS[1], 0:CAS[0]]
+    import cv2
+    # el cuerpo limpio del reposo (sin baculo), para la capucha que tapaba la garra de Veo
+    rl = np.asarray(limpio.convert('RGBA')).astype(np.float32)
+    caja = (slice(140, 340), slice(230, 430))          # la capucha (y, x)
+    gris = lambda im: cv2.cvtColor(np.ascontiguousarray(im[..., :3]).astype(np.float32), cv2.COLOR_RGB2GRAY) * (im[..., 3] / 255.0)
+    vent = cv2.createHanningWindow((caja[1].stop - caja[1].start, caja[0].stop - caja[0].start), cv2.CV_32F)
+    for k in range(desde, hasta + 1):
+        i = cual(k) - a
+        d = p0[i] - p0[ancla - a]
+        ang = g[cual(k)][2] - g[ancla][2]
+        M = cv2.getRotationMatrix2D((float(bola_reposo[0]), float(bola_reposo[1])), float(ang), 1.0)
+        M[:, 2] += d
+        w = cv2.warpAffine(cp, M, CAS, flags=cv2.INTER_CUBIC, borderValue=0)
+        w = np.clip(w, 0, 1)
+        fr = np.asarray(V[k].convert('RGBA')).copy()
+        hsv = cv2.cvtColor(np.ascontiguousarray(fr[..., :3]), cv2.COLOR_RGB2HSV).astype(np.int32)
+        h, sa, va = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+        cerca = (xs - p0[i][0]) ** 2 + (ys - p0[i][1]) ** 2 < GARRA_RADIO ** 2
+        # el reposo limpio llevado a la capucha de este fotograma (solo traslacion,
+        # medida en lo gris de la capucha: sin la garra de Veo, que la desviaba)
+        gr = lambda im, hs: gris(im) * ((hs[..., 1] < 70) & (hs[..., 2] > 100))
+        hsr = cv2.cvtColor(np.ascontiguousarray(rl[..., :3]).astype(np.uint8), cv2.COLOR_RGB2HSV).astype(np.int32)
+        (dx, dy), _ = cv2.phaseCorrelate(gr(rl, hsr)[caja].astype(np.float32), gr(fr.astype(np.float32), hsv)[caja].astype(np.float32), vent)
+        # y afinado con giro (la cabeza se inclina: al guardar, 74-81, con solo traslacion
+        # la capucha del reposo no casaba y quedaba un parche): ECC euclideo sobre la
+        # silueta de lo gris de la capucha, sin la garra de Veo
+        T = np.float32([[1, 0, dx], [0, 1, dy]])
+        sil_v = ((hsv[..., 1] < 70) & (hsv[..., 2] > 100) & (fr[..., 3] > 128)).astype(np.float32)
+        sil_r = ((hsr[..., 1] < 70) & (hsr[..., 2] > 100) & (rl[..., 3] > 128)).astype(np.float32)
+        sin_garra = ~(cv2.dilate((cerca & (h >= 5) & (h <= 30) & (sa >= 50) & (fr[..., 3] > 0)).astype(np.uint8),
+                                 np.ones((9, 9), np.uint8)) > 0)
+        mascara = np.zeros(sil_v.shape, np.uint8)
+        mascara[caja] = 1
+        mascara &= sin_garra.astype(np.uint8)
+        try:
+            Wi = np.float32([[1, 0, -dx], [0, 1, -dy]])        # del video al reposo (lo que pide ECC)
+            _, Wi = cv2.findTransformECC(cv2.GaussianBlur(sil_v, (0, 0), 2), cv2.GaussianBlur(sil_r, (0, 0), 2), Wi,
+                                         cv2.MOTION_EUCLIDEAN,
+                                         (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 100, 1e-5), mascara, 5)
+            rk = cv2.warpAffine(rl, Wi, CAS, flags=cv2.INTER_CUBIC | cv2.WARP_INVERSE_MAP, borderValue=0)
+        except cv2.error:
+            rk = cv2.warpAffine(rl, T, CAS, flags=cv2.INTER_CUBIC, borderValue=0)
+        capucha = rk[..., 3] > 128
+        # la garra de Veo: madera cerca de su bola; sobre la capucha (gris), tambien lo
+        # pardo flojo; y sus sombras (lineas oscuras entre los cuernos), pegadas a ella
+        veo = cerca & (h >= 9) & (h <= 25) & (sa >= 75) & (va <= 165) & (fr[..., 3] > 0)
+        veo |= cerca & capucha & (h >= 5) & (h <= 30) & (sa >= 50) & (fr[..., 3] > 0)
+        junto = cv2.dilate(veo.astype(np.uint8), np.ones((7, 7), np.uint8)) > 0
+        veo |= junto & cerca & (va < 95) & (fr[..., 3] > 0)
+        # la mano: piel (rosada y clara) en manchas grandes (los brillos de la garra de
+        # Veo tambien dan "piel" sueltos: fuera)
+        piel = ((h < 9) | (h > 170)) & (va > 140) & (sa > 40) & (fr[..., 3] > 0)
+        n, et, st, _ = cv2.connectedComponentsWithStats(piel.astype(np.uint8), 8)
+        grandes = [j for j in range(1, n) if st[j, cv2.CC_STAT_AREA] >= 150]
+        piel = np.isin(et, grandes)
+        piel = cv2.dilate(piel.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0
+        # y fuera de la capucha, por encima del hombro, todo lo que no sea la mano: ahi
+        # solo puede haber garra (al agarrarla, Veo la emborrona y queda gris)
+        fuera = ~(cv2.dilate(capucha.astype(np.uint8), np.ones((5, 5), np.uint8)) > 0)
+        veo |= cerca & fuera & (ys < p0[i][1] + 30) & (fr[..., 3] > 0)
+        veo = cv2.dilate(veo.astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
+        veo &= cerca & ~piel
+        # donde estaba la garra de Veo, el reposo limpio (la capucha con su borde y su
+        # alfa; fuera de la capucha, transparente: ahi se ve la garra de la escena), con
+        # el borde suave para que no quede escalon entre una capucha y otra
+        zona = cv2.GaussianBlur(veo.astype(np.float32), (0, 0), 2.0)
+        zona = np.clip(np.maximum(zona * 1.6, veo), 0, 1)
+        zona = np.where(piel, 0, zona)[..., None]
+        f0 = fr.astype(np.float32)
+        pf = np.dstack([f0[..., :3] * f0[..., 3:] / 255, f0[..., 3:]])
+        pr = np.dstack([rk[..., :3] * rk[..., 3:] / 255, rk[..., 3:]])
+        m = pf * (1 - zona) + pr * zona
+        al = m[..., 3:]
+        fr = np.dstack([np.where(al > 1e-3, m[..., :3] * 255 / np.maximum(al, 1e-3), 0), al]).round().clip(0, 255).astype(np.uint8)
+        # si la cabeza del video va girada, la capucha del reposo no casa y donde estaba
+        # la garra de Veo quedaba un mordisco (guardar 74-82): lo que quede dentro de la
+        # silueta cerrada, solo ahi, con el color de alrededor
+        sil = (fr[..., 3] > 128).astype(np.uint8)
+        cerr = cv2.morphologyEx(sil, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))) > 0
+        hueco = cerr & (sil == 0) & veo
+        if hueco.any():
+            fr[..., :3] = cv2.inpaint(np.ascontiguousarray(fr[..., :3]), ((sil == 0) & veo).astype(np.uint8), 5, cv2.INPAINT_TELEA)
+            fr[..., 3] = np.where(hueco, 255, fr[..., 3])
+        f = fr.astype(np.float32) / 255
+        fa = f[..., 3:]
+        rgb = f[..., :3] * fa + w[..., :3] * (1 - fa)
+        al = fa + w[..., 3:] * (1 - fa)
+        rgb = np.where(al > 1e-4, rgb / np.maximum(al, 1e-4), 0)
+        V[k] = Image.fromarray((np.dstack([rgb, al]) * 255).round().clip(0, 255).astype(np.uint8), 'RGBA')
+    for k in range(desde, hasta + 1):
+        i = cual(k) - a
+        pv[k - a] = np.array(bola_reposo, float) + (p0[i] - p0[ancla - a])
+    print('%s: garra repintada %d-%d (anclada en el %d, seguida hasta el %d)' % (job, desde, hasta, ancla, ultimo))
+
+
 def giro_mientras_se_mueve(pos, desde, hasta):
     """De desde a hasta segun lo recorrido por la garra (no por el tiempo)."""
     d = np.r_[0, np.cumsum(np.hypot(*np.diff(pos, axis=0).T))]
@@ -196,11 +326,20 @@ if __name__ == '__main__':
         nombre = nombre + ('_gu' if GU else '')
         R0, R1 = reposo(ent[0], ent[1]), reposo(sal[0], sal[1])
         V = capucha_estandar(job, a, b)
+        pv = bola_video(job, a, b, mano_antes=nombre.startswith('guardar'))
+        if GU:
+            # el lado sin baston: el reposo de entrada al sacar, el de salida al guardar
+            sin = ent if nombre.startswith('sacar') else sal
+            limpio = Image.new('RGBA', CAS, (0, 0, 0, 0))
+            limpio.alpha_composite(Image.open(os.path.join(ANIM, sin[0], '04_limpios', sin[1])).convert('RGBA'), (MX, MY))
+            if nombre.startswith('sacar'):
+                repintar_garra(job, V, pv, a, a, REPINTAR_SACAR, a, sin[2], limpio)
+            else:
+                repintar_garra(job, V, pv, a, REPINTAR_GUARDAR, b, b, sin[2], limpio)
         V0, V1 = V[a], V[b]
         frames = [mezcla(R0, V0, k / (N_ENTRA + 1)) for k in range(1, N_ENTRA + 1)]
         frames += [V[k] for k in range(a, b + 1)]
         frames += [mezcla(V1, R1, k / (N_SALE + 1)) for k in range(1, N_SALE + 1)]
-        pv = bola_video(job, a, b, mano_antes=nombre.startswith('guardar'))
         p_ent = [np.array(ent[2]) + (pv[0] - np.array(ent[2])) * k / (N_ENTRA + 1) for k in range(1, N_ENTRA + 1)]
         p_sal = [pv[-1] + (np.array(sal[2]) - pv[-1]) * k / (N_SALE + 1) for k in range(1, N_SALE + 1)]
         pos = np.array(p_ent + list(pv) + p_sal)

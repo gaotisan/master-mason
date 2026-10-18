@@ -76,6 +76,11 @@ const BASTON := preload("res://scenes/characters/baston.tscn")
 ## frente (solo asoma la garra por encima del hombro) sigue baston.png.
 const BASTON_ESPALDA_TEX := preload("res://assets/characters/baston/baston_espalda.png")
 const BASTON_ESPALDA_FICHA := "res://assets/characters/baston/baston_espalda.json"
+## Con alta_resolucion: el mismo al doble (baston_espalda_master.png de baston_espalda.py)
+## y los dedos de la garra de la vuelta del master (garra_vuelta.py --hd). load: sin la
+## opcion no se cargan.
+const BASTON_ESPALDA_HD := "res://assets/characters/baston/baston_espalda_hd.png"
+const BASTON_ESPALDA_HD_FICHA := "res://assets/characters/baston/baston_espalda_hd.json"
 const FRONTAL := "res://assets/characters/baston/frontal.json"
 ## Con baston: la secuencia de un solo video (reposo, arranque, andar, vuelta y
 ## puentes; raw/master_builder/anim/peregrino_secuencia_frontal/secuencia.py).
@@ -292,6 +297,7 @@ var _de_espaldas := false         # el baston a la espalda se ve de espaldas (ba
 var _textura_espaldas := false    # la que tiene puesta Madera ahora
 var _tex_baston: Texture2D        # la de baston.tscn (baston.png) y su offset
 var _offset_baston := Vector2.ZERO
+var _madera_hijos := {}           # hijos de Madera -> [posicion, escala] (ver _escala_madera)
 var _k := 1.0                     # px de hoja por px de la textura del sprite (0,5 con alta_resolucion)
 var _corte_bola := 0.0            # de las filas (fracciones de baston.png) a la textura puesta:
 var _corte_escala := 1.0          # corte' = _corte_bola + corte * _corte_escala
@@ -414,7 +420,7 @@ func _ready() -> void:
 			_vuelta_garra[anim] = {}
 			for f in vg[anim]:
 				_vuelta_garra[anim][int(f)] = [Vector2(vg[anim][f][0], vg[anim][f][1]),
-					load("res://assets/characters/peregrino/vuelta_garra/%s_%03d.png" % [anim, int(f)])]
+					load("res://assets/characters/peregrino/%s/%s_%03d.png" % ["vuelta_garra_hd" if alta_resolucion else "vuelta_garra", anim, int(f)])]
 	_halo_delante.show_behind_parent = false
 	_halo_delante.z_as_relative = false
 	_halo_delante.z_index = Z_BOLA_DELANTE["Orbe"]
@@ -952,14 +958,39 @@ func _textura_del_palo() -> void:
 	var bola_vieja := ORBE_EN_MADERA.y - (_offset_baston.y - _tex_baston.get_size().y / 2.0)
 	_corte_escala = _tex_baston.get_size().y / tam.y if garra_unica else 1.0
 	_corte_bola = (b.y - bola_vieja) / tam.y if garra_unica else 0.0
+	# con alta_resolucion, el de espaldas al doble y la madera a media escala
+	var hd := alta_resolucion and _de_espaldas
+	var esc := 0.5 if hd else 1.0
+	_escala_madera(esc)
 	for n in ["Madera", "MaderaDelante"]:
 		var sp := _bola.get_node(n) as Sprite2D
 		if not _de_espaldas:
 			sp.texture = _tex_baston
 			sp.offset = _offset_baston
+		elif hd:
+			var fh: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BASTON_ESPALDA_HD_FICHA))
+			sp.texture = load(BASTON_ESPALDA_HD)
+			sp.offset = ORBE_EN_MADERA / esc - (Vector2(fh["bola"][0], fh["bola"][1]) - sp.texture.get_size() / 2.0)
 		else:
 			sp.texture = BASTON_ESPALDA_TEX
 			sp.offset = ORBE_EN_MADERA - (b - tam / 2.0)
+	(_bola.get_node("MaderaDelante") as Node2D).scale = Vector2.ONE * esc
+
+
+## La madera a escala s (0,5 con la textura al doble) sin que cambien sus hijos (la
+## bola, el halo, la luz, las chispas): van a su posicion y escala de siempre.
+func _escala_madera(s: float) -> void:
+	var madera := _bola.get_node("Madera") as Sprite2D
+	if madera.scale.x == s:
+		return
+	if _madera_hijos.is_empty():
+		for c in madera.get_children():
+			if c is Node2D:
+				_madera_hijos[c] = [(c as Node2D).position, (c as Node2D).scale]
+	madera.scale = Vector2.ONE * s
+	for c in _madera_hijos:
+		(c as Node2D).position = _madera_hijos[c][0] / s
+		(c as Node2D).scale = _madera_hijos[c][1] / s
 
 
 func _baston_a_la_espalda(lista: Array) -> void:
@@ -1088,7 +1119,7 @@ func _garra_por_delante(con_bola: bool) -> void:
 	if si:
 		_garra_vuelta.texture = f[1]
 		_garra_vuelta.position = _sprite.position + (_sprite.offset * _k + f[0]) * _escala
-		_garra_vuelta.scale = Vector2.ONE * _escala
+		_garra_vuelta.scale = Vector2.ONE * _escala * _k
 
 
 ## Donde van los pies con la escala de ahora (espacio del nodo).
@@ -1127,7 +1158,7 @@ func _colocar() -> void:
 			giro = o[3]
 			# la de en la mano, la del extremo de las filas que no es 1
 			var mano := maxf(float(d["orbe"][0][2]), float(d["orbe"][-1][2]))
-			if String(_sprite.animation).ends_with("_espalda") and mano > 1.0:
+			if String(_sprite.animation).trim_suffix("_gu").ends_with("_espalda") and mano > 1.0:
 				_halo_de_espaldas((mano - e) / (mano - 1.0))
 		_bola.scale = Vector2.ONE * _escala * e
 		_bola.rotation = giro

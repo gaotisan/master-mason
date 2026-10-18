@@ -320,7 +320,8 @@ for _d, _cas in (('peregrino_secuencia_frontal', (292, 400)), ('peregrino_secuen
                  ('peregrino_sacar_baston_espalda_v2', (332, 476)), ('peregrino_guardar_baston_espalda_a', (332, 452)),
                  # EN PRUEBA (2026-10-18): las de frente con la garra nueva (animar.py --gu); solo
                  # las usa PeregrinoFrontal con garra_unica (la escena de pruebas)
-                 ('peregrino_sacar_baston_frente_gu', (332, 452)), ('peregrino_guardar_baston_frente_gu', (332, 452))):
+                 ('peregrino_sacar_baston_frente_gu', (332, 452)), ('peregrino_guardar_baston_frente_gu', (332, 452)),
+                 ('peregrino_sacar_baston_espalda_v2_gu', (332, 476)), ('peregrino_guardar_baston_espalda_a_gu', (332, 452))):
     _SEC = os.path.join(ANIM_RAW, _d, 'animaciones.json')
     if os.path.exists(_SEC):
         for _n, _job, _cnt, _fps, _bucle, _idx in _json.load(open(_SEC)):

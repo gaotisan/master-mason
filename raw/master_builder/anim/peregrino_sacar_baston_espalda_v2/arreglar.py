@@ -57,6 +57,7 @@ BAJA = 48                   # la casilla de 952 frente a la de 904
 LARGO_MANO = 572.0          # de la bola al pie en la mano (el del final del video; el reposo, 575)
 MEDIDO = (54, HASTA)        # aqui el giro de la vara se mide (asoma fuera del cuerpo)
 ZONA = 16                   # px a cada lado de la vara de Veo que se quitan
+ZONA_SALE = 34              # y mientras sale por las presillas (la de Veo, con otro angulo)
 HOMBRO_Y = 345              # sobre la espalda solo se repone por debajo (arriba, la capucha: Veo la
                             # mueve con la cabeza y la de la espalda limpia salia doble)
 R_GARRA = 58                # y alrededor de su bola
@@ -201,9 +202,29 @@ if __name__ == '__main__':
     dentro = espalda[..., 3] > 60
     ys, xs = np.mgrid[0:espalda.shape[0], 0:espalda.shape[1]]
     limpia0, delante0, zona_correa0, espalda0 = limpia, delante, zona_correa, espalda
+    # y la luz de la madera de la escena (la plantilla es mas oscura: L 67 frente a 78):
+    # entera mientras va por delante, y hasta la de la plantilla al pasar por detras
+    LUZ_DELANTE = 1.16
+    T_claro = R.iluminar(T, LUZ_DELANTE)
+    # la vara (no la garra) de la plantilla es verde oliva abajo; por delante de la espalda
+    # se veia como una raya oscura verdosa: a un marron de madera algo mas oscuro que la
+    # correa (igual que ella, correa y vara se leian como dos palos); ganancia por canal
+    # medida en lo opaco de la vara
+    fila_vara = int(tb[1] + R.CORTE)
+    vara_px = T[fila_vara:][T[fila_vara:, :, 3] > 200][:, :3]
+    MADERA = np.array([96.0, 72.0, 54.0])
+    gan = MADERA / np.maximum(np.median(vara_px, 0), 1)
+    T_claro = T.copy()
+    T_claro[fila_vara:, :, :3] = (T[fila_vara:, :, :3] * gan).clip(0, 255)
+    T_claro[:fila_vara] = R.iluminar(T[:fila_vara], LUZ_DELANTE)
+    print('vara: ganancia', np.round(gan, 2))
     for k in range(QUIETO + 1, n + 1):
         a = cargar(k)
         b, phi, L = pose[k]
+        # (2026-10-18: probado y descartado orientar la vara hacia las presillas mientras
+        # sale: la vara dejaba de pasar por la mano, 44-48 del sacar, y volvia de golpe)
+        w_luz = float(np.clip((SALE + 6 - k) / 10.0, 0, 1))
+        T_k = T * (1 - w_luz) + T_claro * w_luz
         # la espalda, la correa y las presillas, pegadas al cuerpo de este fotograma
         limpia = R.mover(limpia0, desp[k])
         delante = R.mover(delante0, desp[k])
@@ -218,7 +239,9 @@ if __name__ == '__main__':
         brazo = cv2.morphologyEx(dif.astype(np.uint8), cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (19, 19))).astype(bool)
         brazo |= gordo & ~dentro
         # donde esta lo de Veo: a lo largo de su vara y alrededor de su garra
-        zona = R.banda(a.shape[:2], b, phi, L + 40, ZONA) | (np.hypot(xs - b[0], ys - b[1]) < R_GARRA)
+        # (2026-10-18) mientras sale por las presillas, la franja mas ancha: la vara de Veo
+        # va con otro angulo y su resto quedaba como una segunda raya verdosa (46-52)
+        zona = R.banda(a.shape[:2], b, phi, L + 40, ZONA_SALE if PIVOTA < k <= SALE else ZONA) |             (np.hypot(xs - b[0], ys - b[1]) < R_GARRA)
         if k <= SALE:
             zona |= zona_correa
         o = a.astype(np.float32).copy()
@@ -231,7 +254,7 @@ if __name__ == '__main__':
         cambia = zona & dentro & ~brazo & ~piel_k & (ys > HOMBRO_Y) & (k <= SALE)
         w = cv2.GaussianBlur(cambia.astype(np.float32), (0, 0), 1.2)
         o = R.mezclar(o, limpia, w)
-        c_ = R.capa(a.shape[:2], T, tb, tpie, b, phi, L)
+        c_ = R.capa(a.shape[:2], T_k, tb, tpie, b, phi, L)
         if k <= SALE:
             # por delante de la espalda, con las presillas encima; el brazo y la mano, delante
             o = R.encima(o, c_)
@@ -241,6 +264,21 @@ if __name__ == '__main__':
         else:
             # por detras de todo; la mano, encima. (Veo deja el cuerpo semitransparente
             # a trozos: lo gordo, opaco, o el baston se transparentaba)
+            # (2026-10-18) A lo largo de nuestra vara y alrededor de su bola, fuera del
+            # cuerpo, tambien lo gordo del baston de Veo fuera (salvo la mano y el brazo, mucho
+            # mas gruesos que la vara): quedaba encima del nuestro (en la garra, discos de
+            # borde duro: un cuerno de mas en medio que la bola tapaba).
+            muy_gordo = cv2.morphologyEx(al.astype(np.uint8), cv2.MORPH_OPEN,
+                                         cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (35, 35))).astype(bool)
+            muy_gordo = cv2.dilate(muy_gordo.astype(np.uint8), np.ones((5, 5), np.uint8)).astype(bool)
+            # (alrededor de la bola no hay mano: va mas abajo, en la vara; los brillos rosados
+            # de la garra de Veo pasaban por "mano" y se pegaban encima de la nuestra, 73-79)
+            disco_bola = np.hypot(xs - b[0], ys - b[1]) < R_GARRA
+            piel_k = piel_k & ~disco_bola
+            # (lo gordo junto a la bola tampoco es el brazo: el nudo de la garra de Veo, 69)
+            veo_baston = zona & ~dentro & ~piel_k & (~muy_gordo | disco_bola)
+            o[veo_baston] = 0
+            gordo &= ~veo_baston
             o[gordo, 3] = 255.0
             o = R.encima(c_, o)
             wm = cv2.GaussianBlur(piel_k.astype(np.float32), (0, 0), 1.0)

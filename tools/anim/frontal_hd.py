@@ -27,7 +27,8 @@ PAGINA = 8192
 JOBS = ('peregrino_secuencia_frontal', 'peregrino_secuencia_frontal_sin',
         'peregrino_sacar_baston_frente', 'peregrino_guardar_baston_frente',
         'peregrino_sacar_baston_espalda_v2', 'peregrino_guardar_baston_espalda_a',
-        'peregrino_sacar_baston_frente_gu', 'peregrino_guardar_baston_frente_gu')
+        'peregrino_sacar_baston_frente_gu', 'peregrino_guardar_baston_frente_gu',
+        'peregrino_sacar_baston_espalda_v2_gu', 'peregrino_guardar_baston_espalda_a_gu')
 SALIDA = os.path.join(SF.RAIZ, 'assets', 'characters', 'peregrino_hd')
 TRES = os.path.join(SF.RAIZ, 'resources', 'characters', 'peregrino_frontal_hd.tres')
 

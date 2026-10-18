@@ -18,8 +18,11 @@ Sale assets/characters/peregrino/vuelta_garra/<anim>_NNN.png y vuelta_garra.json
 {anim: {fotograma: [x, y]}} esquina del recorte en px de hoja desde el centro de la
 casilla.
     python raw/master_builder/anim/peregrino_secuencia_frontal/garra_vuelta.py
+    ... garra_vuelta.py --hd   (EN PRUEBA, 2026-10-18) los mismos recortes del master sin
+        reducir (2*LADO px) en vuelta_garra_hd/, para PeregrinoFrontal con
+        alta_resolucion; las esquinas son las del json de siempre (no se reescribe).
 """
-import json, os
+import json, os, sys
 import numpy as np, cv2
 from PIL import Image
 
@@ -33,6 +36,7 @@ LADO = 40                   # el recorte (px de hoja)
 MIN_CAPUCHA = 80            # px de master de capucha dentro del disco para tomar el fotograma
 S_CAPUCHA = (40, 70)        # saturacion (OpenCV, 0-255): por debajo capucha / barba, por encima madera; entre, a medias
 ANIMS = ['vuelta_cb']
+HD = '--hd' in sys.argv
 
 
 def madera(a):
@@ -53,7 +57,8 @@ def main():
     sec = json.load(open(SEC))
     e = float(sec['escala_bola'])
     datos = {}
-    os.makedirs(os.path.join(SALIDA, 'vuelta_garra'), exist_ok=True)
+    carpeta = 'vuelta_garra_hd' if HD else 'vuelta_garra'
+    os.makedirs(os.path.join(SALIDA, carpeta), exist_ok=True)
     for anim in ANIMS:
         filas = sec['orbe'][anim]
         k = 0
@@ -68,7 +73,22 @@ def main():
             ys, xs = np.mgrid[0:a.shape[0], 0:a.shape[1]]
             disco = np.hypot(xs - mx, ys - my) < 2 * RADIO * e
             n = int((disco & capucha(a)).sum())
-            if n >= MIN_CAPUCHA:
+            if n >= MIN_CAPUCHA and HD:
+                # del master tal cual: la misma esquina (px de hoja) y el doble de lado
+                x0 = int(np.floor(ox)) - LADO // 2
+                y0 = int(np.floor(oy)) - LADO // 2
+                X0, Y0 = 2 * (x0 + CASILLA[0] // 2), 2 * (y0 + CASILLA[1] // 2)
+                c = a[Y0:Y0 + 2 * LADO, X0:X0 + 2 * LADO].astype(np.float32).copy()
+                yy, xx = np.mgrid[0:2 * LADO, 0:2 * LADO]
+                dist = np.hypot((xx + 0.5) / 2 + x0 - ox, (yy + 0.5) / 2 + y0 - oy)
+                dentro = np.clip(RADIO * e + 1.0 - dist, 0.0, 1.0)
+                c[..., 3] *= dentro * madera(c)
+                c[c[..., 3] < 1] = 0
+                nombre = '%s_%03d.png' % (anim, k)
+                Image.fromarray(c.astype(np.uint8), 'RGBA').save(os.path.join(SALIDA, carpeta, nombre))
+                datos.setdefault(anim, {})[str(k)] = [x0, y0]
+                print(anim, k, 'HD')
+            elif n >= MIN_CAPUCHA:
                 # a hoja, premultiplicado (como hoja.ps1: area)
                 al = a[..., 3:] / 255.0
                 pre = np.dstack([a[..., :3] * al, al]).astype(np.float32)
@@ -91,7 +111,10 @@ def main():
                 datos.setdefault(anim, {})[str(k)] = [x0, y0]
                 print(anim, k, 'capucha en el disco', n, 'px de master')
             k += 1
-    json.dump(datos, open(os.path.join(SALIDA, 'vuelta_garra.json'), 'w'), indent=1)
+    if HD:
+        assert datos == {a: {k: v for k, v in d.items()} for a, d in json.load(open(os.path.join(SALIDA, 'vuelta_garra.json'))).items()},             'los recortes HD no salen en los mismos fotogramas y esquinas que vuelta_garra.json'
+    else:
+        json.dump(datos, open(os.path.join(SALIDA, 'vuelta_garra.json'), 'w'), indent=1)
 
 
 if __name__ == '__main__':
