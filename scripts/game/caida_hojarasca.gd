@@ -2344,8 +2344,9 @@ func _camino_tick() -> void:
 	if _cortando:
 		f.set("quiere", "espalda")
 		return
-	# adentrandose: en la bruma, el corte
-	if mira == "espalda" and est in ["arranque", "andar"] and e <= salida_hasta:
+	# adentrandose: en la bruma, el corte, vaya como vaya (andando, corriendo,
+	# frenando o en un puente entre ellos; antes solo andando y corriendo no cortaba)
+	if mira == "espalda" and est in ["arranque", "andar", "correr", "parada", "puente"] and e <= salida_hasta:
 		_cortando = true
 		f.set("quiere", "espalda")
 		_cortar_a_camino()
