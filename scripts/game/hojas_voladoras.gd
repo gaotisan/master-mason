@@ -94,6 +94,13 @@ func poner_haz(origen: Vector2, destino: Vector2, apertura: float) -> void:
 @export var lanzada: float = 0.2
 ## Por debajo de esta escala es una miga.
 @export var escala_miga: float = 0.16
+## TODA HOJA MEDIANA AGUANTA (2026-10-18; el usuario: "no pesamos... las medianas
+## que dibujas deberian aguantar a mi entender"). En la luz el peregrino no pesa:
+## ademas de las de la escalera, aguanta cualquier hoja ligera (de las que caen
+## de arriba) de apoyo_escala_min o mas; las pequenas no. Una suelta pisada se
+## queda plana y quieta bajo el pie mientras dura el apoyo (cede como las de la
+## escalera) y al despegar sale pateada y vuelve a caer libre (pisar).
+@export var apoyo_escala_min: float = 0.26
 ## Al llegar deprisa rebota una vez (fraccion de la velocidad) y, si lleva
 ## velocidad de lado, se arrastra por encima de las otras hasta pararse.
 @export var rebote: float = 0.2
@@ -325,14 +332,17 @@ func escalon(desde: Vector2, sitio: Vector2, escala: float) -> Dictionary:
 	_vuelan.append(h)
 	return h
 
-## La hoja de la escalera (sin pisar y con luz de sobra en su sitio) que los
-## pies pueden pisar: dentro de `ancho` px de x a cada lado (mas su medio
-## ancho) y con su y entre y0 y y1 (los pies el tick de antes y ahora, con
-## margen). La mas alta. Vacio si no hay.
+## La hoja (de la escalera, en su sitio, o suelta de tamano mediano o mas:
+## TODA HOJA MEDIANA AGUANTA), sin pisar y con luz de sobra, que los pies
+## pueden pisar: dentro de `ancho` px de x a cada lado (mas su medio ancho) y
+## con su y entre y0 y y1 (los pies el tick de antes y ahora, con margen). La
+## mas alta. Vacio si no hay.
 func apoyo(x: float, y0: float, y1: float, ancho: float, luz_minima: float) -> Dictionary:
 	var mejor := {}
 	for h in _vuelan:
-		if not h.has("sitio") or h["pisada"] or h["desliza"] or h.has("entrando"):
+		if h["pisada"] or h["desliza"] or h.has("entrando") or h.has("orbita"):
+			continue
+		if not h.has("sitio") and not (h["ligera"] and h["esc"] >= apoyo_escala_min):
 			continue
 		var p: Vector2 = h["p"]
 		if p.y < y0 or p.y > y1:
@@ -349,8 +359,20 @@ func apoyo(x: float, y0: float, y1: float, ancho: float, luz_minima: float) -> D
 	return mejor
 
 ## La hoja pisada: se hunde de golpe girando; hasta que la luz la devuelve a
-## su sitio no aguanta (ver _flotar_en_sitio).
+## su sitio no aguanta (ver _flotar_en_sitio). Una suelta (TODA HOJA MEDIANA
+## AGUANTA): al pisarla se queda de sitio donde esta, mientras dura el apoyo;
+## al patearla, lo pierde y vuelve a caer libre.
 func pisar(h: Dictionary, empuje: Vector2) -> void:
+	if h.get("suelta_pisada", false):
+		h.erase("sitio")
+		h.erase("suelta_pisada")
+	elif not h.has("sitio"):
+		h["sitio"] = h["p"]
+		h["suelta_pisada"] = true
+		# tumbada, del lado al que este mas cerca
+		h["giro_base"] = PI * 0.5 * (1.0 if wrapf(h["rot"], -PI, PI) >= 0.0 else -1.0)
+		if not h.has("fase"):
+			h["fase"] = randf() * TAU
 	h["pisada"] = true
 	h["v"] = empuje
 	h["giro"] = randf_range(5.0, 8.0) * (1.0 if randf() < 0.5 else -1.0)
@@ -500,6 +522,9 @@ func _flotar_en_sitio(h: Dictionary, delta: float) -> void:
 		vel = h["v"] + (falta * w * w - h["v"] * 2.0 * 0.85 * w) * delta
 		h["giro"] = h["giro"] * exp(-1.6 * delta)
 		h["rot"] += h["giro"] * delta
+		if h.get("suelta_pisada", false):
+			# una suelta bajo el pie se pone plana (TODA HOJA MEDIANA AGUANTA)
+			h["rot"] = lerp_angle(h["rot"], h["giro_base"], 1.0 - exp(-10.0 * delta))
 		if falta.length() < 12.0 and vel.length() < 25.0:
 			h["pisada"] = false
 	else:

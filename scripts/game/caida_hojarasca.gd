@@ -346,7 +346,7 @@ extends Node2D
 ## meciendose de lado como una hoja que cae (escalera_vaiven px, inclinandose
 ## hacia donde va; todas casi a la vez, como si las meciera el mismo aire: a
 ## destiempo, la de enfrente se iba a veces a 190 px y no se llegaba); cada
-## escalera_paso / escalera_bajada s (con azar, escalera_azar) entra otra, asi
+## escalera_paso / escalera_bajada s (con azar: UNA ESCALERA QUE NO LO PAREZCA) entra otra, asi
 ## que en cualquier momento estan mas o menos en zigzag, escalera_paso px una
 ## sobre otra: la misma escalera, bajando, pero que se lee como hojas que caen
 ## (la primera prueba, con todas igual de tumbadas, a la misma distancia y casi
@@ -372,10 +372,37 @@ extends Node2D
 ## va en el aire: cada rebote es girarse (magnus.gd, GIRAR EN EL AIRE: 1,05 s)
 ## y luego avanzar los 124 px de un lado al otro. Un bot sube hasta el baculo
 ## (piloto_luz, prueba "escalera").
+## UNA ESCALERA QUE NO LO PAREZCA (2026-10-18; el usuario: "no te parece muy muy
+## descarada... que las hojas sean un poco mas distintas entre si?"). Era un
+## metronomo: izquierda-derecha siempre a escalera_lado del eje y cada
+## escalera_paso, todas del mismo tamano y meciendose casi a la vez. Ahora:
+## - las escalera_faciles de abajo (las primeras que se pisan), regulares, para
+##   aprender la regla; luego a escalera_lado_min..max del eje y a
+##   escalera_paso_min..max una de otra, y escalera_mismo_lado de las veces
+##   del mismo lado que la de debajo (sin giro; nunca tres seguidas), algo mas
+##   adentro o afuera;
+## - cruzando al otro lado (hay giro) no mas de escalera_cruce_max de lado ni
+##   escalera_paso_cruce_max de alto, que el giro da para lo justo;
+## - cada una con su tamano (escalera_escala +- escalera_escala_azar), su tono y
+##   su vaiven: el mismo periodo para todas pero cada una desfasada (hasta
+##   escalera_desfase rad) y con su amplitud. Con periodos distintos se
+##   desfasaban del todo con el tiempo y la de enfrente se iba a 190 px (lo de
+##   abajo): asi la distancia entre dos varia ~20 px como mucho.
+## Las sueltas medianas (luz_sueltas_medianas) tambien aguantan
+## (hojas_voladoras.gd, TODA HOJA MEDIANA AGUANTA: "no pesamos"); las pequenas no.
 @export var escalera_paso: float = 140.0
 @export var escalera_lado: float = 62.0
 @export var escalera_bajada: float = 26.0
-@export var escalera_azar: float = 0.18
+@export var escalera_faciles: int = 3
+@export var escalera_paso_min: float = 115.0
+@export var escalera_paso_max: float = 165.0
+@export var escalera_paso_cruce_max: float = 150.0
+@export var escalera_lado_min: float = 35.0
+@export var escalera_lado_max: float = 85.0
+@export var escalera_cruce_max: float = 140.0
+@export_range(0.0, 1.0) var escalera_mismo_lado: float = 0.3
+@export var escalera_escala_azar: float = 0.16
+@export var escalera_desfase: float = 1.0
 @export var escalera_vaiven: float = 14.0
 @export var escalera_vaiven_periodo: float = 4.6
 @export var escalera_desde: float = -40.0
@@ -392,8 +419,8 @@ extends Node2D
 @export var luz_sueltas_cada_max: float = 1.5
 @export var luz_sueltas_ancho: float = 120.0
 @export var luz_sueltas_pequenas: Vector2 = Vector2(0.12, 0.24)
-@export var luz_sueltas_medianas_escala: Vector2 = Vector2(0.26, 0.34)
-@export var luz_sueltas_medianas: float = 0.3
+@export var luz_sueltas_medianas_escala: Vector2 = Vector2(0.30, 0.40)
+@export var luz_sueltas_medianas: float = 0.35
 ## Pisar: px a cada lado de los pies (mas el medio ancho de la hoja; 2026-10-14:
 ## 28, la planta y algo, en vez de 46: "a veces parece que no toca la hoja y
 ## rebota"), margen
@@ -583,7 +610,8 @@ var _niebla_mat: ShaderMaterial         # el de NieblaSuelo (que se va a una Sub
 var _niebla_base := -1.0
 var _bosque_haz_base := Vector2(-1.0, -1.0)  # la luz del haz en el bosque con la luz entera (bosque_en_el_haz y bosque_resplandor del fondo)
 var _hoja_luz_espera := 0.0             # s hasta que entre la siguiente por arriba
-var _hoja_luz_lado := -1.0              # de que lado entra la siguiente
+var _hoja_luz_dx := 62.0                # a cuanto del eje (y de que lado) entra la siguiente
+var _hoja_luz_seguidas := 0             # las seguidas del mismo lado (ver _siguiente_dx)
 var _luz_reloj := 0.0                   # el vaiven comun de las que bajan por la luz
 var _suelta_espera := 0.0               # s hasta la siguiente de las que no aguantan
 var _levante := 0.0                     # empuje hacia arriba de la racha del camino (0..1)
@@ -1001,28 +1029,56 @@ func empezar_escalera(entrando := true) -> void:
 ## por arriba (la de mas arriba, la ultima en entrar). Entrando, salen de
 ## encima de la pantalla en fila, la de mas abajo primero.
 func _repartir_hojas_luz(entrando: bool) -> void:
-	var y := escalera_desde + randf() * escalera_paso
-	var lado := -1.0
-	var ys: Array[float] = []
-	while y < escalera_hasta:
-		ys.append(y)
-		y += escalera_paso * randf_range(1.0 - escalera_azar, 1.0 + escalera_azar)
-	for k in ys.size():
-		var desde := escalera_desde - 60.0 - (ys.size() - 1 - k) * escalera_entrada if entrando else INF
-		_hoja_luz(ys[k], lado, desde)
-		lado = -lado
-	# la siguiente, del otro lado que la de arriba, cuando haya bajado su paso
-	_hoja_luz_lado = 1.0
-	_hoja_luz_espera = maxf((escalera_desde + escalera_paso - ys[0]) / escalera_bajada, 0.0) if ys.size() > 0 else 0.0
+	# de abajo arriba (UNA ESCALERA QUE NO LO PAREZCA): las primeras que se
+	# pisan, las regulares
+	var y := escalera_hasta - randf() * escalera_paso * 0.5
+	var dx := escalera_lado * (1.0 if randf() < 0.5 else -1.0)
+	_hoja_luz_seguidas = 0
+	var j := 0
+	while y >= escalera_desde:
+		var desde := escalera_desde - 60.0 - j * escalera_entrada if entrando else INF
+		_hoja_luz(y, dx, desde)
+		var facil := j + 1 < escalera_faciles
+		var sig := _siguiente_dx(dx, facil)
+		y -= escalera_paso if facil else _paso_escalera(dx, sig)
+		dx = sig
+		j += 1
+	# la siguiente (ya decidida: dx) entra por arriba cuando haya bajado su paso
+	_hoja_luz_dx = dx
+	_hoja_luz_espera = maxf((escalera_desde - y) / escalera_bajada, 0.0)
 
-## Una hoja de la luz a la altura y, a un lado del eje del haz. Con desde_y,
-## entra desde esa altura planeando hasta su sitio.
-func _hoja_luz(y: float, lado: float, desde_y: float = INF) -> void:
-	var dx := lado * escalera_lado * randf_range(0.9, 1.1)
-	var fase := randf_range(-0.5, 0.5)
-	var amp := escalera_vaiven * randf_range(0.7, 1.3)
+## De que lado y a cuanto del eje va la hoja de encima de una a dx (UNA ESCALERA
+## QUE NO LO PAREZCA).
+func _siguiente_dx(dx: float, facil: bool) -> float:
+	var s := signf(dx) if dx != 0.0 else 1.0
+	if facil:
+		_hoja_luz_seguidas = 0
+		return -s * escalera_lado
+	if _hoja_luz_seguidas < 1 and randf() < escalera_mismo_lado:
+		# del mismo lado, algo mas adentro o afuera
+		_hoja_luz_seguidas += 1
+		var a := absf(dx)
+		var m := a + randf_range(22.0, 45.0) * (1.0 if randf() < 0.5 else -1.0)
+		if m < escalera_lado_min or m > escalera_lado_max:
+			m = a - (m - a)
+		return s * clampf(m, escalera_lado_min, escalera_lado_max)
+	_hoja_luz_seguidas = 0
+	var tope := clampf(escalera_cruce_max - absf(dx), escalera_lado_min, escalera_lado_max)
+	return -s * randf_range(escalera_lado_min, tope)
+
+## Lo que va de una hoja a la de encima (px): cruzando al otro lado, menos.
+func _paso_escalera(dx: float, sig: float) -> float:
+	var cruza := signf(dx) != signf(sig)
+	return randf_range(escalera_paso_min, escalera_paso_cruce_max if cruza else escalera_paso_max)
+
+## Una hoja de la luz a la altura y, a dx del eje del haz. Con desde_y, entra
+## desde esa altura planeando hasta su sitio. Cada una con su tamano, su tono y
+## su vaiven (UNA ESCALERA QUE NO LO PAREZCA).
+func _hoja_luz(y: float, dx: float, desde_y: float = INF) -> void:
+	var fase := randf_range(-escalera_desfase, escalera_desfase)
+	var amp := escalera_vaiven * randf_range(0.6, 1.4)
 	var p := Vector2(x_haz(y) + dx + amp * sin(TAU * _luz_reloj / escalera_vaiven_periodo + fase), y)
-	var esc := escalera_escala * randf_range(0.9, 1.1)
+	var esc := escalera_escala * randf_range(1.0 - escalera_escala_azar, 1.0 + escalera_escala_azar)
 	var desde := p if is_inf(desde_y) else Vector2(x_haz(desde_y) + dx, desde_y)
 	var h: Dictionary = (_delante if randf() < 0.6 else _detras).escalon(desde, p, esc)
 	if not is_inf(desde_y):
@@ -1031,6 +1087,7 @@ func _hoja_luz(y: float, lado: float, desde_y: float = INF) -> void:
 	h["luz_dx"] = dx
 	h["luz_amp"] = amp
 	h["luz_fase"] = fase
+	h["tono"] = randf_range(0.8, 1.15)
 	h["luz_rot"] = h["giro_base"]
 	_hojas_luz.append(h)
 
@@ -1045,9 +1102,10 @@ func _bajar_hojas_luz(delta: float) -> void:
 		_hoja_suelta_luz(escalera_desde)
 	_hoja_luz_espera -= delta
 	if _escalera and _hoja_luz_espera <= 0.0:
-		_hoja_luz_espera += escalera_paso / escalera_bajada * randf_range(1.0 - escalera_azar, 1.0 + escalera_azar)
-		_hoja_luz(escalera_desde, _hoja_luz_lado)
-		_hoja_luz_lado = -_hoja_luz_lado
+		_hoja_luz(escalera_desde, _hoja_luz_dx)
+		var sig := _siguiente_dx(_hoja_luz_dx, false)
+		_hoja_luz_espera += _paso_escalera(_hoja_luz_dx, sig) / escalera_bajada
+		_hoja_luz_dx = sig
 	var i := 0
 	while i < _hojas_luz.size():
 		var h: Dictionary = _hojas_luz[i]
