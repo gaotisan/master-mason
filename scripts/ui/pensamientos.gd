@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Pensamientos del peregrino: el texto del juego. Primera persona, sin caja,
-## en cursiva IM Fell English. Nunca para el juego. Viene de la maqueta del
+## en cursiva Alegreya (hasta el 2026-10-18 IM Fell English, que ahora es la de
+## los libros del padre; ver fuentes.gd). Nunca para el juego. Viene de la maqueta del
 ## capitulo 1 (rama maqueta-capitulo1), con dos cambios: los textos estan en un
 ## fichero (textos/pensamientos.csv, todos los idiomas juntos; ver
 ## textos/LEEME.md) y no en el codigo, y el sitio depende de donde este el
@@ -25,7 +26,7 @@ signal empieza(clave: String)
 signal parte(clave: String, n: int)
 signal terminado(clave: String)
 
-const FUENTE := preload("res://assets/fonts/IMFellEnglish-Italic.ttf")
+const FUENTE := preload("res://scripts/ui/fuentes.gd").PENSAMIENTO
 const ANCHO := 2912.0
 
 @export var tam_letra: int = 58
