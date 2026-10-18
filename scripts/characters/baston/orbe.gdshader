@@ -25,6 +25,8 @@ uniform float solo_halo : hint_range(0.0, 1.0) = 0.0;
 uniform sampler2D mascara : filter_linear, repeat_disable;
 uniform vec4 mascara_uv = vec4(0.0, 0.0, 0.0, 0.0);
 uniform float con_mascara = 0.0;
+// Todo a la vez (la marca de guardado la hace aparecer y desaparecer).
+uniform float opacidad : hint_range(0.0, 1.0) = 1.0;
 
 vec3 vidrio(vec3 n) {
 	vec3 l = normalize(vec3(-0.45, -0.65, 0.6));
@@ -94,8 +96,8 @@ void fragment() {
 				suma *= 1.0 - texture(mascara, m).a;
 			}
 		}
-		COLOR = vec4(suma, 0.0);
+		COLOR = vec4(suma, 0.0) * opacidad;
 	} else {
-		COLOR = vec4(rgb + suma, a);
+		COLOR = vec4(rgb + suma, a) * opacidad;
 	}
 }
