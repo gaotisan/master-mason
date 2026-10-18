@@ -69,3 +69,8 @@ tools/bpy_env/
 # scripts/dev/tmp_* se quedan en el disco, no van a git.
 scenes/dev/tmp_*
 scripts/dev/tmp_*
+# Titulo sin letras (titulo_sin_letras.py): copias de partida y depuracion
+raw/master_builder/titulo_hojas/salida/title_background_hojas_mason.png
+raw/master_builder/titulo_hojas/salida/title_placa_sin_letras_mason.png
+raw/master_builder/titulo_hojas/salida/builder_depurar/
+raw/master_builder/titulo_hojas/salida/depurar/

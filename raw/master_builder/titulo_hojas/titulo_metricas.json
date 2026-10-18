@@ -1,0 +1,45 @@
+{
+ "cap_em": 0.733,
+ "peso": 650,
+ "estrecho": 0.968,
+ "lineas": [
+  {
+   "palabra": "THE",
+   "cap": 61,
+   "tam": 83.2,
+   "base_y": 650,
+   "centro_x": 1353.0,
+   "ancho": 146
+  },
+  {
+   "palabra": "MASTER",
+   "cap": 95,
+   "tam": 129.6,
+   "base_y": 805,
+   "centro_x": 1364.0,
+   "ancho": 544
+  },
+  {
+   "palabra": "MASON",
+   "cap": 93,
+   "tam": 126.9,
+   "base_y": 944,
+   "centro_x": 1369.0,
+   "ancho": 490
+  }
+ ],
+ "huecos_master": [
+  5,
+  10,
+  6,
+  7,
+  10
+ ],
+ "sombra": {
+  "sigma": 10,
+  "dy": 23,
+  "dx": 0,
+  "pies_desde": 0.6,
+  "fuerza": 0.944
+ }
+}

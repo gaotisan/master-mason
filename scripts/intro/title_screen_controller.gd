@@ -233,6 +233,8 @@ var _tw_placa: Tween
 
 @onready var _camera: Camera2D = $Camera
 @onready var _spider: Node2D = get_node_or_null("Spider")
+## Las letras del titulo, escritas por codigo (titulo_letras.gd).
+@onready var _titulo: Node2D = get_node_or_null("Titulo")
 
 func _ready() -> void:
 	# "Volver al titulo" del menu de pausa lo abre en modo menu.
@@ -637,6 +639,9 @@ func _set_candle_b(v: float) -> void:
 
 func _set_shader(value: float, param: String) -> void:
 	_mat.set_shader_parameter(param, value)
+	# El destello va por las letras, que ya no estan en la imagen.
+	if param == "glint" and _titulo:
+		_titulo.glint = value
 
 func _set_candle_on(v: float) -> void:
 	_candle_on = v
@@ -650,6 +655,8 @@ func _set_placa(v: float) -> void:
 	_placa = v
 	_mat_hojas.set_shader_parameter("placa_fundido", v)
 	_mat.set_shader_parameter("placa_fundido", v)
+	if _titulo:
+		_titulo.fundido = 1.0 - v
 
 func _set_wind_db(v: float) -> void:
 	_wind_db = v
