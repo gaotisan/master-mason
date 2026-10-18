@@ -27,7 +27,9 @@ const MOTAS := preload("res://scripts/ui/motas_carga.gdshader")
 ## Separacion de los bordes de la pantalla (px de la imagen 2912x1632).
 @export var margen: Vector2 = Vector2(110.0, 90.0)
 ## Radio de la bola en pantalla (px).
-@export var radio_bola: float = 32.0
+@export var radio_bola: float = 20.0
+## Aire entre el borde de la bola y el texto (px): que el halo no toque las letras.
+@export var aire: float = 60.0
 @export var tam_letra: int = 38
 
 ## La bola ocupa esta fraccion del medio lado de su cuadrado (el resto, halo).
@@ -57,6 +59,7 @@ func _ready() -> void:
 	_mat = ShaderMaterial.new()
 	_mat.shader = ORBE
 	_mat.set_shader_parameter("radio", RADIO_EN_CUADRO)
+	_mat.set_shader_parameter("halo", 0.8)
 	_rect(centro, lado, _mat)
 
 	# Las motas que entran y las chispas que suben, en un cuadrado mayor.
@@ -81,7 +84,7 @@ func _ready() -> void:
 	add_child(_texto)
 	# Con el tamano ya calculado: a la izquierda de la bola, a su altura.
 	_texto.size = _texto.get_minimum_size()
-	_texto.position = Vector2(centro.x - radio_bola - 30.0 - _texto.size.x, centro.y - _texto.size.y * 0.5)
+	_texto.position = Vector2(centro.x - radio_bola - aire - _texto.size.x, centro.y - _texto.size.y * 0.5)
 	_texto.modulate.a = 0.0
 
 	_aplicar()
@@ -122,6 +125,6 @@ func _aplicar() -> void:
 	_mat.set_shader_parameter("carga", _carga)
 	_mat.set_shader_parameter("opacidad", _vida)
 	_mat_luz.set_shader_parameter("carga", _carga)
-	_mat_luz.set_shader_parameter("fuerza", 0.22 * _vida)
-	_mat_motas.set_shader_parameter("recarga", _recarga * _vida)
-	_mat_motas.set_shader_parameter("chispas", _chispas * _vida)
+	_mat_luz.set_shader_parameter("fuerza", 0.14 * _vida)
+	_mat_motas.set_shader_parameter("recarga", _recarga * _vida * 0.7)
+	_mat_motas.set_shader_parameter("chispas", _chispas * _vida * 0.7)
