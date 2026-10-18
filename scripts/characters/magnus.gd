@@ -401,8 +401,8 @@ var hoja_debajo: Callable
 ## espaldas en el aire; si das un rebote y quieres cambiar de direccion, gira y
 ## luego avanza". En la luz, con la direccion contraria a donde mira, se da la
 ## vuelta por delante (flotar_girar: la primera mitad del giro del video, de
-## perfil a de frente, y ella misma espejada y al reves; 63 fotogramas a uno
-## por tick, 1,05 s) y luego avanza hacia alli. Girando frena lo que llevaba
+## perfil a de frente, y ella misma espejada y al reves; 61 fotogramas, ~0,57 s
+## con el arranque y giro_aire_ritmo: ver GIRO MAS CORTO) y luego avanza hacia alli. Girando frena lo que llevaba
 ## de lado y casi de frente (giro_aire_avanza) empieza a avanzar hacia alli. El
 ## vuelo sigue con su fisica, el cuerpo donde dice (como en la bajada
 ## flotando), y si cae sobre una hoja rebota sin cortar el giro. Al acabar
@@ -432,7 +432,7 @@ var hoja_debajo: Callable
 ##   al llegar a giro_aire_rampa; el resto del giro, a su velocidad de siempre.
 @export var giro_aire_desde: int = 28
 @export var giro_aire_hasta: int = 12
-@export var giro_aire_avanza: int = 24
+@export var giro_aire_avanza: int = 18
 @export var giro_aire_caida_min: float = 45.0
 @export var giro_aire_inicio: int = 0
 @export var giro_aire_arranque: float = 2.5
@@ -440,6 +440,25 @@ var hoja_debajo: Callable
 ## giro_aire_prisa: lo mas que acelera el giro para acabar antes de llegar a la
 ##   hoja de debajo (ver LLEGAR A LA HOJA).
 @export var giro_aire_prisa: float = 2.0
+## GIRO MAS CORTO (2026-10-17, repaso de la jugabilidad del flotar: el giro era el
+## cuello de botella del zigzag; ~0,87 s y no se avanzaba hacia el otro lado
+## hasta casi de frente). giro_aire_ritmo: fotogramas por tick pasado el
+## arranque (antes 1): ~0,68 s el giro entero. giro_aire_avanza 24 -> 18: empieza
+## a ir hacia el otro lado ya de tres cuartos (nunca de espaldas).
+@export var giro_aire_ritmo: float = 1.35
+## PLANEAR (2026-10-17; el usuario: "como si abrimos mas el abrigo y controlamos
+## la velocidad de bajada, dara juego"). Bajando en la luz, manteniendo salto, no
+## cae a mas de planear_caida px/s (el freno de siempre lo lleva ahi). Caer mas
+## deprisa con abajo y el rebote mas alto con el boton se probaron y se quitaron
+## el mismo dia: "el rebote es lo bueno, que salga solo"; "caes a la que es".
+## planear_activo: APAGADO (2026-10-17, tras probarlo: "lo del flotar es como no
+##   cae o cae muy muy despacio, no me gusta, me gustaba mas el comportamiento
+##   anterior, es mas real... el dia de manana, si queremos que se suspenda
+##   mas, abrimos el abrigo y usamos lo nuevo, como un medio volar por tiempo
+##   limitado"). Con el salto mantenido saltaba solo (se mantiene sin querer
+##   al saltar). Queda para la accion de abrir el abrigo (prompt_flotar_planear.txt).
+@export var planear_activo: bool = false
+@export var planear_caida: float = 50.0
 ## DESPEGAR DE LA HOJA (2026-10-16). El usuario: "entre que junta los pies y
 ## salta, justo antes de saltar, la animacion no es fluida, queda rara". Al
 ## acabar flotar_pisar (de pie, piernas rectas y juntas, capa abierta: su video
@@ -2978,6 +2997,14 @@ func _volar_flotando() -> float:
 			_quieto_v = float(fq["fps"]) * dt
 			_tras_giro = false
 			return _volar_quieto(dt, b0)
+	# CAER COMO EL SALTO (2026-10-17): sin tiempo para la bajada flotando (ha
+	# salido de la luz y vuelve la gravedad) y aun en la pose de
+	# flotar, que es el 38 del salto de parado: sigue con la caida de ese salto
+	# (38 -> 45, estira las piernas y toca) y su aterrizaje. Antes se metia la
+	# bajada a dos por tick y se posaba a medias (grabado: en el 49 de 80).
+	var k_pose := floori(_flota_iv + 0.0001)
+	if _vuelo == 2 and not is_finite(t_hoja) and _quieto < 0.0 and k_pose <= de_salto + 7 and ((_flota_largo() - 1.0) - _flota_iv) * 0.5 * dt > queda:
+		return _caer_como_salto(float(flotar_desde) + _flota_iv if k_pose < de_salto else 38.0)
 	if is_finite(t_hoja) and en_pose:
 		# en la pose con una hoja debajo: a llegar cuando falte lo que dura; hasta
 		# entonces, sin salir de la pose (los que casan de flotar_bajar)
@@ -3016,6 +3043,20 @@ func _volar_flotando() -> float:
 		_sprite.set_frame_and_progress(j, 0.0)
 	var arco := (_vuelo_y + b0) - float(cuerpo[j])
 	return maxf(arco, -float(fb["pies"][j]) - _desnivel())
+
+## Deja de flotar y sigue con la caida del salto de parado desde su fotograma
+## tau0 (ver CAER COMO EL SALTO): la bajada se reparte de ahi a la toma.
+func _caer_como_salto(tau0: float) -> float:
+	_flota = false
+	_quieto = -1.0
+	_tras_giro = false
+	_vuelo_cima = _vuelo_y
+	_f_tau_cima = tau0
+	_vuelo_tau = tau0
+	_sprite.animation = _vuelo_de
+	_sprite.offset = offset_comun
+	_sprite.set_frame_and_progress(roundi(tau0), 0.0)
+	return _arco_de_ahora()
 
 ## Un tick flotando quieto (FLOTAR QUIETO): el bucle y el cuerpo donde dice la
 ## fisica (como en la bajada). Meciendose en su costura (FLOTAR QUIETO EN SU
@@ -3317,7 +3358,7 @@ func _suelo_flotar() -> float:
 func _tope_caida() -> float:
 	if _luz <= 0.0:
 		return INF
-	var tope := lerpf(caida_max_luz / maxf(_luz, 0.001), caida_max_luz, _luz)
+	var tope := lerpf(caida_max_luz / maxf(_luz, 0.001), _caida_luz(), _luz)
 	if (_giro_aire != 0.0 or _tras_giro) and _flotar.has("flotar_bajar"):
 		var h := _vuelo_y - _suelo_flotar()
 		var faltan := _fotogramas_hasta_posarse()
@@ -3343,6 +3384,16 @@ func _pedir_giro_aire(direccion: float) -> void:
 		_giro_aire_pedido = 0.0
 	elif _giro_aire == 0.0:
 		_giro_aire_pedido = signf(direccion)
+
+## El tope de caida en plena luz ahora (ver PLANEAR): planeando (con
+## planear_activo y el salto mantenido) o el de siempre. Solo bajando y con el
+## mando (apoyado en una hoja o en una cinematica no cuenta).
+func _caida_luz() -> float:
+	if _vuelo != 2 or _pisando or _cinematica_nivel or control_bloqueado:
+		return caida_max_luz
+	if planear_activo and _salto_mantenido():
+		return planear_caida
+	return caida_max_luz
 
 ## Si puede empezar a girarse ahora: con luz, en el salto de parado (sus
 ## fotogramas son los que casan con la pose de flotar en que empieza el
@@ -3414,7 +3465,7 @@ func _volar_girando() -> float:
 	# deprisa al empezar (RESPUESTA DEL GIRO EN EL AIRE), luego a uno por tick;
 	# con una hoja debajo, lo justo para acabar a tiempo de llegar a ella (LLEGAR
 	# A LA HOJA: si no, la pisaba a medio giro), hasta giro_aire_prisa
-	var ritmo := lerpf(giro_aire_arranque, 1.0, clampf(_giro_iv / maxf(float(giro_aire_rampa), 1.0), 0.0, 1.0))
+	var ritmo := lerpf(giro_aire_arranque, giro_aire_ritmo, clampf(_giro_iv / maxf(float(giro_aire_rampa), 1.0), 0.0, 1.0))
 	var y_hoja := _altura_llegada(b0)
 	if not is_nan(y_hoja):
 		var dt := get_physics_process_delta_time()

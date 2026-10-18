@@ -1,0 +1,77 @@
+PLANEAR CON EL ABRIGO ABIERTO (abrir, planear y cerrar)
+(Google Flow / Veo 3.1, "Frames to Video", 2026-10-17; 16:9)
+======================================================
+Por que: en la luz, manteniendo salto mientras baja, el peregrino planea (cae
+a 50 px/s en vez de 120; magnus.gd, PLANEAR). El usuario: "como si abrimos mas
+el abrigo y controlamos la velocidad de bajada". No hay ningun video con el
+abrigo abierto. Este empieza y acaba en la pose de flotar del juego (la misma
+imagen que el flotar quieto, que salio bien), asi que empalma con todo lo que
+ya hay. De el se sacan tres piezas: ABRIR (al pulsar), PLANEAR (con el abrigo
+abierto: se mece en bucle mientras se mantiene) y CERRAR (al soltar).
+
+En Flow, modo de fotogramas a video, 16:9, 8 s, con audio, 3-4 tomas:
+  fotograma inicial: referencia_planear_inicio.png
+  fotograma final:   referencia_planear_fin.png       (la misma: vuelve a la pose)
+
+Que mirar en cada toma (por orden de importancia):
+  1. ABRE DEPRISA: en el primer segundo ya tiene el abrigo abierto del todo
+     (si tarda varios segundos en abrirlo, no vale: en el juego la respuesta
+     al boton tiene que ser inmediata)
+  2. abierto se ve bien distinto de la pose de flotar: los brazos separados
+     sujetando los bordes del abrigo y la tela extendida como una vela o un
+     paracaidas, cogiendo el aire que sube
+  3. mientras planea, el cuerpo casi no cambia (solo ondea la tela); no se
+     echa hacia atras ni se sienta en el aire
+  4. cierra tambien deprisa (en el ultimo segundo) y acaba igual que empezo
+  5. piernas y pies oscuros siempre (no descalzo, sin piel ni dedos), con la
+     zancada de la pose (una pierna adelante y otra atras)
+  6. de perfil a la derecha todo el rato; capucha sin pico; no sube ni baja
+     mas de un palmo; camara quieta; nada encima (texto, controles)
+
+EL PROMPT
+---------
+
+Locked-off static camera, no camera movement at all: no pan, no tilt, no zoom,
+no dolly, no cuts. Flat pure chroma-key green background (#24D732) filling the
+whole frame, evenly lit, no shadows, no floor, no other props, no text, no
+logos, no on-screen interface or player controls. The pilgrim stays full-body
+in frame, always the same size, always in the same place.
+
+A glide from a 2D platform video game: the character, floating weightless in
+a soft warm rising light, spreads his long cloak open like a sail to slow his
+fall, glides with it open, and closes it again.
+
+2D side view. The hooded pilgrim from the first frame stays in strict side
+profile facing RIGHT for the whole video: he never turns his body or his head
+towards the camera and never shows his back. His head is covered by the grey
+cloth hood of his cloak, exactly the shape of the first frame: part of the
+cloak, not a hat, no tall point; its shadow hides most of his face. Long white
+beard, long brown faceted patchwork cloak in dark maroon, brick red, ochre,
+warm brown and muted grey, exactly as in the first frame. His legs and feet
+are dark, exactly as in the first frame: thin legs in dark hose and soft dark
+slippers, one single very dark brown from the hem of the cloak down to the
+tips of his feet; he is not barefoot, no bare skin and no toes show at any
+moment. His hands are empty. His legs keep the stride of the first frame the
+whole time: the near leg bent with its foot forward, the far leg bent with
+its foot back; they never come together and never hang straight down.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- 0 to 0.8 s: quickly, in one decisive movement, he lifts both arms out to
+  his sides and a little back, holding the front edges of his long cloak, and
+  spreads the cloak wide open like a sail or a parachute; the warm air rising
+  under him fills it and it billows open around and behind him, much wider
+  than in the first frame.
+- 0.8 to 7 s: he glides with the cloak held wide open and his arms spread,
+  his body still and slightly leaning forward as in the first frame; only the
+  open cloak ripples and billows softly in the rising air, the sleeves and the
+  tip of his beard flutter, and he sways very gently, rising and sinking only a
+  few centimetres.
+- 7 to 8 s: quickly he brings his arms back in, fists in front of his chest,
+  and the cloak closes around him back into the exact shape of the last frame.
+- At 8 s he is exactly as in the last frame.
+
+Same low-poly flat-shaded hand-painted style, colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+the soft snap of the cloak opening and catching the air, a gentle flutter of
+cloth while he glides, and a softer rustle as it closes; no breathing, no
+music, no words.

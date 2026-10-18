@@ -13,6 +13,7 @@ extends "res://scripts/dev/piloto.gd"
 ##   corre_dentro salto corriendo que despega en el borde del haz
 ##   paseo        de todo un poco, para verlo seguido
 ##   escalera     un bot sube por las hojas que bajan por la luz hasta el baculo
+##   planear      salto de parado; bajando, mantiene salto (con planear_activo, planea)
 ##                (el rebote sigue como salto de parado y se gira en el aire)
 ##   dirige       salto de parado en el centro, derecha en el aire
 ##   gira         salto de parado en el centro, izquierda en el aire: se gira
@@ -61,6 +62,9 @@ const PRUEBAS := {
 	# Dirigir en el aire (parado en el centro, derecha en el aire). Por las
 	# hojas de la luz sube un bot (ver _bot): prueba "escalera".
 	"escalera": [1420.0, []],
+	# PLANEAR (con planear_activo): salto de parado en el haz; bajando, mantiene salto.
+	"planear": [1470.0, [[0.8, "saltar", true], [0.9, "saltar", false],
+		[1.9, "saltar", true], [3.6, "saltar", false]]],
 	# FLOTAR QUIETO: un salto de parado en la luz al que, subiendo, se le suman
 	# 400 px (como si saltase desde una hoja alta): flota quieto, gira a media
 	# caida y se posa con la bajada de siempre.
