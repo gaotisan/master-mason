@@ -412,8 +412,9 @@ var hoja_debajo: Callable
 ##   parado o despues (antes las piernas van recogidas y no casan con el
 ##   primero del giro, la pose de flotar); pedido antes, espera a llegar.
 ## giro_aire_hasta: bajando flotando, el ultimo de flotar_bajar desde el que
-##   aun se gira (luego estira las piernas hacia el suelo). Mas tarde solo
-##   frena, y al tocar suelo se gira con el giro de siempre.
+##   aun se gira (luego estira las piernas hacia el suelo). Mas tarde deshace
+##   la bajada hasta aqui y se gira (GIRAR TAMBIEN ESTIRADO); sin altura para
+##   eso solo frena, y al tocar suelo se gira con el giro de siempre.
 ## giro_aire_avanza: fotograma del giro desde el que ya avanza hacia donde se
 ##   vuelve (el 31 es el de frente; en el 24 ya casi da la cara). Antes no:
 ##   se veria ir de lado hacia atras.
@@ -446,6 +447,17 @@ var hoja_debajo: Callable
 ## arranque (antes 1): ~0,68 s el giro entero. giro_aire_avanza 24 -> 18: empieza
 ## a ir hacia el otro lado ya de tres cuartos (nunca de espaldas).
 @export var giro_aire_ritmo: float = 1.35
+## GIRAR TAMBIEN ESTIRADO (2026-10-18; el usuario: "cuando empieza ya a caer en
+## picado en modo flotar estirado ya no hay forma de que gire"). Pasado
+## giro_aire_hasta, bajando hacia el suelo, pulsar hacia atras solo frenaba. Ahora
+## deshace la bajada (sus fotogramas hacia atras, recogiendo las piernas) hasta
+## giro_aire_hasta y se gira desde ahi, como ya hacia la llegada a una hoja; si no
+## queda altura para deshacer, girarse y posarse, sigue sin girar en el aire.
+## giro_aire_deshacer: fotogramas de flotar_bajar hacia atras por tick.
+## Medido en el piloto (gira_estirado, gira_estirado_tarde): desde un suelo
+## llano gira hasta mas o menos la mitad de la bajada (~75 px sobre el suelo);
+## mas abajo se posa y gira al tocar.
+@export var giro_aire_deshacer: float = 3.0
 ## PLANEAR (2026-10-17; el usuario: "como si abrimos mas el abrigo y controlamos
 ## la velocidad de bajada, dara juego"). Bajando en la luz, manteniendo salto, no
 ## cae a mas de planear_caida px/s (el freno de siempre lo lleva ahi). Caer mas
@@ -3020,6 +3032,12 @@ func _volar_flotando() -> float:
 			and queda_q > _tiempo_posarse(0) + flotar_quieto_margen:
 		# hacia el flotar quieto: los del salto hasta la pose, a uno por tick
 		paso = 1.0
+	# GIRAR TAMBIEN ESTIRADO: con un giro pedido y las piernas ya estiradas,
+	# deshace la bajada hasta donde se gira (el giro empieza en _volar)
+	var hasta_giro := float(de_salto + giro_aire_hasta)
+	if _giro_aire_pedido != 0.0 and _vuelo == 2 and _quieto < 0.0 and _flota_iv > hasta_giro \
+			and _cabe_deshacer_para_girar(_flota_iv - hasta_giro):
+		paso = maxf(-giro_aire_deshacer, hasta_giro - _flota_iv)
 	_flota_iv += paso
 	var k := floori(_flota_iv + 0.0001)
 	if k < de_salto:
@@ -3422,14 +3440,35 @@ func _puede_girar_en_el_aire() -> bool:
 			return false
 	elif _vuelo != 1 or _vuelo_tau < float(giro_aire_desde):
 		return false
+	# en la bajada (no quieto), con lo justo: lo mismo que pide deshacerla
+	return _cabe_giro_aire(0.0, _flota and _quieto < 0.0 and _vuelo == 2)
+
+## GIRAR TAMBIEN ESTIRADO: si, con luz, cabe deshacer `fotogramas` de la bajada
+## (a giro_aire_deshacer por tick, cayendo a lo que cae ahora) y luego girarse
+## y posarse (lo de _cabe_giro_aire, con la altura que quede).
+func _cabe_deshacer_para_girar(fotogramas: float) -> bool:
+	if not _flotar.has("flotar_girar") or _vuelo_de != &"salto_parado" or _luz < flotar_luz_min:
+		return false
+	var t := ceilf(fotogramas / giro_aire_deshacer) * get_physics_process_delta_time()
+	return _cabe_giro_aire(maxf(-_vuelo_v, 0.0) * t, true)
+
+## Si hay sitio para el giro y la bajada entera sin bajar mas despacio que
+## giro_aire_caida_min; `gastado`, altura que se va antes de empezar a girar.
+## `justo` (bajando ya, GIRAR TAMBIEN ESTIRADO): el giro a su ritmo
+## (giro_aire_ritmo) y la bajada a dos por tick, lo mas que corre; si tras el giro
+## ni eso cabe, cae como el salto (CAER COMO EL SALTO).
+func _cabe_giro_aire(gastado := 0.0, justo := false) -> bool:
+	var de_salto := float(38 - flotar_desde)
 	# Subiendo, lo que aun sube suma altura y tiempo.
 	var g := maxf(_f_g * lerpf(1.0, gravedad_luz, _luz), 1.0)
-	var h := _vuelo_y - _suelo_flotar()
+	var h := _vuelo_y - _suelo_flotar() - gastado
 	var t := 0.0
 	if _vuelo_v > 0.0:
 		h += _vuelo_v * _vuelo_v / (2.0 * g)
 		t = _vuelo_v / g
-	var faltan := float(_flotar["flotar_girar"]["n"]) - 1.0 - float(giro_aire_inicio) + _flota_largo() - 1.0 - de_salto
+	var giro := float(_flotar["flotar_girar"]["n"]) - 1.0 - float(giro_aire_inicio)
+	var bajada := _flota_largo() - 1.0 - de_salto
+	var faltan := giro / giro_aire_ritmo + bajada * 0.5 if justo else giro + bajada
 	return h >= giro_aire_caida_min * maxf(faltan * get_physics_process_delta_time() - t, 0.0)
 
 ## Empieza a girarse en el aire: el primer fotograma del giro es la pose de

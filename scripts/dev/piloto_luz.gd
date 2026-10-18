@@ -18,7 +18,8 @@ extends "res://scripts/dev/piloto.gd"
 ##   dirige       salto de parado en el centro, derecha en el aire
 ##   gira         salto de parado en el centro, izquierda en el aire: se gira
 ##   gira_izq     lo mismo mirando a la izquierda (derecha en el aire)
-##   gira_tarde   izquierda ya bajando: frena y se gira al tocar suelo
+##   gira_tarde   izquierda ya bajando, estirado: deshace la bajada y se gira
+##   gira_estirado, gira_estirado_tarde  lo mismo desde alto (flotar quieto)
 ##   demo         los siete casos con rotulo, en bucle hasta Esc (ver DEMO)
 ## Con traza, cada tick en el aire imprime fotograma, altura, luz y arco.
 
@@ -70,6 +71,13 @@ const PRUEBAS := {
 	# caida y se posa con la bajada de siempre.
 	"flotar_alto": [1456.0, [[0.8, "saltar", true], [0.9, "saltar", false],
 		[4.0, "mover_izquierda", true], [4.15, "mover_izquierda", false]]],
+	# GIRAR TAMBIEN ESTIRADO: como flotar_alto, sin girar arriba; izquierda ya en
+	# la bajada con las piernas estiradas (deshace hasta la pose y se gira). Con
+	# _tarde, a media bajada.
+	"gira_estirado": [1456.0, [[0.8, "saltar", true], [0.9, "saltar", false],
+		[5.8, "mover_izquierda", true], [7.5, "mover_izquierda", false]]],
+	"gira_estirado_tarde": [1456.0, [[0.8, "saltar", true], [0.9, "saltar", false],
+		[6.15, "mover_izquierda", true], [7.5, "mover_izquierda", false]]],
 	# La cinematica de coger el baculo, sin subir: baja el baculo y lo coge.
 	"coger": [1380.0, []],
 	"coger_b": [1380.0, []],
@@ -82,8 +90,9 @@ const PRUEBAS := {
 		[1.3, "mover_derecha", true], [2.0, "mover_derecha", false]]],
 	# Girarse en el aire: salto de parado en el centro mirando a la derecha e
 	# izquierda pulsada nada mas despegar (espera a la pose y se gira); con
-	# _izq, al reves. "gira_tarde": izquierda ya bajando, tarde para girarse en
-	# el aire (frena y se gira al tocar suelo).
+	# _izq, al reves. "gira_tarde": izquierda ya bajando, con las piernas
+	# estiradas (antes frenaba y se giraba al tocar suelo; desde GIRAR TAMBIEN
+	# ESTIRADO deshace la bajada y se gira en el aire).
 	"gira": [1470.0, [[0.8, "saltar", true], [0.9, "saltar", false],
 		[1.15, "mover_izquierda", true], [4.6, "mover_izquierda", false]]],
 	"gira_izq": [1470.0, [[0.8, "saltar", true], [0.9, "saltar", false],
@@ -104,6 +113,8 @@ const PRUEBAS := {
 const EXTRAS := {
 	"escalera": [[0.0, "baculo"]],
 	"flotar_alto": [[1.4, "subir_400"]],
+	"gira_estirado": [[1.4, "subir_400"]],
+	"gira_estirado_tarde": [[1.4, "subir_400"]],
 	"coger": [[0.0, "baculo"], [1.5, "coger"]],
 	# Lo coge y luego B: lo guarda a la espalda y lo vuelve a sacar.
 	"coger_b": [[0.0, "baculo"], [1.5, "coger"], [7.0, "tecla_b"], [12.0, "tecla_b"]],
