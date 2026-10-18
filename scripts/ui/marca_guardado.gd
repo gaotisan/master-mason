@@ -11,7 +11,7 @@ extends CanvasLayer
 ## La pone Partida.guardar() colgada de la raiz, no de la escena, para que siga
 ## si la escena cambia mientras esta a la vista.
 
-const FUENTE := preload("res://scripts/ui/fuentes.gd").MENU
+const FUENTE := preload("res://assets/fonts/Cinzel-Variable.ttf")
 const ORO_APAGADO := Color(0.68, 0.55, 0.35)
 const ANCHO := 2912.0
 const ALTO := 1632.0

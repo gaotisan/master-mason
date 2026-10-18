@@ -1,8 +1,8 @@
 extends CanvasLayer
 ## Lo comun a los menus del juego (2026-10-17): el de pausa (menu_pausa.gd) y el
-## del titulo, dentro del cristal (menu_titulo.gd). Los dos en la letra de los
-## menus (Alegreya Sans dorada, ver fuentes.gd) y la opcion elegida en dorado
-## vivo entre dos llamitas, como las dos velas del titulo.
+## del titulo, dentro del cristal (menu_titulo.gd). Los dos con la letra del
+## titulo (Cinzel dorada) y la opcion elegida en dorado vivo entre dos llamitas,
+## como las dos velas del titulo.
 ##
 ## Cada pantalla es una lista de opciones {texto: clave de textos/interfaz.csv o
 ## Callable que da el texto ya traducido, elegir: Callable, lado: Callable(pasos)
@@ -14,9 +14,8 @@ extends CanvasLayer
 ## Arriba/abajo (o W/S) mueve, Enter/Espacio (o E/X) elige y Esc hace _atras.
 ## Las de la base: las opciones (Ajustes) y la confirmacion (si/no).
 
-const FUENTES := preload("res://scripts/ui/fuentes.gd")
-const FUENTE := FUENTES.MENU
-const FUENTE_NOTA := FUENTES.MENU_NOTA
+const FUENTE := preload("res://assets/fonts/Cinzel-Variable.ttf")
+const FUENTE_NOTA := preload("res://assets/fonts/IMFellEnglish-Italic.ttf")
 const LLAMA := preload("res://scripts/ui/llama.gdshader")
 const AJUSTES := preload("res://scripts/ui/ajustes.gd")
 
@@ -221,8 +220,9 @@ func _lista(ops: Array, y_centro: float, sel: int) -> void:
 		_etiquetas.append(l)
 		l.set_meta("y", y0 + i * paso_opcion)
 		if ops[i].has("valor"):
-			# angulo, valor, angulo: los angulos son de altura de minuscula y en
-			# la misma linea casi no se veian; van aparte y mas grandes.
+			# angulo, valor, angulo: los angulos de Cinzel son de altura de
+			# minuscula y en la misma linea casi no se veian; van aparte y mas
+			# grandes.
 			var partes := []
 			for tam in [int(tam_opcion * 1.5), tam_opcion, int(tam_opcion * 1.5)]:
 				var e := Label.new()
