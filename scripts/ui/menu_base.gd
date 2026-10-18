@@ -108,7 +108,6 @@ func _pantalla_opciones(volver: Callable, y_centro: float, sel := 0) -> void:
 		{"texto": "menu.volver", "elegir": volver},
 	], y_centro, sel)
 	_atras = volver
-	_pie("pie.cambiar")
 
 
 func _cambiar_volumen(pasos: int) -> void:
@@ -140,7 +139,6 @@ func _pantalla_confirmar(pregunta: String, detalle: String, si: String, hacer: C
 		{"texto": si, "elegir": hacer},
 	], y_centro + paso_opcion * 0.75, 0)
 	_atras = volver
-	_pie("pie.volver")
 
 
 # ---------------------------------------------------------------- teclas
@@ -332,10 +330,6 @@ func _flanquear(r: Rect2, prender: bool) -> void:
 
 func _cabecera(texto: String, y: float) -> void:
 	_texto_centrado(tr(texto).to_upper(), FUENTE, int(tam_opcion * 0.8), ORO_APAGADO, y)
-
-
-func _pie(texto: String) -> void:
-	_texto_centrado(texto, FUENTE, 30, Color(ORO_APAGADO, 0.6), ALTO - 90.0, ANCHO * 0.5)
 
 
 func _texto_centrado(texto: String, fuente: Font, tam: int, color: Color, y: float, x := -1.0) -> Label:

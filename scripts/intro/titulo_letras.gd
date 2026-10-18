@@ -24,11 +24,15 @@ const CAP_EM := 0.733
 const MSDF_RANGO := 32.0
 const MSDF_TAM := 64.0
 ## Cada linea: texto, alto de las mayusculas, linea base y centro, en px de la
-## imagen, medidos sobre las letras que iban pintadas.
+## imagen. Las proporciones son las de las letras que iban pintadas, al 90 %
+## (el usuario, 2026-10-18: "un pelin mas pequenas"); el bloque, del alto de THE
+## al pie de BUILDER, va centrado entre las velas (CENTRO_CRISTAL de
+## menu_titulo.gd, 1360, 800). Antes las pintadas tenian THE 57, MASTER 95 y
+## BUILDER 93 de alto, con las bases en 648, 805 y 944.
 const LINEAS := [
-	{"texto": "THE", "cap": 57.0, "base": 648.0, "centro": 1353.0},
-	{"texto": "MASTER", "cap": 95.0, "base": 805.0, "centro": 1364.0},
-	{"texto": "BUILDER", "cap": 93.0, "base": 944.0, "centro": 1369.0},
+	{"texto": "THE", "cap": 51.3, "base": 692.0, "centro": 1360.0},
+	{"texto": "MASTER", "cap": 85.5, "base": 833.5, "centro": 1360.0},
+	{"texto": "BUILDER", "cap": 83.7, "base": 958.5, "centro": 1360.0},
 ]
 ## Una linea mas ancha que esto (px) se achica entera para caber en la placa.
 const ANCHO_MAX := 640.0

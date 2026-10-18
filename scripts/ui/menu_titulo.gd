@@ -3,8 +3,11 @@ extends "res://scripts/ui/menu_base.gd"
 ## Lo pone title_screen_controller.gd en modo menu cuando la sala ya esta
 ## encendida.
 ##
-##  - Reposo: el titulo y debajo, pequeno y respirando, "Pulsa cualquier tecla".
-##  - Al pulsar, las letras pintadas se funden con la placa sin letras (el
+##  - Reposo: solo el titulo, sin nada escrito debajo (2026-10-18: el usuario
+##    quito el "Pulsa cualquier tecla"). Cualquier tecla abre el menu; sin tocar
+##    nada, sale solo a los abrir_solo s, pero solo la primera vez: si se vuelve
+##    al titulo con Esc, espera a que se pulse.
+##  - Al abrirse, las letras pintadas se funden con la placa sin letras (el
 ##    controlador, mostrar_letras) y en su sitio sale el menu: Continuar (si hay
 ##    partida), Nueva partida, Opciones y Salir. Esc vuelve al reposo y las
 ##    letras vuelven.
@@ -17,20 +20,29 @@ extends "res://scripts/ui/menu_base.gd"
 ##    (velas, cristal, camara) hacia la escena (salir_hacia).
 
 const MINIATURA := "res://assets/ui/miniaturas/%s.png"
-## Centro de las letras pintadas en el cristal (px de la imagen; con el zoom de
-## reposo, 1, son tambien px de pantalla). Medido sobre placa_rect.
-const CENTRO_CRISTAL := Vector2(1370.0, 800.0)
+## Centro del sitio util del cristal (px de la imagen; con el zoom de reposo, 1,
+## son tambien px de pantalla): entre las dos velas (CANDLE_A y CANDLE_B de
+## title_screen_controller.gd, x 868 y 1852), y algo por encima de ellas. Ahi
+## van las letras del titulo (titulo_letras.gd) y el menu. (El 2026-10-18 se
+## probo el centro del marco, 1419, 830, y quedaba a la derecha y bajo.)
+const CENTRO_CRISTAL := Vector2(1360.0, 800.0)
+## Ancho util entre las velas, dejando su resplandor libre: nada del menu debe
+## pasar de aqui.
+const ANCHO_UTIL := 760.0
 
 @export var tam_carta: float = 250.0
 @export var hueco_carta: float = 54.0
 @export var aparecer: float = 0.6
 @export var apagarse: float = 0.45
+## Sin tocar nada, el menu sale solo pasado esto (s) desde que la sala queda
+## encendida.
+@export var abrir_solo: float = 4.0
 
 ## La pantalla de titulo: mostrar_letras(si) y salir_hacia(escena).
 var titulo: Node
 
-var _en_aviso := true
-var _tw_aviso: Tween
+var _en_reposo := true
+var _tw_solo: Tween
 var _cartas: Array[Control] = []
 var _nombre: Label
 
@@ -41,30 +53,27 @@ func _ready() -> void:
 	paso_opcion = 80.0
 	centro_x = CENTRO_CRISTAL.x
 	_montar()
-	_poner_aviso()
+	_poner_reposo(abrir_solo)
 
 
 # ---------------------------------------------------------------- reposo
 
-func _poner_aviso() -> void:
+## espera: lo que tarda el menu en salir solo; si es negativa, no sale solo.
+func _poner_reposo(espera := -1.0) -> void:
 	_limpiar()
-	_en_aviso = true
+	_en_reposo = true
 	_atras = Callable()
 	_contenido.modulate.a = 1.0
-	# Algo separado de MASON y en el dorado de las letras, que sobre el panel el
-	# apagado apenas se leia.
-	var aviso := _texto_centrado(tr("menu.pulsa_tecla").to_upper(), FUENTE, 30, ORO, 1034.0)
-	aviso.modulate.a = 0.0
-	if _tw_aviso and _tw_aviso.is_valid():
-		_tw_aviso.kill()
-	# Entra despacio y luego respira.
-	_tw_aviso = create_tween().set_loops()
-	_tw_aviso.tween_property(aviso, "modulate:a", 0.95, 1.6).set_trans(Tween.TRANS_SINE)
-	_tw_aviso.tween_property(aviso, "modulate:a", 0.45, 1.6).set_trans(Tween.TRANS_SINE)
+	if _tw_solo and _tw_solo.is_valid():
+		_tw_solo.kill()
+	if espera >= 0.0:
+		_tw_solo = create_tween()
+		_tw_solo.tween_interval(espera)
+		_tw_solo.tween_callback(_abrir_menu)
 
 
 func _input(event: InputEvent) -> void:
-	if not _en_aviso:
+	if not _en_reposo:
 		super(event)
 		return
 	if not (event is InputEventKey or event is InputEventJoypadButton or event is InputEventAction \
@@ -77,9 +86,9 @@ func _input(event: InputEvent) -> void:
 
 
 func _abrir_menu() -> void:
-	_en_aviso = false
-	if _tw_aviso and _tw_aviso.is_valid():
-		_tw_aviso.kill()
+	_en_reposo = false
+	if _tw_solo and _tw_solo.is_valid():
+		_tw_solo.kill()
 	titulo.mostrar_letras(false)
 	# Las letras se van y, a medio irse, el menu sale en su sitio.
 	_cerrando = true
@@ -102,7 +111,7 @@ func _aparecer() -> void:
 	tw.chain().tween_callback(func() -> void: _cerrando = false)
 
 
-func _volver_al_aviso() -> void:
+func _volver_al_reposo() -> void:
 	_cerrando = true
 	titulo.mostrar_letras(true)
 	var tw := create_tween().set_parallel()
@@ -111,7 +120,7 @@ func _volver_al_aviso() -> void:
 		tw.tween_property(r, "modulate:a", 0.0, 0.3)
 	tw.chain().tween_callback(func() -> void:
 		_cerrando = false
-		_poner_aviso())
+		_poner_reposo())
 
 
 # ---------------------------------------------------------------- pantallas
@@ -135,8 +144,7 @@ func _poner_menu(id := "") -> void:
 		if ops[i]["id"] == id:
 			sel = i
 	_lista(ops, CENTRO_CRISTAL.y, sel)
-	_atras = _volver_al_aviso
-	_pie("pie.menu")
+	_atras = _volver_al_reposo
 
 
 func _poner_opciones() -> void:
@@ -174,31 +182,32 @@ func _poner_selector(sel := 0) -> void:
 		if Partida.PUNTOS[p].get("clave", false) and not p in Partida.desbloqueados():
 			faltan = true
 	var n := entradas.size() + (1 if faltan else 0)
-	var x0 := centro_x - (n - 1) * (tam_carta + hueco_carta) * 0.5
+	# Si no caben entre las velas, las cartas se achican.
+	var tam := minf(tam_carta, (ANCHO_UTIL - (n - 1) * hueco_carta) / n)
+	var x0 := centro_x - (n - 1) * (tam + hueco_carta) * 0.5
 	var y := CENTRO_CRISTAL.y - 20.0
-	_cabecera("menu.empezar_desde", y - tam_carta * 0.5 - 70.0)
+	_cabecera("menu.empezar_desde", y - tam * 0.5 - 70.0)
 	var ops := []
 	for i in entradas.size():
 		var e: Dictionary = entradas[i]
 		var ruta: String = MINIATURA % e["mini"]
 		var tex: Texture2D = load(ruta) if ResourceLoader.exists(ruta) else null
-		_cartas.append(_carta(tex, Vector2(x0 + i * (tam_carta + hueco_carta), y)))
+		_cartas.append(_carta(tex, Vector2(x0 + i * (tam + hueco_carta), y), tam))
 		ops.append({"texto": e["nombre"], "elegir": _elegir_inicio.bind(e["id"], i)})
 	if faltan:
-		var oscura := _carta(null, Vector2(x0 + entradas.size() * (tam_carta + hueco_carta), y))
+		var oscura := _carta(null, Vector2(x0 + entradas.size() * (tam + hueco_carta), y), tam)
 		oscura.modulate = Color(0.45, 0.42, 0.38, 0.55)
-	_nombre = _texto_centrado(" ", FUENTE, tam_opcion, ORO_VIVO, y + tam_carta * 0.5 + 66.0)
+	_nombre = _texto_centrado(" ", FUENTE, tam_opcion, ORO_VIVO, y + tam * 0.5 + 66.0)
 	_opciones = ops
 	_sel = clampi(sel, 0, ops.size() - 1)
 	_atras = _poner_menu.bind("nueva")
-	_pie("pie.selector")
 	_marcar(false)
 
 
 ## Un cuadro del selector: la miniatura con un marco fino como el del ataud.
-func _carta(tex: Texture2D, centro: Vector2) -> Control:
+func _carta(tex: Texture2D, centro: Vector2, tam: float) -> Control:
 	var c := Control.new()
-	c.size = Vector2(tam_carta, tam_carta)
+	c.size = Vector2(tam, tam)
 	c.position = centro - c.size * 0.5
 	c.pivot_offset = c.size * 0.5
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE

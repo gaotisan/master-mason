@@ -108,7 +108,6 @@ func _poner_menu(sel := 0) -> void:
 	ops.append({"texto": "menu.salir_juego", "elegir": _confirmar_salir})
 	_lista(ops, ALTO * 0.5, sel)
 	_atras = _continuar
-	_pie("pie.volver_juego")
 
 
 func _poner_controles() -> void:
@@ -127,7 +126,6 @@ func _poner_controles() -> void:
 			y0 + filas.size() * alto_fila - 40.0)
 	_lista([{"texto": "menu.volver", "elegir": _poner_menu.bind(1)}], ALTO - 230.0, 0)
 	_atras = _poner_menu.bind(1)
-	_pie("pie.volver")
 
 
 func _poner_opciones() -> void:

@@ -1,5 +1,4 @@
 keys,es,en
-menu.pulsa_tecla,Pulsa cualquier tecla,Press any key
 menu.continuar,Continuar,Continue
 menu.nueva_partida,Nueva partida,New game
 menu.opciones,Opciones,Options
@@ -28,11 +27,6 @@ confirmar.si_empezar,"Sí, empezar","Yes, start"
 pausa.desde,Seguirás desde: %s.,You will continue from: %s.
 pausa.aqui,Seguirás justo donde lo dejas.,You will continue right where you left off.
 pausa.sin_guardar,Aún no hay nada guardado: se empezará desde el principio.,Nothing has been saved yet: you will start from the beginning.
-pie.volver_juego,ESC  volver al juego,ESC  back to game
-pie.volver,ESC  volver,ESC  back
-pie.cambiar,←  →  cambiar          ESC  volver,←  →  change          ESC  back
-pie.menu,INTRO  elegir          ESC  volver,ENTER  select          ESC  back
-pie.selector,←  →  elegir          INTRO  empezar          ESC  volver,←  →  choose          ENTER  start          ESC  back
 controles.ninguna,Ahora no hace falta ninguna tecla.,No keys are needed right now.
 controles.tambien,También con %s.,Also with %s.
 controles.wasd,WASD,WASD

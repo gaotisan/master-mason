@@ -16,7 +16,6 @@ Los créditos de apertura van en inglés en todos los idiomas y no están aquí.
 - Columnas: `es` español, `en` inglés.
 - Los saltos de línea dentro de una celda son saltos de línea en pantalla: respetarlos o proponer otros.
 - `%s` y `%d` se cambian por un dato al jugar (un nombre de escena, un número). Tienen que seguir estando, una vez cada uno. `%%` es el signo de porcentaje.
-- En `pie.*` los espacios largos separan las indicaciones de teclas; las teclas van en mayúsculas.
 - Los pensamientos son primera persona, pocos y contenidos: literario sin pasarse. Los puntos suspensivos son el carácter `…`, no tres puntos.
 
 ## Para añadir un idioma
