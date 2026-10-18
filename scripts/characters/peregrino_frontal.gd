@@ -63,6 +63,7 @@ signal piso(pies: Vector2)
 signal en_perfil
 
 const FRAMES := preload("res://resources/characters/peregrino_frames.tres")
+const FRAMES_HD := "res://resources/characters/peregrino_frontal_hd.tres"   # con alta_resolucion (load: sin ella no se carga)
 const BASTON := preload("res://scenes/characters/baston.tscn")
 ## EL BASTON A LA ESPALDA VISTO DE ESPALDAS: el mismo que lleva en la mano (la
 ## plantilla de peregrino_guardar_baston_espalda_a/arreglar.py: garra de cuerna y
@@ -170,6 +171,16 @@ const DOBLE_TOQUE := 0.30        # dos pulsaciones a menos: correr (como doble_p
 ## cambia.
 ## (Con baston_espalda.png, ya a su tamano, de espaldas va a 1; el 1,2 era para
 ## baston.png.)
+## EN PRUEBA (2026-10-18, solo prueba_frontal lo enciende): el baston a la espalda
+## es baston_espalda.png tambien visto de frente. Sin esto, de frente va baston.png
+## (garra dorada, mas cerrada y pequena) y en la vuelta cambia de una a otra en el
+## perfil: el usuario veia la garra cambiar de tamano.
+@export var garra_unica := false
+## EN PRUEBA (2026-10-18, solo prueba_frontal lo enciende): las hojas a la resolucion
+## de los masters (peregrino_frontal_hd.tres, tools/anim/frontal_hd.py: el doble que
+## las del juego). El sprite va a media escala (_k): las filas de los JSON, la escala
+## y lo demas siguen en px de hoja.
+@export var alta_resolucion := false
 @export var baston_espalda_escala := Vector2(1.0, 1.0)
 @export var baston_frente_escala := Vector2(1.0, 1.0)
 ## Trazo engordado (texeles; corte_madera.gdshader y el shader de la escena) y
@@ -281,6 +292,9 @@ var _de_espaldas := false         # el baston a la espalda se ve de espaldas (ba
 var _textura_espaldas := false    # la que tiene puesta Madera ahora
 var _tex_baston: Texture2D        # la de baston.tscn (baston.png) y su offset
 var _offset_baston := Vector2.ZERO
+var _k := 1.0                     # px de hoja por px de la textura del sprite (0,5 con alta_resolucion)
+var _corte_bola := 0.0            # de las filas (fracciones de baston.png) a la textura puesta:
+var _corte_escala := 1.0          # corte' = _corte_bola + corte * _corte_escala
 ## El halo de la bola por delante del cuerpo en sacar / guardar de espaldas (ver
 ## _halo_de_espaldas) y el del Orbe de baston.tscn.
 var _halo_delante: Sprite2D
@@ -467,10 +481,14 @@ func _ready() -> void:
 	_poner_color()
 	_sprite = AnimatedSprite2D.new()
 	_sprite.sprite_frames = FRAMES
+	if alta_resolucion:
+		_sprite.sprite_frames = load(FRAMES_HD)
+		_k = 0.5
 	_sprite.use_parent_material = true
 	add_child(_sprite)
 	_sprite.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
 	_sprite.add_child(_funda_vacia)
+	_funda_vacia.scale = Vector2.ONE / _k      # hija del sprite: en px de hoja
 	# el fotograma de antes, encima, desvaneciendose en los enganches
 	_fantasma = Sprite2D.new()
 	_fantasma.visible = false
@@ -631,7 +649,7 @@ func _poner_anim(nombre: String, fotograma: int, fundir := false) -> void:
 	_sprite.frame = fotograma
 	_sprite.pause()
 	var alto := _sprite.sprite_frames.get_frame_texture(nombre, 0).get_size().y
-	_sprite.offset = Vector2(0, -(alto / 2.0 - 15.0))   # el suelo a 15 del borde, sea cual sea la casilla
+	_sprite.offset = Vector2(0, -(alto / 2.0 - 15.0 / _k))   # el suelo a 15 (de hoja) del borde, sea cual sea la casilla
 	_acum = 0.0
 
 
@@ -871,6 +889,9 @@ func _empezar_accion() -> void:
 ## la que mira; "" si de esa cara no hay (se da la vuelta y la hace de frente).
 func _accion_aqui() -> String:
 	var nombre := "%s_%s" % [_accion, _cara]
+	# con garra_unica, las rehechas con la garra nueva (animar.py --gu), si las hay
+	if garra_unica and _acciones.has(nombre + "_gu"):
+		return nombre + "_gu"
 	return nombre if _acciones.has(nombre) else ""
 
 
@@ -907,35 +928,36 @@ func _cb_escala(nueva: float) -> void:
 ## que se engorda su trazo (_engordar).
 func _escala_del_palo(f: Array) -> Vector2:
 	var t := 1.0 if float(f[3]) >= 0.5 else 0.0
-	_de_espaldas = t > 0.5
 	var anim := String(_sprite.animation)
 	if anim.begins_with("vuelta"):
 		var giro: Array = _sec.get("giro_vuelta", [])
 		if not giro.is_empty():
 			t = clampf(float(giro[mini(_sprite.frame, giro.size() - 1)]) / 180.0, 0.0, 1.0)
 	_engordar = lerpf(baston_frente_engordar, baston_espalda_engordar, t)
-	if t > 0.5:
-		_de_espaldas = true
-	elif anim.begins_with("vuelta"):
-		_de_espaldas = false
+	_de_espaldas = garra_unica or t > 0.5
 	return baston_frente_escala.lerp(baston_espalda_escala, t)
 
 
 ## La textura del baston a la espalda: de espaldas, baston_espalda.png (el de la
 ## mano); de frente, baston.png. Las dos con la bola en el mismo sitio del pivote.
+## Con garra_unica, baston_espalda.png siempre; los cortes de las filas (fraccion
+## del alto de baston.png) se pasan a esa textura por la distancia a la bola.
 func _textura_del_palo() -> void:
 	if _de_espaldas == _textura_espaldas:
 		return
 	_textura_espaldas = _de_espaldas
+	var be: Dictionary = _datos["baston_espalda"]
+	var tam := Vector2(be["tam"][0], be["tam"][1])
+	var b := Vector2(be["bola"][0], be["bola"][1])
+	var bola_vieja := ORBE_EN_MADERA.y - (_offset_baston.y - _tex_baston.get_size().y / 2.0)
+	_corte_escala = _tex_baston.get_size().y / tam.y if garra_unica else 1.0
+	_corte_bola = (b.y - bola_vieja) / tam.y if garra_unica else 0.0
 	for n in ["Madera", "MaderaDelante"]:
 		var sp := _bola.get_node(n) as Sprite2D
 		if not _de_espaldas:
 			sp.texture = _tex_baston
 			sp.offset = _offset_baston
 		else:
-			var be: Dictionary = _datos["baston_espalda"]
-			var tam := Vector2(be["tam"][0], be["tam"][1])
-			var b := Vector2(be["bola"][0], be["bola"][1])
 			sp.texture = BASTON_ESPALDA_TEX
 			sp.offset = ORBE_EN_MADERA - (b - tam / 2.0)
 
@@ -950,14 +972,15 @@ func _baston_a_la_espalda(lista: Array) -> void:
 	# el trazo, mas gordo (corte_madera.gdshader o el shader de la escena)
 	for n in ["Madera", "MaderaDelante"]:
 		((_bola.get_node(n) as CanvasItem).material as ShaderMaterial).set_shader_parameter("engordar", _engordar)
-	_bola.position = _sprite.position + (_sprite.offset + Vector2(f[0], f[1])) * _escala
+	_bola.position = _sprite.position + (_sprite.offset * _k + Vector2(f[0], f[1])) * _escala
 	_bola.rotation = f[2]
 	_bola.z_index = -3            # el entero, detras del sprite (que va en 0)
 	var corte: float = f[3]
 	var delante := _bola.get_node("MaderaDelante") as Sprite2D
 	delante.visible = corte > 0.001
 	(delante.material as ShaderMaterial).set_shader_parameter("desde", 0.0)
-	(delante.material as ShaderMaterial).set_shader_parameter("corte", corte)
+	(delante.material as ShaderMaterial).set_shader_parameter("corte",
+		corte if corte >= 1.0 else clampf(_corte_bola + corte * _corte_escala, 0.0, 1.0))
 	var funda_delante: bool = corte > float(_secs[false].get("funda_corte", 0.42))
 	_funda_atras_f.visible = funda_delante
 	_funda_delante_f.visible = funda_delante
@@ -982,7 +1005,7 @@ func _poner_funda_vacia() -> void:
 		return
 	var f: Array = lista[mini(_sprite.frame, lista.size() - 1)]
 	# hija del sprite: en su espacio (su escala ya va), recortada con su silueta
-	_funda_vacia.position = _sprite.offset + Vector2(f[0], f[1])
+	_funda_vacia.position = _sprite.offset + Vector2(f[0], f[1]) / _k
 	_funda_vacia.rotation = f[2]
 	var delante: bool = float(f[3]) > float(_secs[true].get("funda_corte", 0.42))
 	# aqui el ancho siempre viene (secuencia.py): 0 es que no se ve (de lado en la
@@ -1064,7 +1087,7 @@ func _garra_por_delante(con_bola: bool) -> void:
 	_garra_vuelta.visible = si
 	if si:
 		_garra_vuelta.texture = f[1]
-		_garra_vuelta.position = _sprite.position + (_sprite.offset + f[0]) * _escala
+		_garra_vuelta.position = _sprite.position + (_sprite.offset * _k + f[0]) * _escala
 		_garra_vuelta.scale = Vector2.ONE * _escala
 
 
@@ -1077,7 +1100,7 @@ func _pies() -> Vector2:
 
 func _colocar() -> void:
 	_sprite.position = _pies()
-	_sprite.scale = Vector2.ONE * _escala
+	_sprite.scale = Vector2.ONE * _escala * _k
 	_fantasma.visible = _fundido > 0.0
 	_fantasma.position = _sprite.position
 	_fantasma.scale = _sprite.scale
@@ -1108,7 +1131,7 @@ func _colocar() -> void:
 				_halo_de_espaldas((mano - e) / (mano - 1.0))
 		_bola.scale = Vector2.ONE * _escala * e
 		_bola.rotation = giro
-		_bola.position = _sprite.position + (_sprite.offset + Vector2(o[0], o[1])) * _escala \
+		_bola.position = _sprite.position + (_sprite.offset * _k + Vector2(o[0], o[1])) * _escala \
 			- ORBE_EN_MADERA.rotated(giro) * _escala * e
 		if _fundido > 0.0 and _bola_antes != Vector2.ZERO:
 			_bola.position = _bola.position.lerp(_bola_antes, _fundido)
@@ -1127,7 +1150,7 @@ func _colocar() -> void:
 			_garra.texture = _textura(d["garra_textura"])
 			_garra.offset = -Vector2(d["garra_pivote"][0], d["garra_pivote"][1])
 		var g: Array = d["garra"][mini(_sprite.frame, d["garra"].size() - 1)]
-		_garra.position = _sprite.position + (_sprite.offset + Vector2(g[0], g[1])) * _escala
+		_garra.position = _sprite.position + (_sprite.offset * _k + Vector2(g[0], g[1])) * _escala
 		_garra.rotation = g[2]
 		_garra.scale = Vector2.ONE * _escala * float(d["garra_escala"])
 	colocado.emit()

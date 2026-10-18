@@ -42,6 +42,10 @@ func _ready() -> void:
 	_fondo.draw.connect(_dibujar_fondo)
 	add_child(_fondo)
 	_peregrino = PEREGRINO.instantiate()
+	# en prueba: el mismo baston a la espalda de frente y de espaldas (ver garra_unica)
+	_peregrino.garra_unica = true
+	# en prueba: las hojas a la resolucion de los masters (ver alta_resolucion)
+	_peregrino.alta_resolucion = true
 	_peregrino.position = Vector2(1456, SUELO_SALIDA)
 	add_child(_peregrino)
 	_camara = Camera2D.new()
