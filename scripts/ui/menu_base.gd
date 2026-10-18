@@ -1,8 +1,9 @@
 extends CanvasLayer
 ## Lo comun a los menus del juego (2026-10-17): el de pausa (menu_pausa.gd) y el
 ## del titulo, dentro del cristal (menu_titulo.gd). Los dos con la letra del
-## titulo (Cinzel dorada) y la opcion elegida en dorado vivo entre dos llamitas,
-## como las dos velas del titulo.
+## titulo (Cinzel dorada) y la opcion elegida en dorado vivo entre dos bolas
+## del baculo que se cargan al elegirla (o dos llamitas, como las velas del
+## titulo: con_bola).
 ##
 ## Cada pantalla es una lista de opciones {texto: clave de textos/interfaz.csv o
 ## Callable que da el texto ya traducido, elegir: Callable, lado: Callable(pasos)
@@ -17,7 +18,13 @@ extends CanvasLayer
 const FUENTE := preload("res://assets/fonts/Cinzel-Variable.ttf")
 const FUENTE_NOTA := preload("res://assets/fonts/IMFellEnglish-Italic.ttf")
 const LLAMA := preload("res://scripts/ui/llama.gdshader")
+const ORBE := preload("res://scripts/characters/baston/orbe.gdshader")
 const AJUSTES := preload("res://scripts/ui/ajustes.gd")
+## Sonidos (raw/master_builder/audio/menu/sintetiza.py): cambiar de opcion o de
+## valor, elegir y volver.
+const SONIDO_MOVER := preload("res://assets/audio/ui/menu_mover.wav")
+const SONIDO_ELEGIR := preload("res://assets/audio/ui/menu_elegir.wav")
+const SONIDO_VOLVER := preload("res://assets/audio/ui/menu_volver.wav")
 
 const ORO := Color(0.93, 0.76, 0.46)
 const ORO_VIVO := Color(1.0, 0.84, 0.55)
@@ -27,6 +34,28 @@ const ALTO := 1632.0
 
 @export var tam_opcion: int = 62
 @export var paso_opcion: float = 104.0
+## A los lados de la opcion elegida: la bola del baculo, que se carga al elegir
+## (como la marca de guardado), o las llamitas. Prueba del 2026-10-18 para
+## compararlas.
+@export var con_bola := true
+
+## La bola: su radio en pantalla (px) y que parte del medio lado de su cuadrado
+## ocupa (el resto es el halo).
+const RADIO_BOLA := 15.0
+const BOLA_EN_CUADRO := 0.32
+const BOLA_COLOR := Color(0.86, 0.6, 0.3)
+const BOLA_OPACIDAD := 0.85
+
+## En el menu del titulo (sobre la placa clara) la bola va algo mayor y con un
+## hueco: una sombra suave detras, como engastada en la placa, para que su luz
+## se lea (sin el, sobre lo claro parecia una cuenta de metal). Los pone el
+## menu antes de _montar.
+var radio_bola := RADIO_BOLA
+var hueco_bola := false
+## Sin halo: alrededor de la bola hacia un reborde, como una ficha (la misma
+## bola en la pausa y en el titulo).
+var halo_bola := 0.0
+var opacidad_bola := BOLA_OPACIDAD
 
 ## Centro horizontal de todo lo que se escribe (el titulo lo pone en el cristal).
 var centro_x := ANCHO * 0.5
@@ -34,6 +63,7 @@ var _contenido: Control
 var _llamas: Array[ColorRect] = []
 var _llamas_mat: Array[ShaderMaterial] = []
 var _tw_llamas: Tween
+var _voz: AudioStreamPlayer
 
 var _opciones: Array = []
 var _etiquetas: Array[Label] = []
@@ -72,17 +102,36 @@ func _montar() -> void:
 	_brillo.material = mb
 	_brillo.visible = false
 	add_child(_brillo)
+	_voz = AudioStreamPlayer.new()
+	_voz.max_polyphony = 3
+	# Suena tambien con el arbol en pausa (el menu de pausa).
+	_voz.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_voz)
 	_contenido = Control.new()
 	_contenido.size = Vector2(ANCHO, ALTO)
 	_contenido.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_contenido)
 	for i in 2:
 		var r := ColorRect.new()
-		r.size = Vector2(46.0, 76.0)
 		r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var m := ShaderMaterial.new()
-		m.shader = LLAMA
-		m.set_shader_parameter("semilla", randf() * 40.0 + i * 17.0)
+		if con_bola:
+			r.size = Vector2.ONE * radio_bola / BOLA_EN_CUADRO * 2.0
+			r.pivot_offset = r.size * 0.5
+			m.shader = ORBE
+			m.set_shader_parameter("radio", BOLA_EN_CUADRO)
+			# Mas apagada que la del baculo, que en el menu llamaba demasiado
+			# (y del todo apagada se confundia con el texto): entre el naranja de
+			# la magia y el oro del texto, algo de halo y un poco mas tenue.
+			m.set_shader_parameter("color", BOLA_COLOR)
+			m.set_shader_parameter("halo", halo_bola)
+			m.set_shader_parameter("opacidad", opacidad_bola)
+			m.set_shader_parameter("hueco", 0.75 if hueco_bola else 0.0)
+			m.set_shader_parameter("remolino", 1.8)
+		else:
+			r.size = Vector2(46.0, 76.0)
+			m.shader = LLAMA
+			m.set_shader_parameter("semilla", randf() * 40.0 + i * 17.0)
 		r.material = m
 		r.visible = false
 		add_child(r)
@@ -154,6 +203,7 @@ func _input(event: InputEvent) -> void:
 	var fis: Key = k.physical_keycode if k else KEY_NONE
 	if (k and k.keycode == KEY_ESCAPE) or event.is_action("ui_cancel"):
 		if not event.is_echo() and _atras.is_valid():
+			_sonar(SONIDO_VOLVER)
 			_atras.call()
 		return
 	var arriba := event.is_action("ui_up") or fis == KEY_W
@@ -165,6 +215,8 @@ func _input(event: InputEvent) -> void:
 			_mover(-1)
 		elif derecha:
 			_mover(1)
+		elif arriba or abajo:
+			_fila(abajo)
 	elif arriba:
 		_mover(-1)
 	elif abajo:
@@ -175,6 +227,7 @@ func _input(event: InputEvent) -> void:
 		_lado(1)
 	if not event.is_echo() and (event.is_action("ui_accept") or fis == KEY_E or fis == KEY_X):
 		if _opciones.size() > 0:
+			_sonar(SONIDO_VOLVER if str(_opciones[_sel]["texto"]) == "menu.volver" else SONIDO_ELEGIR)
 			(_opciones[_sel]["elegir"] as Callable).call()
 
 
@@ -182,12 +235,34 @@ func _mover(d: int) -> void:
 	if _opciones.size() < 2:
 		return
 	_sel = wrapi(_sel + d, 0, _opciones.size())
+	_sonar(SONIDO_MOVER)
 	_marcar(true)
+
+
+## Lo que flanquea la opcion elegida: las bolas (con su hueco, que lo pinta
+## orbe.gdshader) o las llamas.
+func _marcas() -> Array:
+	var a: Array = []
+	a.append_array(_llamas)
+	return a
+
+
+## En una lista en fila, arriba/abajo: la de la fila no hace nada (el selector
+## baja a su "Volver" y sube a las cartas).
+func _fila(_abajo: bool) -> void:
+	pass
 
 
 func _lado(d: int) -> void:
 	if _opciones.size() > 0 and _opciones[_sel].has("lado"):
+		_sonar(SONIDO_MOVER)
 		(_opciones[_sel]["lado"] as Callable).call(d)
+
+
+func _sonar(s: AudioStream) -> void:
+	if _voz:
+		_voz.stream = s
+		_voz.play()
 
 
 # ---------------------------------------------------------------- dibujo
@@ -198,7 +273,7 @@ func _limpiar() -> void:
 	_opciones = []
 	_etiquetas.clear()
 	_horizontal = false
-	for r in _llamas:
+	for r in _marcas():
 		r.visible = false
 	_brillo.visible = false
 
@@ -293,13 +368,22 @@ func _marcar(prender: bool) -> void:
 	_flanquear(l.get_meta("rect", Rect2(l.position, l.size)), prender)
 
 
-## Pone las dos llamas a los lados de un rectangulo (la opcion elegida).
-func _flanquear(r: Rect2, prender: bool) -> void:
-	var y := r.position.y + r.size.y * 0.5 - _llamas[0].size.y * 0.62
-	_llamas[0].position = Vector2(r.position.x - 44.0 - _llamas[0].size.x, y)
-	_llamas[1].position = Vector2(r.end.x + 44.0, y)
-	for ll in _llamas:
-		ll.visible = true
+## Pone las dos bolas (o llamas) a los lados de un rectangulo (la opcion elegida).
+## Sin marcas (el nombre bajo las miniaturas del selector, que se elige por la
+## miniatura): solo el resplandor de detras.
+func _flanquear(r: Rect2, prender: bool, marcas := true) -> void:
+	if marcas and con_bola:
+		# centradas en las mayusculas, como los angulos de los valores
+		var cy := r.position.y + r.size.y * 0.5 - tam_opcion * 0.04
+		var centros := [Vector2(r.position.x - 44.0 - radio_bola, cy), Vector2(r.end.x + 44.0 + radio_bola, cy)]
+		for i in 2:
+			_llamas[i].position = centros[i] - _llamas[i].size * 0.5
+	elif marcas:
+		var y := r.position.y + r.size.y * 0.5 - _llamas[0].size.y * 0.62
+		_llamas[0].position = Vector2(r.position.x - 44.0 - _llamas[0].size.x, y)
+		_llamas[1].position = Vector2(r.end.x + 44.0, y)
+	for ll in _marcas():
+		ll.visible = marcas
 		ll.modulate.a = 1.0
 	# El resplandor, detras del texto y algo mas ancho; al cambiar de opcion se
 	# desliza hasta la nueva.
@@ -314,9 +398,14 @@ func _flanquear(r: Rect2, prender: bool) -> void:
 	else:
 		_brillo.position = donde
 		_brillo.size = tam
-	_brillo.visible = true
+	# Con bolas no hay resplandor detras (el usuario: "no me gustan los
+	# recuadros"); ya marcan ellas la elegida.
+	_brillo.visible = not con_bola
 	if _tw_llamas and _tw_llamas.is_valid():
 		_tw_llamas.kill()
+	if con_bola:
+		_aparecer_bolas(prender)
+		return
 	if prender:
 		# Al cambiar de opcion, las llamas prenden de nuevo, deprisa.
 		_tw_llamas = create_tween().set_parallel()
@@ -326,6 +415,28 @@ func _flanquear(r: Rect2, prender: bool) -> void:
 	else:
 		for m in _llamas_mat:
 			m.set_shader_parameter("vida", 1.0)
+
+
+## Al cambiar de opcion la bola aparece ya llena: crece desde un punto de luz con
+## un destello que se apaga (recargarse la hacia pasar por vacia, que es cristal
+## oscuro, y parpadeaba en negro).
+func _aparecer_bolas(prender: bool) -> void:
+	for i in _llamas.size():
+		var m := _llamas_mat[i]
+		m.set_shader_parameter("carga", 1.0)
+		if not prender:
+			_llamas[i].scale = Vector2.ONE
+			m.set_shader_parameter("opacidad", opacidad_bola)
+			m.set_shader_parameter("destello", 0.0)
+			continue
+		if _tw_llamas == null or not _tw_llamas.is_valid():
+			_tw_llamas = create_tween().set_parallel()
+		_tw_llamas.tween_property(_llamas[i], "scale", Vector2.ONE, 0.28).from(Vector2.ONE * 0.45) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_tw_llamas.tween_method(func(v: float) -> void: m.set_shader_parameter("opacidad", v),
+			0.0, opacidad_bola, 0.18)
+		_tw_llamas.tween_method(func(v: float) -> void: m.set_shader_parameter("destello", v),
+			0.45, 0.0, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 
 
 func _cabecera(texto: String, y: float) -> void:

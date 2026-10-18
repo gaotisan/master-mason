@@ -30,7 +30,7 @@ const CENTRO_CRISTAL := Vector2(1360.0, 800.0)
 ## pasar de aqui.
 const ANCHO_UTIL := 760.0
 
-@export var tam_carta: float = 250.0
+@export var tam_carta: float = 220.0
 @export var hueco_carta: float = 54.0
 @export var aparecer: float = 0.6
 @export var apagarse: float = 0.45
@@ -45,6 +45,11 @@ var _en_reposo := true
 var _tw_solo: Tween
 var _cartas: Array[Control] = []
 var _nombre: Label
+## "Volver" del selector, debajo del nombre (como en Opciones); su indice en
+## _opciones (va despues de las cartas) y la carta de la que se bajo a el.
+var _volver: Label
+var _i_volver := -1
+var _carta_antes := 0
 
 
 func _ready() -> void:
@@ -102,11 +107,11 @@ func _abrir_menu() -> void:
 func _aparecer() -> void:
 	_cerrando = true
 	_contenido.modulate.a = 0.0
-	for r in _llamas + [_brillo]:
+	for r in _marcas() + [_brillo]:
 		r.modulate.a = 0.0
 	var tw := create_tween().set_parallel()
 	tw.tween_property(_contenido, "modulate:a", 1.0, aparecer).set_trans(Tween.TRANS_SINE).set_delay(0.3)
-	for r in _llamas + [_brillo]:
+	for r in _marcas() + [_brillo]:
 		tw.tween_property(r, "modulate:a", 1.0, aparecer).set_trans(Tween.TRANS_SINE).set_delay(0.3)
 	tw.chain().tween_callback(func() -> void: _cerrando = false)
 
@@ -116,7 +121,7 @@ func _volver_al_reposo() -> void:
 	titulo.mostrar_letras(true)
 	var tw := create_tween().set_parallel()
 	tw.tween_property(_contenido, "modulate:a", 0.0, 0.3)
-	for r in _llamas + [_brillo]:
+	for r in _marcas() + [_brillo]:
 		tw.tween_property(r, "modulate:a", 0.0, 0.3)
 	tw.chain().tween_callback(func() -> void:
 		_cerrando = false
@@ -185,7 +190,11 @@ func _poner_selector(sel := 0) -> void:
 	# Si no caben entre las velas, las cartas se achican.
 	var tam := minf(tam_carta, (ANCHO_UTIL - (n - 1) * hueco_carta) / n)
 	var x0 := centro_x - (n - 1) * (tam + hueco_carta) * 0.5
-	var y := CENTRO_CRISTAL.y - 20.0
+	# Cabecera, cartas, nombre y Volver, centrados juntos en la placa: el bloque
+	# va de y - tam/2 - 95 (lo alto de la cabecera) a y + tam/2 + 173 (lo bajo
+	# de Volver), asi que su centro queda 39 px por debajo de y. (Sin Volver,
+	# con -20 quedaba mas estrecho arriba que abajo.)
+	var y := CENTRO_CRISTAL.y + 8.0 - 39.0
 	_cabecera("menu.empezar_desde", y - tam * 0.5 - 70.0)
 	var ops := []
 	for i in entradas.size():
@@ -198,10 +207,41 @@ func _poner_selector(sel := 0) -> void:
 		var oscura := _carta(null, Vector2(x0 + entradas.size() * (tam + hueco_carta), y), tam)
 		oscura.modulate = Color(0.45, 0.42, 0.38, 0.55)
 	_nombre = _texto_centrado(" ", FUENTE, tam_opcion, ORO_VIVO, y + tam * 0.5 + 66.0)
+	# Volver, como en Opciones y al mismo tamano: abajo desde las cartas.
+	_volver = _texto_centrado(tr("menu.volver").to_upper(), FUENTE, tam_opcion, ORO_APAGADO,
+		y + tam * 0.5 + 66.0 + paso_opcion * 0.95)
+	_i_volver = ops.size()
+	ops.append({"texto": "menu.volver", "elegir": _poner_menu.bind("nueva")})
 	_opciones = ops
-	_sel = clampi(sel, 0, ops.size() - 1)
+	_sel = clampi(sel, 0, _i_volver - 1)
+	_carta_antes = _sel
 	_atras = _poner_menu.bind("nueva")
 	_marcar(false)
+
+
+## Izquierda/derecha solo entre las cartas (en Volver no hacen nada).
+func _mover(d: int) -> void:
+	if not _horizontal:
+		super(d)
+		return
+	if _sel == _i_volver or _i_volver < 2:
+		return
+	_sel = wrapi(_sel + d, 0, _i_volver)
+	_sonar(SONIDO_MOVER)
+	_marcar(true)
+
+
+## Abajo, de las cartas a Volver; arriba, de vuelta a la carta de antes.
+func _fila(abajo: bool) -> void:
+	if abajo and _sel != _i_volver:
+		_carta_antes = _sel
+		_sel = _i_volver
+		_sonar(SONIDO_MOVER)
+		_marcar(true)
+	elif not abajo and _sel == _i_volver:
+		_sel = _carta_antes
+		_sonar(SONIDO_MOVER)
+		_marcar(true)
 
 
 ## Un cuadro del selector: la miniatura con un marco fino como el del ataud.
@@ -240,6 +280,10 @@ func _marcar(prender: bool) -> void:
 	if not _horizontal:
 		super(prender)
 		return
+	# En Volver ninguna carta esta elegida; el nombre sigue siendo el de la carta
+	# de la que se bajo, apagado.
+	var en_volver := _sel == _i_volver
+	var carta := _carta_antes if en_volver else _sel
 	for i in _cartas.size():
 		var elegida := i == _sel
 		_cartas[i].modulate = Color.WHITE if elegida else Color(0.5, 0.46, 0.42)
@@ -247,10 +291,17 @@ func _marcar(prender: bool) -> void:
 		(_cartas[i].get_meta("marco") as StyleBoxFlat).border_color = Color(ORO, 0.9) if elegida else Color(ORO_APAGADO, 0.55)
 	if _nombre == null or _opciones.is_empty():
 		return
-	_nombre.text = tr(String(_opciones[_sel]["texto"])).to_upper()
+	_nombre.text = tr(String(_opciones[carta]["texto"])).to_upper()
 	_nombre.size = _nombre.get_minimum_size()
 	_nombre.position.x = centro_x - _nombre.size.x * 0.5
-	_flanquear(Rect2(_nombre.position, _nombre.size), prender)
+	_nombre.label_settings.font_color = Color(ORO_APAGADO, 0.78) if en_volver else ORO_VIVO
+	if _volver:
+		_volver.label_settings.font_color = ORO_VIVO if en_volver else Color(ORO_APAGADO, 0.78)
+	if en_volver:
+		_flanquear(Rect2(_volver.position, _volver.size), prender)
+	else:
+		# Sin bolas: se elige por la miniatura, no por el nombre.
+		_flanquear(Rect2(_nombre.position, _nombre.size), prender, false)
 
 
 # ---------------------------------------------------------------- empezar
@@ -282,7 +333,7 @@ func _irse(escena: String) -> void:
 	_cerrando = true
 	var tw := create_tween().set_parallel()
 	tw.tween_property(_contenido, "modulate:a", 0.0, apagarse).set_trans(Tween.TRANS_SINE)
-	for r in _llamas + [_brillo]:
+	for r in _marcas() + [_brillo]:
 		tw.tween_property(r, "modulate:a", 0.0, apagarse).set_trans(Tween.TRANS_SINE)
 	titulo.salir_hacia(escena)
 	tw.chain().tween_callback(queue_free)

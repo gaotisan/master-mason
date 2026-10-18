@@ -99,6 +99,8 @@ static func nombre_guardado() -> String:
 ## el estado del peregrino de ahora. Si el punto es clave, lo desbloquea tambien.
 ## Con marca, se ve la marca de guardado en la esquina.
 static func guardar(arbol: SceneTree, punto: String, marca := true) -> void:
+	if de_pruebas(arbol.current_scene.scene_file_path if arbol.current_scene else ""):
+		return
 	if not PUNTOS.has(punto):
 		push_error("Partida.guardar: punto desconocido '%s'" % punto)
 		return
@@ -127,7 +129,9 @@ static func cargar(arbol: SceneTree) -> String:
 		return ""
 	var r: Dictionary = datos.get("reanudar", {})
 	var escena: String = r.get("escena", "")
-	if escena != "" and ResourceLoader.exists(escena):
+	# Una escena de pruebas apuntada por error (antes de de_pruebas) no se sigue:
+	# se va al ultimo punto.
+	if escena != "" and ResourceLoader.exists(escena) and not de_pruebas(escena):
 		empezar_en(arbol, punto, r.get("hechos", []), r.get("peregrino", {}))
 		arbol.set_meta(META_REANUDAR, r.get("estado", {}))
 		return escena
@@ -135,12 +139,12 @@ static func cargar(arbol: SceneTree) -> String:
 
 
 ## Apunta donde esta el jugador ahora mismo, para que Continuar siga justo ahi.
-## Solo si hay partida (desde el primer punto) y la escena sabe decir donde esta
-## (estado_reanudar(), en ella o en un hijo directo: las de pruebas). Devuelve si
-## apunto algo.
+## Solo si hay partida (desde el primer punto), la escena no es de pruebas
+## (de_pruebas) y sabe decir donde esta (estado_reanudar(), en ella o en un hijo
+## directo). Devuelve si apunto algo.
 static func guardar_reanudar(arbol: SceneTree) -> bool:
 	var escena := arbol.current_scene
-	if escena == null:
+	if escena == null or de_pruebas(escena.scene_file_path):
 		return false
 	var nodo: Node = null
 	for n in [escena] + escena.get_children():
@@ -236,6 +240,15 @@ static func desbloqueados() -> Array:
 		if punto in hay and PUNTOS[punto].get("clave", false):
 			lista.append(punto)
 	return lista
+
+
+## Las escenas de pruebas (scenes/dev, pruebas_camara, pruebas_storyboard) no
+## tocan la partida: se ejecutan a mano o grabando y comparten la carpeta de
+## guardado con el juego. (El 2026-10-18 prueba_luz.tscn apunto "donde seguir"
+## en la partida del usuario, y Continuar llevaba a la hojarasca de pruebas, a
+## oscuras y sin salida.)
+static func de_pruebas(escena: String) -> bool:
+	return escena.begins_with("res://scenes/dev/") or escena.begins_with("res://scenes/pruebas_")
 
 
 static func _leer(ruta: String) -> Dictionary:

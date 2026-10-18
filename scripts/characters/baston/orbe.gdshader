@@ -27,6 +27,12 @@ uniform vec4 mascara_uv = vec4(0.0, 0.0, 0.0, 0.0);
 uniform float con_mascara = 0.0;
 // Todo a la vez (la marca de guardado la hace aparecer y desaparecer).
 uniform float opacidad : hint_range(0.0, 1.0) = 1.0;
+// Hueco: oscurece lo de alrededor de la esfera, como si estuviera engastada (el
+// menu del titulo, sobre la placa clara, para que su luz se lea). 0 = nada.
+uniform float hueco : hint_range(0.0, 1.0) = 0.0;
+// Remolino: cuanto se marca y gira la espiral de dentro (1 la del baculo; los
+// menus la suben, porque en pequeno apenas se veia moverse).
+uniform float remolino : hint_range(0.0, 3.0) = 1.0;
 
 vec3 vidrio(vec3 n) {
 	vec3 l = normalize(vec3(-0.45, -0.65, 0.6));
@@ -62,14 +68,14 @@ void fragment() {
 		float lleno = smoothstep(nivel + ola - 0.05, nivel + ola + 0.05, p.y);
 		// espiral: gira mas rapido cuanta mas carga
 		float ang = atan(p.y, p.x);
-		float giro = TIME * (0.8 + 2.6 * carga);
+		float giro = TIME * (0.8 + 2.6 * carga) * mix(1.0, 1.35, clamp(remolino - 1.0, 0.0, 1.0));
 		float esp = 0.5 + 0.5 * sin(ang * 2.0 + r * 8.0 - giro);
 		float esp2 = 0.5 + 0.5 * sin(ang * 3.0 - r * 5.0 + giro * 0.7);
 		float nucleo = pow(1.0 - r, 1.4);
-		float luz = (0.45 + 0.35 * esp + 0.2 * esp2) * (0.5 + nucleo) * energia;
+		float luz = (0.45 + (0.35 * esp + 0.2 * esp2 - 0.275) * remolino + 0.275) * (0.5 + nucleo) * energia;
 		luz *= 0.82 + 0.25 * dot(nq, normalize(vec3(-0.3, -0.5, 0.8)));
 		// el centro se va a blanco cuando esta cargada: es lo que dice "poder"
-		vec3 caliente = mix(color, vec3(1.0, 0.97, 0.9), nucleo * carga * 0.75);
+		vec3 caliente = mix(color, vec3(1.0, 0.97, 0.9), nucleo * carga * 0.75 / max(remolino, 1.0));
 		vec3 brillo = caliente * luz * 1.6;
 		// la linea de la superficie brilla un poco mas, para leer el nivel
 		float linea = exp(-abs(p.y - (nivel + ola)) * 18.0) * (1.0 - lleno_del_todo);
@@ -98,6 +104,9 @@ void fragment() {
 		}
 		COLOR = vec4(suma, 0.0) * opacidad;
 	} else {
-		COLOR = vec4(rgb + suma, a) * opacidad;
+		// fuera de la esfera, el hueco tapa (alfa) sin pintar: el halo sigue sumando
+		// (r en radios de la esfera; se apaga antes del borde del cuadrado)
+		float oscuro = hueco * (1.0 - smoothstep(1.0, 2.7, r)) * (1.0 - smoothstep(0.8, 1.0, length(UV - 0.5) * 2.0));
+		COLOR = vec4(rgb + suma, a + (1.0 - a) * oscuro) * opacidad;
 	}
 }
