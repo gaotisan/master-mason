@@ -42,7 +42,10 @@ extends Node2D
 ## guardar_baston, de los videos de Flow) cuando el peregrino esta en reposo: se le
 ## bloquea el control mientras dura (control_bloqueado, lo que usan los
 ## niveles) y al acabar queda en el reposo del otro modo. En marcha, o con
-## la animacion sin hacer, cambia en el sitio como antes. Mientras dura, el
+## la animacion sin hacer, cambia en el sitio como antes; en la parada del andar
+## (1,5 s con el en la mano, y parece ya quieto) espera al reposo y la hace entera:
+## cambiaba de golpe y la parada saltaba de fotograma ("sale cortado", el usuario
+## 2026-10-18); si echa a andar antes, en el sitio. Mientras dura, el
 ## baston ya va en el dibujo y la bola va en la garra, por detras del sprite
 ## (cuando la garra pasa por detras de la cabeza, la tapa la cabeza).
 
@@ -108,6 +111,8 @@ var _frames_espalda: SpriteFrames
 var _frames_mano: SpriteFrames
 var _paso_espalda := {}
 var _en_transicion := false
+## Pulsado en la parada del andar: se saca o guarda al llegar al reposo.
+var _pendiente := false
 
 @onready var _orbe: Sprite2D = $Madera/Orbe
 @onready var _luz: Sprite2D = $Madera/Luz
@@ -125,6 +130,7 @@ func _ready() -> void:
 	_sprite = get_parent().get_node("Sprite")
 	_sprite.frame_changed.connect(_colocar)
 	_sprite.animation_changed.connect(_colocar)
+	_sprite.animation_changed.connect(_hacer_pendiente)
 	_mano = JSON.parse_string(FileAccess.open(MANO, FileAccess.READ).get_as_text())
 	if not particulas:
 		for p in [_recarga, _estallido, _chispas]:
@@ -164,9 +170,25 @@ func alternar_mano() -> void:
 		_sprite.play(anim)
 		_colocar()
 		return
+	# parandose: al reposo (otra pulsacion lo anula)
+	if _sprite.animation == &"parada_andar" and _sprite.sprite_frames.has_animation(anim) 			and not peregrino.control_bloqueado:
+		_pendiente = not _pendiente
+		return
 	# En marcha cambia en el sitio, pero solo andando: corriendo, saltando o
 	# agachado no hay version con baston y quedaria a medias.
 	if String(_sprite.animation) in MANO_ANIMS:
+		poner_en_mano(not en_mano)
+
+## Lo pulsado en la parada: al reposo, con su animacion; si sale a otra cosa
+## (vuelve a andar), en el sitio como en marcha.
+func _hacer_pendiente() -> void:
+	if not _pendiente or _sprite.animation == &"parada_andar":
+		return
+	_pendiente = false
+	if _sprite.animation == &"reposo":
+		# fuera de la senal: play() dentro de ella la vuelve a lanzar
+		alternar_mano.call_deferred()
+	elif String(_sprite.animation) in MANO_ANIMS:
 		poner_en_mano(not en_mano)
 
 func _al_acabar_transicion() -> void:

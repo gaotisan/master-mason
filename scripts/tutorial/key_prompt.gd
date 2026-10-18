@@ -17,6 +17,14 @@ signal finished
 ## Tinte y opacidad en reposo: apagado, para que no chille sobre la escena.
 @export var base_tint: Color = Color(0.62, 0.58, 0.53, 0.7)
 @export var success_flash: Color = Color(1.15, 1.05, 0.85, 0.95)
+## Rotulo opcional bajo la tecla (lo que hace, p. ej. "Sacar / guardar"), en la
+## letra de los pensamientos. Vacio, sin rotulo. Se pone antes de anadirla.
+@export var caption: String = ""
+@export var caption_size: int = 46
+@export var caption_color: Color = Color(0.93, 0.88, 0.78)
+@export var caption_gap: float = 18.0
+
+const CAPTION_FONT := preload("res://assets/fonts/IMFellEnglish-Italic.ttf")
 
 # Calibracion de las dos texturas (px de textura): anchura de la tecla, eje
 # central, borde inferior y altura del centro de la cara superior. Sirven para
@@ -39,9 +47,12 @@ var _active := false
 var _time := 0.0
 var _pressed := false
 var _done := false
+var _caption: Label
 
 func _ready() -> void:
 	symbol.color = symbol_color
+	if caption != "":
+		_crear_caption()
 	symbol.size = 100.0
 	if action != &"":
 		symbol.set_from_action(action)
@@ -53,6 +64,28 @@ func _apply_fade() -> void:
 	cap.self_modulate = Color(1, 1, 1, base_tint.a * fade)
 	var k := 0.85 if _pressed else 1.0
 	symbol.modulate = Color(k, k, k, fade * fade)
+	if _caption:
+		_caption.modulate.a = fade
+
+## El rotulo, centrado bajo la base de la tecla. La tecla entera va tenida con
+## base_tint (modulate) y el rotulo, hijo suyo, tambien: su color se divide por
+## el tinte para que salga con el de los pensamientos.
+func _crear_caption() -> void:
+	var ajustes := LabelSettings.new()
+	ajustes.font = CAPTION_FONT
+	ajustes.font_size = caption_size
+	ajustes.font_color = Color(caption_color.r / base_tint.r, caption_color.g / base_tint.g,
+		caption_color.b / base_tint.b, 0.85)
+	ajustes.shadow_color = Color(0, 0, 0, 0.75)
+	ajustes.shadow_size = 12
+	ajustes.shadow_offset = Vector2(0, 3)
+	_caption = Label.new()
+	_caption.label_settings = ajustes
+	_caption.text = tr(caption)
+	_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_caption.size = Vector2(key_size_px * 4.0, caption_size * 1.6)
+	_caption.position = Vector2(-_caption.size.x * 0.5, caption_gap)
+	add_child(_caption)
 
 func setup(p_action: StringName) -> void:
 	action = p_action

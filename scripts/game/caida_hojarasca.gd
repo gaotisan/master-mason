@@ -1377,15 +1377,19 @@ func _acabar_coger() -> void:
 ## (guion 1.8: golpe seco, unas hojas y polvo; sin animacion nueva), siempre. La
 ## primera vez que lo intenta (saltar, o el doble toque de correr), o si a los
 ## ensena_baston_espera s de tener el mando no lo ha intentado, piensa
-## "baculo_mano" y debajo del pensamiento sale la tecla del baston pulsandose
-## (KeyPrompt, la de la intro). Al pulsarla destella y se va; ya guardado piensa
-## "baculo_espalda". Una vez por partida (Partida "baston_aprendido").
+## "baculo_mano" (que pesa, que solo puede andar) y debajo del pensamiento sale
+## la tecla del baston pulsandose (KeyPrompt, la de la intro) con su rotulo
+## "Sacar / guardar". Al pulsarla destella y se va. Ya guardado piensa
+## "baculo_espalda" (mas ligero; algo pasa al agarrarlo) y vuelve la misma tecla
+## con el mismo rotulo, sin obligar: se va al sacarlo o al entrar en el camino
+## (2026-10-18; el usuario: los pensamientos solo comentan, sin "lo quiero en la
+## mano", y un solo paso). Una vez por partida (Partida "baston_aprendido").
 @export_group("Ensenar a guardar el baculo")
 @export var ensena_baston_espera: float = 14.0
 ## Lo que espera tras acabar de pensar lo del camino (al caer con el baculo).
 @export var ensena_tras_camino: float = 1.0
-## Y tras guardarlo (y pensarlo), lo que espera a ensenar a sacarlo.
-@export var ensena_tras_guardar: float = 1.5
+## Lo que espera, ya guardado, a pensarlo y sacar otra vez la tecla.
+@export var ensena_tras_guardar: float = 0.6
 @export var golpe_baculo_db: float = -9.0
 @export var golpe_baculo_tono: float = 1.6
 ## Donde da el pie del baculo, por delante de los pies (px).
@@ -1396,7 +1400,7 @@ func _acabar_coger() -> void:
 @export_group("")
 
 const KEY_PROMPT := preload("res://scenes/tutorial/key_prompt.tscn")
-var _ensena := 0                  # 0 nada; 1 por guardar, 2 con su tecla; 3 por sacar, 4 con su tecla; 5 aprendido
+var _ensena := 0                  # 0 nada; 1 por guardar, 2 con su tecla; 3 guardado (tecla para sacarlo, sin obligar); 5 aprendido
 var _ensena_t := 0.0
 var _ensena_tecla: KeyPrompt
 var _ensena_calma := 0.0          # s sin pensar nada tras lo del camino
@@ -1452,15 +1456,18 @@ func _golpe_del_baculo() -> void:
 	_sonar($SonidoGolpe, golpe_baculo_db, golpe_baculo_tono * randf_range(0.96, 1.04))
 
 ## La tecla del baston con su pensamiento: "guardar" (con el en la mano; piensa
-## "baculo_mano") o "sacar" (a la espalda; piensa "baculo_sacar").
+## "baculo_mano") o "sacar" (ya a la espalda; piensa "baculo_espalda"). La misma
+## tecla y el mismo rotulo en los dos: hace las dos cosas.
 func _mostrar_ensena(paso: String) -> void:
-	_ensena = 2 if paso == "guardar" else 4
-	_pensar.decir("baculo_mano" if paso == "guardar" else "baculo_sacar", true)
+	if paso == "guardar":
+		_ensena = 2
+	_pensar.decir("baculo_mano" if paso == "guardar" else "baculo_espalda", true)
 	var capa := CanvasLayer.new()
 	capa.layer = 15
 	add_child(capa)
 	_ensena_tecla = KEY_PROMPT.instantiate()
 	_ensena_tecla.key_size_px = tecla_tam
+	_ensena_tecla.caption = "ensena.baculo"
 	_ensena_tecla.setup(&"baston")
 	# debajo del pensamiento: en el lado contrario al peregrino (pensamientos.gd)
 	var caja: Vector2 = _pensar.caja_derecha if _peregrino.position.x < ANCHO * 0.5 else _pensar.caja_izquierda
@@ -1486,45 +1493,51 @@ func _vigilar_ensena(delta: float) -> void:
 		return
 	_ensena_t += delta
 	var en_mano: bool = _baston_mano != null and bool(_baston_mano.get("en_mano"))
-	# los momentos de calma: sin pensar nada (tras lo del camino, al caer con el
-	# baculo; o tras guardarlo)
-	if _ensena in [1, 3] and not _pensar.hablando() and (_ensena == 3 or _pensar.dicho("camino")):
+	# la calma tras lo del camino (al caer con el baculo): sin pensar nada
+	if _ensena == 1 and not _pensar.hablando() and _pensar.dicho("camino"):
 		_ensena_calma += delta
 	else:
 		_ensena_calma = 0.0
-	# 1. guardarlo: en cuanto acaba de pensar lo del camino (y un poco despues),
-	# sin esperar a que lo descubra; si no, a los ensena_baston_espera s
-	if _ensena == 1 and en_mano and not _en_camino and not _cogiendo and not _pensar.hablando() 			and (_ensena_calma >= ensena_tras_camino or _ensena_t >= ensena_baston_espera):
+	# guardarlo: en cuanto acaba de pensar lo del camino (y un poco despues), sin
+	# esperar a que lo descubra; si no, a los ensena_baston_espera s. Nunca a
+	# mitad de sacarlo o guardarlo (control bloqueado): salia en pleno guardar
+	if _ensena == 1 and en_mano and not _en_camino and not _cogiendo and not _pensar.hablando() \
+			and not _peregrino.control_bloqueado \
+			and (_ensena_calma >= ensena_tras_camino or _ensena_t >= ensena_baston_espera):
 		_mostrar_ensena("guardar")
 	# la tecla se queda hasta que lo hace (acercarse a la boca no la quita: se iba
 	# antes de poder leerla); solo si se mete en el camino
-	if _ensena in [2, 4] and _en_camino:
+	if _ensena in [2, 3] and _en_camino:
 		_quitar_tecla(false)
+		if _ensena == 3:
+			_ensena = 5
 	if _ensena in [1, 2] and _baston_mano != null and not en_mano:
-		# guardado: lo piensa y, en calma, el segundo paso
+		# guardado: aprendido (ya puede entrar en el camino); lo comenta y vuelve
+		# la tecla, por si lo quiere otra vez en la mano
 		_quitar_tecla(true)
 		_ensena = 3
-		_ensena_calma = 0.0
-		get_tree().create_timer(0.6).timeout.connect(_pensar.decir.bind("baculo_espalda"))
-	elif _ensena == 3 and not en_mano and _ensena_calma >= ensena_tras_guardar and not _en_camino:
-		# 2. sacarlo otra vez (la misma tecla)
-		_mostrar_ensena("sacar")
-	elif _ensena in [3, 4] and en_mano:
-		# las dos cosas aprendidas: ya puede entrar en el camino
+		PARTIDA.marcar(get_tree(), "baston_aprendido")
+		get_tree().create_timer(ensena_tras_guardar).timeout.connect(_ensena_espalda)
+	elif _ensena == 3 and en_mano:
+		# sacado otra vez: fuera la tecla
 		_quitar_tecla(true)
 		_ensena = 5
-		PARTIDA.marcar(get_tree(), "baston_aprendido")
 
-## Quiere entrar en el camino sin haber aprendido a guardar y sacar el baston: no
-## entra (el usuario: "que pase al bosque con eso ya aprendido"); la tecla
-## ensenada tiembla, o sale si aun no estaba.
+## Ya a la espalda: lo piensa y sale la tecla, si sigue a la espalda y fuera del
+## camino (si lo ha vuelto a sacar en ese rato, nada).
+func _ensena_espalda() -> void:
+	var en_mano: bool = _baston_mano != null and bool(_baston_mano.get("en_mano"))
+	if _ensena == 3 and not en_mano and not _en_camino and _ensena_tecla == null:
+		_mostrar_ensena("sacar")
+
+## Quiere entrar en el camino sin haber aprendido a guardar el baston: no entra
+## (el usuario: "que pase al bosque con eso ya aprendido"); la tecla ensenada
+## tiembla, o sale si aun no estaba.
 func _recordar_ensena() -> void:
 	if _ensena_tecla:
 		_ensena_tecla.fail()
 	elif _ensena == 1:
 		_mostrar_ensena("guardar")
-	elif _ensena == 3:
-		_mostrar_ensena("sacar")
 
 ## La tecla del baston (accion "baston": Q o Z, ver Teclas): sacar o guardar el
 ## baston a voluntad en cuanto lo tiene (el usuario, 2026-10-14). De parado, con la
@@ -1544,13 +1557,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _baston_mano == null or not _baston_mano.get("puesto") or _cogiendo:
 		return
 	get_viewport().set_input_as_handled()
-	# la tecla ensenada: destella al pulsarla (lo aprendido, al acabar de guardarlo)
-	if (_ensena == 2 and bool(_baston_mano.get("en_mano"))) or (_ensena == 4 and not bool(_baston_mano.get("en_mano"))):
-		_quitar_tecla(true)
-	elif _ensena == 3 and not bool(_baston_mano.get("en_mano")):
-		# lo saca por su cuenta antes de que se lo ensenemos: sin tecla a medio sacar
-		_ensena = 4
+	var antes := bool(_baston_mano.get("en_mano"))
 	_baston_mano.call("alternar_mano")
+	# la tecla ensenada destella al pulsarla, si de verdad lo saca o lo guarda
+	# (corriendo, con el a la espalda, la tecla no hace nada): lo aprendido, al
+	# acabar de guardarlo
+	var hace := bool(_baston_mano.get("_en_transicion")) or bool(_baston_mano.get("_pendiente")) \
+		or bool(_baston_mano.get("en_mano")) != antes
+	if hace and (_ensena == 2 and antes or _ensena == 3 and not antes):
+		_quitar_tecla(true)
+		if _ensena == 3:
+			# lo saca (con la tecla ya fuera o aun por salir): nada mas que ensenar
+			_ensena = 5
 
 ## La luz de la escena sobre el baston a la espalda (2026-10-14; el usuario: "al
 ## guardarlo a la espalda se ilumina, estando vacio, no tiene sentido"). En la
@@ -2001,9 +2019,9 @@ func _mirar_salida() -> void:
 	if not boca or _peregrino.control_bloqueado or not _sprite.animation in _DE_PIE:
 		return
 	var primera := not PARTIDA.ya(get_tree(), "hojarasca_camino")
-	# al camino solo con el baston aprendido (guardar y sacar): la primera vez no
+	# al camino solo con el baston aprendido (guardarlo): la primera vez no
 	# entra solo, y con arriba se le recuerda la tecla
-	var aprendido := _ensena == 0 or _ensena == 5
+	var aprendido := _ensena in [0, 3, 5]
 	var llega: bool = primera and aprendido and _sprite.animation != &"reposo" and signf(falta) == _peregrino.mirando()
 	if Input.is_action_just_pressed("saltar") and not aprendido:
 		_recordar_ensena()
