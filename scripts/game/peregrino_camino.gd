@@ -87,12 +87,17 @@ const PASADA := 20.0
 
 @export_group("Luz")
 @export var exposicion := 0.85
-## Bruma de su distancia: al salir de la del fondo y delante.
-@export var niebla_lejos := 0.4
-@export var niebla_cerca := 0.05
+## Bruma de su distancia: al salir de la del fondo y delante. Apagada
+## (2026-10-18: "se difumina demasiado en el bosque"; antes 0,4 y 0,05). Sigue
+## saliendo de la bruma del fondo al entrar (vista).
+@export var niebla_lejos := 0.0
+@export var niebla_cerca := 0.0
 ## Bruma en los pies (que se pierden en el suelo), en fraccion de su alto: fija
 ## (60 px) de lejos le comia las piernas y parecia flotar.
 @export var bruma_pies := 0.07
+## Cuanto tapa esa bruma de los pies (0 = nada). Apagada con la de la distancia
+## (antes 0,35).
+@export var bruma_pies_fuerza := 0.0
 ## Lo oscura que es la sombra de contacto y la que alarga hacia la camara (la
 ## luz le viene de detras).
 @export var sombra := 0.5
@@ -315,6 +320,7 @@ func _luz() -> void:
 	_mat.set_shader_parameter("px_por_texel", escala * raiz.global_scale.x)
 	_mat.set_shader_parameter("pies_y", pies.y)
 	_mat.set_shader_parameter("bruma_alto", alto * bruma_pies)
+	_mat.set_shader_parameter("bruma_pies", bruma_pies_fuerza)
 	_mat.set_shader_parameter("ambiente", amb)
 	_mat.set_shader_parameter("exposicion", exposicion)
 	var cerca := clampf(inverse_lerp(_escala_entrada, _escala_hasta, escala), 0.0, 1.0)

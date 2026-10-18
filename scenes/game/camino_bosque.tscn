@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/camino_bosque.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/world/camino_bosque/fondo.png" id="2"]
@@ -10,7 +10,6 @@
 [ext_resource type="Texture2D" path="res://assets/world/camino_bosque/ruido.png" id="8"]
 [ext_resource type="Script" path="res://scripts/game/hojas_otono.gd" id="9"]
 [ext_resource type="Script" path="res://scripts/game/motas_luz.gd" id="10"]
-[ext_resource type="Script" path="res://scripts/game/pajaro_lejano.gd" id="11"]
 [ext_resource type="Script" path="res://scripts/game/hojas_copa.gd" id="12"]
 [ext_resource type="Script" path="res://scripts/game/emu_camino.gd" id="14"]
 [ext_resource type="Shader" path="res://scripts/game/emu_camino.gdshader" id="15"]
@@ -63,10 +62,6 @@ mouse_filter = 2
 script = ExtResource("12")
 medio = ExtResource("6")
 profundidad = ExtResource("5")
-
-[node name="Pajaro" type="Node2D" parent="."]
-script = ExtResource("11")
-medio = ExtResource("6")
 
 [node name="Peregrino" type="Node2D" parent="."]
 script = ExtResource("19")

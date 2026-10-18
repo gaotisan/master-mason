@@ -47,7 +47,7 @@ extends Node2D
 ## CAMARA (2.5D). Respira despacio: deriva y se acerca un pelin, con periodos
 ## que no se repiten, y cada punto se mueve segun su distancia
 ## (profundidad.png): el fondo con paralaje y oclusion en camino_fondo.gdshader;
-## el emu, las hojas, el polvo y los pajaros con paralaje(p, w). La escena va
+## el emu, las hojas y el polvo con paralaje(p, w). La escena va
 ## ampliada un pelin (sobre) para que el movimiento nunca deje ver el borde de
 ## la imagen. Cada cosa se mueve segun su distancia (la
 ## profundidad de la mascara, la de cada hoja y mota): paralaje. Lo lee todo de
@@ -212,7 +212,7 @@ func _ready() -> void:
 	_copa_v.resize(MUELLES)
 	_hasta_racha = _rng.randf_range(1.5, 4.0)
 	_hasta_claro = _rng.randf_range(6.0, 12.0)
-	for n in ["Hojas", "HojasCopa", "Motas", "Pajaro", "Emu", "Peregrino"]:
+	for n in ["Hojas", "HojasCopa", "Motas", "Emu", "Peregrino"]:
 		var nodo := get_node_or_null(n)
 		if nodo:
 			nodo.set("controlador", self)
