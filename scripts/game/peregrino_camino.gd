@@ -86,7 +86,11 @@ const PASADA := 20.0
 @export var pies_tope := 1560.0
 
 @export_group("Luz")
-@export var exposicion := 0.85
+## 1,2 (2026-10-18; antes 0,85): con 0,85 de cerca la tunica quedaba en 0,09,
+## por debajo de los troncos de la foto que tiene al lado (0,15), y los
+## parches no se leian (se veia borroso, sucio). Con 1,2, 0,13: sigue a
+## contraluz. Con 1,4 igualaba a los troncos y parecia iluminado de frente.
+@export var exposicion := 1.2
 ## Bruma de su distancia: al salir de la del fondo y delante. Apagada
 ## (2026-10-18: "se difumina demasiado en el bosque"; antes 0,4 y 0,05). Sigue
 ## saliendo de la bruma del fondo al entrar (vista).

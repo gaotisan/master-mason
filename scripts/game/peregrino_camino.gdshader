@@ -64,7 +64,9 @@ uniform float envolver = 0.25;
 uniform float envolver_px = 7.0;
 uniform float suavizar_px = 1.2;
 uniform float px_por_texel = 1.0;
-uniform vec2 grano = vec2(0.03, 0.08);
+// Grano a 0,4 (2026-10-18): el fondo ya no trae el suyo (mascaras.py, GRANO_H)
+// y con el de antes el peregrino quedaba mas granulado que la niebla.
+uniform vec2 grano = vec2(0.012, 0.032);
 uniform float niebla = 0.1;
 uniform float bruma_pies = 0.35;
 uniform float bruma_alto = 60.0;

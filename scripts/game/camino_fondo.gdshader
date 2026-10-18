@@ -78,7 +78,9 @@ uniform vec3 color_luz : source_color = vec3(1.0, 0.8, 0.55);
 uniform float suelo_luz = 0.3;
 uniform float suelo_y = 1060.0;
 uniform float brisa_suelo = 0.0;   // 0..1, lo que sopla (la copa que mece la luz)
-uniform float grano = 0.012;
+// Grano por fotograma apagado (2026-10-18): en la niebla se leia como ruido
+// que se mueve.
+uniform float grano = 0.0;
 
 void fragment() {
 	vec2 tam = 1.0 / TEXTURE_PIXEL_SIZE;

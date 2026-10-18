@@ -87,7 +87,8 @@ uniform float envolver_px = 9.0;
 uniform float suavizar_px = 1.9;
 uniform float px_por_texel = 1.0;
 // Grano: base y lo que crece con el brillo (como el de la imagen).
-uniform vec2 grano = vec2(0.04, 0.11);
+// A 0,4 desde 2026-10-18: el fondo ya no trae su grano (mascaras.py, GRANO_H).
+uniform vec2 grano = vec2(0.016, 0.044);
 // Niebla de su distancia de pie; al acercarse se va quitando.
 uniform float niebla = 0.1;
 uniform float bruma_pies = 0.55;

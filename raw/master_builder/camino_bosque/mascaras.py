@@ -23,6 +23,10 @@ medido sobre la imagen:
                     las hojas que aun quedan en los arboles), uno cada ~28 px
   profundidad.png (1/2)  R w (inversa de la distancia: 1 lo mas cerca, 0 el
                     fondo), G w del fondo de alrededor (lo mas lejano a ~40 px)
+  fondo.png         la imagen sin su grano moteado (GRANO_H): con el paralaje el
+                    grano "hervia" y en la niebla se leia como niebla o ruido que
+                    se mueve (el usuario, 2026-10-18). Las mascaras se miden
+                    sobre la original.
   detras.png        la imagen sin lo que esta claramente por delante de lo que
                     tiene alrededor (troncos sobre la niebla), rellenado: es lo
                     que se ve cuando la camara se mueve y un tronco cercano
@@ -87,6 +91,9 @@ PARED_BASE = 0.12
 # Distancia al tronco a la que la rama ya se dobla entera (px). La copa es
 # densa: con mas, casi todo quedaba cerca de algun tronco y no se movia.
 FLEX_PX = 70.0
+# Fuerza del quitagrano de fondo.png y detras.png (NL-means). Con 4 no hacia
+# nada; con 7 la niebla queda lisa y las ramas siguen.
+GRANO_H = 7
 
 
 def suave(a, b, x):
@@ -166,8 +173,10 @@ def main():
 	os.makedirs(SALIDA, exist_ok=True)
 	bgr = cv2.imread(os.path.join(AQUI, "fondo_midjourney.png"), cv2.IMREAD_COLOR)
 	assert bgr.shape[:2] == (H, W), bgr.shape
-	cv2.imwrite(os.path.join(SALIDA, "fondo.png"), bgr)
+	limpio = cv2.fastNlMeansDenoisingColored(bgr, None, GRANO_H, GRANO_H, 7, 21)
+	cv2.imwrite(os.path.join(SALIDA, "fondo.png"), limpio)
 	rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
+	rgb_limpio = cv2.cvtColor(limpio, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
 	lum = rgb @ np.array([0.3, 0.59, 0.11], np.float32)
 	# La imagen tiene un grano moteado por todas partes: fuera antes de medir.
 	ls = cv2.GaussianBlur(lum, (0, 0), 1.2)
@@ -197,7 +206,7 @@ def main():
 	medio = cv2.GaussianBlur(rgb, (0, 0), 28)
 
 	# --- Profundidad (w) y lo de detras.
-	w, w_fondo, detras = profundidad(rgb, lum, x, y)
+	w, w_fondo, detras = profundidad(rgb_limpio, lum, x, y)
 	prof = 1.0 - w
 	lum4 = cv2.resize(ls, (W // 4, H // 4), interpolation=cv2.INTER_AREA)
 	haces = rayos(lum4, 4)
