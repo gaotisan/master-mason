@@ -128,9 +128,11 @@ func _ready() -> void:
 	_reten = _arriba()
 	var e: Dictionary = Estado.leer(get_tree())
 	if not e.is_empty():
-		baston_en_mano = e["baston_en_mano"]
-		magia = e["magia"]
-		magia_recarga = e["magia_recarga"]
+		# Con get: las partidas guardadas antes de la magia no traen sus campos, y
+		# con [] el _ready se rompia antes de crear al peregrino (no salia).
+		baston_en_mano = bool(e.get("baston_en_mano", baston_en_mano))
+		magia = float(e.get("magia", magia))
+		magia_recarga = float(e.get("magia_recarga", magia_recarga))
 	else:
 		for a in OS.get_cmdline_user_args():
 			if a in ["espalda", "mano"]:

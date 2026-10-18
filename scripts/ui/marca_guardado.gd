@@ -1,10 +1,12 @@
 extends CanvasLayer
 ## Marca de guardado (2026-10-17; el usuario: al pasar ciertos puzles "se ve en
 ## pantalla una marca de guardado"). En la esquina de abajo a la derecha, la bola
-## del baculo (orbe.gdshader, la misma del baston): aparece vacia, se llena de
-## luz mientras guarda, y al llenarse da un destello, suelta una onda de luz y
-## sale "Guardado" al lado; late un poco y se vacia apagandose. No para nada ni
-## pide nada. (Hasta el 2026-10-18 era una llamita; al usuario no le gustaba.)
+## del baculo (orbe.gdshader, la misma del baston) cargandose como en el juego:
+## aparece vacia, sube el liquido de luz y gira mas la espiral mientras entran
+## motas de luz en ella; llena, late con su resplandor, suben unas chispas y sale
+## "Guardado" al lado. Luego se apaga fundiendose. No para nada ni pide nada.
+## (Hasta el 2026-10-18 era una llamita; luego la bola con una onda y un
+## destello, "demasiado futurista"; luego con la garra del baculo, que no era.)
 ##
 ## La pone Partida.guardar() colgada de la raiz, no de la escena, para que siga
 ## si la escena cambia mientras esta a la vista.
@@ -14,15 +16,14 @@ const ORO_APAGADO := Color(0.68, 0.55, 0.35)
 const ANCHO := 2912.0
 const ALTO := 1632.0
 const ORBE := preload("res://scripts/characters/baston/orbe.gdshader")
-const ONDA := preload("res://scripts/ui/onda_guardado.gdshader")
+const LUZ := preload("res://scripts/characters/baston/luz_orbe.gdshader")
+const MOTAS := preload("res://scripts/ui/motas_carga.gdshader")
 
-## Tiempos (s): aparecer, llenarse, quedarse llena y vaciarse apagandose.
+## Tiempos (s): aparecer, cargarse, quedarse llena y apagarse.
 @export var aparecer: float = 0.5
-@export var llenarse: float = 1.4
+@export var cargarse: float = 1.8
 @export var quedarse: float = 1.8
-@export var apagarse: float = 1.0
-## Cuanto tarda en abrirse la onda de luz al llenarse.
-@export var onda: float = 1.1
+@export var apagarse: float = 0.9
 ## Separacion de los bordes de la pantalla (px de la imagen 2912x1632).
 @export var margen: Vector2 = Vector2(110.0, 90.0)
 ## Radio de la bola en pantalla (px).
@@ -33,8 +34,13 @@ const ONDA := preload("res://scripts/ui/onda_guardado.gdshader")
 const RADIO_EN_CUADRO := 0.32
 
 var _mat: ShaderMaterial
-var _mat_onda: ShaderMaterial
+var _mat_luz: ShaderMaterial
+var _mat_motas: ShaderMaterial
 var _texto: Label
+var _vida := 0.0
+var _carga := 0.0
+var _recarga := 0.0
+var _chispas := 0.0
 
 
 func _ready() -> void:
@@ -43,30 +49,23 @@ func _ready() -> void:
 	var lado := radio_bola / RADIO_EN_CUADRO * 2.0
 	var centro := Vector2(ANCHO, ALTO) - margen - Vector2(lado, lado) * 0.5
 
-	# La onda, por debajo de la bola y en un cuadrado mayor para que se abra.
-	var lado_onda := lado * 1.9
-	var anillo := ColorRect.new()
-	anillo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	anillo.size = Vector2(lado_onda, lado_onda)
-	anillo.position = centro - anillo.size * 0.5
-	_mat_onda = ShaderMaterial.new()
-	_mat_onda.shader = ONDA
-	_mat_onda.set_shader_parameter("radio_bola", radio_bola / (lado_onda * 0.5))
-	_mat_onda.set_shader_parameter("avance", 0.0)
-	anillo.material = _mat_onda
-	add_child(anillo)
+	# Su resplandor sobre lo de alrededor (el de luz_orbe en el juego).
+	_mat_luz = ShaderMaterial.new()
+	_mat_luz.shader = LUZ
+	_rect(centro, radio_bola * 6.0, _mat_luz)
 
-	var bola := ColorRect.new()
-	bola.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bola.size = Vector2(lado, lado)
-	bola.position = centro - bola.size * 0.5
 	_mat = ShaderMaterial.new()
 	_mat.shader = ORBE
 	_mat.set_shader_parameter("radio", RADIO_EN_CUADRO)
-	_mat.set_shader_parameter("carga", 0.0)
-	_mat.set_shader_parameter("opacidad", 0.0)
-	bola.material = _mat
-	add_child(bola)
+	_rect(centro, lado, _mat)
+
+	# Las motas que entran y las chispas que suben, en un cuadrado mayor.
+	var lado_motas := radio_bola * 6.5
+	_mat_motas = ShaderMaterial.new()
+	_mat_motas.shader = MOTAS
+	_mat_motas.set_shader_parameter("radio_bola", radio_bola / (lado_motas * 0.5))
+	_mat_motas.set_shader_parameter("semilla", randf() * 50.0)
+	_rect(centro, lado_motas, _mat_motas)
 
 	var ajustes := LabelSettings.new()
 	ajustes.font = FUENTE
@@ -82,27 +81,47 @@ func _ready() -> void:
 	add_child(_texto)
 	# Con el tamano ya calculado: a la izquierda de la bola, a su altura.
 	_texto.size = _texto.get_minimum_size()
-	_texto.position = Vector2(centro.x - radio_bola - 26.0 - _texto.size.x, centro.y - _texto.size.y * 0.5)
+	_texto.position = Vector2(centro.x - radio_bola - 30.0 - _texto.size.x, centro.y - _texto.size.y * 0.5)
 	_texto.modulate.a = 0.0
 
+	_aplicar()
 	var tw := create_tween()
-	tw.tween_method(_param.bind("opacidad"), 0.0, 1.0, aparecer).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tw.tween_method(_param.bind("carga"), 0.0, 1.0, llenarse).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	# Llena: destello, la onda y el texto, a la vez.
-	tw.tween_method(_param.bind("destello"), 0.6, 0.0, 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.parallel().tween_method(_onda, 0.0, 1.0, onda).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_method(_poner.bind("vida"), 0.0, 1.0, aparecer).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	# Se carga: las motas entran mientras sube la luz.
+	tw.tween_method(_poner.bind("recarga"), 0.0, 1.0, 0.3)
+	tw.parallel().tween_method(_poner.bind("carga"), 0.0, 1.0, cargarse).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	# Llena: dejan de entrar motas, suben chispas y sale el texto.
+	tw.tween_method(_poner.bind("recarga"), 1.0, 0.0, 0.5)
+	tw.parallel().tween_method(_poner.bind("chispas"), 0.0, 1.0, 0.5)
 	tw.parallel().tween_property(_texto, "modulate:a", 0.85, 0.5)
-	tw.tween_interval(maxf(quedarse - 0.6, 0.0))
-	# Se vacia apagandose.
-	tw.tween_method(_param.bind("carga"), 1.0, 0.35, apagarse).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tw.parallel().tween_method(_param.bind("opacidad"), 1.0, 0.0, apagarse).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tw.tween_interval(maxf(quedarse - 0.5, 0.0))
+	tw.tween_method(_poner.bind("vida"), 1.0, 0.0, apagarse).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tw.parallel().tween_property(_texto, "modulate:a", 0.0, apagarse * 0.8)
 	tw.tween_callback(queue_free)
 
 
-func _param(v: float, nombre: String) -> void:
-	_mat.set_shader_parameter(nombre, v)
+func _rect(centro: Vector2, lado: float, mat: ShaderMaterial) -> void:
+	var r := ColorRect.new()
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.size = Vector2(lado, lado)
+	r.position = centro - r.size * 0.5
+	r.material = mat
+	add_child(r)
 
 
-func _onda(v: float) -> void:
-	_mat_onda.set_shader_parameter("avance", v)
+func _poner(v: float, que: String) -> void:
+	match que:
+		"vida": _vida = v
+		"carga": _carga = v
+		"recarga": _recarga = v
+		"chispas": _chispas = v
+	_aplicar()
+
+
+func _aplicar() -> void:
+	_mat.set_shader_parameter("carga", _carga)
+	_mat.set_shader_parameter("opacidad", _vida)
+	_mat_luz.set_shader_parameter("carga", _carga)
+	_mat_luz.set_shader_parameter("fuerza", 0.22 * _vida)
+	_mat_motas.set_shader_parameter("recarga", _recarga * _vida)
+	_mat_motas.set_shader_parameter("chispas", _chispas * _vida)
