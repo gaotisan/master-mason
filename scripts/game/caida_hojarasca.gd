@@ -718,6 +718,8 @@ func _soplar(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	_vigilar_ensena(delta)
+	_deshacer_suelo(delta)
+	_poner_tunel()
 	_soplar(delta)
 	_animar_a_explorar(delta)
 	# Con racha caen mas hojas de arriba.
@@ -1311,6 +1313,10 @@ func _acabar_coger() -> void:
 ## "baculo_espalda". Una vez por partida (Partida "baston_aprendido").
 @export_group("Ensenar a guardar el baculo")
 @export var ensena_baston_espera: float = 14.0
+## Lo que espera tras acabar de pensar lo del camino (al caer con el baculo).
+@export var ensena_tras_camino: float = 1.0
+## Y tras guardarlo (y pensarlo), lo que espera a ensenar a sacarlo.
+@export var ensena_tras_guardar: float = 1.5
 @export var golpe_baculo_db: float = -9.0
 @export var golpe_baculo_tono: float = 1.6
 ## Donde da el pie del baculo, por delante de los pies (px).
@@ -1321,13 +1327,26 @@ func _acabar_coger() -> void:
 @export_group("")
 
 const KEY_PROMPT := preload("res://scenes/tutorial/key_prompt.tscn")
-var _ensena := 0                  # 0 nada, 1 en la mano sin aprender, 2 con la tecla a la vista, 3 aprendido
+var _ensena := 0                  # 0 nada; 1 por guardar, 2 con su tecla; 3 por sacar, 4 con su tecla; 5 aprendido
 var _ensena_t := 0.0
 var _ensena_tecla: KeyPrompt
+var _ensena_calma := 0.0          # s sin pensar nada tras lo del camino
 var _ensena_lado := {}            # accion de direccion -> _ensena_t de su ultima pulsacion (doble toque)
 
+## Lo que el peregrino puede hacer ahora, para los controles del menu de pausa
+## (scripts/ui/menu_pausa.gd): el baculo, solo cuando ya lo tiene.
+func controles_disponibles() -> Array:
+	var lista := [
+		{"acciones": [&"mover_izquierda", &"mover_derecha"], "texto": "controles.andar", "nota": "controles.correr"},
+		{"acciones": [&"saltar"], "texto": "controles.saltar"},
+		{"acciones": [&"agacharse"], "texto": "controles.agacharse", "nota": "controles.tumbarse"},
+	]
+	if _resuelta:
+		lista.append({"acciones": [&"baston"], "texto": "controles.baculo", "nota": "controles.baculo_mano"})
+	return lista
+
 func _empezar_ensena_baston() -> void:
-	_ensena = 3 if PARTIDA.ya(get_tree(), "baston_aprendido") else 1
+	_ensena = 5 if PARTIDA.ya(get_tree(), "baston_aprendido") else 1
 	_ensena_t = 0.0
 
 ## Con el baston en la mano, de pie, con el mando y fuera de la boca del camino
@@ -1349,7 +1368,7 @@ func _input(event: InputEvent) -> void:
 				intenta = true
 			_ensena_lado[lado] = _ensena_t
 	if intenta and _ensena == 1:
-		_mostrar_ensena()
+		_mostrar_ensena("guardar")
 
 ## El pie del baculo contra el suelo: unas hojas saltan, un poco de polvo y un
 ## golpe seco (el sordo de la hojarasca, mas agudo y bajo).
@@ -1363,9 +1382,11 @@ func _golpe_del_baculo() -> void:
 	_polvo_paso.restart()
 	_sonar($SonidoGolpe, golpe_baculo_db, golpe_baculo_tono * randf_range(0.96, 1.04))
 
-func _mostrar_ensena() -> void:
-	_ensena = 2
-	_pensar.decir("baculo_mano", true)
+## La tecla del baston con su pensamiento: "guardar" (con el en la mano; piensa
+## "baculo_mano") o "sacar" (a la espalda; piensa "baculo_sacar").
+func _mostrar_ensena(paso: String) -> void:
+	_ensena = 2 if paso == "guardar" else 4
+	_pensar.decir("baculo_mano" if paso == "guardar" else "baculo_sacar", true)
 	var capa := CanvasLayer.new()
 	capa.layer = 15
 	add_child(capa)
@@ -1392,18 +1413,49 @@ func _quitar_tecla(acierto: bool) -> void:
 
 ## Cada fotograma: la espera hasta ensenarlo y, ya guardado, lo aprendido.
 func _vigilar_ensena(delta: float) -> void:
-	if _ensena == 0 or _ensena == 3:
+	if _ensena == 0 or _ensena == 5:
 		return
 	_ensena_t += delta
-	if _ensena == 1 and _ensena_t >= ensena_baston_espera and _con_baston_en_mano() and not _pensar.hablando():
-		_mostrar_ensena()
-	if _ensena == 2 and (_en_boca or _en_camino):
+	var en_mano: bool = _baston_mano != null and bool(_baston_mano.get("en_mano"))
+	# los momentos de calma: sin pensar nada (tras lo del camino, al caer con el
+	# baculo; o tras guardarlo)
+	if _ensena in [1, 3] and not _pensar.hablando() and (_ensena == 3 or _pensar.dicho("camino")):
+		_ensena_calma += delta
+	else:
+		_ensena_calma = 0.0
+	# 1. guardarlo: en cuanto acaba de pensar lo del camino (y un poco despues),
+	# sin esperar a que lo descubra; si no, a los ensena_baston_espera s
+	if _ensena == 1 and en_mano and not _en_camino and not _cogiendo and not _pensar.hablando() 			and (_ensena_calma >= ensena_tras_camino or _ensena_t >= ensena_baston_espera):
+		_mostrar_ensena("guardar")
+	# la tecla se queda hasta que lo hace (acercarse a la boca no la quita: se iba
+	# antes de poder leerla); solo si se mete en el camino
+	if _ensena in [2, 4] and _en_camino:
 		_quitar_tecla(false)
-	if _baston_mano != null and not bool(_baston_mano.get("en_mano")):
+	if _ensena in [1, 2] and _baston_mano != null and not en_mano:
+		# guardado: lo piensa y, en calma, el segundo paso
 		_quitar_tecla(true)
 		_ensena = 3
-		PARTIDA.marcar(get_tree(), "baston_aprendido")
+		_ensena_calma = 0.0
 		get_tree().create_timer(0.6).timeout.connect(_pensar.decir.bind("baculo_espalda"))
+	elif _ensena == 3 and not en_mano and _ensena_calma >= ensena_tras_guardar and not _en_camino:
+		# 2. sacarlo otra vez (la misma tecla)
+		_mostrar_ensena("sacar")
+	elif _ensena in [3, 4] and en_mano:
+		# las dos cosas aprendidas: ya puede entrar en el camino
+		_quitar_tecla(true)
+		_ensena = 5
+		PARTIDA.marcar(get_tree(), "baston_aprendido")
+
+## Quiere entrar en el camino sin haber aprendido a guardar y sacar el baston: no
+## entra (el usuario: "que pase al bosque con eso ya aprendido"); la tecla
+## ensenada tiembla, o sale si aun no estaba.
+func _recordar_ensena() -> void:
+	if _ensena_tecla:
+		_ensena_tecla.fail()
+	elif _ensena == 1:
+		_mostrar_ensena("guardar")
+	elif _ensena == 3:
+		_mostrar_ensena("sacar")
 
 ## La tecla del baston (accion "baston": Q o Z, ver Teclas): sacar o guardar el
 ## baston a voluntad en cuanto lo tiene (el usuario, 2026-10-14). De parado, con la
@@ -1424,8 +1476,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	get_viewport().set_input_as_handled()
 	# la tecla ensenada: destella al pulsarla (lo aprendido, al acabar de guardarlo)
-	if _ensena == 2 and bool(_baston_mano.get("en_mano")):
+	if (_ensena == 2 and bool(_baston_mano.get("en_mano"))) or (_ensena == 4 and not bool(_baston_mano.get("en_mano"))):
 		_quitar_tecla(true)
+	elif _ensena == 3 and not bool(_baston_mano.get("en_mano")):
+		# lo saca por su cuenta antes de que se lo ensenemos: sin tecla a medio sacar
+		_ensena = 4
 	_baston_mano.call("alternar_mano")
 
 ## La luz de la escena sobre el baston a la espalda (2026-10-14; el usuario: "al
@@ -1867,13 +1922,23 @@ const _DE_PIE := [&"reposo", &"arranque_andar", &"andar", &"parada_andar",
 func _mirar_salida() -> void:
 	var falta := wrapf(salida_x - _magnus.position.x, -ANCHO / 2.0, ANCHO / 2.0)
 	var boca := _camino_abierto and not _en_camino and not _cogiendo and absf(falta) <= salida_boca
-	if boca != _en_boca:
-		_en_boca = boca
-		_magnus.salto_bloqueado = boca
+	_en_boca = boca
+	# en la boca no se salta (arriba es entrar) y con el baston en la mano tampoco
+	# (baston.gd, PASO_MANO): al salir de la boca se le quitaba el bloqueo aunque
+	# lo llevara en la mano, y saltaba con el
+	var bloqueo := boca or (_baston_mano != null and bool(_baston_mano.get("en_mano")))
+	if _magnus.salto_bloqueado != bloqueo:
+		_magnus.salto_bloqueado = bloqueo
 	if not boca or _magnus.control_bloqueado or not _sprite.animation in _DE_PIE:
 		return
 	var primera := not PARTIDA.ya(get_tree(), "hojarasca_camino")
-	var llega: bool = primera and _sprite.animation != &"reposo" and signf(falta) == _magnus.mirando()
+	# al camino solo con el baston aprendido (guardar y sacar): la primera vez no
+	# entra solo, y con arriba se le recuerda la tecla
+	var aprendido := _ensena == 0 or _ensena == 5
+	var llega: bool = primera and aprendido and _sprite.animation != &"reposo" and signf(falta) == _magnus.mirando()
+	if Input.is_action_just_pressed("saltar") and not aprendido:
+		_recordar_ensena()
+		return
 	if llega or Input.is_action_just_pressed("saltar"):
 		_entrar_al_camino()
 
@@ -1908,6 +1973,9 @@ func _entrar_al_camino() -> void:
 	f.set_process(false)
 	_al_perfil_ya = true
 	var puente := _puente_perfil()
+	# al girarse, el bosque le llama: una racha del claro hacia el camino que le
+	# levanta las hojas de los pies (le cruzan por delante en el cambio de dibujo)
+	_rafaga_de_entrada(pies0.x)
 	puente.jugar(nombre, false, pies0, Vector2(dir, 1.0), pies0, Vector2(dir, 1.0))
 	_magnus.visible = false
 	await puente.acabado
@@ -1921,6 +1989,7 @@ func _entrar_al_camino() -> void:
 	# 2026-10-17: girarse ya es la decision; volver de frente al perfil no se puede)
 	_entrando = true
 	_cerrar_claro()
+	_acercar_camara()
 
 ## EL CLARO SE CIERRA (2026-10-17; el usuario: el bosque de Dominus va siempre
 ## con cambios de camara y el lateral es para los mundos de los libros del
@@ -1942,10 +2011,29 @@ func _entrar_al_camino() -> void:
 @export var cierre_suave: float = 80.0
 @export var cierre_dura: float = 3.5
 @export var cierre_color: Color = Color(0.03, 0.024, 0.02)
+## El labio de bruma del borde (coge algo de la luz del camino) y lo que se ve.
+@export var cierre_niebla: Color = Color(0.33, 0.25, 0.2)
+@export var cierre_labio: float = 0.35
+## Con el claro cerrado, los lados del bosque a oscuro (gradacion.gdshader): lo
+## ancho que queda vivo el pasillo del camino (fraccion del ancho de pantalla).
+@export var cierre_tunel_ancho: float = 0.13
+## Las hojas que se levantan en el borde mientras sube (por segundo) y la racha
+## al girarse (fuerza, como _racha, y hojas que le cruzan por delante).
+@export var cierre_hojas_s: float = 45.0
+@export var entrada_racha: float = 1.3
+@export var entrada_hojas: int = 26
+## El empuje de camara hacia el camino mientras se adentra (zoom de mas y px,
+## como el final del agarre: con eso no asoma el borde de la imagen).
+@export var entrada_zoom: float = 0.085
+@export var entrada_lado: float = 120.0
+@export var entrada_camara_dura: float = 4.5
 @export_group("")
 
 var _nada: ColorRect
 var _nada_mat: ShaderMaterial
+var _nada_u := 0.0                      # lo cerrado (0..1)
+var _cerrando := false                  # el suelo se deshace (hojas que se levantan en el borde)
+var _tunel := 0.0                       # los lados del bosque a oscuro (gradacion.gdshader)
 
 func _montar_nada() -> void:
 	_nada = ColorRect.new()
@@ -1962,14 +2050,31 @@ func _montar_nada() -> void:
 	_nada_mat.set_shader_parameter("camino_ancho", cierre_boca_ancho)
 	_nada_mat.set_shader_parameter("ancho_mundo", ANCHO)
 	_nada_mat.set_shader_parameter("color", Vector3(cierre_color.r, cierre_color.g, cierre_color.b))
+	# la bruma del borde y de dentro: ruido suave que se repite (sin costuras)
+	var ruido := NoiseTexture2D.new()
+	ruido.width = 256
+	ruido.height = 256
+	ruido.seamless = true
+	var fn := FastNoiseLite.new()
+	fn.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	fn.frequency = 0.012
+	fn.fractal_octaves = 3
+	ruido.noise = fn
+	_nada_mat.set_shader_parameter("ruido", ruido)
+	_nada_mat.set_shader_parameter("niebla", Vector3(cierre_niebla.r, cierre_niebla.g, cierre_niebla.b))
+	_nada_mat.set_shader_parameter("labio", cierre_labio)
 	_nada.material = _nada_mat
 	add_child(_nada)
 	move_child(_nada, $HojasDelante.get_index() + 1)
-	_poner_nada(1.0 if PARTIDA.ya(get_tree(), "claro_cerrado") else 0.0)
+	var cerrado := PARTIDA.ya(get_tree(), "claro_cerrado")
+	_poner_nada(1.0 if cerrado else 0.0)
+	_tunel = 1.0 if cerrado else 0.0
+	_nada_mat.set_shader_parameter("labio_lados", 0.0 if cerrado else 1.0)
 
 ## u de 0 (claro entero) a 1 (cerrado): la nada sube desde abajo hasta el borde y
 ## se espesa en el primer tercio.
 func _poner_nada(u: float) -> void:
+	_nada_u = u
 	_nada_mat.set_shader_parameter("subida", u * u * (3.0 - 2.0 * u))
 	_nada_mat.set_shader_parameter("alfa", clampf(u * 3.0, 0.0, 1.0))
 	_nada.visible = u > 0.0
@@ -1978,7 +2083,77 @@ func _cerrar_claro() -> void:
 	if PARTIDA.ya(get_tree(), "claro_cerrado"):
 		return
 	PARTIDA.marcar(get_tree(), "claro_cerrado")
-	create_tween().tween_method(_poner_nada, 0.0, 1.0, cierre_dura)
+	_cerrando = true
+	var tw := create_tween()
+	tw.tween_method(_poner_nada, 0.0, 1.0, cierre_dura)
+	tw.tween_callback(func() -> void: _cerrando = false)
+	# los lados del bosque se apagan con ella (solo queda el pasillo del camino) y,
+	# ya cerrado, el labio de bruma se queda solo en la boca
+	create_tween().tween_property(self, "_tunel", 1.0, cierre_dura).set_trans(Tween.TRANS_SINE)
+	tw.tween_method(func(v: float) -> void: _nada_mat.set_shader_parameter("labio_lados", v), 1.0, 0.0, 1.5)
+
+## El tunel de la gradacion: donde cae la boca del camino en la pantalla (la camara
+## se mueve) y cuanto.
+func _poner_tunel() -> void:
+	var m := ($Gradacion/Pase as ColorRect).material as ShaderMaterial
+	m.set_shader_parameter("tunel", _tunel)
+	if _tunel <= 0.0:
+		return
+	var en_pantalla := get_viewport().get_canvas_transform() * Vector2(salida_x, 1050.0)
+	m.set_shader_parameter("tunel_x", en_pantalla.x / get_viewport().get_visible_rect().size.x)
+	m.set_shader_parameter("tunel_ancho", cierre_tunel_ancho * _camara.zoom.x)
+
+## Donde esta el borde de la nada en x, con lo que lleva cerrado (como el shader,
+## sin la ondulacion).
+func _borde_nada(x: float) -> float:
+	var dx := wrapf(x - salida_x, -ANCHO / 2.0, ANCHO / 2.0)
+	var b := lerpf(cierre_borde_lejos, cierre_borde, exp(-(dx * dx) / (cierre_boca_ancho * cierre_boca_ancho)))
+	var s := _nada_u * _nada_u * (3.0 - 2.0 * _nada_u)
+	return lerpf(1632.0 + cierre_suave + 60.0, b, s)
+
+## Mientras sube la nada, el suelo se deshace: en el borde, las hojas de arriba de
+## los montones se levantan un poco y vuelven a caer dentro (se las traga).
+func _deshacer_suelo(delta: float) -> void:
+	if not _cerrando:
+		return
+	var n := int(cierre_hojas_s * delta) + (1 if randf() < fmod(cierre_hojas_s * delta, 1.0) else 0)
+	for i in n:
+		var x := randf_range(_camara.position.x + _respira.x - 1400.0, _camara.position.x + _respira.x + 1400.0)
+		var capa: Node2D = _delante if randf() < 0.6 else _detras
+		if absf(float(capa.call("tope", x)) - _borde_nada(x)) > 45.0:
+			continue
+		for h in capa.call("tomar", x - 12.0, x + 12.0, 1, 1, 1.0):
+			capa.call("lanzar", h, Vector2(randf_range(-90.0, 90.0), -randf_range(160.0, 420.0)))
+
+## Al girarse para entrar en el camino: una racha del claro hacia el camino (las
+## copas se mecen, suena el viento) y las hojas de sus pies se levantan y le
+## cruzan por delante y por detras, unas mas altas que otras, durante el giro.
+func _rafaga_de_entrada(x0: float) -> void:
+	_racha_dir = signf(salida_x - 1456.0) if not is_equal_approx(salida_x, 1456.0) else 1.0
+	_racha_espera = maxf(_racha_espera, 8.0)
+	var tw := create_tween()
+	tw.tween_property(self, "_racha", entrada_racha, 0.45).set_trans(Tween.TRANS_SINE)
+	tw.tween_property(self, "_racha", 0.0, 2.8).set_trans(Tween.TRANS_SINE)
+	_sonar($SonidoLevantarse, hojas_levantarse_db - 2.0, 1.05)
+	# el cambio de dibujo del puente cae a 0,17-0,25 s: las hojas salen enseguida y
+	# rapidas para estar a la altura del cuerpo justo entonces; una tanda (las
+	# primeras, de la capa de delante) pegada a el, que le cruza por delante
+	for i in entrada_hojas:
+		var pegada := i < entrada_hojas / 3
+		var capa: Node2D = _delante if pegada or i % 3 != 0 else _detras
+		var x := x0 + (randf_range(-70.0, 70.0) if pegada else randf_range(-210.0, 210.0))
+		get_tree().create_timer(randf_range(0.0, 0.08 if pegada else 0.16)).timeout.connect(func() -> void:
+			for h in capa.call("tomar", x - 15.0, x + 15.0, 1, 1, 1.0):
+				var hacia := signf(x0 - x)
+				capa.call("lanzar", h, Vector2(hacia * randf_range(40.0, 200.0) + _racha_dir * 90.0,
+						-randf_range(950.0, 1350.0))))
+
+## Mientras se adentra, la camara se acerca despacio al camino (prepara el corte).
+func _acercar_camara() -> void:
+	var tw := create_tween().set_parallel()
+	tw.tween_property(self, "_cine_zoom", entrada_zoom, entrada_camara_dura).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tw.tween_property(self, "_cam_fija", _cam_fija + Vector2(signf(salida_x - 1456.0) * entrada_lado, 0.0),
+			entrada_camara_dura).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 ## El de perfil, quieto, lleva su respiracion al fotograma f del reposo por el
 ## camino corto, a 24 fps (exhala o inspira deprisa; 0,2-0,3 s como mucho): de
@@ -2018,6 +2193,11 @@ func _llegar_del_camino(con_baston: bool) -> void:
 	_ultima_x = pies0.x
 	_cam_fija = _respira
 	_cam_quieta = 1.0
+	# con el encuadre con el que se fue (el acercamiento de la entrada): es un
+	# plano del camino, no el escenario abierto de antes (que parecia jugable)
+	if PARTIDA.ya(get_tree(), "claro_cerrado"):
+		_cine_zoom = entrada_zoom
+		_cam_fija += Vector2(signf(salida_x - 1456.0) * entrada_lado, 0.0)
 	_pedir_camino()
 	_crear_frontal(con_baston, salida_entra, 1.0, pies0)
 	_retenida = "frente" if Input.is_action_pressed("saltar") else ""
