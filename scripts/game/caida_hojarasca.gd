@@ -1567,12 +1567,13 @@ func _ensena_espalda() -> void:
 func _recordar_ensena() -> void:
 	if _ensena_tecla:
 		_ensena_tecla.fail()
-	elif _ensena == 1:
+	elif _ensena in [1, 2]:
+		# (2: pulso para guardarlo y se lo penso, frenando, con otra pulsacion)
 		_mostrar_ensena("guardar")
 
 ## La tecla del baston (accion "baston": Q o Z, ver Teclas): sacar o guardar el
 ## baston a voluntad en cuanto lo tiene (el usuario, 2026-10-14). De parado, con la
-## animacion de sacar o guardar; andando, en el sitio (baston.gd: alternar_mano).
+## animacion de sacar o guardar; andando, frena y la hace (baston.gd: alternar_mano).
 ## Con el baculo clavado no hace nada: el nodo de las acciones, que la ve antes,
 ## se la queda.
 func _unhandled_input(event: InputEvent) -> void:

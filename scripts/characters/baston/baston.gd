@@ -41,11 +41,10 @@ extends Node2D
 ## Sacar y guardar (alternar_mano) van con su animacion (sacar_baston,
 ## guardar_baston, de los videos de Flow) cuando el peregrino esta en reposo: se le
 ## bloquea el control mientras dura (control_bloqueado, lo que usan los
-## niveles) y al acabar queda en el reposo del otro modo. En marcha, o con
-## la animacion sin hacer, cambia en el sitio como antes; en la parada del andar
-## (1,5 s con el en la mano, y parece ya quieto) espera al reposo y la hace entera:
-## cambiaba de golpe y la parada saltaba de fotograma ("sale cortado", el usuario
-## 2026-10-18); si echa a andar antes, en el sitio. Mientras dura, el
+## niveles) y al acabar queda en el reposo del otro modo. Andando, frena y la
+## hace entera al quedarse quieto (ver alternar_mano; antes cambiaba en el
+## sitio, de golpe: "queda fatal", el usuario 2026-10-19). Solo sin la
+## animacion cambia en el sitio. Mientras dura, el
 ## baston ya va en el dibujo y la bola va en la garra, por detras del sprite
 ## (cuando la garra pasa por detras de la cabeza, la tapa la cabeza).
 
@@ -82,6 +81,8 @@ const MANO_ANIMS := ["andar", "arranque_andar", "parada_andar", "reposo"]
 ## el baston a mitad de giro.
 const MANO_GIRO := ["giro"]
 const TRANSICIONES := ["sacar_baston", "guardar_baston"]
+## En marcha: pulsando ahi, frena y lo hace al llegar al reposo.
+const ANDANDO := ["andar", "arranque_andar", "parada_andar"]
 
 ## Puesto a la espalda o guardado (escondido). Cambia con un fundido corto.
 @export var puesto := true
@@ -111,7 +112,8 @@ var _frames_espalda: SpriteFrames
 var _frames_mano: SpriteFrames
 var _paso_espalda := {}
 var _en_transicion := false
-## Pulsado en la parada del andar: se saca o guarda al llegar al reposo.
+## Pulsado andando: frena (con el control quitado) y se saca o guarda al
+## llegar al reposo.
 var _pendiente := false
 
 @onready var _orbe: Sprite2D = $Madera/Orbe
@@ -156,40 +158,62 @@ func poner(si: bool) -> void:
 func alternar() -> void:
 	puesto = not puesto
 
-## De la espalda a la mano y al reves. Desde el reposo, con la animacion de
-## sacar o guardar; si no, en el sitio.
+## De la espalda a la mano y al reves, siempre con la animacion de sacar o
+## guardar. Andando (o arrancando, o en la parada) se para como si soltara la
+## tecla (control_bloqueado: acaba el paso y frena) y la hace al llegar al
+## reposo; otra pulsacion mientras frena lo anula. Antes, andando cambiaba en
+## el sitio, de un fotograma a otro (el usuario, 2026-10-19: "queda fatal"),
+## y en la parada, si echaba a andar antes del reposo, tambien.
+## Al acabar, si sigue con la tecla, echa a andar solo.
 func alternar_mano() -> void:
 	if _en_transicion:
 		return
 	var peregrino := get_parent()
+	if _pendiente:
+		# frenando para hacerlo: otra pulsacion lo anula (y si mantiene la
+		# tecla, sigue andando)
+		_pendiente = false
+		peregrino.control_bloqueado = false
+		return
+	if peregrino.control_bloqueado:
+		return
 	var anim := "guardar_baston" if en_mano else "sacar_baston"
-	if _sprite.animation == &"reposo" and _sprite.sprite_frames.has_animation(anim) 			and not peregrino.control_bloqueado:
-		_en_transicion = true
-		puesto = true
+	if not _sprite.sprite_frames.has_animation(anim):
+		# sin la animacion, en el sitio (solo andando: corriendo, saltando o
+		# agachado no hay version con baston y quedaria a medias)
+		if String(_sprite.animation) in MANO_ANIMS:
+			poner_en_mano(not en_mano)
+		return
+	if _sprite.animation == &"reposo":
+		_transicion()
+	elif String(_sprite.animation) in ANDANDO:
+		_pendiente = true
 		peregrino.control_bloqueado = true
-		_sprite.play(anim)
-		_colocar()
-		return
-	# parandose: al reposo (otra pulsacion lo anula)
-	if _sprite.animation == &"parada_andar" and _sprite.sprite_frames.has_animation(anim) 			and not peregrino.control_bloqueado:
-		_pendiente = not _pendiente
-		return
-	# En marcha cambia en el sitio, pero solo andando: corriendo, saltando o
-	# agachado no hay version con baston y quedaria a medias.
-	if String(_sprite.animation) in MANO_ANIMS:
-		poner_en_mano(not en_mano)
 
-## Lo pulsado en la parada: al reposo, con su animacion; si sale a otra cosa
-## (vuelve a andar), en el sitio como en marcha.
+## Sacar o guardar con su animacion, desde el reposo (con el control quitado
+## mientras dura).
+func _transicion() -> void:
+	var peregrino := get_parent()
+	if _sprite.animation != &"reposo":
+		peregrino.control_bloqueado = false
+		return
+	_en_transicion = true
+	puesto = true
+	peregrino.control_bloqueado = true
+	_sprite.play("guardar_baston" if en_mano else "sacar_baston")
+	_colocar()
+
+## Frenando para sacarlo o guardarlo: al llegar al reposo, la animacion (el
+## control sigue quitado hasta que acabe); si acaba en otra cosa, se deja.
 func _hacer_pendiente() -> void:
-	if not _pendiente or _sprite.animation == &"parada_andar":
+	if not _pendiente or String(_sprite.animation) in ANDANDO:
 		return
 	_pendiente = false
 	if _sprite.animation == &"reposo":
 		# fuera de la senal: play() dentro de ella la vuelve a lanzar
-		alternar_mano.call_deferred()
-	elif String(_sprite.animation) in MANO_ANIMS:
-		poner_en_mano(not en_mano)
+		_transicion.call_deferred()
+	else:
+		get_parent().control_bloqueado = false
 
 func _al_acabar_transicion() -> void:
 	if not _en_transicion or not String(_sprite.animation) in TRANSICIONES:
