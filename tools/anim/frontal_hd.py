@@ -17,6 +17,7 @@ la escena sigue en px de hoja). peregrino_frames.tres no se toca.
 """
 import io, json, os
 
+import cv2
 import numpy as np
 from PIL import Image
 
@@ -45,6 +46,43 @@ def animaciones():
     return out
 
 
+def limpiar_borde(a, lo=70, hi=210, ancho=3):
+    """(2026-10-19) Borde del recorte, en todas las HD por igual (sin saltos entre
+    animaciones; las del juego, las de siempre). El reposo de espaldas con baston trae el
+    borde borroso, con un halo tenue ancho y ribete verdoso del croma: sobre fondo oscuro
+    el contorno se veia sucio (el usuario, al final del sacar de espaldas). Borde: el color de la orla (ancho px hacia dentro desde lo transparente),
+    el del interior de al lado (sin el ribete verdoso/oscuro del croma), y el alfa con la
+    rampa mas corta (el halo tenue fuera)."""
+    a = a.astype(np.float32).copy()
+    al = a[..., 3]
+    fondo = (al < 250).astype(np.uint8)
+    orla = (cv2.dilate(fondo, np.ones((2 * ancho + 1, 2 * ancho + 1), np.uint8)) > 0) & (al > 0)
+    dentro = ((al >= 250) & ~orla).astype(np.float32)
+    rgb = a[..., :3]
+    s = 2.5
+    num = cv2.GaussianBlur(rgb * dentro[..., None], (0, 0), s)
+    den = cv2.GaussianBlur(dentro, (0, 0), s)[..., None]
+    for _ in range(3):
+        ok = den[..., 0] > 0.02
+        if ok[orla].all():
+            break
+        s *= 2
+        num = cv2.GaussianBlur(rgb * dentro[..., None], (0, 0), s)
+        den = cv2.GaussianBlur(dentro, (0, 0), s)[..., None]
+    vecino = num / np.maximum(den, 1e-4)
+    # solo lo contaminado (verdoso: G por encima de R y B); lo fino que es todo orla (las
+    # piernas, la vara) conserva su color
+    verdoso = rgb[..., 1] >= np.maximum(rgb[..., 0], rgb[..., 2]) - 2
+    usar = orla & verdoso & (den[..., 0] > 0.02)
+    rgb2 = rgb.copy()
+    rgb2[..., 1] = np.where(orla, np.minimum(rgb[..., 1], np.maximum(rgb[..., 0], rgb[..., 2])), rgb[..., 1])
+    rgb = rgb2
+    a[..., :3] = np.where(usar[..., None], vecino, rgb)
+    a[..., 3] = np.clip((al - lo) * 255.0 / (hi - lo), 0, 255)
+    a[a[..., 3] <= 0] = 0
+    return a.round().clip(0, 255).astype(np.uint8)
+
+
 def celdas(hoja, usadas, casilla):
     """Los masters de la hoja (04_limpios por nombre, como hoja.ps1), por indice."""
     lista = sorted(f for f in os.listdir(os.path.join(SF.ANIM_RAW, hoja, '04_limpios')) if f.endswith('.png'))
@@ -53,7 +91,7 @@ def celdas(hoja, usadas, casilla):
         im = np.asarray(Image.open(os.path.join(SF.ANIM_RAW, hoja, '04_limpios', lista[k])).convert('RGBA'))
         assert im.shape[1] == casilla[0] and im.shape[0] == casilla[1], \
             '%s: %s mide %dx%d, no %dx%d' % (hoja, lista[k], im.shape[1], im.shape[0], casilla[0], casilla[1])
-        out[k] = im
+        out[k] = limpiar_borde(im)
     return out
 
 

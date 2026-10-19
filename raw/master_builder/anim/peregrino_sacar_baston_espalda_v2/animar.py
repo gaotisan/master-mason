@@ -213,6 +213,16 @@ def limpiar_doble(V, a, b, my, job=None):
         # ribete claro) salia un doble contorno en su lado derecho
         borde = (h[..., 1] < 45) & (cv2.dilate((fr[..., 3] < 10).astype(np.uint8), np.ones((5, 5), np.uint8)) > 0)
         veo &= ~borde
+        gris_cap = (gris & (fr[..., 3] > 128)).astype(np.uint8)
+        nc, ec, sc, _ = cv2.connectedComponentsWithStats(gris_cap, 8)
+        envolvente = np.zeros(gris_cap.shape, np.uint8)
+        if nc > 1:
+            j = 1 + int(np.argmax(sc[1:, cv2.CC_STAT_AREA]))
+            pts = np.column_stack(np.where(ec == j)[::-1]).astype(np.int32)
+            cv2.fillConvexPoly(envolvente, cv2.convexHull(pts), 1)
+        envolvente = envolvente > 0
+        oscuro = (h[..., 2] < 100) & (fr[..., 3] > 0) & ~envolvente & ~piel & (ys < by + SOBRE_BOLA) & disco
+        veo |= oscuro
         if not veo.any():
             continue
         # el relleno de lo de Veo, del propio fotograma (la espalda limpia no: su capucha
@@ -240,27 +250,15 @@ def limpiar_doble(V, a, b, my, job=None):
         from scipy.ndimage import binary_fill_holes
         opaco = capucha_reg | cuerpo_reg | ((fr[..., 3] > 128) & ~veo) | nuestra
         opaco = binary_fill_holes(opaco) & ~(nuestra & ~(capucha_reg | cuerpo_reg | binary_fill_holes(capucha_reg | cuerpo_reg | ((fr[..., 3] > 128) & ~veo))))
-        sil_v = (gris & (fr[..., 3] > 128)).astype(np.float32)
-        mascara = np.zeros(sil_v.shape, np.uint8)
-        mascara[max(0, int(by) - 200):int(by) + 40, max(0, int(bx) - 220):int(bx) + 20] = 1
-        mascara &= (~(cv2.dilate((veo | nuestra).astype(np.uint8), np.ones((9, 9), np.uint8)) > 0)).astype(np.uint8)
-        Wi = np.float32([[1, 0, 0], [0, 1, 0]])
-        try:
-            _, Wi = cv2.findTransformECC(cv2.GaussianBlur(sil_v, (0, 0), 2), cv2.GaussianBlur(sil_r, (0, 0), 2), Wi,
-                                         cv2.MOTION_EUCLIDEAN, (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 100, 1e-5), mascara, 5)
-            ok_ecc = True
-        except cv2.error:
-            ok_ecc = False
+        # la capucha donde estaba lo de Veo: hasta su envolvente (la espalda limpia, aun
+        # alineada, se salia del borde real y quedaba una franja palida; sin ella, huecos)
+        env_suave = cv2.GaussianBlur(envolvente.astype(np.float32), (0, 0), 0.8)
+        donde = veo & (env_suave > 0.02) & ~cuerpo_reg
         alfa = np.where(opaco, 255.0, 0.0)
-        if ok_ecc:
-            cap_r = cv2.warpAffine(sil_r, Wi, (sil_r.shape[1], sil_r.shape[0]), flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP, borderValue=0)
-            cap_r = cv2.GaussianBlur(cap_r, (0, 0), 0.8)
-            donde = veo & (cv2.dilate((cap_r > 0.05).astype(np.uint8), np.ones((3, 3), np.uint8)) > 0) & ~cuerpo_reg
-            alfa = np.where(donde, cap_r * 255.0, alfa)
-            if gris_v.any():
-                # el gris de la capucha tambien donde su silueta crece sobre lo que era de Veo
-                rgb_cap2 = cv2.inpaint(np.ascontiguousarray(solo_gris), veo.astype(np.uint8), 5, cv2.INPAINT_TELEA)
-                rgb = np.where(donde[..., None], rgb_cap2, rgb)
+        alfa = np.where(donde, env_suave * 255.0, alfa)
+        if gris_v.any():
+            rgb_cap2 = cv2.inpaint(np.ascontiguousarray(solo_gris), veo.astype(np.uint8), 5, cv2.INPAINT_TELEA)
+            rgb = np.where(donde[..., None], rgb_cap2, rgb)
         rk = np.dstack([rgb, alfa]).astype(np.float32)
         z = cv2.GaussianBlur(cv2.dilate(veo.astype(np.uint8), np.ones((3, 3), np.uint8)).astype(np.float32), (0, 0), 1.0)
         z = np.clip(np.maximum(z * 1.6, veo), 0, 1) * (fr[..., 3] > 0)
