@@ -26,9 +26,9 @@ mano, segun lo recorrido por la garra.
 Escribe <job>/04_limpios/<anim>_NNN.png, <job>/animaciones.json y
 assets/characters/peregrino/acciones_espalda.json.
     python animar.py
-    python animar.py --gu   (EN PRUEBA, 2026-10-18) las mismas sin la garra doble (ver
-        limpiar_doble) como <anim>_gu en <job>_gu, que solo usa PeregrinoFrontal con
-        garra_unica: el juego sigue con las de siempre.
+    (2026-10-18/19) Sin la garra doble a la espalda ni restos de la de Veo (limpiar_doble,
+    sin_motas). Hasta el 2026-10-19 era la opcion --gu (<anim>_gu en <job>_gu); ahora es
+    lo unico.
 """
 import glob, importlib.util, json, os, sys
 import cv2
@@ -54,7 +54,7 @@ CASA_GARRA = 0.90           # por debajo, la garra no se fia: se interpola
 # montar.py --my 152 (casilla 664x952, hoja 332x476) y su garra.json sale de
 # seguir_garra.py. El guardar sigue en 904.
 MY_ANIM = {'sacar_baston_espalda': 152, 'guardar_baston_espalda': MY}
-GU = '--gu' in sys.argv
+GU = True       # la limpieza (antes, opcion --gu): siempre
 # (--gu) Con el baston a la espalda, por encima del hombro arreglar.py no repone la
 # espalda limpia (Veo gira la cabeza) y la garra de Veo, algo mas pequena y movida,
 # asomaba debajo de la nuestra: salia doble (con la bola casi no se veia; sin bola, si).
@@ -331,8 +331,8 @@ if __name__ == '__main__':
         esc = A.giro_mientras_se_mueve(pos, ent[2], sal[2]); gir = A.giro_mientras_se_mueve(pos, ent[3], sal[3])
         filas = [[round(float(x) / 2 - cas[0] / 4, 2), round(float(y) / 2 - cas[1] / 4, 2), round(float(e), 4), round(float(g), 4)]
                  for (x, y), e, g in zip(pos, esc, gir)]
-        salida = job + ('_gu' if GU else '')
-        nombre_gu = nombre + ('_gu' if GU else '')
+        salida = job
+        nombre_gu = nombre
         carpeta = os.path.join(ANIM, salida, '04_limpios'); os.makedirs(carpeta, exist_ok=True)
         for f in glob.glob(os.path.join(carpeta, '*.png')):
             os.remove(f)
@@ -343,8 +343,5 @@ if __name__ == '__main__':
         json.dump([[nombre_gu, salida, len(frames), FPS, False, list(range(len(frames)))]], open(os.path.join(ANIM, salida, 'animaciones.json'), 'w'))
         escena[nombre_gu] = {'de': de, 'a': hacia, 'casilla': [cas[0] // 2, cas[1] // 2], 'orbe': filas}
         print(nombre, len(frames), 'fotogramas (%d de puente, video %d-%d, %d de puente); garra interpolada en %d' % (n_ent, a, b, n_sal, sin_garra))
-    # las de un modo no borran las del otro (las _gu y las de siempre van en el mismo fichero)
-    ruta = os.path.join(PROY, 'assets', 'characters', 'peregrino', 'acciones_espalda.json')
-    todo = json.load(open(ruta)) if os.path.exists(ruta) else {}
-    todo.update(escena)
-    json.dump(todo, open(ruta, 'w'), separators=(',', ':'))
+    json.dump(escena, open(os.path.join(PROY, 'assets', 'characters', 'peregrino', 'acciones_espalda.json'), 'w'),
+              separators=(',', ':'))

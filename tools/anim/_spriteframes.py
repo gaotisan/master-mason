@@ -209,55 +209,9 @@ ANIMACIONES = [
     # pasos del video, 81-122, en bucle. A 30 fps (el video va a 24 y anda mas
     # despacio que el andar de perfil). PRUEBA: peregrino.gd aun no la usa.
     ('andar_diagonal',    'peregrino_andar_diagonal',    42, 7, 30.0, True),
-    # Andar de frente (hacia la camara) y de espaldas (alejandose), con el baston
-    # en la mano. Los videos se acercan y se alejan de verdad: cada fotograma va
-    # con el tamano normalizado (normalizar.py en peregrino_andar_frente) y el
-    # tamano lo pone la profundidad en la escena. Ciclos de dos pasos: frente
-    # 88-128 (41), espaldas 136-164 (29, Hooded_figure_walking_forward: anda mas
-    # deprisa). Parejos: los dos ciclos duran 1,37 s (30 y 21,2 fps). PRUEBA:
-    # solo los usa scenes/dev/prueba_frontal.tscn.
-    ('andar_frente',      'peregrino_andar_frente',      41, 7, 30.0, True),
-    ('andar_espalda',     'peregrino_andar_espalda',     29, 6, 21.2, True),
-    # La vuelta de frente a espaldas con el baston (Old_pilgrim_turning_around,
-    # video 42-90, todos): hecha con un fotograma de cada andar de inicio y fin;
-    # registrada contra andar_frente c_005 y andar_espalda c_005, por los que se
-    # entra y se sale. Casilla propia mas alta (la garra sube por encima de la
-    # comun al empezar), mismo suelo. Hacia atras, de espaldas a frente.
-    ('vuelta_frontal',    'peregrino_vuelta_frontal',    49, 7, 30.0, False, (292, 400)),
-    # Sin baston: los mismos andares, parejos (ciclo de 1,37 s, 34 y 29 f).
-    ('andar_frente_sin',  'peregrino_andar_frente_sin',  34, 6, 24.8, True),
-    ('andar_espalda_sin', 'peregrino_andar_espalda_sin', 29, 6, 21.2, True),
-    # La vuelta sin baston (Pilgrim_turns_around_on_green, video 50-104, todos),
-    # hecha con referencias de los andares sin baston; registrada contra
-    # andar_frente_sin c_015 (0,10) y andar_espalda_sin c_004 (0,16).
-    ('vuelta_frontal_sin', 'peregrino_vuelta_frontal_sin', 55, 7, 30.0, False),
-    # Puentes por flujo optico entre los andares con baston y la vuelta (sin
-    # fundido: el fundido de opacidad dejaba dos dibujos superpuestos). 4
-    # intermedios cada uno, casilla de la vuelta. Ver
-    # raw/master_builder/anim/peregrino_puentes_frontal/puente.py.
-    ('puente_espalda',   'peregrino_puentes_frontal', 4, 8, 30.0, False, (292, 400), [0, 1, 2, 3]),
-    ('puente_espalda_b', 'peregrino_puentes_frontal', 4, 8, 30.0, False, (292, 400), [4, 5, 6, 7]),
-    ('puente_frente',    'peregrino_puentes_frontal', 4, 8, 30.0, False, (292, 400), [8, 9, 10, 11]),
-    ('puente_frente_b',  'peregrino_puentes_frontal', 4, 8, 30.0, False, (292, 400), [12, 13, 14, 15]),
-    # Los de la vuelta sin baston (peregrino_puentes_frontal_sin/puente_sin.py).
-    ('puente_espalda_sin',        'peregrino_puentes_frontal_sin', 4, 8, 30.0, False, None, [0, 1, 2, 3]),
-    ('puente_espalda_sin_b',      'peregrino_puentes_frontal_sin', 4, 8, 30.0, False, None, [4, 5, 6, 7]),
-    ('puente_frente_sin',         'peregrino_puentes_frontal_sin', 4, 8, 30.0, False, None, [8, 9, 10, 11]),
-    ('puente_frente_sin_b',       'peregrino_puentes_frontal_sin', 4, 8, 30.0, False, None, [12, 13, 14, 15]),
-    ('puente_reposo_espalda_sin', 'peregrino_puentes_frontal_sin', 4, 8, 30.0, False, None, [16, 17, 18, 19]),
-    ('puente_reposo_frente_sin',  'peregrino_puentes_frontal_sin', 4, 8, 30.0, False, None, [20, 21, 22, 23]),
-    # Parada y reposo sin baston, de frente y de espaldas (videos de Veo,
-    # raw/.../peregrino_reposo_frente_sin/montar.py y enganches.py), a la velocidad
-    # del video (24 fps):
-    #   parada_frente_sin  video 3-102: entra desde andar_frente_sin c_024 (0,16),
-    #                      da un par de pasitos acercandose (crece un 11 %) y se
-    #                      asienta; casa con el reposo en su c_173 (0,022).
-    #   reposo_frente_sin  bucle 160-227 (cierre 0,019).
-    #   reposo_espalda_sin bucle 136-211 (cierre 0,016); se entra desde los pies
-    #                      juntos del andar_espalda_sin (c_009 -> 186, c_024 -> 156).
-    ('parada_frente_sin', 'peregrino_reposo_frente_sin', 100, 12, 24.0, False, None, list(range(0, 100))),
-    ('reposo_frente_sin', 'peregrino_reposo_frente_sin', 68, 12, 24.0, True, None, list(range(100, 168))),
-    ('reposo_espalda_sin', 'peregrino_reposo_espalda_sin', 76, 10, 24.0, True),
+    # (El peregrino de frente / espaldas ya no va aqui: desde el 2026-10-19 solo en HD,
+    # frontal_hd.py -> peregrino_frontal_hd.tres. Los andares y vueltas de los primeros
+    # videos sueltos, sin usar desde la secuencia de un solo video, quitados.)
     # Un paso agachado (de agachado a agachado, 39 px mas alla): dos videos de
     # Flow seguidos (el pie de delante sale; el cuerpo avanza y el de atras se
     # junta), con el nodo por AVANCE_PASO_AGACHADO. Un toque agachado lo da;
@@ -315,17 +269,22 @@ ANIMACIONES = [
 # (el baston sube por encima de la cabeza): peregrino_sacar_baston_frente/animar.py.
 # Y de espaldas (2026-10-11): peregrino_sacar_baston_espalda_v2/animar.py.
 import json as _json
-for _d, _cas in (('peregrino_secuencia_frontal', (292, 400)), ('peregrino_secuencia_frontal_sin', (292, 400)),
-                 ('peregrino_sacar_baston_frente', (332, 452)), ('peregrino_guardar_baston_frente', (332, 452)),
-                 ('peregrino_sacar_baston_espalda_v2', (332, 476)), ('peregrino_guardar_baston_espalda_a', (332, 452)),
-                 # EN PRUEBA (2026-10-18): las de frente con la garra nueva (animar.py --gu); solo
-                 # las usa PeregrinoFrontal con garra_unica (la escena de pruebas)
-                 ('peregrino_sacar_baston_frente_gu', (332, 452)), ('peregrino_guardar_baston_frente_gu', (332, 452)),
-                 ('peregrino_sacar_baston_espalda_v2_gu', (332, 476)), ('peregrino_guardar_baston_espalda_a_gu', (332, 452))):
-    _SEC = os.path.join(ANIM_RAW, _d, 'animaciones.json')
-    if os.path.exists(_SEC):
-        for _n, _job, _cnt, _fps, _bucle, _idx in _json.load(open(_SEC)):
-            ANIMACIONES.append((_n, _job, _cnt, 16, _fps, _bucle, _cas, _idx))
+# (2026-10-19) Ya no entran en peregrino_frames.tres (el perfil): solo en HD, con
+# frontal_hd.py, que lee esta lista. Casilla en px de hoja (la mitad del master).
+FRONTAL_JOBS = (('peregrino_secuencia_frontal', (292, 400)), ('peregrino_secuencia_frontal_sin', (292, 400)),
+                ('peregrino_sacar_baston_frente', (332, 452)), ('peregrino_guardar_baston_frente', (332, 452)),
+                ('peregrino_sacar_baston_espalda_v2', (332, 476)), ('peregrino_guardar_baston_espalda_a', (332, 452)))
+
+
+def animaciones_frontal():
+    """Las del peregrino de frente, como entradas de ANIMACIONES (de los animaciones.json)."""
+    out = []
+    for _d, _cas in FRONTAL_JOBS:
+        _sec = os.path.join(ANIM_RAW, _d, 'animaciones.json')
+        if os.path.exists(_sec):
+            for _n, _job, _cnt, _fps, _bucle, _idx in _json.load(open(_sec)):
+                out.append((_n, _job, _cnt, 16, _fps, _bucle, _cas, _idx))
+    return out
 
 
 def _usos():

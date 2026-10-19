@@ -18,9 +18,8 @@ Sale assets/characters/peregrino/vuelta_garra/<anim>_NNN.png y vuelta_garra.json
 {anim: {fotograma: [x, y]}} esquina del recorte en px de hoja desde el centro de la
 casilla.
     python raw/master_builder/anim/peregrino_secuencia_frontal/garra_vuelta.py
-    ... garra_vuelta.py --hd   (EN PRUEBA, 2026-10-18) los mismos recortes del master sin
-        reducir (2*LADO px) en vuelta_garra_hd/, para PeregrinoFrontal con
-        alta_resolucion; las esquinas son las del json de siempre (no se reescribe).
+    (2026-10-19) Los recortes, del master sin reducir (2*LADO px): el peregrino de frente
+    va solo en HD. Las esquinas, en px de hoja como siempre.
 """
 import json, os, sys
 import numpy as np, cv2
@@ -36,7 +35,7 @@ LADO = 40                   # el recorte (px de hoja)
 MIN_CAPUCHA = 80            # px de master de capucha dentro del disco para tomar el fotograma
 S_CAPUCHA = (40, 70)        # saturacion (OpenCV, 0-255): por debajo capucha / barba, por encima madera; entre, a medias
 ANIMS = ['vuelta_cb']
-HD = '--hd' in sys.argv
+HD = True       # del master (antes, opcion --hd): siempre
 
 
 def madera(a):
@@ -57,7 +56,7 @@ def main():
     sec = json.load(open(SEC))
     e = float(sec['escala_bola'])
     datos = {}
-    carpeta = 'vuelta_garra_hd' if HD else 'vuelta_garra'
+    carpeta = 'vuelta_garra'
     os.makedirs(os.path.join(SALIDA, carpeta), exist_ok=True)
     for anim in ANIMS:
         filas = sec['orbe'][anim]
@@ -111,10 +110,7 @@ def main():
                 datos.setdefault(anim, {})[str(k)] = [x0, y0]
                 print(anim, k, 'capucha en el disco', n, 'px de master')
             k += 1
-    if HD:
-        assert datos == {a: {k: v for k, v in d.items()} for a, d in json.load(open(os.path.join(SALIDA, 'vuelta_garra.json'))).items()},             'los recortes HD no salen en los mismos fotogramas y esquinas que vuelta_garra.json'
-    else:
-        json.dump(datos, open(os.path.join(SALIDA, 'vuelta_garra.json'), 'w'), indent=1)
+    json.dump(datos, open(os.path.join(SALIDA, 'vuelta_garra.json'), 'w'), indent=1)
 
 
 if __name__ == '__main__':

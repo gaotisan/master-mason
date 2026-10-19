@@ -62,8 +62,10 @@ signal piso(pies: Vector2)
 ## girar_a_perfil() ha llegado al perfil (y ahi se queda).
 signal en_perfil
 
-const FRAMES := preload("res://resources/characters/peregrino_frames.tres")
-const FRAMES_HD := "res://resources/characters/peregrino_frontal_hd.tres"   # con alta_resolucion (load: sin ella no se carga)
+## Sus animaciones: solo en HD (desde el 2026-10-19 no van en peregrino_frames.tres, el
+## del perfil): tools/anim/frontal_hd.py, de los masters sin reducir. ~270 MB: las escenas
+## lo piden antes (precarga.gd, en el ataud; PeregrinoFrontal.precargar()).
+const FRAMES_HD := "res://resources/characters/peregrino_frontal_hd.tres"
 const BASTON := preload("res://scenes/characters/baston.tscn")
 ## EL BASTON A LA ESPALDA VISTO DE ESPALDAS: el mismo que lleva en la mano (la
 ## plantilla de peregrino_guardar_baston_espalda_a/arreglar.py: garra de cuerna y
@@ -72,13 +74,12 @@ const BASTON := preload("res://scenes/characters/baston.tscn")
 ## liso, otra garra) a 1,2 de ancho y los videos de sacar y guardar, que pintan el
 ## de la mano, se transformaban en el en los puentes (el usuario: "igualarlo todo,
 ## a la vieja usanza"). La ficha dice donde va la bola en la textura: se pone donde
-## iba la de baston.png (ORBE_EN_MADERA del pivote), asi valen las filas. De
-## frente (solo asoma la garra por encima del hombro) sigue baston.png.
+## iba la de baston.png (ORBE_EN_MADERA del pivote), asi valen las filas. Desde el
+## 2026-10-19 tambien de frente (antes baston.png: la garra cambiaba en la vuelta).
 const BASTON_ESPALDA_TEX := preload("res://assets/characters/baston/baston_espalda.png")
 const BASTON_ESPALDA_FICHA := "res://assets/characters/baston/baston_espalda.json"
-## Con alta_resolucion: el mismo al doble (baston_espalda_master.png de baston_espalda.py)
-## y los dedos de la garra de la vuelta del master (garra_vuelta.py --hd). load: sin la
-## opcion no se cargan.
+## El que se dibuja: el mismo al doble (baston_espalda_master.png de baston_espalda.py),
+## como las hojas HD.
 const BASTON_ESPALDA_HD := "res://assets/characters/baston/baston_espalda_hd.png"
 const BASTON_ESPALDA_HD_FICHA := "res://assets/characters/baston/baston_espalda_hd.json"
 const FRONTAL := "res://assets/characters/baston/frontal.json"
@@ -176,19 +177,14 @@ const DOBLE_TOQUE := 0.30        # dos pulsaciones a menos: correr (como doble_p
 ## cambia.
 ## (Con baston_espalda.png, ya a su tamano, de espaldas va a 1; el 1,2 era para
 ## baston.png.)
-## (2026-10-18, en el juego desde el 2026-10-19) El baston a la espalda es
-## baston_espalda.png tambien visto de frente (sin esto, de frente iba baston.png:
-## garra dorada, mas cerrada y pequena, y en la vuelta cambiaba de una a otra en el
-## perfil: el usuario veia la garra cambiar de tamano). Con el, sacar / guardar son
-## las rehechas con esa garra (*_gu: animar.py --gu de cada job).
-@export var garra_unica := true
-## (2026-10-18, en el juego desde el 2026-10-19) Las hojas a la resolucion de los
-## masters (peregrino_frontal_hd.tres, tools/anim/frontal_hd.py: el doble que las de
-## peregrino_frames.tres; el usuario: "la mejor resolucion disponible"). El sprite va a
-## media escala (_k): las filas de los JSON, la escala y lo demas siguen en px de hoja.
-## Lo que la escena mida en texels del sprite, por k_textura (ver abajo). Pesa ~370 MB:
-## la escena que lo cree a mitad de juego, antes PeregrinoFrontal.precargar().
-@export var alta_resolucion := true
+## (2026-10-19: una sola serie y una sola garra; antes eran opciones, alta_resolucion
+## y garra_unica.) Las hojas, a la resolucion de los masters (FRAMES_HD; el usuario: "la
+## mejor resolucion disponible"): el sprite va a media escala (_k) y las filas de los
+## JSON, la escala y lo demas siguen en px de hoja; lo que la escena mida en texels del
+## sprite, por k_textura. El baston a la espalda, baston_espalda tambien visto de frente
+## (de frente iba baston.png: garra dorada, mas cerrada y pequena, y en la vuelta cambiaba
+## de una a otra en el perfil: el usuario veia la garra cambiar de tamano); sacar /
+## guardar, rehechos con esa garra (animar.py de cada job).
 @export var baston_espalda_escala := Vector2(1.0, 1.0)
 @export var baston_frente_escala := Vector2(1.0, 1.0)
 ## Trazo engordado (texeles; corte_madera.gdshader y el shader de la escena) y
@@ -218,10 +214,10 @@ var luz_baston := Color.WHITE
 
 var escala: float:
 	get: return _escala
-## Px de hoja por texel de la textura del sprite (0,5 con alta_resolucion): lo que la
+## Px de hoja por texel de la textura del sprite (0,5: las hojas son HD): lo que la
 ## escena mida en texels del sprite (un shader con TEXTURE_PIXEL_SIZE), por esto.
 var k_textura: float:
-	get: return 0.5 if alta_resolucion else 1.0
+	get: return _k
 var animacion: String:
 	get: return String(_sprite.animation)
 var fotograma: int:
@@ -300,12 +296,11 @@ var _mat_vacia: ShaderMaterial
 var _uniformes: Array = []        # los que se copian de la raiz cada fotograma
 var _con_garra := false           # el material de la raiz tiene el uniforme `garra`
 var _engordar := 0.0              # el trazo del baston a la espalda (ver baston_espalda_engordar)
-var _de_espaldas := false         # el baston a la espalda se ve de espaldas (baston_espalda.png)
-var _textura_espaldas := false    # la que tiene puesta Madera ahora
+var _textura_espaldas := false    # ya puesta la textura del baston a la espalda (_textura_del_palo)
 var _tex_baston: Texture2D        # la de baston.tscn (baston.png) y su offset
 var _offset_baston := Vector2.ZERO
 var _madera_hijos := {}           # hijos de Madera -> [posicion, escala] (ver _escala_madera)
-var _k := 1.0                     # px de hoja por px de la textura del sprite (0,5 con alta_resolucion)
+var _k := 0.5                     # px de hoja por px de la textura del sprite (las hojas, HD)
 var _corte_bola := 0.0            # de las filas (fracciones de baston.png) a la textura puesta:
 var _corte_escala := 1.0          # corte' = _corte_bola + corte * _corte_escala
 ## El halo de la bola por delante del cuerpo en sacar / guardar de espaldas (ver
@@ -354,7 +349,7 @@ static func _cargar_datos() -> Dictionary:
 			continue
 		var bf: Dictionary = JSON.parse_string(FileAccess.open(ruta, FileAccess.READ).get_as_text())
 		for nombre in bf:
-			if bf[nombre] is Dictionary and FRAMES.has_animation(nombre):
+			if bf[nombre] is Dictionary:
 				acciones[nombre] = bf[nombre]
 				orbes[nombre] = {"orbe": bf[nombre]["orbe"], "escala_bola": 1.0}
 	var funda: Dictionary = JSON.parse_string(FileAccess.open(FUNDA, FileAccess.READ).get_as_text())
@@ -427,7 +422,7 @@ func _ready() -> void:
 			_vuelta_garra[anim] = {}
 			for f in vg[anim]:
 				_vuelta_garra[anim][int(f)] = [Vector2(vg[anim][f][0], vg[anim][f][1]),
-					load("res://assets/characters/peregrino/%s/%s_%03d.png" % ["vuelta_garra_hd" if alta_resolucion else "vuelta_garra", anim, int(f)])]
+					load("res://assets/characters/peregrino/vuelta_garra/%s_%03d.png" % [anim, int(f)])]
 	_halo_delante.show_behind_parent = false
 	_halo_delante.z_as_relative = false
 	_halo_delante.z_index = Z_BOLA_DELANTE["Orbe"]
@@ -493,14 +488,7 @@ func _ready() -> void:
 		(_bola.get_node(n) as CPUParticles2D).emitting = false
 	_poner_color()
 	_sprite = AnimatedSprite2D.new()
-	_sprite.sprite_frames = FRAMES
-	if alta_resolucion:
-		# (si se pidio con precargar, se espera a esa carga en vez de empezar otra)
-		if ResourceLoader.load_threaded_get_status(FRAMES_HD) != ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
-			_sprite.sprite_frames = ResourceLoader.load_threaded_get(FRAMES_HD)
-		else:
-			_sprite.sprite_frames = load(FRAMES_HD)
-		_k = 0.5
+	_sprite.sprite_frames = _cargar_frames()
 	_sprite.use_parent_material = true
 	add_child(_sprite)
 	_sprite.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
@@ -559,7 +547,25 @@ func girar_desde_perfil(hacia := "espalda", desde := -1) -> void:
 	_colocar()
 
 
-## Pide en segundo plano las hojas HD (alta_resolucion): la escena que vaya a crear
+## Las hojas, sin cargarlas a la vez que otra cosa grande: con la precarga del ataud
+## (precarga.gd) leyendo peregrino_frames.tres a la vez, fallaba la lectura de uno de
+## los dos ("Parse Error", 2026-10-19; en el juego no se cruzan, pero si al lanzar una
+## escena suelta). Se espera a lo que este cargando la precarga y se carga por el
+## cargador en segundo plano (si ya se pidio, con precargar(), se espera a esa).
+static func _cargar_frames() -> SpriteFrames:
+	if ResourceLoader.has_cached(FRAMES_HD):
+		return load(FRAMES_HD)
+	var pre: Node = Engine.get_main_loop().root.get_node_or_null("Precarga") if Engine.get_main_loop() is SceneTree else null
+	if pre and pre.has_method("cargando"):
+		var otra: String = pre.call("cargando")
+		while otra != "" and otra != FRAMES_HD and ResourceLoader.load_threaded_get_status(otra) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			OS.delay_msec(5)
+	if ResourceLoader.load_threaded_get_status(FRAMES_HD) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+		ResourceLoader.load_threaded_request(FRAMES_HD)
+	return ResourceLoader.load_threaded_get(FRAMES_HD)
+
+
+## Pide en segundo plano las hojas (FRAMES_HD): la escena que vaya a crear
 ## el peregrino de frente a mitad de juego (cargarlas al crearlo daba un tiron).
 static func precargar() -> void:
 	if OS.has_feature("nothreads") or ResourceLoader.has_cached(FRAMES_HD):
@@ -930,9 +936,6 @@ func _empezar_accion() -> void:
 ## la que mira; "" si de esa cara no hay (se da la vuelta y la hace de frente).
 func _accion_aqui() -> String:
 	var nombre := "%s_%s" % [_accion, _cara]
-	# con garra_unica, las rehechas con la garra nueva (animar.py --gu), si las hay
-	if garra_unica and _acciones.has(nombre + "_gu"):
-		return nombre + "_gu"
 	return nombre if _acciones.has(nombre) else ""
 
 
@@ -975,40 +978,30 @@ func _escala_del_palo(f: Array) -> Vector2:
 		if not giro.is_empty():
 			t = clampf(float(giro[mini(_sprite.frame, giro.size() - 1)]) / 180.0, 0.0, 1.0)
 	_engordar = lerpf(baston_frente_engordar, baston_espalda_engordar, t)
-	_de_espaldas = garra_unica or t > 0.5
 	return baston_frente_escala.lerp(baston_espalda_escala, t)
 
 
-## La textura del baston a la espalda: de espaldas, baston_espalda.png (el de la
-## mano); de frente, baston.png. Las dos con la bola en el mismo sitio del pivote.
-## Con garra_unica, baston_espalda.png siempre; los cortes de las filas (fraccion
-## del alto de baston.png) se pasan a esa textura por la distancia a la bola.
+## La textura del baston a la espalda: baston_espalda (el de la mano) al doble, de
+## frente y de espaldas, con la bola en el sitio de la de baston.png (el pivote) y la
+## madera a media escala; los cortes de las filas (fraccion del alto de baston.png) se
+## pasan a esta textura por la distancia a la bola. Una vez.
 func _textura_del_palo() -> void:
-	if _de_espaldas == _textura_espaldas:
+	if _textura_espaldas:
 		return
-	_textura_espaldas = _de_espaldas
+	_textura_espaldas = true
 	var be: Dictionary = _datos["baston_espalda"]
 	var tam := Vector2(be["tam"][0], be["tam"][1])
 	var b := Vector2(be["bola"][0], be["bola"][1])
 	var bola_vieja := ORBE_EN_MADERA.y - (_offset_baston.y - _tex_baston.get_size().y / 2.0)
-	_corte_escala = _tex_baston.get_size().y / tam.y if garra_unica else 1.0
-	_corte_bola = (b.y - bola_vieja) / tam.y if garra_unica else 0.0
-	# con alta_resolucion, el de espaldas al doble y la madera a media escala
-	var hd := alta_resolucion and _de_espaldas
-	var esc := 0.5 if hd else 1.0
+	_corte_escala = _tex_baston.get_size().y / tam.y
+	_corte_bola = (b.y - bola_vieja) / tam.y
+	var esc := 0.5
 	_escala_madera(esc)
+	var fh: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BASTON_ESPALDA_HD_FICHA))
 	for n in ["Madera", "MaderaDelante"]:
 		var sp := _bola.get_node(n) as Sprite2D
-		if not _de_espaldas:
-			sp.texture = _tex_baston
-			sp.offset = _offset_baston
-		elif hd:
-			var fh: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BASTON_ESPALDA_HD_FICHA))
-			sp.texture = load(BASTON_ESPALDA_HD)
-			sp.offset = ORBE_EN_MADERA / esc - (Vector2(fh["bola"][0], fh["bola"][1]) - sp.texture.get_size() / 2.0)
-		else:
-			sp.texture = BASTON_ESPALDA_TEX
-			sp.offset = ORBE_EN_MADERA - (b - tam / 2.0)
+		sp.texture = load(BASTON_ESPALDA_HD)
+		sp.offset = ORBE_EN_MADERA / esc - (Vector2(fh["bola"][0], fh["bola"][1]) - sp.texture.get_size() / 2.0)
 	(_bola.get_node("MaderaDelante") as Node2D).scale = Vector2.ONE * esc
 
 
@@ -1193,7 +1186,7 @@ func _colocar() -> void:
 			giro = o[3]
 			# la de en la mano, la del extremo de las filas que no es 1
 			var mano := maxf(float(d["orbe"][0][2]), float(d["orbe"][-1][2]))
-			if String(_sprite.animation).trim_suffix("_gu").ends_with("_espalda") and mano > 1.0:
+			if String(_sprite.animation).ends_with("_espalda") and mano > 1.0:
 				_halo_de_espaldas((mano - e) / (mano - 1.0))
 		_bola.scale = Vector2.ONE * _escala * e
 		_bola.rotation = giro

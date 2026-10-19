@@ -21,10 +21,10 @@ La capucha, al color estandar (../igualar_capucha.py; ver capucha_estandar).
 Escribe <job>/04_limpios/<anim>_NNN.png, <job>/animaciones.json y
 assets/characters/peregrino/baston_frente.json.
     python animar.py
-    python animar.py --gu    (EN PRUEBA, 2026-10-18) las mismas con la garra nueva de
-        la escena (PeregrinoFrontal.garra_unica: baston_espalda.png tambien de frente;
-        capa baston_espalda_reposo_gu.png, de capa_espalda.gd con prueba_frontal) como
-        <anim>_gu en <job>_gu: el juego sigue con las de siempre.
+    (2026-10-18/19) Con la garra nueva de la escena (baston_espalda.png tambien de frente;
+    capa baston_espalda_reposo.png, de capa_espalda.gd con prueba_frontal) y la garra de
+    Veo repintada (repintar_garra). Hasta el 2026-10-19 era la opcion --gu (<anim>_gu en
+    <job>_gu); ahora es lo unico.
 """
 import glob, importlib.util, json, os, sys
 import numpy as np
@@ -53,8 +53,8 @@ FPS = 24.0
 ESCALA_CON = json.load(open(os.path.join(PROY, 'assets', 'characters', 'peregrino', 'secuencia_frontal.json')))['escala_bola']
 SB = json.load(open(os.path.join(PROY, 'assets', 'characters', 'peregrino', 'secuencia_frontal_sin.json')))
 GIRO_SIN = SB['baston_espalda']['reposo_frente_sb'][0][2]
-GU = '--gu' in sys.argv
-CAPA = 'baston_espalda_reposo_gu.png' if GU else 'baston_espalda_reposo.png'
+GU = True       # la garra nueva y el repintado (antes, opcion --gu): siempre
+CAPA = 'baston_espalda_reposo.png'
 
 
 def deformar(img, f, t):
@@ -322,8 +322,7 @@ if __name__ == '__main__':
     N_ENTRA, N_SALE = 3, 4
     escena = {'fps': FPS, 'casilla': [CAS[0] // 2, CAS[1] // 2]}
     for nombre, (job, (a, b), ent, sal, de, hacia) in ANIMS.items():
-        salida = job + ('_gu' if GU else '')
-        nombre = nombre + ('_gu' if GU else '')
+        salida = job
         R0, R1 = reposo(ent[0], ent[1]), reposo(sal[0], sal[1])
         V = capucha_estandar(job, a, b)
         pv = bola_video(job, a, b, mano_antes=nombre.startswith('guardar'))
@@ -354,8 +353,5 @@ if __name__ == '__main__':
         json.dump([[nombre, salida, len(frames), FPS, False, list(range(len(frames)))]], open(os.path.join(ANIM, salida, 'animaciones.json'), 'w'))
         escena[nombre] = {'de': de, 'a': hacia, 'orbe': filas}
         print(nombre, len(frames), 'fotogramas (%d de puente, video %d-%d, %d de puente)' % (N_ENTRA, a, b, N_SALE))
-    # las de un modo no borran las del otro (las _gu y las de siempre van en el mismo fichero)
-    ruta = os.path.join(PROY, 'assets', 'characters', 'peregrino', 'baston_frente.json')
-    todo = json.load(open(ruta)) if os.path.exists(ruta) else {}
-    todo.update(escena)
-    json.dump(todo, open(ruta, 'w'), separators=(',', ':'))
+    json.dump(escena, open(os.path.join(PROY, 'assets', 'characters', 'peregrino', 'baston_frente.json'), 'w'),
+              separators=(',', ':'))

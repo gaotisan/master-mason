@@ -2445,7 +2445,7 @@ func _prever_parada(f: Node2D) -> Array:
 	var sec: Dictionary = _sec_frontal[bool(f.get("lleva_baston"))]
 	if not sec["pies_juntos"].has(anim):
 		return []
-	var frames: SpriteFrames = load("res://resources/characters/peregrino_frames.tres")
+	var frames: SpriteFrames = load(PeregrinoFrontal.FRAMES_HD)     # (el de frente, solo en HD)
 	var n := frames.get_frame_count(anim)
 	var fr := int(f.get("fotograma"))
 	var faltan: Array = []

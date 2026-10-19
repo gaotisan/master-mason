@@ -29,7 +29,6 @@ func _ready() -> void:
 		pe.con_baston = p[3] == "1"
 		pe.magia = 0.0
 		pe.magia_recarga = 0.0
-		pe.alta_resolucion = true
 		pe.escala_inicial = 2.0
 		pe.escala_max = 3.0
 		pe.position = PIES

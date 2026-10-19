@@ -18,6 +18,8 @@ extends Node
 
 const RUTAS := [
 	"res://resources/characters/peregrino_frames.tres",
+	# el de frente / espaldas, aparte y solo en HD desde el 2026-10-19 (~270 MB)
+	"res://resources/characters/peregrino_frontal_hd.tres",
 	"res://scenes/characters/peregrino.tscn",
 	"res://scenes/characters/baston.tscn",
 	"res://scripts/characters/acciones_perfil.gd",
@@ -72,12 +74,27 @@ func _pedir() -> void:
 
 ## La que se esta cargando ahora ("" si ninguna).
 var _actual := ""
+## Lo de otro que se espera a que acabe antes de seguir ("" si nada).
+var _espera := ""
+
+
+## Lo que esta cargando ahora ("" si nada): quien vaya a cargar algo grande espera.
+func cargando() -> String:
+	return _actual
 
 func _siguiente() -> void:
 	_actual = ""
+	_espera = ""
 	for r in _pedidas:
 		if _cargados.has(r):
 			continue
+		# (2026-10-19) si otro ya carga algo grande en segundo plano (el peregrino de
+		# frente, PeregrinoFrontal.precargar), se espera a que acabe: dos .tres grandes a
+		# la vez, a veces fallaba la lectura de uno ("Parse Error")
+		var hd := "res://resources/characters/peregrino_frontal_hd.tres"
+		if r != hd and ResourceLoader.load_threaded_get_status(hd) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			_espera = hd
+			return
 		if ResourceLoader.load_threaded_request(r) == OK:
 			_actual = r
 			return
@@ -86,6 +103,10 @@ func _siguiente() -> void:
 ## Recoge la que este cargando (y la guarda: mientras haya una referencia, la
 ## cache no la suelta) y pide la siguiente.
 func _process(_delta: float) -> void:
+	if _espera != "":
+		if ResourceLoader.load_threaded_get_status(_espera) != ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			_siguiente()
+		return
 	if _actual == "":
 		set_process(false)
 		return
@@ -97,7 +118,7 @@ func _process(_delta: float) -> void:
 		_:
 			_cargados[_actual] = null
 	_siguiente()
-	if _actual == "":
+	if _actual == "" and _espera == "":
 		set_process(false)
 
 ## Si se ha pedido y aun no ha acabado: quien vaya a cargar algo que tire de lo

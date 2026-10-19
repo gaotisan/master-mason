@@ -1,8 +1,8 @@
 """El peregrino de frente / espaldas a la resolucion de los masters (EN PRUEBA, 2026-10-18).
 
-Las hojas del juego (hoja.ps1 -Escala 2) van a la mitad de los masters de 04_limpios;
-de cerca se ven blandas (el camino lo pinta hasta x2,6). Aqui, las mismas animaciones
-del peregrino de frente (las que _spriteframes.py lee de los animaciones.json de las
+Desde el 2026-10-19 el peregrino de frente va SOLO en HD (no en peregrino_frames.tres):
+las hojas a la mitad de los masters se veian blandas de cerca (el camino lo pinta hasta
+x2,6). Aqui, sus animaciones (_spriteframes.FRONTAL_JOBS: los animaciones.json de las
 secuencias y de sacar / guardar) sacadas de los masters SIN reducir, recortadas y
 empaquetadas como empaquetar.py (bloques de 4, separacion de 8), en paginas de hasta
 PAGINA px de lado, a un SpriteFrames aparte:
@@ -10,9 +10,8 @@ PAGINA px de lado, a un SpriteFrames aparte:
     assets/characters/peregrino_hd/<hoja>_<n>.png
     resources/characters/peregrino_frontal_hd.tres
 
-Mismos nombres, fps, bucles y duraciones que en peregrino_frames.tres; las casillas, el
-doble. PeregrinoFrontal lo usa con alta_resolucion (sprite a media escala: lo demas de
-la escena sigue en px de hoja). peregrino_frames.tres no se toca.
+Las casillas, el doble de las de hoja. PeregrinoFrontal lo usa con el sprite a media
+escala: lo demas de la escena sigue en px de hoja.
     python frontal_hd.py
 """
 import io, json, os
@@ -25,25 +24,13 @@ import empaquetar as E
 import _spriteframes as SF
 
 PAGINA = 8192
-JOBS = ('peregrino_secuencia_frontal', 'peregrino_secuencia_frontal_sin',
-        'peregrino_sacar_baston_frente', 'peregrino_guardar_baston_frente',
-        'peregrino_sacar_baston_espalda_v2', 'peregrino_guardar_baston_espalda_a',
-        'peregrino_sacar_baston_frente_gu', 'peregrino_guardar_baston_frente_gu',
-        'peregrino_sacar_baston_espalda_v2_gu', 'peregrino_guardar_baston_espalda_a_gu')
 SALIDA = os.path.join(SF.RAIZ, 'assets', 'characters', 'peregrino_hd')
 TRES = os.path.join(SF.RAIZ, 'resources', 'characters', 'peregrino_frontal_hd.tres')
 
 
 def animaciones():
-    """Las de frente, como las declara _spriteframes.py (de los animaciones.json)."""
-    out = []
-    for job in JOBS:
-        ruta = os.path.join(SF.ANIM_RAW, job, 'animaciones.json')
-        if not os.path.exists(ruta):
-            continue
-        nombres = {a[0] for a in json.load(open(ruta))}
-        out += [a for a in SF.ANIMACIONES if a[0] in nombres]
-    return out
+    """Las del peregrino de frente (_spriteframes.animaciones_frontal: de los animaciones.json)."""
+    return SF.animaciones_frontal()
 
 
 def limpiar_borde(a, lo=70, hi=210, ancho=3):
@@ -188,6 +175,11 @@ def main():
            + '\n'.join(ext) + '\n\n' + '\n'.join(sub)
            + '\n[resource]\nanimations = [' + ', '.join(bloques) + ']\n')
     io.open(TRES, 'w', encoding='utf-8', newline='\n').write(txt)
+    # las hojas que ya no salen (p. ej. las *_gu de antes del 2026-10-19), fuera
+    for f in os.listdir(SALIDA):
+        if f.endswith(('.png', '.png.import')) and f.split('.png')[0] not in tex_de:
+            os.remove(os.path.join(SALIDA, f))
+            print('   quitada', f)
     print('%d animaciones, %d fotogramas -> %s; memoria de video ~%.0f MiB (BC7, sin mipmaps)'
           % (len(anims), len(atlas_de), TRES, px / 1048576.0))
 
