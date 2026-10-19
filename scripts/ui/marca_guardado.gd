@@ -11,8 +11,11 @@ extends CanvasLayer
 ## La pone Partida.guardar() colgada de la raiz, no de la escena, para que siga
 ## si la escena cambia mientras esta a la vista.
 
-const FUENTE := preload("res://assets/fonts/Cinzel-Variable.ttf")
-const ORO_APAGADO := Color(0.68, 0.55, 0.35)
+## Bola y letras como en los menus (2026-10-19; el usuario: que sea "acorde con
+## el menu"): el ambar apagado de sus bolas, sin halo, y "Guardado" en el oro de
+## la opcion elegida. Antes era el naranja vivo del baculo, que chillaba.
+const MENU := preload("res://scripts/ui/menu_base.gd")
+const FUENTE := MENU.FUENTE
 const ANCHO := 2912.0
 const ALTO := 1632.0
 const ORBE := preload("res://scripts/characters/baston/orbe.gdshader")
@@ -54,12 +57,15 @@ func _ready() -> void:
 	# Su resplandor sobre lo de alrededor (el de luz_orbe en el juego).
 	_mat_luz = ShaderMaterial.new()
 	_mat_luz.shader = LUZ
+	_mat_luz.set_shader_parameter("color", MENU.BOLA_COLOR)
 	_rect(centro, radio_bola * 6.0, _mat_luz)
 
 	_mat = ShaderMaterial.new()
 	_mat.shader = ORBE
 	_mat.set_shader_parameter("radio", RADIO_EN_CUADRO)
-	_mat.set_shader_parameter("halo", 0.8)
+	_mat.set_shader_parameter("color", MENU.BOLA_COLOR)
+	_mat.set_shader_parameter("halo", 0.0)
+	_mat.set_shader_parameter("remolino", 1.8)
 	_rect(centro, lado, _mat)
 
 	# Las motas que entran y las chispas que suben, en un cuadrado mayor.
@@ -68,14 +74,15 @@ func _ready() -> void:
 	_mat_motas.shader = MOTAS
 	_mat_motas.set_shader_parameter("radio_bola", radio_bola / (lado_motas * 0.5))
 	_mat_motas.set_shader_parameter("semilla", randf() * 50.0)
+	_mat_motas.set_shader_parameter("color", MENU.BOLA_COLOR)
 	_rect(centro, lado_motas, _mat_motas)
 
 	var ajustes := LabelSettings.new()
 	ajustes.font = FUENTE
 	ajustes.font_size = tam_letra
-	ajustes.font_color = ORO_APAGADO
-	ajustes.shadow_color = Color(0.0, 0.0, 0.0, 0.7)
-	ajustes.shadow_size = 10
+	ajustes.font_color = MENU.ORO_VIVO
+	ajustes.shadow_color = Color(0.0, 0.0, 0.0, 0.8)
+	ajustes.shadow_size = 8
 	ajustes.shadow_offset = Vector2(0.0, 3.0)
 	_texto = Label.new()
 	_texto.text = tr("guardado.marca").to_upper()
@@ -123,7 +130,7 @@ func _poner(v: float, que: String) -> void:
 
 func _aplicar() -> void:
 	_mat.set_shader_parameter("carga", _carga)
-	_mat.set_shader_parameter("opacidad", _vida)
+	_mat.set_shader_parameter("opacidad", _vida * MENU.BOLA_OPACIDAD)
 	_mat_luz.set_shader_parameter("carga", _carga)
 	_mat_luz.set_shader_parameter("fuerza", 0.14 * _vida)
 	_mat_motas.set_shader_parameter("recarga", _recarga * _vida * 0.7)
