@@ -43,6 +43,7 @@ controles.baculo_sacar,Sacarlo y guardarlo.,Draw it and put it away.
 ensena.baculo,Sacar / guardar,Draw / put away
 controles.hacia_fondo,Andar hacia el fondo,Walk into the distance
 controles.hacia_ti,Andar hacia ti,Walk towards you
+controles.elegir_camino,Elegir camino,Choose a path
 tecla.espacio,ESPACIO,SPACE
 tecla.intro,INTRO,ENTER
 tecla.esc,ESC,ESC

@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://dly0x4siq8hca"
+path="res://.godot/imported/viento.png-77de1320c51af337a1091830e87e4dab.image"
+
+[deps]
+
+source_file="res://assets/world/cruce_bosque/pixeles/viento.png"
+dest_files=["res://.godot/imported/viento.png-77de1320c51af337a1091830e87e4dab.image"]
+
+[params]
+

@@ -24,7 +24,8 @@ const CELDA := Vector2(64, 128)
 const PANTALLA := Vector2(2912, 1632)
 ## Color medio de las hojas del atlas: se divide por el para tenirlas.
 const BASE := Color(0.657, 0.417, 0.139)
-const PUNTOS := "res://assets/world/camino_bosque/hojas_copa.json"
+## Donde cuelgan (los saca mascaras.py de cada escena).
+@export_file("*.json") var puntos := "res://assets/world/camino_bosque/hojas_copa.json"
 
 ## RGB color medio de la zona, A luz.
 @export var medio: Texture2D
@@ -60,7 +61,7 @@ func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_medio = Imagenes.de(medio)
 	_prof = Imagenes.de(profundidad)
-	var f := FileAccess.open(PUNTOS, FileAccess.READ)
+	var f := FileAccess.open(puntos, FileAccess.READ)
 	if f:
 		_puntos = JSON.parse_string(f.get_as_text())
 	for i in mini(cantidad, _puntos.size()):

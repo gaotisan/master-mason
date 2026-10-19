@@ -34,8 +34,9 @@ extends Node2D
 ## EL PEREGRINO (peregrino_camino.gd), de frente y LO LLEVA EL JUGADOR. Entra
 ## desde la bruma del fondo del camino: la primera vez, cuando se va el emu (el
 ## emu sale solo esa vez: Partida "camino_emu"); las demas, enseguida. Al
-## llegar delante se para y la escena funde a negro (aun no hay la escena de la
-## camara de detras). Si se aleja hacia la bruma, CORTE a la escena de antes
+## llegar delante, andando, CORTE al contraplano (escena_siguiente, el cruce del
+## bosque: la camara de detras, que le ve de espaldas seguir andando); volviendo
+## de alli entra por delante, de espaldas y andando. Si se aleja hacia la bruma, CORTE a la escena de antes
 ## (escena_anterior), sin negro, como un cambio de camara (el usuario: "para
 ## darle continuidad al mundo"; se carga desde que tiene el mando), diciendole
 ## como va (PeregrinoEstado, con viene_de "camino_bosque": por ahi sabe que
@@ -56,7 +57,6 @@ extends Node2D
 const PANTALLA := Vector2(2912, 1632)
 const FRANJAS := 17
 const MUELLES := 5
-const VIENTO_MASCARA := preload("res://assets/world/camino_bosque/viento.png")
 const RUIDO := preload("res://assets/world/camino_bosque/ruido.png")
 const Imagenes := preload("res://scripts/game/imagenes_cache.gd")
 ## Con preload (no por su class_name): asi no dependen de la cache de clases.
@@ -69,6 +69,14 @@ const PartidaHechos := preload("res://scripts/game/partida.gd")
 @export_group("Peregrino")
 ## La escena de la que viene por el camino y a la que vuelve si se aleja.
 @export_file("*.tscn") var escena_anterior := "res://scenes/game/caida_hojarasca.tscn"
+## El contraplano: a la que pasa al llegar delante (corte de camara, andando).
+## Vacia: a negro y ahi se queda (como antes de haberla).
+@export_file("*.tscn") var escena_siguiente := "res://scenes/game/cruce_bosque.tscn"
+## Como se llama esta escena para la siguiente (PeregrinoEstado viene_de: por
+## ahi sabe por donde entra).
+@export var nombre_escena := "camino_bosque"
+## Lo que sigue andando hacia la camara antes del corte al contraplano (s).
+@export var corte_delante_s := 0.12
 ## Segundos tras irse el emu (o tras entrar, sin emu) hasta que asoma.
 @export var tras_emu := 0.3
 @export var sin_emu_espera := 1.2
@@ -179,7 +187,8 @@ var _viento_cerca := Vector2.ZERO
 var _mascara_viento: Image
 var _ruido_img: Image
 var _param := {}
-var _cargando_anterior := false
+var _cargando: Array[String] = []
+var _cortando := false
 var _sacudida := 0.0
 var _c_inicio := -100.0
 var _c_sube := 4.0
@@ -201,7 +210,8 @@ func _ready() -> void:
 	scale = Vector2(sobre, sobre)
 	position = -(sobre - 1.0) * PANTALLA * 0.5
 	_mf.set_shader_parameter("niebla", _aire_vista.get_texture())
-	_mascara_viento = Imagenes.de(VIENTO_MASCARA)
+	# (la de la copa, la que tenga el fondo: cada escena la suya)
+	_mascara_viento = Imagenes.de(_mf.get_shader_parameter("viento_m"))
 	_ruido_img = Imagenes.de(RUIDO)
 	var sh := _mf.shader.get_rid()
 	for n in ["rama_px", "rama_racha_px", "ramita_px", "ramita_racha_px", "rama_vel", "ramita_vel", "foco"]:
@@ -248,6 +258,7 @@ func _montar_peregrino() -> void:
 	peregrino.llego.connect(_al_llegar)
 	peregrino.se_va.connect(_volver)
 	peregrino.al_mando.connect(_cargar_anterior)
+	peregrino.al_mando.connect(_cargar.bind(escena_siguiente))
 	var emu := get_node_or_null("Emu")
 	var forzar_emu := "emu" in OS.get_cmdline_user_args()
 	if emu and (forzar_emu or not PartidaHechos.ya(get_tree(), "camino_emu")):
@@ -274,25 +285,40 @@ func _a_negro() -> Tween:
 	MusicAmbience.apagar_camino(negro_s)
 	return tw
 
-## Delante: a negro y ahi se queda (aun no hay la escena de la camara de detras).
+## Delante, andando: corte al contraplano (escena_siguiente); sin ella, a negro
+## y ahi se queda.
 func _al_llegar() -> void:
-	_a_negro()
+	if escena_siguiente == "":
+		_a_negro()
+		return
+	_cortar_a(escena_siguiente, corte_delante_s)
 
 ## En segundo plano, para que el corte a la escena de antes sea al instante.
 func _cargar_anterior() -> void:
-	if escena_anterior != "" and not _cargando_anterior:
-		_cargando_anterior = true
-		ResourceLoader.load_threaded_request(escena_anterior)
+	_cargar(escena_anterior)
 
-## Se aleja hacia la bruma: corte a la escena de antes (la musica sigue). Si la
-## carga aun no ha acabado, sigue andando mientras; si tarda, a negro.
-func _volver() -> void:
-	if escena_anterior == "":
+## Empieza a cargar una escena en segundo plano (una vez).
+func _cargar(ruta: String) -> void:
+	if ruta == "" or ruta in _cargando:
 		return
-	_cargar_anterior()
+	_cargando.append(ruta)
+	ResourceLoader.load_threaded_request(ruta)
+
+## Se aleja hacia la bruma: corte a la escena de antes (la musica sigue).
+func _volver() -> void:
+	_cortar_a(escena_anterior, corte_musica_s)
+
+## Corte de camara a otra escena tras `espera` s (sigue andando mientras), con
+## el peregrino como va. Si la carga aun no ha acabado, sigue andando; si tarda,
+## a negro.
+func _cortar_a(ruta: String, espera: float) -> void:
+	if ruta == "" or _cortando:
+		return
+	_cortando = true
+	_cargar(ruta)
 	var t := 0.0
 	var negro := false
-	while t < corte_musica_s or ResourceLoader.load_threaded_get_status(escena_anterior) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+	while t < espera or ResourceLoader.load_threaded_get_status(ruta) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		await get_tree().process_frame
 		if not is_inside_tree():
 			return
@@ -301,12 +327,12 @@ func _volver() -> void:
 			negro = true
 			_a_negro()
 	var p: PeregrinoFrontal = $Peregrino.peregrino
-	Estado.dejar(get_tree(), p.lleva_baston, p.magia, p.magia_recarga, "camino_bosque")
-	var ps := ResourceLoader.load_threaded_get(escena_anterior) as PackedScene
+	Estado.dejar(get_tree(), p.lleva_baston, p.magia, p.magia_recarga, nombre_escena)
+	var ps := ResourceLoader.load_threaded_get(ruta) as PackedScene
 	if ps:
 		get_tree().change_scene_to_packed(ps)
 	else:
-		get_tree().change_scene_to_file(escena_anterior)
+		get_tree().change_scene_to_file(ruta)
 
 func _exit_tree() -> void:
 	var sonido := get_node_or_null("/root/WindAmbience")

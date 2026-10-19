@@ -548,6 +548,21 @@ func girar_desde_perfil(hacia := "espalda", desde := -1) -> void:
 	_colocar()
 
 
+## Ya andando hacia `hacia` ("frente" / "espalda"), sin arrancar: tras un corte de
+## camara, en la otra camara venia andando (del camino del bosque al cruce y
+## vuelta). Despues de meterlo en la escena. Si la escena no pide andar (quiere),
+## termina el paso y se para, como siempre.
+func empezar_andando(hacia := "espalda") -> void:
+	_accion = ""
+	_a_perfil = false
+	_cara = hacia
+	_cb = "andar"
+	_poner_anim("andar_%s%s" % [hacia, _suf()], 0)
+	# que no cuente como pulsacion (el doble toque, correr)
+	_tecla_antes = hacia
+	_colocar()
+
+
 ## Da la vuelta hasta el perfil (mirando a la derecha; a la izquierda, con el
 ## nodo espejado) y se queda ahi; al llegar emite en_perfil. Parado, gira al
 ## acabar de espirar; andando, termina el paso hasta los pies juntos y entra en

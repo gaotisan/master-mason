@@ -25,6 +25,11 @@ static func de(tex: Texture2D) -> Image:
 	var clave := tex.resource_path if tex.resource_path != "" else str(tex.get_rid())
 	if PIXELES.has(clave):
 		return PIXELES[clave]
+	# las de otras escenas con el mismo arreglo (el cruce del bosque): la copia en
+	# pixeles/ junto a la textura, si la hay
+	var copia := clave.get_base_dir() + "/pixeles/" + clave.get_file()
+	if not _cache.has(clave) and clave.begins_with("res://") and ResourceLoader.exists(copia):
+		_cache[clave] = load(copia)
 	if not _cache.has(clave):
 		var img := tex.get_image()
 		if img.is_compressed():

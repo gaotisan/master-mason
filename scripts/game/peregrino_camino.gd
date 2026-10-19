@@ -10,8 +10,10 @@ extends Node2D
 ## enseguida) andando solo desde la bruma del fondo del camino, como si viniera
 ## de la escena de antes, y al salir de ella el mando pasa al jugador.
 ## LA BRUMA DEL FONDO va con la distancia (vista): sale de la luz al acercarse y
-## se pierde en ella al alejarse. Al llegar delante se para solo y emite
-## `llego` (la escena funde a negro: aun no hay la de la camara de detras). Si
+## se pierde en ella al alejarse. Al llegar delante (pies_hasta), andando, emite
+## `llego` y sigue andando: la escena corta al contraplano (el cruce del bosque,
+## la camara de detras). Sin contraplano (cortar_delante = false) se para solo
+## y la escena funde a negro. Si
 ## se aleja hasta pies_corte (aun se le ve, entrando en la bruma) emite `se_va`:
 ## la escena corta a la de antes, como un cambio de camara (el usuario: "para
 ## darle continuidad al mundo"). Al darle el mando emite `al_mando` (la escena
@@ -22,6 +24,10 @@ extends Node2D
 ## venir hacia la camara), mientras siga pulsada anda hacia la camara; al
 ## soltarla, lo normal. Si no, tras el corte se daba la vuelta y se volvia. La
 ## hojarasca hace lo mismo al reves: el corte queda continuo en los dos sentidos.
+##
+## VOLVIENDO DEL CRUCE (viene_de "cruce_bosque"): entra por delante (pies_vuelta),
+## de espaldas y ya andando, con el mando; si llega con abajo pulsada (alli es
+## volver hacia aquella camara), mientras siga pulsada se aleja.
 ##
 ## COMO LLEGA: como lo dejo la escena de antes (PeregrinoEstado): con el baston
 ## en la mano o guardado a la espalda, y su magia; las dos cosas valen. Si no
@@ -44,8 +50,6 @@ const PEREGRINO := preload("res://scenes/characters/peregrino_frontal.tscn")
 ## Con preload (no por su class_name): asi no depende de la cache de clases.
 const Estado := preload("res://scripts/characters/peregrino_estado.gd")
 const SHADER := preload("res://scripts/game/peregrino_camino.gdshader")
-const MEDIO := preload("res://assets/world/camino_bosque/medio.png")
-const PROFUNDIDAD := preload("res://assets/world/camino_bosque/profundidad.png")
 const Imagenes := preload("res://scripts/game/imagenes_cache.gd")
 ## Las pisadas, precargadas (con la escena: cargarlas en _ready sumaba al tiron
 ## de entrada).
@@ -57,7 +61,6 @@ const PISADAS_HOJAS: Array[AudioStream] = [
 	preload("res://assets/audio/hojarasca_paso_9.wav"), preload("res://assets/audio/hojarasca_paso_10.wav"),
 	preload("res://assets/audio/hojarasca_paso_11.wav"), preload("res://assets/audio/hojarasca_paso_12.wav")]
 const PANTALLA := Vector2(2912, 1632)
-const HORIZONTE := 980.0
 ## Alto de la persona con escala 1, de la capucha a los pies (las casillas de
 ## peregrino_frames: 324 sin baston; con el en la mano, 340 con la garra encima).
 const ALTO_ESCALA_1 := 324.0
@@ -66,6 +69,12 @@ const ALTO_POR_PIES := ALTO_ESCALA_1 / 195.3
 ## paso hasta los pies juntos, el puente al reposo y el margen del doble toque
 ## (medido con el baston: entre 8 y 29, segun donde le pille del paso).
 const PASADA := 20.0
+
+## Las mascaras de la foto de la escena (mascaras.py): el color medio y la luz,
+## y la profundidad. Y la fila del horizonte del suelo.
+@export var medio: Texture2D = preload("res://assets/world/camino_bosque/medio.png")
+@export var profundidad: Texture2D = preload("res://assets/world/camino_bosque/profundidad.png")
+@export var horizonte := 980.0
 
 ## Si la escena de antes no dice nada.
 @export var baston_en_mano := true
@@ -84,6 +93,12 @@ const PASADA := 20.0
 @export var pies_corte := 1138.0
 @export var pies_hasta := 1480.0
 @export var pies_tope := 1560.0
+## Al llegar a pies_hasta andando, corte al contraplano (sigue andando) en vez
+## de pararse.
+@export var cortar_delante := true
+## Por donde entra volviendo del contraplano (de espaldas, andando): algo mas
+## atras que pies_hasta, para que no vuelva a cortar al primer paso.
+@export var pies_vuelta := 1440.0
 
 @export_group("Luz")
 ## 1,2 (2026-10-18; antes 0,85): con 0,85 de cerca la tunica quedaba en 0,09,
@@ -127,6 +142,8 @@ var peregrino: PeregrinoFrontal
 
 var _estado := "esperando"     # esperando / entrando / jugando / llegando / fuera
 var _reten := false            # llego con arriba pulsada: hasta soltarla, arriba = hacia la camara
+var _reten_abajo := false      # volviendo del cruce con abajo pulsada: hasta soltarla, abajo = alejarse
+var _desde_delante := false    # vuelve del cruce: entra por delante, de espaldas
 var _espera := -1.0
 var _vista := 0.0
 var _escala_bruma := 1.0
@@ -149,12 +166,13 @@ func _ready() -> void:
 		baston_en_mano = bool(e.get("baston_en_mano", baston_en_mano))
 		magia = float(e.get("magia", magia))
 		magia_recarga = float(e.get("magia_recarga", magia_recarga))
+		_desde_delante = str(e.get("viene_de", "")) == "cruce_bosque"
 	else:
 		for a in OS.get_cmdline_user_args():
 			if a in ["espalda", "mano"]:
 				baston_en_mano = a == "mano"
-	_medio = Imagenes.de(MEDIO)
-	_prof = Imagenes.de(PROFUNDIDAD)
+	_medio = Imagenes.de(medio)
+	_prof = Imagenes.de(profundidad)
 	_escala_bruma = _escala_de(pies_bruma)
 	_escala_entrada = _escala_de(pies_entrada)
 	# Sombra de contacto: un ovalo blando, por debajo del peregrino.
@@ -173,7 +191,7 @@ func _ready() -> void:
 	add_child(_sombra)
 	_mat = ShaderMaterial.new()
 	_mat.shader = SHADER
-	_mat.set_shader_parameter("medio", MEDIO)
+	_mat.set_shader_parameter("medio", medio)
 	peregrino = PEREGRINO.instantiate()
 	peregrino.con_baston = baston_en_mano
 	peregrino.magia = magia
@@ -181,11 +199,14 @@ func _ready() -> void:
 	peregrino.cara = "frente"
 	peregrino.escala_min = 0.15
 	peregrino.escala_max = _escala_de(pies_tope)
-	peregrino.escala_inicial = _escala_bruma
+	peregrino.escala_inicial = _escala_de(pies_vuelta) if _desde_delante else _escala_bruma
+	if _desde_delante:
+		peregrino.cara = "espalda"
 	peregrino.perspectiva = _pies_de
 	peregrino.material = _mat
 	peregrino.pasos = _pasos_en_hojas()
 	peregrino.pasos_db = -80.0
+	_antes_de_meter()
 	add_child(peregrino)
 	peregrino.piso.connect(_al_pisar)
 	# delante suelta antes: lo que sigue andando hasta pararse (con su paso: sin
@@ -196,9 +217,16 @@ func _ready() -> void:
 	peregrino.process_mode = Node.PROCESS_MODE_DISABLED
 
 
+## Para las escenas que lo heredan (peregrino_cruce.gd): lo que cambien del
+## componente antes de meterlo (hacia donde mira, la escala de salida...).
+func _antes_de_meter() -> void:
+	pass
+
+
 ## Que entre desde la bruma del fondo dentro de `espera` segundos.
+## (Volviendo del cruce, enseguida: el corte le pillo andando.)
 func entrar(espera := 0.0) -> void:
-	_espera = espera
+	_espera = 0.0 if _desde_delante else espera
 
 
 ## Una pisada al azar de las doce de la hojarasca, con algo de tono y volumen
@@ -216,13 +244,17 @@ func _arriba() -> bool:
 	return Input.is_action_pressed("saltar") or Input.is_key_pressed(KEY_UP)
 
 
+func _abajo() -> bool:
+	return Input.is_action_pressed("agacharse") or Input.is_key_pressed(KEY_DOWN)
+
+
 func _escala_de(pies_y: float) -> float:
-	return (pies_y - HORIZONTE) * ALTO_POR_PIES / ALTO_ESCALA_1
+	return (pies_y - horizonte) * ALTO_POR_PIES / ALTO_ESCALA_1
 
 
 ## Los pies en el suelo de la foto, sin la camara.
 func _suelo(escala: float) -> Vector2:
-	return Vector2(columna, HORIZONTE + escala * ALTO_ESCALA_1 / ALTO_POR_PIES)
+	return Vector2(columna, horizonte + escala * ALTO_ESCALA_1 / ALTO_POR_PIES)
 
 
 ## Al pisar, ya cerca, aparta alguna hoja del camino (las de Hojas).
@@ -270,6 +302,13 @@ func _process(delta: float) -> void:
 		_estado = "entrando"
 		visible = true
 		peregrino.process_mode = Node.PROCESS_MODE_INHERIT
+		if _desde_delante:
+			# del cruce: ya andando de espaldas (el corte le pillo andando) y con el mando
+			_estado = "jugando"
+			_reten_abajo = _abajo()
+			if _reten_abajo:
+				peregrino.empezar_andando("espalda")
+			al_mando.emit()
 	var escala := peregrino.escala
 	match _estado:
 		"entrando":
@@ -279,16 +318,26 @@ func _process(delta: float) -> void:
 				_estado = "jugando"
 				al_mando.emit()
 		"jugando":
-			var abajo := Input.is_action_pressed("agacharse") or Input.is_key_pressed(KEY_DOWN)
+			var abajo := _abajo()
 			var arriba := _arriba()
 			if _reten and not arriba:
 				_reten = false
+			if _reten_abajo and not abajo:
+				_reten_abajo = false
 			if _reten:
 				# la tecla con la que venia de la otra escena: sigue hacia la camara
 				abajo = true
 				arriba = false
+			elif _reten_abajo:
+				# la de volver del cruce: sigue alejandose
+				arriba = true
+				abajo = false
 			var q := "frente" if abajo and not arriba else ("espalda" if arriba and not abajo else "")
-			if q == "frente" and escala >= _escala_hasta:
+			if q == "frente" and cortar_delante and escala >= _escala_de(pies_hasta):
+				# delante, andando: corte al contraplano (sigue andando hasta el corte)
+				_estado = "fuera"
+				llego.emit()
+			elif q == "frente" and not cortar_delante and escala >= _escala_hasta:
 				# delante: se para solo y ya no anda mas
 				q = ""
 				_estado = "llegando"
