@@ -176,16 +176,19 @@ const DOBLE_TOQUE := 0.30        # dos pulsaciones a menos: correr (como doble_p
 ## cambia.
 ## (Con baston_espalda.png, ya a su tamano, de espaldas va a 1; el 1,2 era para
 ## baston.png.)
-## EN PRUEBA (2026-10-18, solo prueba_frontal lo enciende): el baston a la espalda
-## es baston_espalda.png tambien visto de frente. Sin esto, de frente va baston.png
-## (garra dorada, mas cerrada y pequena) y en la vuelta cambia de una a otra en el
-## perfil: el usuario veia la garra cambiar de tamano.
-@export var garra_unica := false
-## EN PRUEBA (2026-10-18, solo prueba_frontal lo enciende): las hojas a la resolucion
-## de los masters (peregrino_frontal_hd.tres, tools/anim/frontal_hd.py: el doble que
-## las del juego). El sprite va a media escala (_k): las filas de los JSON, la escala
-## y lo demas siguen en px de hoja.
-@export var alta_resolucion := false
+## (2026-10-18, en el juego desde el 2026-10-19) El baston a la espalda es
+## baston_espalda.png tambien visto de frente (sin esto, de frente iba baston.png:
+## garra dorada, mas cerrada y pequena, y en la vuelta cambiaba de una a otra en el
+## perfil: el usuario veia la garra cambiar de tamano). Con el, sacar / guardar son
+## las rehechas con esa garra (*_gu: animar.py --gu de cada job).
+@export var garra_unica := true
+## (2026-10-18, en el juego desde el 2026-10-19) Las hojas a la resolucion de los
+## masters (peregrino_frontal_hd.tres, tools/anim/frontal_hd.py: el doble que las de
+## peregrino_frames.tres; el usuario: "la mejor resolucion disponible"). El sprite va a
+## media escala (_k): las filas de los JSON, la escala y lo demas siguen en px de hoja.
+## Lo que la escena mida en texels del sprite, por k_textura (ver abajo). Pesa ~370 MB:
+## la escena que lo cree a mitad de juego, antes PeregrinoFrontal.precargar().
+@export var alta_resolucion := true
 @export var baston_espalda_escala := Vector2(1.0, 1.0)
 @export var baston_frente_escala := Vector2(1.0, 1.0)
 ## Trazo engordado (texeles; corte_madera.gdshader y el shader de la escena) y
@@ -215,6 +218,10 @@ var luz_baston := Color.WHITE
 
 var escala: float:
 	get: return _escala
+## Px de hoja por texel de la textura del sprite (0,5 con alta_resolucion): lo que la
+## escena mida en texels del sprite (un shader con TEXTURE_PIXEL_SIZE), por esto.
+var k_textura: float:
+	get: return 0.5 if alta_resolucion else 1.0
 var animacion: String:
 	get: return String(_sprite.animation)
 var fotograma: int:
@@ -488,7 +495,11 @@ func _ready() -> void:
 	_sprite = AnimatedSprite2D.new()
 	_sprite.sprite_frames = FRAMES
 	if alta_resolucion:
-		_sprite.sprite_frames = load(FRAMES_HD)
+		# (si se pidio con precargar, se espera a esa carga en vez de empezar otra)
+		if ResourceLoader.load_threaded_get_status(FRAMES_HD) != ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+			_sprite.sprite_frames = ResourceLoader.load_threaded_get(FRAMES_HD)
+		else:
+			_sprite.sprite_frames = load(FRAMES_HD)
 		_k = 0.5
 	_sprite.use_parent_material = true
 	add_child(_sprite)
@@ -546,6 +557,15 @@ func girar_desde_perfil(hacia := "espalda", desde := -1) -> void:
 	_cb_dir = 1 if hacia == "espalda" else -1
 	_poner_anim("vuelta" + _suf(), desde)
 	_colocar()
+
+
+## Pide en segundo plano las hojas HD (alta_resolucion): la escena que vaya a crear
+## el peregrino de frente a mitad de juego (cargarlas al crearlo daba un tiron).
+static func precargar() -> void:
+	if OS.has_feature("nothreads") or ResourceLoader.has_cached(FRAMES_HD):
+		return
+	if ResourceLoader.load_threaded_get_status(FRAMES_HD) == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+		ResourceLoader.load_threaded_request(FRAMES_HD)
 
 
 ## Ya andando hacia `hacia` ("frente" / "espalda"), sin arrancar: tras un corte de

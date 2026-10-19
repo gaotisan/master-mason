@@ -377,7 +377,8 @@ func _luz() -> void:
 	var pies := peregrino.pies
 	var alto := escala * ALTO_ESCALA_1
 	var amb := _ambiente(pies, alto)
-	_mat.set_shader_parameter("px_por_texel", escala * raiz.global_scale.x)
+	# (texels del sprite: con las hojas HD, la mitad de px de hoja cada uno)
+	_mat.set_shader_parameter("px_por_texel", escala * peregrino.k_textura * raiz.global_scale.x)
 	_mat.set_shader_parameter("pies_y", pies.y)
 	_mat.set_shader_parameter("bruma_alto", alto * bruma_pies)
 	_mat.set_shader_parameter("bruma_pies", bruma_pies_fuerza)

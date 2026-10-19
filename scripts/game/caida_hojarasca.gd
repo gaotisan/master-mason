@@ -631,6 +631,8 @@ var _ligero_pendiente := false         # ya floto: decir "ligero" en cuanto se p
 var _alcanzado := false
 
 func _ready() -> void:
+	# las hojas HD del peregrino de frente (para la boca del camino), ya en segundo plano
+	PeregrinoFrontal.precargar()
 	_montar_nada()
 	_fondo_mat = $Fondo.material as ShaderMaterial
 	_leer_haz()
@@ -2305,6 +2307,9 @@ func _crear_frontal(con_baston: bool, escala: float, dir: float, pies0: Vector2)
 	f.set("pasos", ($SonidoPaso as AudioStreamPlayer).stream)
 	f.set("pasos_db", hojas_paso_db + linear_to_db(float(f.get("pasos_escala_ref")) / salida_escala))
 	_frontal_luz = (_sprite.material as ShaderMaterial).duplicate() as ShaderMaterial
+	# el filo de luz va en texels del sprite: con las hojas HD (mas texels por px), el doble
+	_frontal_luz.set_shader_parameter("borde_px",
+		float(_frontal_luz.get_shader_parameter("borde_px")) / float(f.get("k_textura")))
 	f.material = _frontal_luz
 	f.scale.x = dir
 	f.position = pies0

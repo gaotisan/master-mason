@@ -44,10 +44,6 @@ func _ready() -> void:
 	_fondo.draw.connect(_dibujar_fondo)
 	add_child(_fondo)
 	_peregrino = PEREGRINO.instantiate()
-	# en prueba: el mismo baston a la espalda de frente y de espaldas (ver garra_unica)
-	_peregrino.garra_unica = true
-	# en prueba: las hojas a la resolucion de los masters (ver alta_resolucion)
-	_peregrino.alta_resolucion = true
 	# sin bola de salida (O la pone): la garra y el palo se ven mejor
 	_peregrino.magia = 0.0
 	_peregrino.magia_recarga = 0.0
