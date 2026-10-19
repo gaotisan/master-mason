@@ -765,7 +765,7 @@ func _process(delta: float) -> void:
 	if _arbol_espera <= 0.0:
 		_arbol_espera = randf_range(arbol_cada_min, arbol_cada_max)
 		_hoja_de_arriba()
-	if _ligero_pendiente and _con_mando >= 0.0 and not _pensar.hablando():
+	if _ligero_pendiente and _con_mando >= 0.0 and not _alcanzado and not _pensar.hablando():
 		_ligero_pendiente = false
 		_pensar.decir("ligero")
 	_envolver()
@@ -1181,6 +1181,10 @@ func _pisar_hoja(pies: Vector2) -> void:
 	capa_mejor.pisar(mejor, Vector2(0.0, pisar_cede))
 	mejor["giro"] = 0.0
 	_hoja_pisada_capa = capa_mejor
+	# posarse en una hoja de la luz tambien es apoyarse tras flotar: lo piensa
+	# ahi (ver _seguir_el_salto)
+	if not _pensar.dicho("ligero"):
+		_ligero_pendiente = true
 	# Unas migas de la hoja y un crujido suave, mas agudo que en el suelo.
 	for i in 3:
 		_soltar(mejor["p"] + Vector2(randf_range(-8.0, 8.0), 0.0),
@@ -1219,8 +1223,16 @@ func _al_despegar_de_hoja(h: Dictionary) -> void:
 	_hoja_pisada_capa = null
 
 ## La primera vez que flota de verdad (le ha dado bien la luz en un salto),
-## al volver al suelo lo piensa: en la luz apenas pesa.
+## al volver al suelo lo piensa: en la luz apenas pesa. O al posarse en la
+## primera hoja (_pisar_hoja): subiendo de hoja en hoja sin bajar al suelo se
+## quedaba pendiente, la cinematica de coger el baculo contaba como tocar suelo
+## y lo pensaba justo al cogerlo (2026-10-19, el usuario: "queda rarisimo").
+## Con el baculo alcanzado ya no: la luz se apaga.
 func _seguir_el_salto() -> void:
+	if _alcanzado:
+		_ligero_pendiente = false
+		_en_el_aire = false
+		return
 	if _peregrino.en_el_aire():
 		_en_el_aire = true
 		_luz_del_salto = maxf(_luz_del_salto, _peregrino.luz())
@@ -1408,17 +1420,34 @@ var _ensena_tecla: KeyPrompt
 var _ensena_calma := 0.0          # s sin pensar nada tras lo del camino
 var _ensena_lado := {}            # accion de direccion -> _ensena_t de su ultima pulsacion (doble toque)
 
-## Lo que el peregrino puede hacer ahora, para los controles del menu de pausa
-## (scripts/ui/menu_pausa.gd): el baculo, solo cuando ya lo tiene.
-func controles_disponibles() -> Array:
-	var lista := [
-		{"acciones": [&"mover_izquierda", &"mover_derecha"], "texto": "controles.andar", "nota": "controles.correr"},
-		{"acciones": [&"saltar"], "texto": "controles.saltar"},
-		{"acciones": [&"agacharse"], "texto": "controles.agacharse", "nota": "controles.tumbarse"},
+## Lo que el peregrino puede hacer, para los controles del menu de pausa
+## (scripts/ui/menu_pausa.gd). Antes de coger el baculo, una hoja sola. Con el,
+## una hoja por como lo lleve (el usuario, 2026-10-19): a la espalda (de todo
+## menos tumbarse y arrastrarse), en la mano (solo andar) y sin el, clavado (de
+## todo, tambien tumbarse y arrastrarse); se abre en la de ahora.
+func hojas_controles() -> Array:
+	var andar := {"acciones": [&"mover_izquierda", &"mover_derecha"], "texto": "controles.andar", "nota": "controles.correr"}
+	var saltar := {"acciones": [&"saltar"], "texto": "controles.saltar"}
+	var agacharse := {"acciones": [&"agacharse"], "texto": "controles.agacharse"}
+	var tumbarse := {"acciones": [&"agacharse"], "texto": "controles.agacharse", "nota": "controles.tumbarse_arrastrarse"}
+	if not _resuelta:
+		return [{"filas": [andar, saltar, tumbarse]}]
+	var acciones := get_node_or_null("Acciones")
+	var clavado := acciones != null and acciones.get("_clavado") != null
+	var en_mano := _baston_mano != null and bool(_baston_mano.get("en_mano"))
+	return [
+		{"titulo": "controles.hoja_espalda", "nota": "controles.limite_espalda",
+			"ahora": not clavado and not en_mano, "filas": [andar, saltar, agacharse,
+				{"acciones": [&"baston"], "texto": "controles.baculo", "nota": "controles.baculo_sacarlo"}]},
+		{"titulo": "controles.hoja_mano", "nota": "controles.limite_mano",
+			"ahora": not clavado and en_mano, "filas": [
+				{"acciones": [&"mover_izquierda", &"mover_derecha"], "texto": "controles.andar"},
+				{"acciones": [&"saltar"], "texto": "controles.golpe_suelo"},
+				{"acciones": [&"baston"], "texto": "controles.baculo", "nota": "controles.baculo_guardarlo"}]},
+		{"titulo": "controles.hoja_sin", "nota": "controles.limite_sin",
+			"ahora": clavado, "filas": [andar, saltar, tumbarse,
+				{"acciones": [&"accion"], "texto": "controles.arrancar", "nota": "controles.arrancar_nota"}]},
 	]
-	if _resuelta:
-		lista.append({"acciones": [&"baston"], "texto": "controles.baculo", "nota": "controles.baculo_mano"})
-	return lista
 
 func _empezar_ensena_baston() -> void:
 	_ensena = 5 if PARTIDA.ya(get_tree(), "baston_aprendido") else 1

@@ -38,8 +38,20 @@ controles.saltar,Saltar,Jump
 controles.agacharse,Agacharse,Crouch
 controles.tumbarse,Dos toques: tumbarse,Double tap: lie down
 controles.baculo,Báculo,Staff
-controles.baculo_mano,"Sacarlo y guardarlo. En la mano, solo se anda.","Draw it and put it away. While holding it, you can only walk."
 controles.baculo_sacar,Sacarlo y guardarlo.,Draw it and put it away.
+controles.tumbarse_arrastrarse,"Dos toques: tumbarse. Tumbado, se arrastra.","Double tap: lie down. Lying down, you crawl."
+controles.baculo_sacarlo,Sacarlo a la mano.,Take it in your hand.
+controles.baculo_guardarlo,Guardarlo a la espalda.,Put it on your back.
+controles.golpe_suelo,Golpear el suelo,Strike the ground
+controles.arrancar,Arrancar el báculo,Pull out the staff
+controles.arrancar_nota,"Cuando está clavado, a su lado.","When it is planted, standing beside it."
+controles.hoja_espalda,Báculo a la espalda,Staff on your back
+controles.hoja_mano,Báculo en la mano,Staff in hand
+controles.hoja_sin,Sin el báculo,Without the staff
+controles.ahora,Así vas ahora,As you are now
+controles.limite_espalda,"Con el báculo encima no se puede tumbar ni arrastrar.","With the staff on you, you cannot lie down or crawl."
+controles.limite_mano,"Con el báculo en la mano solo se anda: ni correr, ni trepar, ni coger nada.","With the staff in hand you can only walk: no running, climbing or picking things up."
+controles.limite_sin,"Sin el báculo encima se puede hacer de todo, también tumbarse y arrastrarse.","Without the staff on you, you can do everything, even lie down and crawl."
 ensena.baculo,Sacar / guardar,Draw / put away
 controles.hacia_fondo,Andar hacia el fondo,Walk into the distance
 controles.hacia_ti,Andar hacia ti,Walk towards you

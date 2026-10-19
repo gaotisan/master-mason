@@ -179,6 +179,7 @@ var _contacto := 0                   # empuje: primer fotograma con el sillar en
 var _bloque: Objeto
 var _tira := false                   # el sillar va con las manos tirando (hacia atras)
 var _seguir := true
+var _atras := false                  # los tramos al reves (EL ARRASTRE HACIA ATRAS)
 var _al_acabar := Callable()
 var _ultima := ""
 var _trepa_pedido := 0.0             # segundos que queda guardado un salto para trepar
@@ -647,6 +648,7 @@ func _cortar_por_cinematica() -> bool:
 	_modo = Modo.LIBRE
 	_tramos = []
 	_bloque = null
+	_atras = false
 	_al_acabar = Callable()
 	_peregrino.control_bloqueado = false
 	return true
@@ -932,14 +934,14 @@ func _tumbarse() -> void:
 ## arrastrarse), quieto, hasta que se arrastre o se levante. El arrastre es un
 ## ciclo que acaba donde empieza y levantarse empieza donde acaban los dos
 ## (montar_accion.py), asi que se puede encadenar de cualquier manera.
-func _quedar_tumbado(anim: String) -> void:
+func _quedar_tumbado(anim: String, f := -1) -> void:
 	_modo = Modo.TUMBADO
 	_peregrino.control_bloqueado = true
 	var dat: Dictionary = _datos[anim]
 	_sprite.offset = Vector2(dat["offset"][0], dat["offset"][1])
 	_sprite.animation = anim
 	_sprite.stop()
-	_sprite.frame = int(dat["n"]) - 1
+	_sprite.frame = f if f >= 0 else int(dat["n"]) - 1
 
 ## EL ARRASTRE SIN SALTO (2026-10-15; el usuario: "da un salto la animacion en
 ## cada avance, al final tiene un corte"). El arrastre de antes era una brazada
@@ -953,7 +955,10 @@ func _quedar_tumbado(anim: String) -> void:
 ## anim/peregrino_arrastrarse_bucle). Sin el bucle en la tabla, como antes.
 func _tumbado() -> void:
 	var eje := Input.get_axis("mover_izquierda", "mover_derecha")
-	if is_zero_approx(eje) or signf(eje) != _peregrino.mirando():
+	if is_zero_approx(eje):
+		return
+	if signf(eje) != _peregrino.mirando():
+		_arrastrarse_atras()
 		return
 	_corr = 0.0
 	_y_fin = _peregrino.position.y
@@ -964,6 +969,91 @@ func _tumbado() -> void:
 	elif _datos.has("arrastrarse"):
 		_al_acabar = func(): _quedar_tumbado("arrastrarse")
 		_empezar(["arrastrarse"], _peregrino.mirando())
+
+## EL ARRASTRE HACIA ATRAS (2026-10-19; el usuario: "quiero ir arrastras igual
+## pero para atras, ¿se puede sacar de la animacion hacia delante?"). Los tres
+## tramos del arrastre, del ultimo al primero y cada uno al reves, sin girarse:
+## salida al reves (de tumbado arranca: la brazada deshecha es un empujon con
+## las manos), el bucle al reves mientras se mantenga la tecla hacia atras, y la
+## entrada al reves (se queda tumbado en el primer dibujo de la entrada, que es
+## el de tumbarse: de ahi se arrastra hacia delante o se levanta como siempre).
+## Los empalmes son los de hacia delante leidos al reves (ver _paso_atras), asi
+## que no hay salto nuevo. Sin video nuevo: si la tunica delata la marcha atras,
+## hara falta uno de verdad.
+const ARRASTRE_ATRAS := ["arrastre_salida", "arrastrarse_bucle", "arrastre_entrada"]
+func _arrastrarse_atras() -> void:
+	var tramos: Array = ARRASTRE_ATRAS if _datos.has("arrastrarse_bucle") else (["arrastrarse"] if _datos.has("arrastrarse") else [])
+	if tramos.is_empty():
+		return
+	var d: float = _peregrino.mirando()
+	# (sin sitio detras ni para una brazada, no arranca: se queda tumbado)
+	var sin_bucle: Array = [tramos[0], tramos[-1]] if tramos.size() > 2 else tramos
+	if not _cabe_atras(_peregrino.position.x, d, sin_bucle):
+		_ultima = "(no hay sitio detras para arrastrarse)"
+		return
+	_corr = 0.0
+	_y_fin = _peregrino.position.y
+	_bloque = null
+	_atras = true
+	var fin: String = tramos[-1]
+	_al_acabar = func(): _quedar_tumbado(fin, 0)
+	_empezar(tramos, d)
+
+## Hacia atras, de un tramo t (ya al reves, en su primer dibujo) al siguiente u:
+## lo que hay que restar a la base. Hacia delante, del primer dibujo de u al
+## primero de t el nodo avanza A (u.siguiente; del bucle a la salida, su
+## "salidas"; de la entrada a la salida sin bucle, su "sin_bucle"): al reves, el
+## ultimo dibujo de u queda a A - raiz_u[ultimo] (un paso) del primero de t.
+func _paso_atras(t: String, u: String) -> float:
+	var du: Dictionary = _datos[u]
+	var dt: Dictionary = _datos[t]
+	var a := float(du["siguiente"][0])
+	if u != t and du.get("bucle", false):
+		a = float(du.get("salidas", {}).get(str(int(du["n"]) - 1), a))
+	elif u != t and not dt.get("bucle", false) and du.has("sin_bucle"):
+		a = float(du["sin_bucle"][0])
+	var ru: Array = du["raiz"][int(du["n"]) - 1]
+	var rt: Array = dt["raiz"][int(dt["n"]) - 1]
+	return float(rt[0]) + a - float(ru[0])
+
+## Si caben hacia atras (sin pasar el limite de ese lado) estos tramos, desde la
+## x de la base del primero.
+func _cabe_atras(x: float, d: float, tramos: Array) -> bool:
+	var falta := 0.0
+	for i in tramos.size() - 1:
+		falta += _paso_atras(tramos[i], tramos[i + 1])
+	var ultimo: Dictionary = _datos[tramos[-1]]
+	falta += float(ultimo["raiz"][int(ultimo["n"]) - 1][0])
+	var lim: float = _peregrino.limite_derecho if d < 0.0 else _peregrino.limite_izquierdo
+	return (x - lim) * d >= falta
+
+## Al acabar un tramo hacia atras: el bucle otra vez si se mantiene la tecla
+## hacia atras (y cabe otra vuelta y la salida), si no la entrada al reves, o
+## se acaba.
+func _siguiente_tramo_atras() -> bool:
+	var dat: Dictionary = _datos[_anim]
+	var resto := _t - float(dat["n"]) / _fps(_anim)
+	if _k + 1 >= _tramos.size():
+		_terminar()
+		return false
+	var hacia_atras := signf(Input.get_axis("mover_izquierda", "mover_derecha")) == -_d
+	var siguiente: String = _tramos[_k + 1]
+	var fin: String = _tramos[-1]
+	var sale := _k + 2 < _tramos.size()        # hay bucle en medio (salida, bucle, entrada)
+	var u := siguiente
+	if dat.get("bucle", false):
+		# en el bucle: otra vuelta o a la entrada
+		if hacia_atras and _cabe_atras(_base.x, _d, [_anim, _anim, fin]):
+			u = _anim
+	elif sale and (not hacia_atras or not _cabe_atras(_base.x, _d, [_anim, siguiente, fin])):
+		# de la salida, sin la tecla (un toque) o sin sitio: directa a la entrada
+		u = fin
+	_base.x -= _paso_atras(_anim, u) * _d
+	if u != _anim:
+		_k = _tramos.find(u)
+	_poner_tramo(u)
+	_t = resto
+	return true
 
 func _levantarse() -> void:
 	if not _datos.has("levantarse_tumbado"):
@@ -1042,7 +1132,7 @@ func _poner_tramo(anim: String) -> void:
 	_sprite.offset = Vector2(dat["offset"][0], dat["offset"][1])
 	_sprite.animation = anim
 	_sprite.stop()
-	_sprite.frame = 0
+	_sprite.frame = int(dat["n"]) - 1 if _atras else 0
 
 func _empezar(tramos: Array, d: float) -> void:
 	_tramos = tramos
@@ -1126,6 +1216,16 @@ func _avanzar(delta: float) -> void:
 		f = int(_t * _fps(_anim))
 	if f == _f:
 		return
+	if _atras:
+		# al reves: el dibujo n-1-f, y el nodo vuelve lo que avanzo el video
+		# desde el (en la base, el ultimo dibujo del tramo)
+		_f = f
+		var g := n - 1 - f
+		_sprite.frame = g
+		var rg: Array = dat["raiz"][g]
+		var ru: Array = dat["raiz"][n - 1]
+		_peregrino.position = Vector2(_base.x + (float(rg[0]) - float(ru[0])) * _d, _base.y + float(rg[1]))
+		return
 	var antes := _f
 	_f = f
 	_sprite.frame = f
@@ -1162,6 +1262,8 @@ func _avanzar(delta: float) -> void:
 
 ## Al acabar un tramo: el siguiente (o la otra vuelta del ciclo), o se acaba.
 func _siguiente_tramo() -> bool:
+	if _atras:
+		return _siguiente_tramo_atras()
 	var dat: Dictionary = _datos[_anim]
 	var resto := _t - float(dat["n"]) / _fps(_anim)
 	var paso: Array = dat["siguiente"]
@@ -1207,7 +1309,11 @@ func _siguiente_tramo() -> bool:
 func _terminar() -> void:
 	var dat: Dictionary = _datos[_anim]
 	var r: Array = dat["raiz"][int(dat["n"]) - 1]
-	if _bloque == null or _tira:
+	if _atras:
+		# (acaba en su primer dibujo: lo que avanzo el tramo, hacia atras)
+		_peregrino.position = Vector2(_base.x - float(r[0]) * _d, _y_fin)
+		_atras = false
+	elif _bloque == null or _tira:
 		# acaba en su altura: la de llegada (trepar, bajar) o la de salida (lo demas)
 		_peregrino.position = Vector2(_base.x + (float(r[0]) + _corr) * _d, _y_fin)
 	else:

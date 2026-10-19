@@ -11,8 +11,8 @@ extends "res://scripts/ui/menu_base.gd"
 ## descuadra (el tema del titulo con sus luces, por ejemplo).
 ##
 ## Pantallas: el menu (Continuar, Controles, Opciones, Volver al titulo, Salir),
-## los controles de ese momento (los da la escena con controles_disponibles(), ver
-## _controles), las opciones y la confirmacion de volver al titulo o salir, que
+## los controles de ese momento (los da la escena, en una hoja o en varias que se
+## pasan con izquierda y derecha, ver _controles), las opciones y la confirmacion de volver al titulo o salir, que
 ## dice desde donde se seguira (el punto guardado). La lista, las llamas, las
 ## opciones y la confirmacion son de menu_base.gd.
 
@@ -47,6 +47,8 @@ void fragment() {
 var _fondo_mat: ShaderMaterial
 var _negro: ColorRect
 var _efectos: Array[AudioEffect] = []
+var _hojas: Array = []                 # las de controles (ver _controles)
+var _hoja := 0                         # la que se ve
 
 
 func _ready() -> void:
@@ -111,21 +113,62 @@ func _poner_menu(sel := 0) -> void:
 
 
 func _poner_controles() -> void:
+	_hojas = _controles()
+	_hoja = 0
+	for i in _hojas.size():
+		if _hojas[i].get("ahora", false):
+			_hoja = i
+	_poner_hoja()
+
+
+## La hoja de controles _hoja. Con varias (una por como lleve el baculo), su
+## titulo entre angulos y el "Volver" las pasa con izquierda y derecha.
+func _poner_hoja() -> void:
 	_limpiar()
 	_cabecera("menu.controles", 300.0)
-	var filas := _controles()
+	var hoja: Dictionary = _hojas[_hoja] if _hoja < _hojas.size() else {}
+	var filas: Array = hoja.get("filas", [])
+	var con_titulo := hoja.has("titulo")
+	if con_titulo:
+		_titulo_hoja(hoja, 425.0)
 	if filas.is_empty():
 		_texto_centrado("controles.ninguna", FUENTE_NOTA, 52, ORO_APAGADO, 760.0)
 	else:
-		var alto_fila := 176.0
+		var alto_fila := 160.0 if con_titulo else 176.0
 		var y0 := ALTO * 0.5 - (filas.size() - 1) * alto_fila * 0.5 + 10.0
+		if con_titulo:
+			# todas las hojas desde la misma altura: al pasar de una a otra no salta nada
+			y0 = 596.0
 		for i in filas.size():
 			_fila_control(filas[i], y0 + i * alto_fila)
+		var y := y0 + filas.size() * alto_fila - 40.0
+		if hoja.has("nota"):
+			_texto_centrado(hoja["nota"], FUENTE_NOTA, 44, ORO, y)
+			y += 66.0
 		var otra := tr("controles.wasd" if Teclas.flechas else "controles.flechas")
-		_texto_centrado(tr("controles.tambien") % otra, FUENTE_NOTA, 40, ORO_APAGADO,
-			y0 + filas.size() * alto_fila - 40.0)
-	_lista([{"texto": "menu.volver", "elegir": _poner_menu.bind(1)}], ALTO - 230.0, 0)
+		_texto_centrado(tr("controles.tambien") % otra, FUENTE_NOTA, 36, ORO_APAGADO, y)
+	var volver := {"texto": "menu.volver", "elegir": _poner_menu.bind(1)}
+	if _hojas.size() > 1:
+		volver["lado"] = func(d: int) -> void:
+			_hoja = wrapi(_hoja + d, 0, _hojas.size())
+			_poner_hoja()
+	_lista([volver], ALTO - 230.0, 0)
 	_atras = _poner_menu.bind(1)
+
+
+## El titulo de la hoja (‹ BACULO EN LA MANO ›, los angulos como en los valores
+## de las opciones) y, si es como va ahora, una nota debajo.
+func _titulo_hoja(hoja: Dictionary, y: float) -> void:
+	var t := int(tam_opcion * 0.9)
+	var nombre := _texto_centrado(tr(String(hoja["titulo"])).to_upper(), FUENTE, t, ORO, y)
+	if _hojas.size() > 1:
+		var hueco := t * 0.9
+		var izq := _texto_centrado("‹", FUENTE, int(t * 1.5), ORO_APAGADO, y - t * 0.04)
+		var der := _texto_centrado("›", FUENTE, int(t * 1.5), ORO_APAGADO, y - t * 0.04)
+		izq.position.x = nombre.position.x - hueco - izq.size.x
+		der.position.x = nombre.position.x + nombre.size.x + hueco
+	if hoja.get("ahora", false):
+		_texto_centrado("controles.ahora", FUENTE_NOTA, 38, ORO_APAGADO, y + t * 0.95)
 
 
 func _poner_opciones() -> void:
@@ -225,19 +268,23 @@ func _fila_control(fila: Dictionary, y: float) -> void:
 		n.position = Vector2(centro_x + 12.0, y + 4.0)
 
 
-## Los controles de ahora. Cada escena de juego dice los suyos con
-## controles_disponibles() -> [{acciones: [StringName], texto, nota (opcional)}]
-## (texto y nota, claves de textos/interfaz.csv),
-## segun lo que el peregrino pueda hacer en ese momento. El ataud no lleva
-## script propio para esto: va aqui.
+## Las hojas de controles de ahora: [{filas, titulo, nota, ahora}]. Cada escena
+## de juego dice los suyos, segun lo que el peregrino pueda hacer en ese momento,
+## con controles_disponibles() -> [{acciones: [StringName], texto, nota
+## (opcional)}] (una hoja) o con hojas_controles() -> [{filas: [...lo mismo],
+## titulo, nota (lo que se puede y no), ahora (true en la de como va)}] (una por
+## postura: la hojarasca, por como lleve el baculo). Texto, nota y titulo, claves
+## de textos/interfaz.csv. El ataud no lleva script propio para esto: va aqui.
 func _controles() -> Array:
 	var escena := get_tree().current_scene
 	if escena == null:
 		return []
 	# La escena, o la de juego que lleve dentro (las de pruebas de scenes/dev).
 	for n in [escena] + escena.get_children():
+		if n.has_method("hojas_controles"):
+			return n.hojas_controles()
 		if n.has_method("controles_disponibles"):
-			return n.controles_disponibles()
+			return [{"filas": n.controles_disponibles()}]
 	if escena.scene_file_path in ["res://main.tscn", Partida.PRINCIPIO]:
-		return [{"acciones": [&"ui_up"], "texto": "controles.golpear"}]
+		return [{"filas": [{"acciones": [&"ui_up"], "texto": "controles.golpear"}]}]
 	return []
