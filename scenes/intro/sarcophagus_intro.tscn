@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3]
+[gd_scene load_steps=30 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/intro/sarcophagus_base_16_9.png" id="1"]
 [ext_resource type="Script" path="res://scripts/flicker_light.gd" id="2"]
@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://scenes/intro/web_spider.tscn" id="16_spider"]
 [ext_resource type="Script" path="res://scripts/fondo_parches_luz.gd" id="17_parches"]
 [ext_resource type="Texture2D" path="res://assets/intro/tunica_mesa.png" id="18_tunica"]
+[ext_resource type="Script" path="res://scripts/intro/ataud_camara.gd" id="19_camara"]
 
 [sub_resource type="Gradient" id="Gradient_radial"]
 offsets = PackedFloat32Array(0, 0.7)
@@ -55,6 +56,7 @@ color = Color(0.15, 0.01, 0.01, 0.6)
 position = Vector2(1456, 816)
 texture = ExtResource("1")
 script = ExtResource("17_parches")
+margen = 40.0
 
 [node name="Tunica" type="Sprite2D" parent="."]
 position = Vector2(1170, 826)
@@ -274,5 +276,8 @@ key_size_px = 165.0
 [node name="PunchEffect" parent="." instance=ExtResource("11_punch")]
 light_mask = 0
 position = Vector2(1456, 816)
+
+[node name="CamaraProfundidad" type="Node2D" parent="."]
+script = ExtResource("19_camara")
 
 [connection signal="died" from="Cockroach" to="InputTutor" method="stop"]
