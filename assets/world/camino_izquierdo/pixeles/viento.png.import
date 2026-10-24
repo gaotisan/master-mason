@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://ci7pqidnsc3q4"
+path="res://.godot/imported/viento.png-1cd2b1623b20a704fb19b0d8aebc0374.image"
+
+[deps]
+
+source_file="res://assets/world/camino_izquierdo/pixeles/viento.png"
+dest_files=["res://.godot/imported/viento.png-1cd2b1623b20a704fb19b0d8aebc0374.image"]
+
+[params]
+

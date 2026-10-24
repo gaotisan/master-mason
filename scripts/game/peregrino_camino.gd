@@ -166,7 +166,7 @@ func _ready() -> void:
 		baston_en_mano = bool(e.get("baston_en_mano", baston_en_mano))
 		magia = float(e.get("magia", magia))
 		magia_recarga = float(e.get("magia_recarga", magia_recarga))
-		_desde_delante = str(e.get("viene_de", "")) == "cruce_bosque"
+		_desde_delante = _viene_de_delante(str(e.get("viene_de", "")))
 	else:
 		for a in OS.get_cmdline_user_args():
 			if a in ["espalda", "mano"]:
@@ -215,6 +215,12 @@ func _ready() -> void:
 	# esperando, quieto y sin verse
 	visible = false
 	peregrino.process_mode = Node.PROCESS_MODE_DISABLED
+
+
+## Si llega por delante (de la escena que tiene delante, de espaldas y andando):
+## aqui, del cruce del bosque. Las que lo heredan dicen lo suyo.
+func _viene_de_delante(viene_de: String) -> bool:
+	return viene_de == "cruce_bosque"
 
 
 ## Para las escenas que lo heredan (peregrino_cruce.gd): lo que cambien del

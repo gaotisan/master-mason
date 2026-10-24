@@ -57,6 +57,8 @@ MEDIANA_CAMINO = 21.5 / 255.0
 ROJO_AZUL_CAMINO = 1.29
 # Fraccion del camino hasta igualarlo (1 = igual; 0 = sin tocar).
 IGUALAR = 0.7
+# Hasta que luminancia se dejan las sombras sin la curva (se funde hasta ahi).
+SOMBRA = 0.22
 
 
 def suave(a, b, x):
@@ -115,7 +117,12 @@ def igualar_color(rgb):
 	# fraccion IGUALAR; el color se escala con la luminancia (no cambia de tono).
 	g_total = np.log(MEDIANA_CAMINO) / np.log(mediana)
 	g = 1.0 + (g_total - 1.0) * IGUALAR
-	nueva = np.power(np.clip(l, 1e-5, 1.0), g)
+	# Solo en medios y luces: en las sombras la gamma aplastaba el detalle a negro
+	# (el usuario, 2026-10-19: "muy quemada a negro"; el 19,6 % de la imagen bajo
+	# 0,03 contra el 9,5 % del original). Por debajo de SOMBRA queda como esta.
+	lc = np.clip(l, 1e-5, 1.0)
+	w = suave(0.0, SOMBRA, lc)
+	nueva = lc * (1.0 - w) + np.power(lc, g) * w
 	out = rgb * (nueva / np.maximum(l, 1e-5))[..., None]
 	# Enfriar: rojo/azul hacia el del camino, sin cambiar la luminancia.
 	media = out.reshape(-1, 3).mean(0)

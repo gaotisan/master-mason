@@ -326,8 +326,13 @@ func _cortar_a(ruta: String, espera: float) -> void:
 		if t > 2.0 and not negro:
 			negro = true
 			_a_negro()
-	var p: PeregrinoFrontal = $Peregrino.peregrino
-	Estado.dejar(get_tree(), p.lleva_baston, p.magia, p.magia_recarga, nombre_escena)
+	var pe := $Peregrino
+	if pe.has_method("dejar_estado"):
+		# (el de tres cuartos no lleva el componente de frente: lo dice el)
+		pe.dejar_estado(nombre_escena)
+	else:
+		var p: PeregrinoFrontal = pe.peregrino
+		Estado.dejar(get_tree(), p.lleva_baston, p.magia, p.magia_recarga, nombre_escena)
 	var ps := ResourceLoader.load_threaded_get(ruta) as PackedScene
 	if ps:
 		get_tree().change_scene_to_packed(ps)

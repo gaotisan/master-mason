@@ -1,0 +1,95 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/plano_bosque.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/world/camino_derecho/fondo.png" id="2"]
+[ext_resource type="Shader" path="res://scripts/game/camino_fondo.gdshader" id="3"]
+[ext_resource type="Shader" path="res://scripts/game/camino_aire.gdshader" id="4"]
+[ext_resource type="Texture2D" path="res://assets/world/camino_derecho/viento.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/world/camino_derecho/medio.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/world/camino_derecho/aire.png" id="7"]
+[ext_resource type="Texture2D" path="res://assets/world/camino_bosque/ruido.png" id="8"]
+[ext_resource type="Script" path="res://scripts/game/hojas_otono.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/game/motas_luz.gd" id="10"]
+[ext_resource type="Script" path="res://scripts/game/hojas_copa.gd" id="12"]
+[ext_resource type="Texture2D" path="res://assets/world/camino_derecho/profundidad.png" id="17"]
+[ext_resource type="Texture2D" path="res://assets/world/camino_derecho/detras.png" id="18"]
+[ext_resource type="Script" path="res://scripts/game/peregrino_sendero.gd" id="19"]
+
+[sub_resource type="ShaderMaterial" id="fondo"]
+shader = ExtResource("3")
+shader_parameter/viento_m = ExtResource("5")
+shader_parameter/prof = ExtResource("17")
+shader_parameter/detras = ExtResource("18")
+shader_parameter/medio = ExtResource("6")
+shader_parameter/ruido = ExtResource("8")
+shader_parameter/foco = Vector2(1490, 1150)
+shader_parameter/suelo_y = 1180.0
+
+[sub_resource type="ShaderMaterial" id="aire"]
+shader = ExtResource("4")
+shader_parameter/ruido = ExtResource("8")
+shader_parameter/mascara = ExtResource("7")
+shader_parameter/profundidad = ExtResource("5")
+shader_parameter/fuga = Vector2(1490, 1150)
+shader_parameter/fuente = Vector2(1500, 640)
+
+[node name="CaminoDerecho" type="Node2D"]
+script = ExtResource("1")
+escena_anterior = "res://scenes/game/cruce_bosque.tscn"
+escena_siguiente = ""
+nombre_escena = "camino_derecho"
+corte_musica_s = 0.12
+tension_hacia = Vector2(1490, 1300)
+
+[node name="Fondo" type="Sprite2D" parent="."]
+z_index = -10
+texture_filter = 2
+material = SubResource("fondo")
+texture = ExtResource("2")
+centered = false
+
+[node name="AireVista" type="SubViewport" parent="."]
+disable_3d = true
+size = Vector2i(728, 408)
+render_target_update_mode = 4
+
+[node name="Aire" type="ColorRect" parent="AireVista"]
+material = SubResource("aire")
+offset_right = 728.0
+offset_bottom = 408.0
+mouse_filter = 2
+
+[node name="HojasCopa" type="Node2D" parent="."]
+script = ExtResource("12")
+puntos = "res://assets/world/camino_derecho/hojas_copa.json"
+medio = ExtResource("6")
+profundidad = ExtResource("5")
+
+[node name="Peregrino" type="Node2D" parent="."]
+script = ExtResource("19")
+medio = ExtResource("6")
+profundidad = ExtResource("17")
+horizonte = 1120.0
+pies_tope = 1620.0
+exposicion = 1.0
+saturacion = 0.65
+camino = PackedVector3Array(1490, 1560, 1560, 1490, 1450, 1455, 1495, 1350, 1360, 1500, 1270, 1285, 1495, 1210, 1232, 1490, 1170, 1200, 1490, 1150, 1180)
+pies_inicio = 1540.0
+pies_corte_vuelta = 1585.0
+z_salida = 1205.0
+nombre_salida = "fondo"
+z_niebla = Vector2(1250, 1195)
+resplandor = Vector2(1500, 640)
+entra_de = "cruce_bosque"
+
+[node name="Hojas" type="Node2D" parent="."]
+z_index = 6
+script = ExtResource("9")
+medio = ExtResource("6")
+ramas = ExtResource("5")
+fuga = Vector2(1490, 1150)
+
+[node name="Motas" type="Node2D" parent="."]
+z_index = 6
+script = ExtResource("10")
+mascara = ExtResource("7")

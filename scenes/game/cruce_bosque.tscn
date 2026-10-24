@@ -73,13 +73,21 @@ horizonte = 1000.0
 pies_tope = 1560.0
 exposicion = 1.0
 saturacion = 0.65
+camino = PackedVector3Array(1480, 1490, 1490, 1470, 1400, 1400, 1478, 1290, 1290, 1490, 1190, 1190, 1497, 1120, 1120, 1500, 1062, 1062)
+pies_inicio = 1490.0
+pies_corte_vuelta = 1522.0
+z_salida = 1080.0
+nombre_salida = "casa"
+z_niebla = Vector2(1135, 1068)
+resplandor = Vector2(1630, 560)
+entra_de = "camino_bosque"
 
 [node name="Hojas" type="Node2D" parent="."]
 z_index = 6
 script = ExtResource("9")
 medio = ExtResource("6")
 ramas = ExtResource("5")
-fuga = Vector2(1500, 1000)
+fuga = Vector2(1500, 1040)
 
 [node name="Motas" type="Node2D" parent="."]
 z_index = 6

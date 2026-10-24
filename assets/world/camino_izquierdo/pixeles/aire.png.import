@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://byysiocm8hau"
+path="res://.godot/imported/aire.png-6700cfc42c3dc259b38474b7ab1f73e4.image"
+
+[deps]
+
+source_file="res://assets/world/camino_izquierdo/pixeles/aire.png"
+dest_files=["res://.godot/imported/aire.png-6700cfc42c3dc259b38474b7ab1f73e4.image"]
+
+[params]
+

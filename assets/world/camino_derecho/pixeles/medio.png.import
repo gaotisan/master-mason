@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://45fy7copjqun"
+path="res://.godot/imported/medio.png-eb00c3118f7c40ea05f710030b2d91b5.image"
+
+[deps]
+
+source_file="res://assets/world/camino_derecho/pixeles/medio.png"
+dest_files=["res://.godot/imported/medio.png-eb00c3118f7c40ea05f710030b2d91b5.image"]
+
+[params]
+

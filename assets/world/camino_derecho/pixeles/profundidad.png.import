@@ -1,0 +1,14 @@
+[remap]
+
+importer="image"
+type="Image"
+uid="uid://buhk4ldcdcg8q"
+path="res://.godot/imported/profundidad.png-9d3e4c4f0c80058f9d5f61c97f037bc5.image"
+
+[deps]
+
+source_file="res://assets/world/camino_derecho/pixeles/profundidad.png"
+dest_files=["res://.godot/imported/profundidad.png-9d3e4c4f0c80058f9d5f61c97f037bc5.image"]
+
+[params]
+
