@@ -63,24 +63,36 @@ POSES_JUEGO = {
 LIMPIOS = {
 	'espalda_guardado': 'peregrino_secuencia_frontal_sin/04_limpios/reposo_espalda_sb_000.png',
 	'frente_guardado': 'peregrino_secuencia_frontal_sin/04_limpios/reposo_frente_sb_000.png',
-	'tq_espalda_guardado': 'peregrino_secuencia_frontal_sin/04_limpios/vuelta_sb_042.png',
-	'tq_frente_guardado': 'peregrino_secuencia_frontal_sin/04_limpios/vuelta_sb_016.png',
+	'tq_espalda_guardado': 'peregrino_secuencia_frontal_sin/04_limpios/vuelta_sb_046.png',
+	'tq_frente_guardado': 'peregrino_secuencia_frontal_sin/04_limpios/vuelta_sb_012.png',
 }
 
+# EL ANGULO (2026-10-19): el de la toma buena del 01
+# (Pilgrim_walking_away_from_camera_20261019102353): se aleja en diagonal pero
+# con el cuerpo casi de espaldas, girado unos 10-15 grados (como vuelta_sb 46,
+# 167). Es el unico angulo de diagonal: todas las tomas a el. Por eso los tres
+# cuartos de correr son vuelta_sb 46 (de espaldas) y 12 (de frente, ~16), y
+# sacar / guardar en diagonal sobran (09 y 10 fuera): con el cuerpo casi de
+# espaldas valen los de espaldas que ya hay.
 # Los videos: carpeta -> [(archivo, pose, x)]
 VIDEOS = {
 	'01_guardado_andar_ida_derecha': [('inicio.png', 'espalda_guardado', X_DERECHA)],
+	# el inicio es el ultimo fotograma de la toma buena del 01
+	# (Pilgrim_walking_away_from_camera_20261019102353, f239), limpio:
+	# poses_diagonal/inicio_02_de_01_f239.png, se copia a mano
 	'02_guardado_andar_vuelta_derecha': [('fin.png', 'frente_guardado', X_DERECHA)],
 	'03_guardado_correr_alejandose': [('inicio_y_fin.png', 'tq_espalda_guardado', X_CENTRO)],
 	'04_guardado_correr_acercandose': [('inicio_y_fin.png', 'tq_frente_guardado', X_CENTRO)],
 	'05_mano_andar_ida_derecha': [('inicio.png', 'espalda_mano', X_DERECHA)],
 	'06_mano_andar_vuelta_derecha': [('fin.png', 'frente_mano', X_DERECHA)],
-	'07_mano_andar_ida_izquierda': [('inicio.png', 'espalda_mano', X_IZQUIERDA)],
-	'08_mano_andar_vuelta_izquierda': [('fin.png', 'frente_mano', X_IZQUIERDA)],
-	'09_sacar_tres_cuartos': [('inicio.png', 'tq_espalda_baculo_guardado', X_CENTRO),
-							  ('fin.png', 'tq_espalda_mano', X_CENTRO)],
-	'10_guardar_tres_cuartos': [('inicio.png', 'tq_espalda_mano', X_CENTRO),
-								('fin.png', 'tq_espalda_baculo_guardado', X_CENTRO)],
+	# el 07 con FINAL (2026-10-19: sin el, Veo apenas hacia diagonal y a veces
+	# un humano realista): el mismo sprite, lejos, en el espejo de donde acabo el
+	# 05 (Pilgrim_walking_away_from_camera_20261019145842: +554 px en x, pies de
+	# 1040 a 855, tamano x0,76). Y ese mismo es el inicio del 08.
+	'07_mano_andar_ida_izquierda': [('inicio.png', 'espalda_mano', X_IZQUIERDA),
+									('fin.png', 'espalda_mano', X_IZQUIERDA - 554, 0.76, 855)],
+	'08_mano_andar_vuelta_izquierda': [('inicio.png', 'espalda_mano', X_IZQUIERDA - 554, 0.76, 855),
+									   ('fin.png', 'frente_mano', X_IZQUIERDA)],
 }
 
 
@@ -103,10 +115,13 @@ def recorte(nombre):
 	return im, 600.0, int(filas[-1])
 
 
-def referencia(nombre, x):
+def referencia(nombre, x, escala=1.0, pie_y=PIE_Y):
 	im, eje, pie = recorte(nombre)
+	if escala != 1.0:
+		im = im.resize((round(im.width * escala), round(im.height * escala)), Image.LANCZOS)
+		eje, pie = eje * escala, pie * escala
 	lienzo = Image.new('RGBA', (W, H), VERDE + (255,))
-	lienzo.alpha_composite(im, (int(round(x - eje)), PIE_Y - pie))
+	lienzo.alpha_composite(im, (int(round(x - eje)), int(round(pie_y - pie))))
 	return lienzo.convert('RGB')
 
 
@@ -142,7 +157,7 @@ def hoja_referencias(salida):
 	"""Todas las referencias en una hoja, con su video."""
 	pequenas = []
 	for carpeta, refs in VIDEOS.items():
-		for archivo, _, _ in refs:
+		for archivo, *_ in refs:
 			pequenas.append((carpeta + '/' + archivo, Image.open(os.path.join(salida, carpeta, archivo))))
 	cols = 4
 	tw, th = 640, 360
@@ -205,9 +220,9 @@ def main():
 	os.makedirs(DESCARGAS, exist_ok=True)
 	for carpeta, refs in VIDEOS.items():
 		os.makedirs(os.path.join(DESCARGAS, carpeta), exist_ok=True)
-		for archivo, pose, x in refs:
-			referencia(pose, x).save(os.path.join(DESCARGAS, carpeta, archivo))
-			print('  %s/%s  <- %s (x %d)' % (carpeta, archivo, pose, x))
+		for archivo, pose, x, *lejos in refs:
+			referencia(pose, x, *lejos).save(os.path.join(DESCARGAS, carpeta, archivo))
+			print('  %s/%s  <- %s (x %d %s)' % (carpeta, archivo, pose, x, lejos))
 	hoja_angulos(DESCARGAS)
 	hoja_referencias(DESCARGAS)
 	prompts(DESCARGAS)

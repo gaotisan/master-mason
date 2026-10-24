@@ -1,0 +1,71 @@
+EL PEREGRINO: SALTO CORRIENDO NUEVO (de perfil) - PIEDRA
+======================================================
+Por que: al pasar de correr al salto (y del salto otra vez a correr) la tunica cambia
+de dibujo de parches de golpe: el salto salio de otro video. Este lo arregla desde
+el origen y de paso mejora el salto (aquel traia piedra, sombras, polvo, capucha
+cortada y camara lenta).
+
+LA CLAVE: inicio = nuestro correr 17 (el mas parecido al despegue y por el que se
+vuelve a correr al aterrizar); fin = nuestro reposo. Asi la tunica del video es la
+nuestra justo en los enganches.
+
+LA PIEDRA: una piedra grande gris de facetas, la misma del video del salto que ya
+usamos (la que funciono), QUIETA EN EL CENTRO, en el mismo sitio en inicio y fin.
+Camara fija: el peregrino entra corriendo por la izquierda, salta la piedra sin
+tocarla, aterriza, frena y se queda de pie a la derecha.
+
+EN EL JUEGO: si sigues pulsando, al caer se vuelve a correr (el video hasta tocar
+suelo); si sueltas, el aterrizaje y la parada del propio video.
+
+AJUSTES: 16:9, Veo 3.1 - Quality, 8 s, con audio; DESCARGA EN 1080p. 2-4 tomas.
+
+AL REVISAR LAS TOMAS
+  - UN SOLO salto, por encima de la piedra sin pisarla, en plena carrera.
+  - Empieza y acaba exactamente en las referencias (pose, sitio, tamano); la piedra
+    no se mueve.
+  - Velocidad real, sin camara lenta. Camara fija.
+  - Capucha blanda (que no se corte por arriba), pies con zapatos oscuros, sin
+    sombra en el suelo, sin polvo.
+  - Si alguna toma tiene un salto bueno y luego hace cosas raras, guardala: me vale
+    el tramo del salto.
+
+### EL PROMPT
+Inicio = inicio.png (corriendo a la izquierda), fin = fin.png (de pie a la derecha)
+
+Locked-off static camera, side view, no camera movement at all: no pan, no zoom,
+no cuts. Flat pure chroma-key green background (#24D732) filling the whole frame,
+evenly lit: no floor, no ground line, no other props, absolutely no shadow
+anywhere, no dust, no particles, no text. In the middle of the frame lies one big
+grey low-poly faceted rock, exactly the one in the first and last frames, about
+knee high. The rock never moves and casts no shadow.
+
+A stylized low-poly 3D video game character, exactly the one in the first and
+last frames: an old pilgrim seen exactly from the side, moving to the right. He is
+not a real person: flat-shaded faceted geometry, hand-painted colours, no
+photorealism.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- He comes running from the left exactly as in the first frame: the hurried run of
+  a tired old man, slightly bent forward, short strides, arms bent.
+- Without slowing down he leaps over the rock in one big running stride: a quick
+  push off one foot just before it, a long low arc over the rock with the knees
+  pulled up and the cloak flying behind him, never touching the rock, never
+  standing on it.
+- He lands on the leading foot past the rock, slows down over two or three short
+  tired steps, straightening up, and stops on the right, standing completely still
+  and calm until the end, exactly in the pose, place, size and angle of the last
+  frame.
+Only one jump, over the rock. He never jumps again, never turns back.
+His whole body and hood always stay inside the frame.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape of
+the first frame: a loose cloth hood with a low rounded top; it is NOT a pointed
+wizard hat and never grows, stiffens or stands up. Same character and same cloak
+throughout: the brown faceted patchwork cloak with exactly the same patches and
+colours as in the first frame, white beard. His legs and feet are dressed: thin
+legs in dark hose and soft dark leather shoes that cover his whole feet, one single
+very dark brown from the hem of the cloak to the tips of his shoes; normal small
+feet that never turn into skin or toes. Same colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker.
+Sound: only his quick footsteps, the jump, the landing and the rustle of
+the cloak; no music, no voice.

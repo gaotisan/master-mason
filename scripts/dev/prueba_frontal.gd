@@ -14,6 +14,9 @@ extends Node2D
 ##   O         sin bola / con bola (sin magia ni recarga: la garra vacia, para ver
 ##             la garra y el grosor del palo); empieza sin bola
 ##   R         vuelve al sitio de salida; Esc, sale
+##   H         hoja actual -> escalada a 1,5x (Real-ESRGAN, tools/anim/escalar_hoja.py y
+##             montar_hoja_escalada.py) -> escalada y limpia (tools/anim/hojas): para
+##             compararlas; el juego sigue con la actual
 ## guion: para grabarlo con --write-movie sin nadie al teclado, pasos
 ## [segundo, "abajo" | "arriba" | "", zoom(, con_baston)]; con guion se ignora
 ## el teclado.
@@ -21,6 +24,12 @@ extends Node2D
 const PEREGRINO := preload("res://scenes/characters/peregrino_frontal.tscn")
 const SUELO_SALIDA := 1200.0     # la fila del suelo del juego, con escala 1
 const ZOOMS := [1.0, 1.6, 2.5]
+## Las hojas que recorre H: [ruta, nombre, escala de la textura respecto a la del juego].
+const HOJAS := [
+	["", "actual", 1.0],
+	["res://resources/characters/peregrino_frontal_hd15.tres", "ESCALADA x1,5", 1.5],
+	["res://resources/characters/peregrino_frontal_hd15_limpio.tres", "ESCALADA x1,5 Y LIMPIA", 1.5],
+]
 
 @export var guion: Array = []
 
@@ -30,6 +39,7 @@ var _zoom := 0
 var _info: Label
 var _t := 0.0
 var _fondo: Node2D
+var _hoja := 0
 
 
 func _ready() -> void:
@@ -59,7 +69,7 @@ func _ready() -> void:
 		"abajo: hacia la camara (de frente)   arriba: alejandose (de espaldas)   doble toque: correr (sin baston; parado o andando)\n" + \
 		"B: sacar / guardar el baston (de frente o de espaldas; andando, se para antes)   Z: plano general / medio / primer plano\n" + \
 		"M: gastar magia   C: color   O: sin bola / con bola\n" + \
-		"R: volver al sitio   Esc: salir"
+		"H: hoja actual / escalada / escalada y limpia   R: volver al sitio   Esc: salir"
 	ayuda.position = Vector2(60, 50)
 	ayuda.add_theme_font_size_override("font_size", 40)
 	ayuda.add_theme_color_override("font_color", Color(0.85, 0.82, 0.75))
@@ -87,6 +97,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		KEY_R: _peregrino.reiniciar()
 		KEY_Z: _zoom = (_zoom + 1) % ZOOMS.size()
 		KEY_B: _peregrino.pulsar_baston()
+		KEY_H: _cambiar_hoja()
 		KEY_M: _peregrino.gastar(0.25)
 		KEY_C: _peregrino.color += 1
 		KEY_O:
@@ -138,8 +149,34 @@ func _seguirle() -> void:
 	_info.text = "%s  fotograma %d   escala %.2f (2 = el master)   camara x%.1f   %s   magia %d%%" % [
 		_peregrino.animacion, _peregrino.fotograma, escala, z,
 		"con baston" if _peregrino.lleva_baston else "sin baston", roundi(_peregrino.magia * 100.0)]
+	_info.text += "   HOJA %s" % HOJAS[_hoja][1]
 	if _peregrino.aviso > 0.0:
 		_info.text += "      CON EL BASTON EN LA MANO NO SE CORRE: B PARA GUARDARLO"
+
+
+## La hoja escalada en el mismo peregrino, sin tocar su script: las texturas son 1,5
+## veces mas grandes, asi que el sprite va a 1/1,5 de su escala (_k) y el suelo de
+## la casilla (15 px de hoja) se recoloca.
+func _cambiar_hoja() -> void:
+	_hoja = (_hoja + 1) % HOJAS.size()
+	var ruta: String = HOJAS[_hoja][0]
+	var sp: AnimatedSprite2D = _peregrino.get("_sprite")
+	var anim := sp.animation
+	var f := sp.frame
+	sp.sprite_frames = load(ruta if ruta != "" else PeregrinoFrontal.FRAMES_HD)
+	var k := 0.5 / float(HOJAS[_hoja][2])
+	_peregrino.set("_k", k)
+	(_peregrino.get("_funda_vacia") as Node2D).scale = Vector2.ONE / k
+	sp.animation = anim
+	sp.frame = f
+	sp.pause()
+	var alto := sp.sprite_frames.get_frame_texture(anim, 0).get_size().y
+	sp.offset = Vector2(0, -(alto / 2.0 - 15.0 / k))
+	# con la hoja escalada y limpia, la garra repintada: el palo con la textura nueva
+	if HOJAS[_hoja][1].ends_with("LIMPIA"):
+		_peregrino.poner_textura_palo(PeregrinoFrontal.BASTON_ESPALDA_HD3, PeregrinoFrontal.BASTON_ESPALDA_HD3_FICHA)
+	else:
+		_peregrino.poner_textura_palo(PeregrinoFrontal.BASTON_ESPALDA_HD, PeregrinoFrontal.BASTON_ESPALDA_HD_FICHA)
 
 
 func _dibujar_fondo() -> void:

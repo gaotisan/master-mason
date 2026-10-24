@@ -519,14 +519,14 @@ const BASTON_EN_MANO := preload("res://scenes/characters/baston.tscn")
 ## escena y entran en la carga en segundo plano del titulo; si no, se cargaban
 ## al abrir la escena o al coger el baculo, con el juego parado.
 const _PRECARGA := [
-	preload("res://assets/characters/peregrino/peregrino_flotar_bajar.png"),
-	preload("res://assets/characters/peregrino/peregrino_flotar_posarse.png"),
-	preload("res://assets/characters/peregrino/peregrino_flotar_girar.png"),
-	preload("res://assets/characters/peregrino/peregrino_flotar_pisar.png"),
-	preload("res://assets/characters/peregrino/peregrino_flotar_despegar.png"),
-	preload("res://assets/characters/peregrino/peregrino_flotar_llegar.png"),
-	preload("res://assets/characters/peregrino/peregrino_flotar_quieto.png"),
-	preload("res://assets/characters/peregrino/peregrino_coger_baculo.png"),
+	preload("res://assets/characters/peregrino_limpio/peregrino_flotar_bajar.png"),
+	preload("res://assets/characters/peregrino_limpio/peregrino_flotar_posarse.png"),
+	preload("res://assets/characters/peregrino_limpio/peregrino_flotar_girar.png"),
+	preload("res://assets/characters/peregrino_limpio/peregrino_flotar_pisar.png"),
+	preload("res://assets/characters/peregrino_limpio/peregrino_flotar_despegar.png"),
+	preload("res://assets/characters/peregrino_limpio/peregrino_flotar_llegar.png"),
+	preload("res://assets/characters/peregrino_limpio/peregrino_flotar_quieto.png"),
+	preload("res://assets/characters/peregrino_limpio/peregrino_coger_baculo.png"),
 	preload("res://assets/characters/baston/mano_reposo.png"),
 	preload("res://assets/characters/baston/mano_arranque_andar.png"),
 	preload("res://assets/characters/baston/mano_andar.png"),

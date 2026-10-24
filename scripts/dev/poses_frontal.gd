@@ -7,6 +7,9 @@ extends Node2D
 ##   Godot --path . res://scenes/dev/poses_frontal.tscn -- <carpeta> <nombre:animacion:fotograma:baston(1/0)> ...
 ## baston 1 = con el baculo en la mano (la correa vacia la pone el juego), 0 =
 ## guardado (el baculo y la correa a la espalda los pone el juego).
+## Con un quinto campo a 1 (nombre:animacion:fotograma:0:1) pinta SOLO lo que pone
+## el juego encima del video (el baculo y la correa a la espalda), sin el cuerpo:
+## para ponerselo a otros videos (raw/master_builder/anim/peregrino_diagonal).
 
 const PEREGRINO := preload("res://scenes/characters/peregrino_frontal.tscn")
 const PIES := Vector2(600, 1100)
@@ -36,6 +39,8 @@ func _ready() -> void:
 		pe._poner_anim(p[1], int(p[2]))
 		pe._cb = "perfil"
 		pe._colocar()
+		if p.size() > 4 and p[4] == "1":
+			pe._sprite.self_modulate = Color(1, 1, 1, 0)
 		for i in 4:
 			await get_tree().process_frame
 		await RenderingServer.frame_post_draw

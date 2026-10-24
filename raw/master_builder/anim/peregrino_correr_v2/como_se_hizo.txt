@@ -1,0 +1,41 @@
+peregrino_correr_v2: EL BLOQUE DE CORRER NUEVO (perfil), 2026-10-22
+====================================================================
+Por que: al saltar corriendo (y al volver a correr) la tunica cambiaba de parches de
+golpe: arranque, correr, salto, aterrizaje y parada salian de videos distintos. Ahora
+salen TODOS de un solo video, que empieza y acaba en nuestro reposo:
+  _fuentes/Elderly_mystic_running_and_leaping_20261021222919.mp4
+  (prompt: _fuentes/prompt_salto_corriendo_v2.txt; referencias con una piedra grande
+  en medio: _fuentes/salto_corriendo_v2/. Sin la piedra Veo saltaba dos veces o se
+  subia encima; con una valla, igual.)
+Se probo tambien un video de "corre y se para" (_fuentes/correr_parada_v2.mp4): su
+correr va mas erguido y con otra tunica (2 pasos del de este video): no se usa. La
+parada sale de la frenada tras el aterrizaje de este mismo video.
+
+Del video (24 fps) a cada animacion (fotogramas del video, incluidos):
+  arranque_correr    30-56   (de pie, nuestro reposo, a correr)
+  correr             83-103  bucle (cierre 0,6 pasos)
+  salto_correr       109-160 despega en el 3, toca en el 36 (casilla 680x800)
+  aterrizaje_correr  161-210 frena y se queda de pie (0,6 pasos del reposo)
+  parada_correr      167-215 entra desde el bucle (DIST_PARADA_CORRER) y se para
+
+Pasos (todo se puede repetir):
+  ../peregrino_salto_corriendo_v2/  extraer.py <video> 01_todo  (sin fondo, sin piedra)
+  montar.py   escala a 628 de alto, eje del tronco en su columna, suelo a 30 px,
+              y a media escala limpio (tools/anim/hojas: limpiar + pies)
+  medir.py    enganches, avance, pisadas, despegue y toca -> medidas.json
+  (a mano)    assets/characters/peregrino/correr_v2.json: la ficha que carga el juego
+  integrar.py mete las cinco en la hoja GEMELA (peregrino_frames_limpio.tres) con su
+              atlas (peregrino_limpio/peregrino_correr_v2.png). OJO: tras cada
+              procesar.py del perfil, que rehace la gemela, hay que volver a pasarlo.
+
+En el juego: peregrino.gd usar_correr(ficha) pone las constantes medidas del bloque
+(avance 18, cortes, entradas, DIST_PARADA, pisadas, golpes, vuelo); usar_correr("")
+vuelve a las de siempre. hoja_alterna.gd (H en prueba_perfil_limpio.bat) cambia hoja
+y constantes a la vez.
+
+Medidas que conviene mirar jugando:
+  avance_correr 18 px/fotograma (el pie apoyado; el de antes 14,5): a 435 px/s el
+  ciclo va a ~24 fotogramas/s, el ritmo del video (2-3 ticks por fotograma).
+  AVANCE_ARRANQUE_CORRER: medido hasta el 9 (~5 px/fotograma); del 10 al 19 rampa
+  hasta 435 (en el aire no hay pie que seguir).
+  frenada_correr 0,15; aterrizaje_correr_velocidad 0,3 y frenada 0,4: a ojo.

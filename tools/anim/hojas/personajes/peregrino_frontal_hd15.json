@@ -1,0 +1,23 @@
+{
+	"_que": "El frontal ESCALADO a 1,5x (escalar_hoja.py + montar_hoja_escalada.py, desde la hoja sin limpiar): se limpia ya escalado. Px de hoja = 3 veces los del perfil. Sin la raya del contorno (no hay croma oliva; aclaraba las puntas de la cornamenta). Pies: los de Veo salen descalzos y color carne (correr, andar de frente); con \"colgando\" para no pintar el baston.",
+	"tres": "resources/characters/peregrino_frontal_hd15.tres",
+	"gemelo": "resources/characters/peregrino_frontal_hd15_limpio.tres",
+	"texturas": "assets/characters/peregrino_hd15_limpio",
+	"escala": 3.0,
+	"limpieza": {
+		"linea": false
+	},
+	"pasadas": [
+		"limpieza",
+		"pies"
+	],
+	"pies": {
+		"_que": "como el perfil; colgando: solo lo que cuelga del centro del bajo de la tunica (el baston de espaldas cuelga de la mano, por el borde)",
+		"color": [
+			46,
+			36,
+			33
+		],
+		"colgando": true
+	}
+}

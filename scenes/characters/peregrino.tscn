@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/characters/peregrino.gd" id="1"]
-[ext_resource type="SpriteFrames" path="res://resources/characters/peregrino_frames.tres" id="2"]
+[ext_resource type="SpriteFrames" path="res://resources/characters/peregrino_frames_limpio.tres" id="2"]
 [ext_resource type="AudioStream" path="res://assets/audio/peregrino_respirar_ciclo.ogg" id="3"]
 
 [node name="Peregrino" type="Node2D"]

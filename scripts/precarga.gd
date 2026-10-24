@@ -17,21 +17,24 @@ extends Node
 ## SIN_PRECARGA=1 en el entorno la desactiva (para medir).
 
 const RUTAS := [
-	"res://resources/characters/peregrino_frames.tres",
+	# la limpia (tools/anim/hojas: procesar.py + integrar.py del correr nuevo), la del
+	# juego desde el 2026-10-22; peregrino_frames.tres queda de origen para las herramientas
+	"res://resources/characters/peregrino_frames_limpio.tres",
 	# el de frente / espaldas, aparte y solo en HD desde el 2026-10-19 (~270 MB)
 	"res://resources/characters/peregrino_frontal_hd.tres",
 	"res://scenes/characters/peregrino.tscn",
 	"res://scenes/characters/baston.tscn",
 	"res://scripts/characters/acciones_perfil.gd",
-	# las que se cargan a mano (flotar en peregrino.gd y la mano en baston.gd)
-	"res://assets/characters/peregrino/peregrino_flotar_bajar.png",
-	"res://assets/characters/peregrino/peregrino_flotar_posarse.png",
-	"res://assets/characters/peregrino/peregrino_flotar_girar.png",
-	"res://assets/characters/peregrino/peregrino_flotar_pisar.png",
-	"res://assets/characters/peregrino/peregrino_flotar_despegar.png",
-	"res://assets/characters/peregrino/peregrino_flotar_llegar.png",
-	"res://assets/characters/peregrino/peregrino_flotar_quieto.png",
-	"res://assets/characters/peregrino/peregrino_coger_baculo.png",
+	# las que se cargan a mano (flotar en peregrino.gd, las limpias de flotar_limpio.json,
+	# y la mano en baston.gd)
+	"res://assets/characters/peregrino_limpio/peregrino_flotar_bajar.png",
+	"res://assets/characters/peregrino_limpio/peregrino_flotar_posarse.png",
+	"res://assets/characters/peregrino_limpio/peregrino_flotar_girar.png",
+	"res://assets/characters/peregrino_limpio/peregrino_flotar_pisar.png",
+	"res://assets/characters/peregrino_limpio/peregrino_flotar_despegar.png",
+	"res://assets/characters/peregrino_limpio/peregrino_flotar_llegar.png",
+	"res://assets/characters/peregrino_limpio/peregrino_flotar_quieto.png",
+	"res://assets/characters/peregrino_limpio/peregrino_coger_baculo.png",
 	"res://assets/characters/baston/mano_reposo.png",
 	"res://assets/characters/baston/mano_arranque_andar.png",
 	"res://assets/characters/baston/mano_andar.png",

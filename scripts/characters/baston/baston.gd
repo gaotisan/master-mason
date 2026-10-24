@@ -72,8 +72,7 @@ const HASTA_FUNDA := 12.0
 ## mano.json["paso"] (raw/.../baston/paso.py y mano.py). Todo se le pone a
 ## El peregrino al sacarlo y se le devuelve como estaba al guardarlo.
 const PASO_MANO := {"correr_bloqueado": true, "agacharse_activo": false, "salto_bloqueado": true}
-const PISADA_A := preload("res://assets/audio/peregrino_paso_a.wav")
-const PISADA_B := preload("res://assets/audio/peregrino_paso_b.wav")
+const PISADA := preload("res://resources/audio/pie_andar.tres")     # la capa del pie (ver peregrino.gd PISADAS)
 const MANO_ANIMS := ["andar", "arranque_andar", "parada_andar", "reposo"]
 ## Con el baston en la mano tambien cambia el giro (de pie): por delante,
 ## cambiando el baston de mano, del video del job peregrino_giro_baston_mano
@@ -255,7 +254,7 @@ func _paso_mano(peregrino: Node) -> Dictionary:
 	var sonido := func(d: Dictionary) -> Dictionary:
 		var r := {}
 		for f in d:
-			r[int(f)] = PISADA_A if d[f] == "a" else PISADA_B
+			r[int(f)] = PISADA
 		return r
 	if medido.has("pisadas"):
 		var p: Dictionary = peregrino.pisadas.duplicate()

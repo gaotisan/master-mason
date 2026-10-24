@@ -115,7 +115,8 @@ extends Node2D
 ## esta a mas de 1,8 pasos del final (la capa se asienta), un salto de pose al
 ## salir andando. A x2,5 (60 fotogramas por segundo, 1 s) "es un pelin rapido,
 ## demasiado": x2, 1,27 s de pie (48 fotogramas por segundo, todos).
-@export var giro_ritmo: float = 2.0
+## 2026-10-22: a probar algo mas despacio: x1,3 lento, x1,4 (1,81 s de pie). Antes 2,0.
+@export var giro_ritmo: float = 1.4
 ## Margen para que dos pulsaciones cuenten como doble y arranque a correr.
 @export var doble_pulsacion: float = 0.30
 ## Fraccion del arranque en la que el personaje todavia no ha movido los pies,
@@ -230,7 +231,7 @@ const VUELO_MIN := 0.55
 ## Px que sube el pie mas bajo cocido en el sprite del salto corriendo (97 en
 ## el apogeo, f17-19): con el arco del nodo, la altura del salto para
 ## _ritmo_vuelo.
-const SUBIDA_SALTO_CORRER := 97.0
+var SUBIDA_SALTO_CORRER := 97.0
 ## Altura variable: constante de la curva con que la amplitud baja hacia el
 ## brinco corto (en fraccion del vuelo), y cuanto de la velocidad de subida del
 ## arco puede quitarle como mucho.
@@ -519,6 +520,85 @@ var hoja_debajo: Callable
 ## lado (<= 9 fotogramas).
 @export var quieto_ritmo_max: float = 2.5
 const FLOTAR := "res://assets/characters/peregrino/flotar.json"
+## La de las hojas limpias (tools/anim/hojas/flotar.py), la del juego desde el 2026-10-22.
+const FLOTAR_LIMPIO := "res://assets/characters/peregrino/flotar_limpio.json"
+## La ficha de flotar que se carga (otra para comparar hojas: scripts/dev/hoja_alterna.gd).
+var flotar_ficha := FLOTAR_LIMPIO
+
+## EL BLOQUE DE CORRER NUEVO (2026-10-22): arranque, correr, salto corriendo,
+## aterrizaje y parada de un solo video (raw/master_builder/anim/peregrino_correr_v2),
+## con su ficha de medidas (assets/characters/peregrino/correr_v2.json). Sus fotogramas
+## no son los de antes, asi que las constantes medidas del bloque (avance, cortes y
+## entradas, distancias de la parada, pisadas y golpes, el vuelo cocido del salto)
+## tambien cambian: usar_correr(ficha) las pone todas a la vez; usar_correr("")
+## vuelve a las de siempre. Por eso esas tablas son var y no const.
+const CORRER_V2 := "res://assets/characters/peregrino/correr_v2.json"
+## La que se pone al empezar: la hoja del juego (peregrino_frames_limpio.tres) lleva el
+## bloque nuevo desde el 2026-10-22; "" con la hoja vieja (peregrino_frames.tres).
+var correr_ficha := CORRER_V2
+var _correr_original := {}
+
+func usar_correr(ficha: String) -> void:
+	var tablas := ["AVANCE_ARRANQUE_CORRER", "DIST_PARADA_CORRER", "POSE_DESDE_ANDAR", "POSE_DESDE_ARRANQUE_ANDAR",
+		"ARRANQUE_CORRER_DESDE_REPOSO", "SUBIDA_SALTO_CORRER", "SALTO_CORRER_CAIDA_SPRITE"]
+	var anims := ["arranque_correr", "parada_correr", "aterrizaje_correr", "salto_correr"]
+	if _correr_original.is_empty():
+		var ex := {}
+		for k in ["avance_correr", "entrada_correr", "corte_arranque_correr", "espera_parada_correr",
+				"tolerancia_parada_correr", "frenada_correr", "aterrizaje_correr", "salto_correr_interrumpible",
+				"salto_correr_despegue", "salto_correr_toca", "salto_correr_a_correr",
+				"aterrizaje_correr_velocidad", "aterrizaje_correr_frenada"]:
+			ex[k] = get(k)
+		var ta := {}
+		for k in tablas:
+			ta[k] = get(k)
+		var go := {}
+		for a in anims:
+			go[a] = GOLPES.get(a, {})
+		_correr_original = {"exports": ex, "tablas": ta, "vuelo": VUELO[&"salto_correr"], "golpes": go,
+			"pisadas": {"correr": PISADAS["correr"]}}
+	var d: Dictionary = _correr_original
+	if ficha != "":
+		var j: Variant = JSON.parse_string(FileAccess.get_file_as_string(ficha))
+		if not j is Dictionary:
+			push_error("usar_correr: no se pudo leer " + ficha)
+			return
+		d = _ficha_correr(j)
+	for k in d["exports"]:
+		set(k, int(d["exports"][k]) if typeof(get(k)) == TYPE_INT else d["exports"][k])
+	for k in d["tablas"]:
+		set(k, d["tablas"][k])
+	VUELO[&"salto_correr"] = d["vuelo"]
+	for a in d["golpes"]:
+		GOLPES[a] = d["golpes"][a]
+	PISADAS["correr"] = d["pisadas"]["correr"]
+
+
+## La ficha de correr_v2.json con los tipos del script: enteros donde son indices y
+## los sonidos cargados.
+func _ficha_correr(j: Dictionary) -> Dictionary:
+	var ta := {}
+	for k in j["tablas"]:
+		var v: Variant = j["tablas"][k]
+		if v is Array:
+			var enteros: bool = k.begins_with("POSE_")
+			ta[k] = v.map(func(x): return int(x) if enteros else float(x))
+		elif k in ["ARRANQUE_CORRER_DESDE_REPOSO", "SALTO_CORRER_CAIDA_SPRITE"]:
+			ta[k] = int(v)
+		else:
+			ta[k] = float(v)
+	var vu: Dictionary = j["vuelo_salto_correr"].duplicate(true)
+	vu["despegue"] = int(vu["despegue"])
+	vu["toca"] = int(vu["toca"])
+	var go := {}
+	for a in j["golpes"]:
+		go[a] = {}
+		for f in j["golpes"][a]:
+			go[a][int(f)] = load(j["golpes"][a][f])
+	var pi := {}
+	for f in j["pisadas"]["correr"]:
+		pi[int(f)] = load(j["pisadas"]["correr"][f])
+	return {"exports": j["exports"], "tablas": ta, "vuelo": vu, "golpes": go, "pisadas": {"correr": pi}}
 ## Cinematica de entrada (caer_desde_arriba): cae desde fuera de pantalla, se
 ## estampa, se queda tumbado y se levanta. Mientras dura no se acepta entrada.
 ## Las cuatro animaciones van en casilla propia (380x360) pero con la linea de
@@ -559,18 +639,18 @@ const SONIDOS_CAIDA := {
 ## propio video (raw/master_builder/audio/peregrino/construye.py, seccion SALTOS).
 ## Antes todo esto era mudo: al arrancar a correr los primeros 0,6 s no sonaba
 ## nada, y los saltos ni despegaban ni caian.
-const GOLPES := {
-	"arranque_correr": {17: preload("res://assets/audio/peregrino_paso_correr_a.wav")},
-	"parada_andar":    {8:  preload("res://assets/audio/peregrino_paso_b.wav")},
+var GOLPES := {
+	"arranque_correr": {17: preload("res://resources/audio/pie_correr.tres")},
+	"parada_andar":    {8:  preload("res://resources/audio/pie_andar.tres")},
 	# Agachado (mas flojas, pasos_agachado_db): el pie cercano llega en el 22
 	# del arranque; en la parada, el de atras se junta en el 12.
-	"arranque_agachado": {22: preload("res://assets/audio/peregrino_paso_a.wav")},
-	"parada_agachado":   {12: preload("res://assets/audio/peregrino_paso_b.wav")},
+	"arranque_agachado": {22: preload("res://resources/audio/pie_andar.tres")},
+	"parada_agachado":   {12: preload("res://resources/audio/pie_andar.tres")},
 	# El paso agachado: apoya el pie de delante y despues junta el de atras.
-	"paso_agachado":     {18: preload("res://assets/audio/peregrino_paso_a.wav"),
-						  77: preload("res://assets/audio/peregrino_paso_b.wav")},
-	"parada_correr":   {5:  preload("res://assets/audio/peregrino_paso_correr_b.wav")},
-	"aterrizaje_correr": {19: preload("res://assets/audio/peregrino_paso_b.wav")},
+	"paso_agachado":     {18: preload("res://resources/audio/pie_andar.tres"),
+						  77: preload("res://resources/audio/pie_andar.tres")},
+	"parada_correr":   {5:  preload("res://resources/audio/pie_correr.tres")},
+	"aterrizaje_correr": {19: preload("res://resources/audio/pie_andar.tres")},
 	"saltar": {
 		13: preload("res://assets/audio/peregrino_salto_despegue.wav"),
 		48: preload("res://assets/audio/peregrino_salto_caida.wav"),
@@ -579,14 +659,17 @@ const GOLPES := {
 		4:  preload("res://assets/audio/peregrino_salto_correr_despegue.wav"),
 		33: preload("res://assets/audio/peregrino_salto_correr_caida.wav"),
 	},
+	# El salto de parado usa los del salto andando: el despegue de su video era un
+	# impulso de 0,4 s con la voz del peregrino ("hup") y en los otros saltos no la hay
+	# (el usuario, 2026-10-22). Sus wav siguen en assets/audio (peregrino_salto_parado_*).
 	"salto_parado": {
-		18: preload("res://assets/audio/peregrino_salto_parado_despegue.wav"),
-		47: preload("res://assets/audio/peregrino_salto_parado_caida.wav"),
+		18: preload("res://assets/audio/peregrino_salto_despegue.wav"),
+		47: preload("res://assets/audio/peregrino_salto_caida.wav"),
 	},
 }
 ## Sprite del golpe de la caida del salto corriendo en GOLPES, para cuando no
 ## se llega a el (se corta al ciclo al tocar suelo).
-const SALTO_CORRER_CAIDA_SPRITE := 33
+var SALTO_CORRER_CAIDA_SPRITE := 33
 
 ## Vuelo cocido de los tres saltos, para flotar en la luz (ver
 ## FLOTAR EN LA LUZ y _volar). Medido en 04_limpios (master a la mitad = px del
@@ -602,7 +685,7 @@ const SALTO_CORRER_CAIDA_SPRITE := 33
 ##   pose            cuerpo cocido menos parabola, por fotograma desde el
 ##                   despegue: +-2 px salvo el tiron del arranque
 ##   pies            altura cocida de los pies sobre el suelo, por fotograma
-const VUELO := {
+var VUELO := {
 	&"salto_parado": {"despegue": 18, "toca": 45, "apogeo": 31.73, "alto": 48.2, "centro": 134.0,
 		"pose": [0.0, 5.1, 11.1, 15.2, 17.1, 15.5, 12.4, 9.1, 6.7, 4.4, 2.7, 1.6, 0.7, 0.1, -0.1,
 			-0.5, -0.6, -0.4, -0.5, -0.3, -0.3, -0.1, 0.1, 0.5, 1.2, 1.3, 1.7, 0.0],
@@ -820,22 +903,26 @@ var _esperando_llegada := false
 @export var reposo_pausa_max: float = 1.2
 
 ## Sprite en que planta cada pie (medido en 04_limpios: maxima separacion de los
-## pies al andar, pie que toca el suelo al correr) -> golpe que suena.
-const PISADAS := {
+## pies al andar, pie que toca el suelo al correr) -> golpe que suena. El golpe,
+## la capa del PIE (2026-10-19): uno al azar de los sacados del audio de los
+## videos (resources/audio/pie_andar|pie_correr.tres, raw/master_builder/audio/
+## pie/elegir.py), al nivel de los peregrino_paso_* de antes (a y b sonaban
+## igual de fuertes: el pie de detras no se baja).
+var PISADAS := {
 	"andar": {
-		0: preload("res://assets/audio/peregrino_paso_a.wav"),
-		16: preload("res://assets/audio/peregrino_paso_b.wav"),
+		0: preload("res://resources/audio/pie_andar.tres"),
+		16: preload("res://resources/audio/pie_andar.tres"),
 	},
 	"correr": {
-		4: preload("res://assets/audio/peregrino_paso_correr_a.wav"),
-		16: preload("res://assets/audio/peregrino_paso_correr_b.wav"),
+		4: preload("res://resources/audio/pie_correr.tres"),
+		16: preload("res://resources/audio/pie_correr.tres"),
 	},
 	# Agachado, el talon del pie que llega toca el suelo (el cercano en el
 	# sprite 17, el lejano en el 38). Las mismas pisadas que andando, mas flojas
 	# (pasos_agachado_db).
 	"andar_agachado": {
-		17: preload("res://assets/audio/peregrino_paso_a.wav"),
-		38: preload("res://assets/audio/peregrino_paso_b.wav"),
+		17: preload("res://resources/audio/pie_andar.tres"),
+		38: preload("res://resources/audio/pie_andar.tres"),
 	},
 }
 
@@ -995,6 +1082,8 @@ var _quieto_v := 0.0         # fotogramas por tick del bucle quieto ahora (ver S
 
 func _ready() -> void:
 	_cargar_flotar()
+	if correr_ficha != "":
+		usar_correr(correr_ficha)
 	_sprite.animation_finished.connect(_al_terminar)
 	_sprite.frame_changed.connect(_al_cambiar_fotograma)
 	_sprite.animation_looped.connect(_al_dar_vuelta)
@@ -2310,9 +2399,10 @@ func _resolver_giro() -> void:
 	# La parada de correr se corta en su fotograma 4 y el pie planta en el 5:
 	# sin esto, la frenada entera de un cambio de sentido corriendo era muda y
 	# se leia como un patinazo.
-	if _estado == Estado.PARADA_CORRER and _sprite.frame < 5:
-		_sonar(GOLPES["parada_correr"][5], pasos_db, 0.0, true)
-		pisada.emit(&"parada_correr", 5)
+	var pie_parada: int = GOLPES["parada_correr"].keys()[0]   # el sprite en que planta (5; 15 con correr_v2)
+	if _estado == Estado.PARADA_CORRER and _sprite.frame < pie_parada:
+		_sonar(GOLPES["parada_correr"][pie_parada], pasos_db, 0.0, true)
+		pisada.emit(&"parada_correr", pie_parada)
 	if giro_activo:
 		_empezar_giro(hacia, corriendo)
 		return
@@ -3545,9 +3635,9 @@ func _offset_flotar(anim: StringName) -> Vector2:
 
 ## Anade las animaciones de flotar (flotar.json y sus hojas) a las del sprite.
 func _cargar_flotar() -> void:
-	if not FileAccess.file_exists(FLOTAR):
+	if not FileAccess.file_exists(flotar_ficha):
 		return
-	var datos: Variant = JSON.parse_string(FileAccess.get_file_as_string(FLOTAR))
+	var datos: Variant = JSON.parse_string(FileAccess.get_file_as_string(flotar_ficha))
 	if not datos is Dictionary:
 		return
 	_flotar = datos
@@ -3726,12 +3816,12 @@ const ARRANQUE_ANDAR_DE_PIE := 3
 ## 8 en adelante YA VA A CRUCERO (32, 31, 26, 25, 29, 33...). La rampa recta daba
 ## 5,7 en el fotograma 8: las piernas corriendo a tope con el cuerpo al 20 %, o
 ## sea el pie resbalando hacia atras todo el arranque. En px/s de hoja.
-const AVANCE_ARRANQUE_CORRER := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 81.0, 240.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0]
+var AVANCE_ARRANQUE_CORRER := [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 81.0, 240.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0, 435.0]
 ## Por que fotograma entra el arranque de correr con un doble toque desde
 ## reposo. Medido contra el reposo f0 (silueta y color, en pasos normales del
 ## ciclo de andar): f0 0,84, f1 0,64, f2 0,66, f3 0,67, f4 0,83, f5 0,99. El 3
 ## sigue quieto (velocidad 0 hasta el 5) y ahorra 0,1 s de fotogramas quietos.
-const ARRANQUE_CORRER_DESDE_REPOSO := 3
+var ARRANQUE_CORRER_DESDE_REPOSO := 3
 
 ## Por que fotograma del arranque de correr entrar segun la pose que se traiga.
 ## Cuando se pide correr ya andando -- o con la segunda pulsacion de un doble,
@@ -3742,7 +3832,7 @@ const ARRANQUE_CORRER_DESDE_REPOSO := 3
 ## correr que MAS SE PARECE (silueta y color, medido): media 1,05 y 1,34 pasos.
 ## La velocidad no se pierde por entrar antes: _velocidad_suelo la sostiene
 ## hasta que la rampa la alcanza.
-const POSE_DESDE_ARRANQUE_ANDAR := [0, 0, 0, 0, 0, 3, 4, 4, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 7, 7, 5]
+var POSE_DESDE_ARRANQUE_ANDAR := [0, 0, 0, 0, 0, 3, 4, 4, 4, 4, 4, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 7, 7, 5]
 
 ## PARAR DE ANDAR. La parada esta grabada desde UNA sola fase de la zancada: sus
 ## fotogramas casan con el ciclo alrededor de f26-f29 (y f3), a >= 1,1 pasos, y la
@@ -3758,7 +3848,7 @@ const POSE_DESDE_ARRANQUE_ANDAR := [0, 0, 0, 0, 0, 3, 4, 4, 4, 4, 4, 6, 6, 6, 6,
 ## Distancia de pose, en pasos normales, al entrar en la parada desde cada
 ## fotograma del ciclo. Medido sobre los sprites (silueta y color).
 const DIST_PARADA_ANDAR := [1.7, 1.5, 1.3, 1.3, 1.7, 1.8, 1.8, 2.0, 2.1, 2.4, 2.5, 2.4, 2.4, 2.2, 2.3, 2.4, 2.7, 3.3, 3.2, 2.9, 2.8, 2.3, 2.2, 1.7, 1.3, 1.1, 1.1, 1.2, 1.1, 1.1, 1.2, 1.4, 1.6, 1.8]
-const DIST_PARADA_CORRER := [1.7, 1.7, 1.7, 1.5, 1.5, 1.4, 1.4, 1.6, 1.6, 1.7, 1.6, 1.8, 2.1, 2.1, 2.1, 2.1, 1.9, 1.9, 2.0, 1.9, 1.5, 1.3, 1.2, 1.6]
+var DIST_PARADA_CORRER := [1.7, 1.7, 1.7, 1.5, 1.5, 1.4, 1.4, 1.6, 1.6, 1.7, 1.6, 1.8, 2.1, 2.1, 2.1, 2.1, 1.9, 1.9, 2.0, 1.9, 1.5, 1.3, 1.2, 1.6]
 const POSE_ANDAR_A_PARADA := [5, 5, 4, 6, 1, 6, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 3, 3, 4, 4, 4, 5, 5]
 ## Y el nodo no frena en seco: el pie plantado de la parada sigue avanzando 3-6 px
 ## master por fotograma durante 14 fotogramas antes de plantarse del todo. Este es
@@ -3767,7 +3857,7 @@ const POSE_ANDAR_A_PARADA := [5, 5, 4, 6, 1, 6, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2,
 ## de entrada.
 const FRENADA_ANDAR_PERFIL := [1.0, 0.95, 0.85, 0.75, 0.65, 0.55, 0.48, 0.42, 0.40, 0.40, 0.42, 0.40, 0.36, 0.32, 0.27, 0.20, 0.14, 0.10, 0.08, 0.05, 0.0]
 
-const POSE_DESDE_ANDAR := [5, 5, 6, 5, 6, 4, 6, 6, 6, 6, 4, 6, 4, 8, 8, 8, 8, 8, 7, 8, 7, 6, 6, 6, 6, 7, 4, 4, 5, 5, 6, 6, 5, 5]
+var POSE_DESDE_ANDAR := [5, 5, 6, 5, 6, 4, 6, 6, 6, 6, 4, 6, 4, 8, 8, 8, 8, 8, 7, 8, 7, 6, 6, 6, 6, 7, 4, 4, 5, 5, 6, 6, 5, 5]
 
 ## Por que fotograma del arranque de andar seguir cuando el salto (saltar) se
 ## corta con la tecla pulsada. El indice 0 es el sprite 60 del salto (indice

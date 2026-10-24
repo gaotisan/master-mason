@@ -1,0 +1,35 @@
+El peregrino en DIAGONAL (los caminos de los lados del cruce del bosque), 2026-10-19
+===================================================================================
+Videos de Flow (prompts y referencias: ../_fuentes/prompt_diagonal.txt y
+referencias_diagonal.py; los videos, en ../_fuentes): 01-08, ver montar.py.
+
+  python montar.py      los videos -> <clave>/c_###.png (croma, sin motas, sin el
+                        pico de la capucha del 04, piernas al color de los
+                        aceptados, tamano y suelo fijos como el frontal, a 2/3 del
+                        master) y <clave>/medidas.json
+  python secuencia.py   los bucles de andar y correr (el que mejor cierra, cerrado
+                        por flujo), el baculo y la correa pintados en los de
+                        baculo guardado (lo que pinta el juego: scenes/dev/
+                        poses_frontal.tscn con el cuerpo invisible), pisadas ->
+                        assets/characters/peregrino_diagonal/diagonal_N.png,
+                        resources/characters/peregrino_diagonal.tres,
+                        assets/characters/peregrino/diagonal.json
+  (despues, Godot --import)
+
+En el juego: scripts/characters/peregrino_diagonal.gd es solo la PIEL del
+peregrino de frente mientras anda o corre por un camino de los lados
+(peregrino_cruce.gd decide cuando, con un fundido de 0,15 s): el de frente sigue
+debajo, invisible, y hace todo lo demas (arrancar, parar, darse la vuelta, sacar
+y guardar). Por eso de los videos solo se usan los bucles: los giros y paradas de
+02, 06 y 08 y los arranques de 01, 05 y 07 quedan sin usar (los cubren los del de
+frente: con el cuerpo casi de espaldas o casi de frente casan).
+
+Lo que hay que saber:
+  - EL ANGULO es el del 01: se aleja en diagonal con el cuerpo casi de espaldas
+    (10-15 grados); la diagonal la da el recorrido (el camino de la escena).
+  - Con el baculo guardado, la izquierda es la derecha espejada; con el baculo en
+    la mano, la izquierda tiene sus videos (07, 08): espejado cambiaria de mano.
+  - El 08 vale hasta el fotograma 112 (luego se le echa encima a la camara).
+  - Los videos son de 720: si se bajan en 1080, montar.py con ESCALA mayor.
+  - Sacar y guardar en diagonal no se generaron: los hace el de frente (de
+    espaldas), parado.

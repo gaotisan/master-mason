@@ -1,0 +1,348 @@
+PROMPTS: EL PEREGRINO EN DIAGONAL, SEGUNDA TANDA (2026-10-20)
+=============================================================
+Las referencias las hace referencias_diagonal_v2.py (aqui) en
+Descargas/peregrino_diagonal_v2/, una carpeta por video con su prompt.txt (cada
+bloque "### <carpeta>" de abajo).
+
+### LEEME
+EL PEREGRINO EN DIAGONAL, SEGUNDA TANDA: ARRANCAR Y PARARSE EN DIAGONAL
+=======================================================================
+Por que: en la primera tanda los videos empezaban o acababan en nuestro sprite de
+espaldas o de frente RECTO, y Veo obedece mas a los fotogramas que al texto: al
+arrancar y al pararse el peregrino giraba hacia esa pose. Aqui el inicio y el fin
+son poses de PARADO EN DIAGONAL (o el reposo recto, donde se gira).
+
+INICIO Y FIN EN SU SITIO: cada referencia va donde empieza y acaba el movimiento,
+con la posicion y el tamano de las tomas buenas (la misma camara): cerca, abajo a
+la derecha; lejos, arriba a la izquierda (el camino). Si el fin estuviera en el
+mismo sitio que el inicio, Veo le haria dar pasitos en el sitio. Solo en correr
+(05, 06) inicio y fin coinciden: ahi la camara va con el y por eso se queda en el
+sitio en pantalla. hoja_inicio_y_fin.png: inicio y fin de cada video superpuestos.
+
+LOS VIDEOS (todo sin baculo; con baculo, otra tanda igual)
+  01 arrancar de espaldas a la diagonal: parado de espaldas recto, gira hacia la
+     diagonal al echar a andar, anda y se para en diagonal (de frontal a diagonal)
+  02 volverse y volver en diagonal: parado en diagonal lejos, se da la vuelta,
+     vuelve andando y se para en diagonal de cara, cerca
+  03 andar alejandose: parado en diagonal, anda y se para en diagonal, lejos
+  04 andar acercandose: lo mismo hacia la camara
+  05 correr alejandose / 06 correr acercandose: parado, corre, frena y se para
+
+EL ANGULO: el cuerpo de tres cuartos, unos 35 grados (alejandose mira arriba a la
+izquierda de la pantalla; acercandose, abajo a la derecha): el camino izquierdo
+del cruce.
+
+AJUSTES: 16:9, Veo 3.1 - Quality, 8 s, con audio; DESCARGA EN 1080p (upscale).
+2-4 tomas de cada uno.
+
+LO QUE MAS HAY QUE CUIDAR (en todos; los prompts insisten):
+  - EL ANDAR: el de un viejo, pausado, cansado, pasos cortos y tranquilos, algo
+    encorvado; nada de contoneo, ni de andar chulesco, ni de balancear los hombros
+    o la cadera.
+  - LA CAPUCHA: de tela, blanda, la forma del fotograma; nunca un gorro de mago
+    picudo ni que crezca.
+  - LOS PIES: normales, pequenos, vestidos con zapatillas oscuras; nunca descalzo
+    ni pies grandes.
+  - QUE SE QUEDE EN DIAGONAL: al pararse no se gira hacia la camara ni de
+    espaldas rectas; acaba exactamente en la pose del ultimo fotograma.
+
+AL REVISAR LAS TOMAS
+  - Inicio y fin, exactamente los fotogramas de referencia (pose, sitio, tamano).
+  - Que ande de verdad por el suelo, sin pasitos en el sitio (salvo correr).
+  - Andar pausado de viejo; correr de viejo con prisa (no atleta).
+  - Las paradas: frena en dos o tres pasos y se queda quieto con los pies juntos.
+  - Sin sombra en el suelo; nada encima del personaje.
+
+### 01_arrancar_de_espaldas_a_la_diagonal
+01 ARRANCAR DE ESPALDAS A LA DIAGONAL (sin baculo)
+Inicio = inicio.png (parado de espaldas recto, cerca), fin = fin.png (parado de
+tres cuartos de espaldas, lejos, arriba a la izquierda).
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+A stylized low-poly 3D video game character, exactly the one in the first and
+last frames: an old pilgrim standing still, seen exactly from behind, his arms
+relaxed at his sides, empty hands. He carries nothing: no staff, no stick, no
+bag, no strap. He is not a real person: flat-shaded faceted geometry,
+hand-painted colours, no photorealism.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2 s: as he sets off with his first slow step, he turns his body about 35
+  degrees to his LEFT, so from then on he is seen three-quarters from behind,
+  facing the upper left of the screen. He does not turn on the spot: he turns
+  while he starts walking.
+- 2 to 6 s: he walks away from the camera in one straight diagonal line toward
+  the upper left of the screen, getting smaller with the distance, always in that
+  same three-quarters angle. The walk of a tired old man: slow, calm and
+  measured, short quiet steps, about one step every 0.8 seconds, the body
+  slightly bent forward, the arms hanging loosely; no swagger, no strutting, no
+  swinging of the hips or shoulders, no bouncing.
+- 6 to 7 s: he slows down over two short steps and stops with both feet together,
+  exactly in the pose, place, size and angle of the last frame.
+- 7 to 8 s: he stands completely still exactly as in the last frame.
+He never turns toward the camera and never leaves the frame.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up. Same character throughout: brown faceted
+patchwork cloak with the large grey chevron patch on the upper back. His legs
+and feet are dressed: thin legs in dark hose and soft dark leather shoes that
+cover his whole feet, one single very dark brown from the hem of the cloak down
+to the tips of his shoes. His feet are normal, small, human-sized and in
+proportion with his body, always inside those dark shoes: the shoes never come
+off, never turn into skin or toes and never grow bigger, not even when he walks.
+Same colours and lighting as the first frame, crisp frames with no motion blur,
+soft matte texture, no flicker. Sound: only his slow soft footsteps and the
+rustle of the cloak, no music, no voice.
+
+### 02_volverse_y_volver_en_diagonal
+02 VOLVERSE Y VOLVER EN DIAGONAL (sin baculo)
+Inicio = inicio.png (parado de tres cuartos de espaldas, lejos, arriba a la
+izquierda), fin = fin.png (parado de tres cuartos de frente, cerca, abajo a la
+derecha).
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+A stylized low-poly 3D video game character, exactly the one in the first and
+last frames: an old pilgrim standing still some distance away, seen
+three-quarters from behind, facing the upper left of the screen, his arms
+relaxed at his sides, empty hands. He carries nothing: no staff, no stick, no
+bag, no strap. He is not a real person: flat-shaded faceted geometry,
+hand-painted colours, no photorealism.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2.5 s: he turns around slowly, with two small steps, until he faces the
+  lower right of the screen, three-quarters toward the camera.
+- 2.5 to 6.5 s: he walks back toward the camera along the same straight diagonal,
+  toward the lower right of the screen, getting bigger as he comes closer,
+  always in that three-quarters angle. The walk of a tired old man: slow, calm
+  and measured, short quiet steps, about one step every 0.8 seconds, the body
+  slightly bent forward, the arms hanging loosely; no swagger, no strutting, no
+  swinging of the hips or shoulders, no bouncing.
+- 6.5 to 7.5 s: he slows down over two short steps and stops with both feet
+  together, exactly in the pose, place, size and angle of the last frame.
+- 7.5 to 8 s: he stands completely still exactly as in the last frame.
+He never faces the camera straight on; he is always seen full-body and never
+leaves the frame.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up. Same character throughout: white beard and
+the grey diamond patch on his chest when seen from the front, brown faceted
+patchwork cloak closed down to his ankles, the large grey chevron patch on the
+upper back; no trousers, no shirt, no belt, nothing purple. His legs and feet are
+dressed: thin legs in dark hose and soft dark leather shoes that cover his whole
+feet, one single very dark brown from the hem of the cloak down to the tips of
+his shoes. His feet are normal, small, human-sized and in proportion with his
+body, always inside those dark shoes: the shoes never come off, never turn into
+skin or toes and never grow bigger, not even when he walks or turns. Same colours
+and lighting as the first and last frames, crisp frames with no motion blur,
+soft matte texture, no flicker. Sound: only his slow soft footsteps and the
+rustle of the cloak, no music, no voice.
+
+### 03_andar_alejandose
+03 ANDAR ALEJANDOSE EN DIAGONAL, ARRANCAR Y PARARSE (sin baculo)
+Inicio = inicio.png (parado de tres cuartos de espaldas, cerca, abajo a la
+derecha), fin = fin.png (la misma pose, lejos, arriba a la izquierda).
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+A stylized low-poly 3D video game character, exactly the one in the first and
+last frames: an old pilgrim standing still, seen three-quarters from behind,
+facing the upper left of the screen, his arms relaxed at his sides, empty hands.
+He carries nothing: no staff, no stick, no bag, no strap. He is not a real
+person: flat-shaded faceted geometry, hand-painted colours, no photorealism.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2 s: he starts walking, slowly, in the direction he faces.
+- 2 to 6 s: he walks away from the camera in one straight diagonal line toward
+  the upper left of the screen, getting smaller with the distance, keeping
+  exactly the same three-quarters angle as in the first frame. The walk of a
+  tired old man: slow, calm and measured, short quiet steps, about one step every
+  0.8 seconds, the body slightly bent forward, the arms hanging loosely; no
+  swagger, no strutting, no swinging of the hips or shoulders, no bouncing.
+- 6 to 7 s: he slows down over two short steps and stops with both feet
+  together, exactly in the pose and angle of the last frame.
+- 7 to 8 s: he stands completely still exactly as in the last frame.
+He never turns toward the camera, never turns to face straight away from it and
+never leaves the frame.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up. Same character throughout: brown faceted
+patchwork cloak with the large grey chevron patch on the upper back. His legs
+and feet are dressed: thin legs in dark hose and soft dark leather shoes that
+cover his whole feet, one single very dark brown from the hem of the cloak down
+to the tips of his shoes. His feet are normal, small, human-sized and in
+proportion with his body, always inside those dark shoes: the shoes never come
+off, never turn into skin or toes and never grow bigger, not even when he walks.
+Same colours and lighting as the first frame, crisp frames with no motion blur,
+soft matte texture, no flicker. Sound: only his slow soft footsteps and the
+rustle of the cloak, no music, no voice.
+
+### 04_andar_acercandose
+04 ANDAR ACERCANDOSE EN DIAGONAL, ARRANCAR Y PARARSE (sin baculo)
+Inicio = inicio.png (parado de tres cuartos de frente, lejos, arriba a la
+izquierda), fin = fin.png (la misma pose, cerca, abajo a la derecha).
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+A stylized low-poly 3D video game character, exactly the one in the first and
+last frames: an old pilgrim standing still some distance away, seen
+three-quarters from the front, facing the lower right of the screen, his arms
+relaxed at his sides, empty hands. He carries nothing: no staff, no stick, no
+bag, no strap. He is not a real person: flat-shaded faceted geometry,
+hand-painted colours, no photorealism.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2 s: he starts walking, slowly, in the direction he faces.
+- 2 to 6 s: he walks toward the camera in one straight diagonal line toward the
+  lower right of the screen, getting bigger as he comes closer, keeping exactly
+  the same three-quarters angle as in the first frame. The walk of a tired old
+  man: slow, calm and measured, short quiet steps, about one step every 0.8
+  seconds, the body slightly bent forward, the arms hanging loosely; no swagger,
+  no strutting, no swinging of the hips or shoulders, no bouncing.
+- 6 to 7 s: he slows down over two short steps and stops with both feet
+  together, exactly in the pose, place, size and angle of the last frame.
+- 7 to 8 s: he stands completely still exactly as in the last frame.
+He never turns to face the camera straight on and never turns his back to it; he
+is always seen full-body and never leaves the frame.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up. Same character throughout: white beard, the
+hood shading his face, brown faceted patchwork cloak closed down to his ankles
+with the grey diamond patch on his chest; no trousers, no shirt, no belt, nothing
+purple. His legs and feet are dressed: thin legs in dark hose and soft dark
+leather shoes that cover his whole feet, one single very dark brown from the hem
+of the cloak down to the tips of his shoes. His feet are normal, small,
+human-sized and in proportion with his body, always inside those dark shoes: the
+shoes never come off, never turn into skin or toes and never grow bigger, not
+even when he walks. Same colours and lighting as the first and last frames, crisp
+frames with no motion blur, soft matte texture, no flicker. Sound: only his slow
+soft footsteps and the rustle of the cloak, no music, no voice.
+
+### 05_correr_alejandose
+05 CORRER ALEJANDOSE EN DIAGONAL, ARRANCAR Y PARARSE (sin baculo)
+Inicio = fin = inicio_y_fin.png (parado de tres cuartos de espaldas, en el
+centro: la camara va con el, en pantalla se queda en el sitio).
+
+Smooth tracking shot: the camera follows behind him at exactly his speed,
+keeping the same distance the whole video, so on screen he always stays the same
+size and in the same place; no pan, no zoom, no tilt, no shake, no cuts. Flat
+pure chroma-key green background (#24D732) filling the whole frame, evenly lit:
+absolutely no shadow anywhere, no cast shadow on the ground, no floor, no floor
+line, no props, no text, no logos, no on-screen interface.
+
+A stylized low-poly 3D video game character, exactly the one in the first frame:
+an old pilgrim standing still, seen three-quarters from behind, facing the upper
+left of the screen, his arms relaxed at his sides, empty hands. He carries
+nothing: no staff, no stick, no bag, no strap. He is not a real person:
+flat-shaded faceted geometry, hand-painted colours, no photorealism.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2 s: he leans forward and breaks into a run in the direction he faces,
+  speeding up over his first three steps.
+- 2 to 5 s: he runs at a steady pace, about one step every 0.4 seconds: the
+  hurried run of an old man, determined but heavy, not an athlete; body leaning
+  forward, elbows bent, the long cloak flapping around his legs; no swagger, no
+  bouncing. Always the same direction and the same three-quarters angle.
+- 5 to 6.5 s: he slows down over three or four shorter steps, catching his
+  breath, and stops with his feet together, exactly in the pose and angle of the
+  first frame.
+- 6.5 to 8 s: he stands completely still exactly as in the last frame.
+He never turns toward the camera and never turns to face straight away from it.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head while he runs. Same
+character throughout: brown faceted patchwork cloak with the large grey chevron
+patch on the back. His legs and feet are dressed: thin legs in dark hose and
+soft dark leather shoes that cover his whole feet, one single very dark brown
+from the hem of the cloak down to the tips of his shoes. His feet are normal,
+small, human-sized and in proportion with his body, always inside those dark
+shoes: the shoes never come off, never turn into skin or toes and never grow
+bigger, not even when he runs. Same colours and lighting as the first frame,
+crisp frames with no motion blur, soft matte texture, no flicker. Sound: only his
+quick footsteps, the flapping of the cloak and a short tired breath when he
+stops; no music, no voice.
+
+### 06_correr_acercandose
+06 CORRER ACERCANDOSE EN DIAGONAL, ARRANCAR Y PARARSE (sin baculo)
+Inicio = fin = inicio_y_fin.png (parado de tres cuartos de frente, en el centro:
+la camara va con el, en pantalla se queda en el sitio).
+
+Smooth tracking shot: the camera moves backward in front of him at exactly his
+speed, keeping the same distance the whole video, so on screen he always stays
+the same size and in the same place; no pan, no zoom, no tilt, no shake, no cuts.
+Flat pure chroma-key green background (#24D732) filling the whole frame, evenly
+lit: absolutely no shadow anywhere, no cast shadow on the ground, no floor, no
+floor line, no props, no text, no logos, no on-screen interface.
+
+A stylized low-poly 3D video game character, exactly the one in the first frame:
+an old pilgrim standing still, seen three-quarters from the front, facing the
+lower right of the screen, his arms relaxed at his sides, empty hands. He
+carries nothing: no staff, no stick, no bag, no strap. He is not a real person:
+flat-shaded faceted geometry, hand-painted colours, no photorealism.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 2 s: he leans forward and breaks into a run in the direction he faces,
+  speeding up over his first three steps.
+- 2 to 5 s: he runs at a steady pace, about one step every 0.4 seconds: the
+  hurried run of an old man, determined but heavy, not an athlete; body leaning
+  forward, elbows bent, the long cloak flapping around his legs; no swagger, no
+  bouncing. Always the same direction and the same three-quarters angle.
+- 5 to 6.5 s: he slows down over three or four shorter steps, catching his
+  breath, and stops with his feet together, exactly in the pose and angle of the
+  first frame.
+- 6.5 to 8 s: he stands completely still exactly as in the last frame.
+He never turns to face the camera straight on and never turns his back to it.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head while he runs. Same
+character throughout: white beard, brown faceted patchwork cloak closed down to
+his ankles with the grey diamond patch on his chest; no trousers, no shirt, no
+belt, nothing purple. His legs and feet are dressed: thin legs in dark hose and
+soft dark leather shoes that cover his whole feet, one single very dark brown
+from the hem of the cloak down to the tips of his shoes. His feet are normal,
+small, human-sized and in proportion with his body, always inside those dark
+shoes: the shoes never come off, never turn into skin or toes and never grow
+bigger, not even when he runs. Same colours and lighting as the first frame,
+crisp frames with no motion blur, soft matte texture, no flicker. Sound: only his
+quick footsteps, the flapping of the cloak and a short tired breath when he
+stops; no music, no voice.

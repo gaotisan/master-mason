@@ -31,6 +31,15 @@ frontal sin baston), asi casa con el resto.
 AJUSTES (todos): 16:9, Veo 3.1 - Quality, 1080p si lo ofrece, 8 s, con audio.
 2-4 tomas de cada uno.
 
+LO QUE MAS HAY QUE CUIDAR (en todos; los prompts insisten):
+  - LA CAPUCHA: de tela, blanda, que sigue la cabeza, con la punta baja y
+    redondeada; nunca un gorro de mago picudo, ni un cono, ni que crezca o se
+    ponga tiesa.
+  - LOS PIES: normales, pequenos, en proporcion, siempre vestidos con zapatillas
+    oscuras de cuero; nunca descalzo, ni color carne, ni dedos, ni pies grandes.
+  (En los prompts no sale la palabra "barefoot" ni "bare" ni en negativo: Veo
+  se la toma al pie de la letra.)
+
 ORDEN Y PRIORIDAD
   Imprescindibles (andar en diagonal, ida y vuelta, con la vuelta dentro):
     01 guardado, ida por la derecha     02 guardado, vuelta por la derecha (*)
@@ -39,9 +48,8 @@ ORDEN Y PRIORIDAD
   Recomendables (correr, solo con el baculo guardado: con el en la mano no se
   corre):
     03 correr alejandose en diagonal    04 correr acercandose en diagonal
-  Opcionales (sacar y guardar de tres cuartos; si no, al pulsar se para y lo
-  hace con los de frente/espaldas que ya hay):
-    09 sacar de tres cuartos            10 guardar de tres cuartos
+  Sacar y guardar en diagonal NO hacen falta: con este angulo el cuerpo va casi
+  de espaldas y valen los de espaldas que ya hay (09 y 10 quitados).
   (*) La vuelta empieza donde acabo la ida: INICIO = el ultimo fotograma de la
   toma buena de la ida (01 -> 02, 05 -> 06, 07 -> 08). Pasame la toma buena y te
   saco ese fotograma en HD y limpio, como con la vuelta de espaldas; o, si Flow
@@ -49,8 +57,14 @@ ORDEN Y PRIORIDAD
 
 LA IZQUIERDA: con el baculo GUARDADO no hace falta (el juego espeja la derecha:
 no lleva nada en las manos y el baculo de la espalda lo pinta el juego). Con el
-baculo EN LA MANO si (07 y 08): espejado cambiaria de mano. Sacar y guardar por
-la izquierda (11 y 12), en una segunda tanda: sus referencias salen del 07.
+baculo EN LA MANO si (07 y 08): espejado cambiaria de mano.
+
+UN SOLO ANGULO (decidido 2026-10-19): el de la toma buena del 01
+(Pilgrim_walking_away_from_camera_20261019102353): se aleja en diagonal con el
+cuerpo casi de espaldas, girado solo un poco. Todas las demas tomas, a ese:
+mismos "about 30 degrees" en los prompts (lo que dio esa toma) y las
+referencias de tres cuartos de correr giradas lo mismo. Al revisar, comparar
+con esa toma: si una sale mucho mas girada o mucho menos, otra.
 
 LOS GIROS van dentro: la ida empieza de espaldas (nuestro reposo) y gira hacia
 su camino al echar a andar; la vuelta gira en la diagonal y acaba de frente
@@ -67,9 +81,11 @@ AL REVISAR LAS TOMAS
   - El baculo SIEMPRE en la mano derecha, la garra ARRIBA, vacia (sin bola ni
     brillo), sin atravesar el cuerpo; la punta no resbala al apoyarla.
   - El mismo personaje que las referencias (rombo gris en el pecho, chevron gris
-    en la espalda, capucha gris que no crece); piernas y pies oscuros (si sale
-    descalzo, color carne o con dedos, otra toma); sin sombra en el suelo; nada
-    encima del personaje (si sale texto o marcas, pedir otra enseguida).
+    en la espalda); sin sombra en el suelo; nada encima del personaje (si sale
+    texto o marcas, pedir otra enseguida).
+  - CAPUCHA: blanda y redondeada; si sale picuda, de mago o crece, otra toma.
+  - PIES: vestidos, oscuros y de tamano normal; si sale descalzo, color carne,
+    con dedos o con pies grandes, otra toma.
   - Guardado: manos vacias, nada a la espalda.
 
 ### 01_guardado_andar_ida_derecha
@@ -96,29 +112,36 @@ Action, one continuous take, at natural speed, no slow motion:
   off the line of sight: mostly away from the camera and partly to the right,
   never sideways across the screen. He gets steadily smaller with the distance.
   A calm, steady, unhurried walk of an old man, about one step every 0.75
-  seconds, real natural steps of his feet in dark slippers, heel to toe, the
+  seconds, real natural steps of his feet in their dark shoes, heel to toe, the
   long faceted cloak swaying gently, his arms hanging relaxed at his sides; no
   swagger, no bouncing.
-- 6.5 to 8 s: he slows down and stops with both feet together, still seen
-  three-quarters from behind, and stands still.
+- 6.5 to 8 s: he slows down and stops with both feet together, still seen three-
+  quarters from behind, and stands still.
 Once he has turned he keeps exactly the same direction: no curving, no
 wandering; he never turns toward the camera and never leaves the frame.
 
-His head is covered by the grey cloth hood of his cloak, exactly the shape of the
-first frame: part of the cloak, not a hat; it never grows or stands up. Same
-character throughout, exactly as in the first frame: brown faceted patchwork
-cloak with the large grey chevron patch on the upper back. His legs and feet are
-dark, exactly as in the first frame: thin legs in dark hose and soft dark
-slippers, one single very dark brown from the hem of the cloak down to the tips
-of his feet; he is not barefoot, no bare skin and no toes show at any moment.
-Same low-poly flat-shaded hand-painted style, colours and lighting as the first
-frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
-only his soft footsteps and the rustle of the cloak, no music, no voice.
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head the whole video.
+Same character throughout, exactly as in the first frame: brown faceted
+patchwork cloak with the large grey chevron patch on the upper back. His legs
+and feet are dressed, exactly as in the first frame: thin legs in dark hose and
+soft dark leather shoes that cover his whole feet, one single very dark brown
+from the hem of the cloak down to the tips of his shoes. His feet are normal,
+small, human-sized and in proportion with his body, always inside those dark
+shoes: the shoes never come off, never turn into skin or toes and never grow
+bigger, not even when he walks, runs or turns. Same low-poly flat-shaded hand-
+painted style, colours and lighting as the first frame, crisp frames with no
+motion blur, soft matte texture, no flicker. Sound: only his soft footsteps and
+the rustle of the cloak, no music, no voice.
 
 ### 02_guardado_andar_vuelta_derecha
 02 VUELTA EN LA DIAGONAL Y ANDAR DE VUELTA, POR LA DERECHA (baculo guardado)
-Inicio = el ultimo fotograma de la toma buena de 01 (te lo preparo yo en HD).
-Fin = fin.png.
+Inicio = inicio.png (YA ESTA: el ultimo fotograma de la toma buena de 01,
+Pilgrim_walking_away_from_camera_20261019102353, limpio y a 1920x1080).
+Fin = fin.png (donde empezo el 01).
 
 Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
 no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
@@ -126,10 +149,9 @@ background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
 anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
 text, no logos, no on-screen interface.
 
-The old pilgrim from the first frame stands some distance away, seen
-three-quarters from behind, facing the upper right of the screen, his arms
-relaxed at his sides, empty hands. He carries nothing: no staff, no stick, no
-bag, no strap.
+The old pilgrim from the first frame stands some distance away, at the upper
+right of the screen, seen from behind, his arms relaxed at his sides, empty
+hands. He carries nothing: no staff, no stick, no bag, no strap.
 
 Action, one continuous take, at natural speed, no slow motion:
 - 0 to 1 s: he stands still exactly as in the first frame.
@@ -138,30 +160,34 @@ Action, one continuous take, at natural speed, no slow motion:
   facing the lower left of the screen, three-quarters toward the camera. Two
   short, clear steps of his feet, without stopping halfway and without extra
   small steps.
-- 2.5 to 6.5 s: he walks back toward the camera along the same straight
-  diagonal he came by, toward the lower left of the screen, about 30 degrees off
-  the line of sight (mostly toward the camera, never sideways across the
-  screen), getting steadily bigger as he comes closer: a calm, steady,
-  unhurried walk of an old man, about one step every 0.75 seconds, real natural
-  steps of his feet in dark slippers, heel to toe, the long faceted cloak
-  swaying gently, his arms hanging relaxed at his sides.
+- 2.5 to 6.5 s: he walks back toward the camera along the same straight diagonal
+  he came by, toward the lower left of the screen, about 30 degrees off the line
+  of sight (mostly toward the camera, never sideways across the screen), getting
+  steadily bigger as he comes closer: a calm, steady, unhurried walk of an old
+  man, about one step every 0.75 seconds, real natural steps of his feet in
+  their dark shoes, heel to toe, the long faceted cloak swaying gently, his arms
+  hanging relaxed at his sides.
 - 6.5 to 7.25 s: as he arrives he turns a little to face the camera straight on
   and stops with both feet together, in exactly the pose, place and size of the
   last frame.
 - 7.25 to 8 s: he stands still exactly as in the last frame.
 He is always seen full-body and never leaves the frame.
 
-His head is covered by the grey cloth hood of his cloak, exactly the shape of the
-first frame: part of the cloak, not a hat; it never grows or stands up. Same
-character throughout: white beard and the grey diamond patch on his chest when
-seen from the front, brown faceted patchwork cloak, the large grey chevron patch
-on the upper back. His legs and feet are dark: thin legs in dark hose and soft
-dark slippers, one single very dark brown from the hem of the cloak down to the
-tips of his feet; he is not barefoot, no bare skin and no toes show at any
-moment. Same low-poly flat-shaded hand-painted style, colours and lighting as the
-first and last frames, crisp frames with no motion blur, soft matte texture, no
-flicker. Sound: only his soft footsteps and the rustle of the cloak, no music, no
-voice.
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head the whole video.
+Same character throughout: white beard and the grey diamond patch on his chest
+when seen from the front, brown faceted patchwork cloak, the large grey chevron
+patch on the upper back. His legs and feet are dressed: thin legs in dark hose
+and soft dark leather shoes that cover his whole feet, one single very dark
+brown from the hem of the cloak down to the tips of his shoes. His feet are
+normal, small, human-sized and in proportion with his body, always inside those
+dark shoes: the shoes never come off, never turn into skin or toes and never
+grow bigger, not even when he walks, runs or turns. Same stylized low-poly flat-shaded hand-painted video game style (a 3D game character, not a real person, not photorealistic), colours and lighting as the first and last frames, crisp
+frames with no motion blur, soft matte texture, no flicker. Sound: only his soft
+footsteps and the rustle of the cloak, no music, no voice.
 
 ### 03_guardado_correr_alejandose
 03 CORRER EN DIAGONAL ALEJANDOSE (baculo guardado: el video sin baculo)
@@ -182,27 +208,33 @@ hands. He carries nothing: no staff, no stick, no bag, no strap.
 
 Action, one continuous take, at natural speed, no slow motion:
 - 0 to 1 s: he stands still exactly as in the first frame.
-- 1 to 2.25 s: he leans forward and breaks into a run in the direction he
-  faces, diagonally away from the camera toward the upper right, speeding up
-  over his first three or four steps.
+- 1 to 2.25 s: he leans forward and breaks into a run in the direction he faces,
+  diagonally away from the camera toward the upper right, speeding up over his
+  first three or four steps.
 - 2.25 to 6 s: he runs at a steady, urgent pace, about one step every 0.4
   seconds: a real run, not a jog, the determined run of an old man in a hurry;
-  body leaning slightly forward, quick strides of his feet in dark slippers,
+  body leaning slightly forward, quick strides of his feet in their dark shoes,
   elbows bent and fists pumping close to his sides, the long cloak flapping
-  around his legs. Always the same direction and the same three-quarters
-  angle, never turning toward the camera.
-- 6 to 7.25 s: he slows down over three or four shorter steps and stops with
-  his feet together, in exactly the pose of the first frame.
+  around his legs. Always the same direction and the same three-quarters angle,
+  never turning toward the camera.
+- 6 to 7.25 s: he slows down over three or four shorter steps and stops with his
+  feet together, in exactly the pose of the first frame.
 - 7.25 to 8 s: he stands still exactly as in the last frame.
 
 His head is covered by the soft grey cloth hood of his cloak, exactly the shape
-of the first frame: part of the cloak, not a hat, no tall point, no cone; it
-stays on his head while he runs. Same character throughout: brown faceted
-patchwork cloak with the large grey chevron patch on the back, exactly as in the
-first frame. His legs and feet are dark, exactly as in the first frame: thin
-legs in dark hose and soft dark slippers, one single very dark brown from the
-hem of the cloak down to the tips of his feet; he is not barefoot, no bare skin
-and no toes show at any moment. Same low-poly flat-shaded hand-painted style,
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head the whole video.
+Same character throughout: brown faceted patchwork cloak with the large grey
+chevron patch on the back, exactly as in the first frame. His legs and feet are
+dressed, exactly as in the first frame: thin legs in dark hose and soft dark
+leather shoes that cover his whole feet, one single very dark brown from the hem
+of the cloak down to the tips of his shoes. His feet are normal, small, human-sized
+and in proportion with his body, always inside those dark shoes: the shoes
+never come off, never turn into skin or toes and never grow bigger, not even
+when he walks, runs or turns. Same stylized low-poly flat-shaded hand-painted video game style (a 3D game
+character, not a real person, not photorealistic),
 colours and lighting as the first frame, crisp frames with no motion blur, soft
 matte texture, no flicker. Sound: only his quick soft footsteps and the flapping
 of the cloak; no breathing, no music, no voice.
@@ -226,31 +258,33 @@ hands. He carries nothing: no staff, no stick, no bag, no strap.
 
 Action, one continuous take, at natural speed, no slow motion:
 - 0 to 1 s: he stands still exactly as in the first frame.
-- 1 to 2.25 s: he leans forward and breaks into a run in the direction he
-  faces, diagonally toward the camera and to the lower right, speeding up over
-  his first three or four steps.
+- 1 to 2.25 s: he leans forward and breaks into a run in the direction he faces,
+  diagonally toward the camera and to the lower right, speeding up over his
+  first three or four steps.
 - 2.25 to 6 s: he runs at a steady, urgent pace, about one step every 0.4
   seconds: a real run, not a jog, the determined run of an old man in a hurry;
-  body leaning slightly forward, quick strides of his feet in dark slippers,
+  body leaning slightly forward, quick strides of his feet in their dark shoes,
   elbows bent and fists pumping close to his sides, the long cloak flapping
-  around his legs. Always the same direction and the same three-quarters
-  angle.
-- 6 to 7.25 s: he slows down over three or four shorter steps and stops with
-  his feet together, in exactly the pose of the first frame.
+  around his legs. Always the same direction and the same three-quarters angle.
+- 6 to 7.25 s: he slows down over three or four shorter steps and stops with his
+  feet together, in exactly the pose of the first frame.
 - 7.25 to 8 s: he stands still exactly as in the last frame.
 
-His head is covered by the soft grey cloth hood of his cloak, low and rounded,
-exactly the shape of the first frame: part of the cloak, not a hat, no tall
-point, no cone; it stays on his head while he runs. Same character throughout:
-white beard, brown faceted patchwork cloak with the same patches as in the first
-frame, the grey diamond patch on his chest. His legs and feet are dark, exactly
-as in the first frame: thin legs in dark hose and soft dark slippers, one single
-very dark brown from the hem of the cloak down to the tips of his feet; he is
-not barefoot, no bare skin and no toes show at any moment. Same low-poly
-flat-shaded hand-painted style, colours and lighting as the first frame, crisp
-frames with no motion blur, soft matte texture, no flicker. Sound: only his
-quick soft footsteps and the flapping of the cloak; no breathing, no music, no
-voice.
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head the whole video.
+Same character throughout: white beard, brown faceted patchwork cloak with the
+same patches as in the first frame, the grey diamond patch on his chest. His
+legs and feet are dressed, exactly as in the first frame: thin legs in dark hose
+and soft dark leather shoes that cover his whole feet, one single very dark
+brown from the hem of the cloak down to the tips of his shoes. His feet are
+normal, small, human-sized and in proportion with his body, always inside those
+dark shoes: the shoes never come off, never turn into skin or toes and never
+grow bigger, not even when he walks, runs or turns. Same stylized low-poly flat-shaded hand-painted video game style (a 3D game character, not a real person, not photorealistic), colours and lighting as the first frame, crisp frames with
+no motion blur, soft matte texture, no flicker. Sound: only his quick soft
+footsteps and the flapping of the cloak; no breathing, no music, no voice.
 
 ### 05_mano_andar_ida_derecha
 05 ANDAR EN DIAGONAL CON EL BACULO EN LA MANO, IDA POR LA DERECHA
@@ -278,37 +312,47 @@ Action, one continuous take, at natural speed, no slow motion:
   off the line of sight: mostly away from the camera and partly to the right,
   never sideways across the screen. He gets steadily smaller with the distance.
   A calm, steady, unhurried walk of an old man, about one step every 0.75
-  seconds, real natural steps of his feet in dark slippers, heel to toe, the
+  seconds, real natural steps of his feet in their dark shoes, heel to toe, the
   long faceted cloak swaying gently. He uses the staff as a walking stick in a
   regular rhythm: every second step he lifts it a little, moves it forward
   together with his right foot and plants its tip on the ground beside that
-  foot; the tip never slides on the ground, the staff stays upright in his
-  right hand and the claw stays at the top.
-- 6.5 to 8 s: he slows down and stops with both feet together, the staff
-  planted beside his right foot, still seen three-quarters from behind, and
-  stands still.
+  foot; the tip never slides on the ground, the staff stays upright in his right
+  hand and the claw stays at the top.
+- 6.5 to 8 s: he slows down and stops with both feet together, the staff planted
+  beside his right foot, still seen three-quarters from behind, and stands
+  still.
 Once he has turned he keeps exactly the same direction: no curving, no
 wandering; he never turns toward the camera and never leaves the frame. The
 staff never changes hands, never turns upside down and never passes through his
 body.
 
-His head is covered by the grey cloth hood of his cloak, exactly the shape of the
-first frame: part of the cloak, not a hat; it never grows or stands up. Same
-character throughout, exactly as in the first frame: brown faceted patchwork
-cloak with the large grey chevron patch on the upper back and the thin empty
-leather strap across his back. His legs and feet are dark, exactly as in the
-first frame: thin legs in dark hose and soft dark slippers, one single very dark
-brown from the hem of the cloak down to the tips of his feet; he is not
-barefoot, no bare skin and no toes show at any moment. Same low-poly flat-shaded
-hand-painted style, colours and lighting as the first frame, crisp frames with
-no motion blur, soft matte texture, no flicker. Sound: only his soft footsteps,
-the soft tap of the staff on the ground and the rustle of the cloak, no music,
-no voice.
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head the whole video.
+Same character throughout, exactly as in the first frame: brown faceted
+patchwork cloak with the large grey chevron patch on the upper back and the thin
+empty leather strap across his back. His legs and feet are dressed, exactly as
+in the first frame: thin legs in dark hose and soft dark leather shoes that
+cover his whole feet, one single very dark brown from the hem of the cloak down
+to the tips of his shoes. His feet are normal, small, human-sized and in
+proportion with his body, always inside those dark shoes: the shoes never come
+off, never turn into skin or toes and never grow bigger, not even when he walks,
+runs or turns. Same stylized low-poly flat-shaded hand-painted video game style (a 3D game
+character, not a real person, not photorealistic), colours and
+lighting as the first frame, crisp frames with no motion blur, soft matte
+texture, no flicker. Sound: only his soft footsteps, the soft tap of the staff
+on the ground and the rustle of the cloak, no music, no voice.
 
 ### 06_mano_andar_vuelta_derecha
 06 VUELTA EN LA DIAGONAL Y ANDAR DE VUELTA CON EL BACULO EN LA MANO, POR LA DERECHA
-Inicio = el ultimo fotograma de la toma buena de 05 (te lo preparo yo en HD).
-Fin = fin.png.
+Inicio = inicio.png (YA ESTA: el ultimo fotograma de la toma buena de 05,
+Pilgrim_walking_away_from_camera_20261019145842, limpio y a 1920x1080).
+Fin = fin.png (donde empezo el 05).
+Version 2 (2026-10-19): la primera toma (Pilgrim_turns_and_walks_forward_
+20261019153731) abria la tunica por delante (pantalones, camisa, calcetines
+morados, cara realista) y giraba andando de lado; el prompt insiste en eso.
 
 Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
 no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
@@ -316,11 +360,11 @@ background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
 anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
 text, no logos, no on-screen interface.
 
-The old pilgrim from the first frame stands some distance away, seen
-three-quarters from behind, facing the upper right of the screen, holding his
-long wooden staff upright in his right hand, its tip on the ground; at its top
-an open antler-shaped claw, always pointing up. The claw is EMPTY: no orb, no
-ball, no gem, no glow, no light.
+The old pilgrim from the first frame stands some distance away, at the upper
+right of the screen, seen from behind, holding his long wooden staff upright in
+his right hand, its tip on the ground; at its top an open antler-shaped claw,
+always pointing up. The claw is EMPTY: no orb, no ball, no gem, no glow, no
+light. A thin empty leather strap runs diagonally across his back.
 
 Action, one continuous take, at natural speed, no slow motion:
 - 0 to 1 s: he stands still exactly as in the first frame.
@@ -329,15 +373,15 @@ Action, one continuous take, at natural speed, no slow motion:
   facing the lower left of the screen, three-quarters toward the camera. Two
   short, clear steps of his feet, without stopping halfway and without extra
   small steps. The staff stays upright in his right hand, moving with him.
-- 2.5 to 6.5 s: he walks back toward the camera along the same straight
-  diagonal he came by, toward the lower left of the screen, about 30 degrees off
-  the line of sight (mostly toward the camera, never sideways across the
-  screen), getting steadily bigger as he comes closer: a calm, steady,
-  unhurried walk of an old man, about one step every 0.75 seconds, real natural
-  steps of his feet in dark slippers, heel to toe, the long faceted cloak
-  swaying gently. He uses the staff as a walking stick: every second step he
-  lifts it a little, moves it forward together with his right foot and plants
-  its tip beside that foot; the tip never slides on the ground.
+- 2.5 to 6.5 s: he walks back toward the camera along the same straight diagonal
+  he came by, toward the lower left of the screen, about 30 degrees off the line
+  of sight (mostly toward the camera, never sideways across the screen), getting
+  steadily bigger as he comes closer: a calm, steady, unhurried walk of an old
+  man, about one step every 0.75 seconds, real natural steps of his feet in
+  their dark shoes, heel to toe, the long faceted cloak swaying gently. He uses
+  the staff as a walking stick: every second step he lifts it a little, moves it
+  forward together with his right foot and plants its tip beside that foot; the
+  tip never slides on the ground.
 - 6.5 to 7.25 s: as he arrives he turns a little to face the camera straight on
   and stops with both feet together, the staff planted beside his right foot (on
   the left of the screen), in exactly the pose, place and size of the last
@@ -346,77 +390,96 @@ Action, one continuous take, at natural speed, no slow motion:
 He is always seen full-body, from the top of the staff to the feet, and never
 leaves the frame. The staff never changes hands, never turns upside down and
 never passes through his body; the claw is always at the top.
+He turns ON THE SPOT, pivoting where he stands in two short steps: he does not
+walk sideways or across the screen while he turns. The staff stays upright
+beside him at every moment, the tip down and the claw up: it is never dragged,
+never tilted back behind him.
 
-His head is covered by the grey cloth hood of his cloak, exactly the shape of the
-first frame: part of the cloak, not a hat; it never grows or stands up. Same
-character throughout: white beard and the grey diamond patch on his chest when
-seen from the front, brown faceted patchwork cloak, the large grey chevron patch
-and the thin empty strap on his back. His legs and feet are dark: thin legs in
-dark hose and soft dark slippers, one single very dark brown from the hem of the
-cloak down to the tips of his feet; he is not barefoot, no bare skin and no toes
-show at any moment. Same low-poly flat-shaded hand-painted style, colours and
+Seen from the front his cloak is always CLOSED all the way down to his ankles,
+exactly as in the last frame: the same faceted patchwork cloak with the grey
+diamond patch on his chest over a dark inner robe; no trousers, no shorts, no
+shirt, no belt and no socks ever show, and nothing purple. Below the hem only
+his thin dark legs and dark shoes. His face stays the stylized face of the last
+frame, mostly hidden by the hood and the white beard: not a realistic face,
+mouth closed.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head the whole video.
+Same character throughout: white beard and the grey diamond patch on his chest
+when seen from the front, brown faceted patchwork cloak, the large grey chevron
+patch and the thin empty strap on his back. His legs and feet are dressed: thin
+legs in dark hose and soft dark leather shoes that cover his whole feet, one
+single very dark brown from the hem of the cloak down to the tips of his shoes.
+His feet are normal, small, human-sized and in proportion with his body, always
+inside those dark shoes: the shoes never come off, never turn into skin or toes
+and never grow bigger, not even when he walks, runs or turns. Same stylized low-poly flat-shaded hand-painted video game style (a 3D game character, not a real person, not photorealistic), colours and lighting as the first and last
+frames, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+only his soft footsteps, the soft tap of the staff on the ground and the rustle
+of the cloak, no music, no voice.
+
+### 07_mano_andar_ida_izquierda
+07 ANDAR EN DIAGONAL CON EL BACULO EN LA MANO, IDA POR LA IZQUIERDA
+Inicio = inicio.png, fin = fin.png (los dos son nuestro sprite: el fin, el
+mismo mas lejos, arriba a la izquierda, en el espejo de donde acabo el 05).
+Version 2 (2026-10-19): sin fotograma final Veo apenas hacia diagonal y a veces
+sacaba un humano realista; con el final solo tiene que andar entre los dos.
+
+Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
+no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
+background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
+anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
+text, no logos, no on-screen interface.
+
+A stylized low-poly 3D video game character, exactly the one in the first and
+last frames: an old pilgrim seen from behind, holding a long wooden staff
+upright in his right hand, on the right of the screen, with an open
+antler-shaped claw at its top, always pointing up and EMPTY (no orb, no ball, no
+glow). A thin empty leather strap runs diagonally across his back. He is not a
+real person: flat-shaded faceted geometry, hand-painted colours, no realistic
+skin, no realistic cloth, no photorealism.
+
+Action, one continuous take, at natural speed, no slow motion:
+- 0 to 1 s: he stands still exactly as in the first frame.
+- 1 to 6.5 s: he walks from where he stands in the first frame to where he
+  stands in the last frame: away from the camera and to the left, in one
+  straight diagonal line toward the upper left of the screen, getting steadily
+  smaller with the distance. While he walks his body is turned a little to his
+  left, so we see his back and a little of his left side. A calm, steady,
+  unhurried walk of an old man, about one step every 0.75 seconds, the long
+  faceted cloak swaying gently. He uses the staff as a walking stick: every
+  second step he lifts it a little, moves it forward and plants its tip beside
+  his right foot; the staff stays in his RIGHT hand, upright, the claw at the
+  top.
+- 6.5 to 8 s: he stops with both feet together and stands still, seen from
+  behind, exactly as in the last frame.
+He never turns toward the camera and never leaves the frame. The staff never
+changes hands, never turns upside down and never passes through his body.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head the whole video.
+Same character throughout, exactly as in the first and last frames: brown
+faceted patchwork cloak with the large grey chevron patch on the upper back and
+the thin empty leather strap across his back. His legs and feet are dressed:
+thin legs in dark hose and soft dark leather shoes that cover his whole feet,
+one single very dark brown from the hem of the cloak down to the tips of his
+shoes. His feet are normal, small, human-sized and in proportion with his body,
+always inside those dark shoes: the shoes never come off, never turn into skin
+or toes and never grow bigger, not even when he walks. Same colours and
 lighting as the first and last frames, crisp frames with no motion blur, soft
 matte texture, no flicker. Sound: only his soft footsteps, the soft tap of the
 staff on the ground and the rustle of the cloak, no music, no voice.
 
-### 07_mano_andar_ida_izquierda
-07 ANDAR EN DIAGONAL CON EL BACULO EN LA MANO, IDA POR LA IZQUIERDA
-Inicio = inicio.png. SIN fotograma final.
-
-Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
-no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
-background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
-anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
-text, no logos, no on-screen interface.
-
-The old pilgrim from the first frame stands with his back to the camera, holding
-his long wooden staff upright in his right hand, on the right of the screen; at
-its top an open antler-shaped claw, always pointing up. The claw is EMPTY: no
-orb, no ball, no gem, no glow, no light. His left arm hangs relaxed at his side.
-A thin empty leather strap with two small loops runs diagonally across his back.
-
-Action, one continuous take, at natural speed, no slow motion:
-- 0 to 1 s: he stands still exactly as in the first frame.
-- 1 to 2 s: with his first step he turns about 35 degrees to his LEFT, so that
-  from then on he is seen three-quarters from behind: his back and a little of
-  his left side. The staff stays in his RIGHT hand, at his right side, partly
-  behind his body.
-- 2 to 6.5 s: he walks away from the camera in one straight diagonal line,
-  toward the upper left of the screen and into the distance, about 35 degrees
-  off the line of sight: mostly away from the camera and partly to the left,
-  never sideways across the screen. He gets steadily smaller with the distance.
-  A calm, steady, unhurried walk of an old man, about one step every 0.75
-  seconds, real natural steps of his feet in dark slippers, heel to toe, the
-  long faceted cloak swaying gently. He uses the staff as a walking stick in a
-  regular rhythm: every second step he lifts it a little, moves it forward
-  together with his right foot and plants its tip on the ground beside that
-  foot; the tip never slides on the ground, the staff stays upright in his
-  right hand and the claw stays at the top.
-- 6.5 to 8 s: he slows down and stops with both feet together, the staff
-  planted beside his right foot, still seen three-quarters from behind, and
-  stands still.
-Once he has turned he keeps exactly the same direction: no curving, no
-wandering; he never turns toward the camera and never leaves the frame. The
-staff stays in his RIGHT hand the whole video: it never changes hands, never
-turns upside down and never passes through his body.
-
-His head is covered by the grey cloth hood of his cloak, exactly the shape of the
-first frame: part of the cloak, not a hat; it never grows or stands up. Same
-character throughout, exactly as in the first frame: brown faceted patchwork
-cloak with the large grey chevron patch on the upper back and the thin empty
-leather strap across his back. His legs and feet are dark, exactly as in the
-first frame: thin legs in dark hose and soft dark slippers, one single very dark
-brown from the hem of the cloak down to the tips of his feet; he is not
-barefoot, no bare skin and no toes show at any moment. Same low-poly flat-shaded
-hand-painted style, colours and lighting as the first frame, crisp frames with
-no motion blur, soft matte texture, no flicker. Sound: only his soft footsteps,
-the soft tap of the staff on the ground and the rustle of the cloak, no music,
-no voice.
-
 ### 08_mano_andar_vuelta_izquierda
 08 VUELTA EN LA DIAGONAL Y ANDAR DE VUELTA CON EL BACULO EN LA MANO, POR LA IZQUIERDA
-Inicio = el ultimo fotograma de la toma buena de 07 (te lo preparo yo en HD).
-Fin = fin.png.
+Inicio = inicio.png (YA ESTA: el mismo que el fin del 07, nuestro sprite lejos
+arriba a la izquierda; si el 07 sale bien acaba ahi, asi que se puede lanzar ya).
+Fin = fin.png (donde empieza el 07).
 
 Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
 no tilt, no cuts; the camera never follows him. Flat pure chroma-key green
@@ -424,28 +487,30 @@ background (#24D732) filling the whole frame, evenly lit: absolutely no shadow
 anywhere, no cast shadow on the ground, no floor, no floor line, no props, no
 text, no logos, no on-screen interface.
 
-The old pilgrim from the first frame stands some distance away, seen
-three-quarters from behind, facing the upper left of the screen, holding his
+A stylized low-poly 3D video game character, exactly the one in the first and
+last frames (not a real person, no photorealism): the old pilgrim stands some
+distance away, at the upper left of the screen, seen from behind, holding his
 long wooden staff upright in his right hand, its tip on the ground; at its top
 an open antler-shaped claw, always pointing up. The claw is EMPTY: no orb, no
-ball, no gem, no glow, no light.
+ball, no gem, no glow, no light. A thin empty leather strap runs diagonally
+across his back.
 
 Action, one continuous take, at natural speed, no slow motion:
 - 0 to 1 s: he stands still exactly as in the first frame.
 - 1 to 2.5 s: he turns around in place toward the left side of the screen:
-  halfway through the turn he is seen in profile facing left, and he ends
-  facing the lower right of the screen, three-quarters toward the camera. Two
-  short, clear steps of his feet, without stopping halfway and without extra
-  small steps. The staff stays upright in his right hand, moving with him.
-- 2.5 to 6.5 s: he walks back toward the camera along the same straight
-  diagonal he came by, toward the lower right of the screen, about 35 degrees
-  off the line of sight (mostly toward the camera, never sideways across the
-  screen), getting steadily bigger as he comes closer: a calm, steady,
-  unhurried walk of an old man, about one step every 0.75 seconds, real natural
-  steps of his feet in dark slippers, heel to toe, the long faceted cloak
-  swaying gently. He uses the staff as a walking stick: every second step he
-  lifts it a little, moves it forward together with his right foot and plants
-  its tip beside that foot; the tip never slides on the ground.
+  halfway through the turn he is seen in profile facing left, and he ends facing
+  the lower right of the screen, three-quarters toward the camera. Two short,
+  clear steps of his feet, without stopping halfway and without extra small
+  steps. The staff stays upright in his right hand, moving with him.
+- 2.5 to 6.5 s: he walks back toward the camera along the same straight diagonal
+  he came by, toward the lower right of the screen, about 30 degrees off the
+  line of sight (mostly toward the camera, never sideways across the screen),
+  getting steadily bigger as he comes closer: a calm, steady, unhurried walk of
+  an old man, about one step every 0.75 seconds, real natural steps of his feet
+  in their dark shoes, heel to toe, the long faceted cloak swaying gently. He
+  uses the staff as a walking stick: every second step he lifts it a little,
+  moves it forward together with his right foot and plants its tip beside that
+  foot; the tip never slides on the ground.
 - 6.5 to 7.25 s: as he arrives he turns a little to face the camera straight on
   and stops with both feet together, the staff planted beside his right foot (on
   the left of the screen), in exactly the pose, place and size of the last
@@ -455,119 +520,33 @@ He is always seen full-body, from the top of the staff to the feet, and never
 leaves the frame. The staff stays in his RIGHT hand the whole video: it never
 changes hands, never turns upside down and never passes through his body; the
 claw is always at the top.
+He turns ON THE SPOT, pivoting where he stands in two short steps: he does not
+walk sideways or across the screen while he turns. The staff stays upright
+beside him at every moment, the tip down and the claw up: it is never dragged,
+never tilted back behind him.
 
-His head is covered by the grey cloth hood of his cloak, exactly the shape of the
-first frame: part of the cloak, not a hat; it never grows or stands up. Same
-character throughout: white beard and the grey diamond patch on his chest when
-seen from the front, brown faceted patchwork cloak, the large grey chevron patch
-and the thin empty strap on his back. His legs and feet are dark: thin legs in
-dark hose and soft dark slippers, one single very dark brown from the hem of the
-cloak down to the tips of his feet; he is not barefoot, no bare skin and no toes
-show at any moment. Same low-poly flat-shaded hand-painted style, colours and
-lighting as the first and last frames, crisp frames with no motion blur, soft
-matte texture, no flicker. Sound: only his soft footsteps, the soft tap of the
-staff on the ground and the rustle of the cloak, no music, no voice.
+Seen from the front his cloak is always CLOSED all the way down to his ankles,
+exactly as in the last frame: the same faceted patchwork cloak with the grey
+diamond patch on his chest over a dark inner robe; no trousers, no shorts, no
+shirt, no belt and no socks ever show, and nothing purple. Below the hem only
+his thin dark legs and dark shoes. His face stays the stylized face of the last
+frame, mostly hidden by the hood and the white beard: not a realistic face,
+mouth closed.
 
-### 09_sacar_tres_cuartos
-09 SACAR EL BACULO, DE TRES CUARTOS DE ESPALDAS
-Inicio = inicio.png (el baculo en la correa), fin = fin.png (en la mano, la
-correa vacia).
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape
+of the first frame: a loose, floppy cloth hood that follows the shape of his
+head, part of the cloak, with a low rounded top that falls slightly back. It is
+NOT a pointed wizard hat: no tall point, no cone, no stiff peak sticking up; it
+never grows, stiffens or stands up, and it stays on his head the whole video.
+Same character throughout: white beard and the grey diamond patch on his chest
+when seen from the front, brown faceted patchwork cloak, the large grey chevron
+patch and the thin empty strap on his back. His legs and feet are dressed: thin
+legs in dark hose and soft dark leather shoes that cover his whole feet, one
+single very dark brown from the hem of the cloak down to the tips of his shoes.
+His feet are normal, small, human-sized and in proportion with his body, always
+inside those dark shoes: the shoes never come off, never turn into skin or toes
+and never grow bigger, not even when he walks, runs or turns. Same stylized low-poly flat-shaded hand-painted video game style (a 3D game character, not a real person, not photorealistic), colours and lighting as the first and last
+frames, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
+only his soft footsteps, the soft tap of the staff on the ground and the rustle
+of the cloak, no music, no voice.
 
-Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
-no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
-whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
-ground, no floor, no floor line, no props, no text, no logos, no on-screen
-interface. The character stays full-body in frame, same size and same place on
-screen, seen three-quarters from behind (his back and a little of his right
-side), facing the upper right of the screen the whole video: he never turns
-toward the camera. The whole staff stays inside the frame at all times, even
-when he lifts it above his head.
-
-The old pilgrim from the first frame stands seen three-quarters from behind, his
-arms relaxed at his sides, empty hands. His long wooden staff is slung across
-his back on a steep diagonal, held by two small leather loops on a thin leather
-strap that runs from his right shoulder down to his left hip; its top, an open
-antler-shaped claw, rises just above his right shoulder. The claw is EMPTY: no
-orb, no ball, no gem, no glow, no light.
-
-Action, one continuous take, calm and deliberate like an old man, at natural
-speed, no slow motion:
-- 0 to 1 s: he stands still exactly as in the first frame.
-- 1 to 2 s: he raises his right hand to his right shoulder and grabs the staff
-  just below the claw.
-- 2 to 2.75 s: he pulls it straight up out of the two loops, the claw rising
-  high above his hood, the staff always upright with the claw at the top.
-- 2.75 to 3.5 s: he lowers it beside his right side, keeping it upright.
-- 3.5 to 4 s: he plants its bottom tip on the ground beside his right foot.
-- 4 to 8 s: he stands still exactly as in the last frame, holding the staff
-  upright in his right hand; the empty strap with its two loops stays on his
-  back.
-The claw always points up: the staff never turns upside down, never spins and
-never passes through his body.
-
-His feet stay in place, at most a small shift of weight; his head stays at the
-same height. His head is covered by the grey cloth hood of his cloak, exactly
-the shape of the first frame: part of the cloak, not a hat; it never grows or
-stands up. Same character throughout: brown faceted patchwork cloak with the
-large grey chevron patch on his back, exactly as in the first and last frames:
-the cloak and its patches never change during the video, it only moves a little
-with his arm. His legs and feet are dark: thin legs in dark hose and soft dark
-slippers, one single very dark brown from the hem of the cloak down to the tips
-of his feet; he is not barefoot, no bare skin and no toes show at any moment.
-Same low-poly flat-shaded hand-painted style, colours and lighting as the first
-frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
-cloth rustle, a short leather creak as the staff leaves the loops and the dry
-knock of the staff tip on the ground; no music, no voice.
-
-### 10_guardar_tres_cuartos
-10 GUARDAR EL BACULO, DE TRES CUARTOS DE ESPALDAS
-Inicio = inicio.png (en la mano, la correa vacia), fin = fin.png (el baculo en
-la correa).
-
-Locked-off static camera, no camera movement at all: no pan, no zoom, no dolly,
-no tilt, no cuts. Flat pure chroma-key green background (#24D732) filling the
-whole frame, evenly lit: absolutely no shadow anywhere, no cast shadow on the
-ground, no floor, no floor line, no props, no text, no logos, no on-screen
-interface. The character stays full-body in frame, same size and same place on
-screen, seen three-quarters from behind (his back and a little of his right
-side), facing the upper right of the screen the whole video: he never turns
-toward the camera. The whole staff stays inside the frame at all times, even
-when he lifts it above his head.
-
-The old pilgrim from the first frame stands seen three-quarters from behind,
-holding his long wooden staff upright in his right hand, its tip on the ground;
-at its top an open antler-shaped claw. A thin leather strap with two small empty
-loops runs on a steep diagonal across his back, from his right shoulder down to
-his left hip. The claw is EMPTY: no orb, no ball, no gem, no glow, no light.
-
-Action, one continuous take, calm and deliberate like an old man, at natural
-speed, no slow motion:
-- 0 to 1 s: he stands still exactly as in the first frame.
-- 1 to 2 s: he lifts the staff off the ground with his right hand and raises it
-  straight up, high above his right shoulder, keeping it upright with the claw
-  at the top.
-- 2 to 3 s: still holding it upright, he brings it over behind his head, so the
-  staff hangs behind his back, the claw above his hood.
-- 3 to 3.75 s: he lowers it down along his back and lets it settle into the two
-  leather loops, on the same steep diagonal as the strap, the claw ending just
-  above his right shoulder, exactly as in the last frame.
-- 3.75 to 4.5 s: he lets go and his right arm comes down to rest at his side.
-- 4.5 to 8 s: he stands still exactly as in the last frame, arms relaxed at his
-  sides, empty hands.
-The claw ALWAYS points up, from the first frame to the last: the staff never
-turns upside down, never flips or spins in his hand and never passes through his
-body or his head; it goes into the loops from above, behind his back.
-
-His feet stay in place, at most a small shift of weight; his head stays at the
-same height. His head is covered by the grey cloth hood of his cloak, exactly
-the shape of the first frame: part of the cloak, not a hat; it never grows or
-stands up. Same character throughout: brown faceted patchwork cloak with the
-large grey chevron patch on his back, exactly as in the first and last frames:
-the cloak and its patches never change during the video, it only moves a little
-with his arm. His legs and feet are dark: thin legs in dark hose and soft dark
-slippers, one single very dark brown from the hem of the cloak down to the tips
-of his feet; he is not barefoot, no bare skin and no toes show at any moment.
-Same low-poly flat-shaded hand-painted style, colours and lighting as the first
-frame, crisp frames with no motion blur, soft matte texture, no flicker. Sound:
-cloth rustle and a short leather creak as the staff settles into the loops; no
-music, no voice.

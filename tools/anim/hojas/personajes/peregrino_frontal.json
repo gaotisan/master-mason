@@ -1,0 +1,14 @@
+{
+	"_que": "El peregrino de frente y de espaldas (PeregrinoFrontal): resources/characters/peregrino_frontal_hd.tres, al tamano del master. Gemela limpia en peregrino_frontal_hd_limpio.tres; despues se escala desde ella (escalar_hoja.py). Sin pasada de pies: el frontal ya los lleva oscuros (oscurecer_pies.py) y lleva el baston fino y oscuro en la mano.",
+	"tres": "resources/characters/peregrino_frontal_hd.tres",
+	"gemelo": "resources/characters/peregrino_frontal_hd_limpio.tres",
+	"texturas": "assets/characters/peregrino_hd_limpio",
+	"escala": 2.0,
+	"pasadas": [
+		"limpieza"
+	],
+	"limpieza": {
+		"_que": "sin la regla de la raya del contorno: no hay croma oliva y aclaraba las puntas oscuras de la cornamenta",
+		"linea": false
+	}
+}

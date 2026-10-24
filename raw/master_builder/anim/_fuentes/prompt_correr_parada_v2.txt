@@ -1,0 +1,53 @@
+EL PEREGRINO: CORRE Y SE PARA (de perfil)
+=========================================
+Para cerrar el bloque de correr con el video bueno del salto
+(Elderly_mystic_running_and_leaping_20261021222919): de el salen el arranque, el
+correr, el salto y el aterrizaje. Falta pararse SIN saltar. Para que la tunica sea la
+misma: inicio = un fotograma del correr de ESE video; fin = nuestro reposo (el mismo
+con el que acaba aquel video).
+
+AJUSTES: 16:9, Veo 3.1 - Quality, 8 s, con audio; DESCARGA EN 1080p. 2-4 tomas.
+Las mismas condiciones que el video del salto que salio bien: camara fija.
+
+AL REVISAR LAS TOMAS
+  - Empieza y acaba exactamente en las referencias (pose, sitio, tamano).
+  - Corre de viejo, frena en 2-4 pasos cortos, se queda quieto y de pie; NO salta,
+    no se da la vuelta, no anda despues.
+  - Velocidad real, sin camara lenta. Camara fija.
+  - Capucha blanda, piernas y zapatos oscuros, sin sombra, sin piedras, sin polvo.
+
+### EL PROMPT
+Inicio = inicio.png (corriendo a la izquierda), fin = fin.png (de pie a la derecha)
+
+Locked-off static camera, side view, no camera movement at all: no pan, no zoom,
+no cuts. Flat pure chroma-key green background (#24D732) filling the whole frame,
+evenly lit: no floor, no ground line, no rocks, no props, absolutely no shadow
+anywhere, no dust, no particles, no text.
+
+A stylized low-poly 3D video game character, exactly the one in the first and
+last frames: an old pilgrim seen exactly from the side, moving to the right. He is
+not a real person: flat-shaded faceted geometry, hand-painted colours, no
+photorealism.
+
+Action, one continuous take, at natural real-time speed, no slow motion:
+- He comes running from the left exactly as in the first frame: the hurried run of
+  a tired old man, slightly bent forward, short strides, arms bent.
+- About the middle of the frame he starts to slow down: three or four shorter and
+  shorter steps, his arms lowering, his body straightening up, catching his breath.
+- He stops on the right with both feet together and stands completely still and
+  calm, upright, breathing, until the end, exactly in the pose, place, size and
+  angle of the last frame.
+He never jumps, never turns around, never walks again after stopping.
+His whole body and hood always stay inside the frame.
+
+His head is covered by the soft grey cloth hood of his cloak, exactly the shape of
+the first frame: a loose cloth hood with a low rounded top; it is NOT a pointed
+wizard hat and never grows, stiffens or stands up. Same character and same cloak
+throughout: the brown faceted patchwork cloak with exactly the same patches and
+colours as in the first frame, white beard. His legs and feet are dressed: thin
+legs in dark hose and soft dark leather shoes that cover his whole feet, one single
+very dark brown from the hem of the cloak to the tips of his shoes; normal small
+feet that never turn into skin or toes. Same colours and lighting as the first
+frame, crisp frames with no motion blur, soft matte texture, no flicker.
+Sound: only his footsteps slowing down, the rustle of the cloak and a tired breath
+at the end; no music, no voice.

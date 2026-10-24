@@ -9,7 +9,8 @@ que rehacer las tres.
 | archivo | que es |
 |---|---|
 | `assets/characters/peregrino/*.png` | las 17 hojas, 292x360 por casilla (340x400 el salto corriendo, 380x360 las cuatro de la caida) |
-| `resources/characters/peregrino_frames.tres` | el `SpriteFrames` con las 19 animaciones |
+| `resources/characters/peregrino_frames.tres` | el `SpriteFrames` de ORIGEN (donde las herramientas meten las animaciones); el juego ya no lo usa |
+| `resources/characters/peregrino_frames_limpio.tres` | el que usa el juego desde el 2026-10-22: el de origen limpio (`tools/anim/hojas/procesar.py`, ver su README) mas el bloque de correr nuevo (`raw/master_builder/anim/peregrino_correr_v2/integrar.py`). **Tras meter o cambiar una animacion en el de origen, pasar los dos** o el juego no la vera |
 | `scenes/dev/piloto_*.tscn` | pilotos de teclas para grabar al personaje sin nadie al teclado (ver al final) |
 | `scenes/characters/peregrino.tscn` | el personaje |
 | `scripts/characters/peregrino.gd` | la maquina de estados, y desde ella el sonido |

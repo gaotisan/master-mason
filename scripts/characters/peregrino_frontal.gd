@@ -82,6 +82,12 @@ const BASTON_ESPALDA_FICHA := "res://assets/characters/baston/baston_espalda.jso
 ## como las hojas HD.
 const BASTON_ESPALDA_HD := "res://assets/characters/baston/baston_espalda_hd.png"
 const BASTON_ESPALDA_HD_FICHA := "res://assets/characters/baston/baston_espalda_hd.json"
+## La misma al triple de la maestra (294 px de ancho), ampliada y limpia (2026-10-21,
+## raw/master_builder/anim/baston/baston_espalda_x3.png): la garra de la hoja frontal
+## escalada a 1,5x (peregrino_frontal_hd15_limpio.tres) va repintada con ella
+## (tools/anim/hojas/garra.py), asi que con esa hoja se dibuja esta.
+const BASTON_ESPALDA_HD3 := "res://assets/characters/baston/baston_espalda_hd3.png"
+const BASTON_ESPALDA_HD3_FICHA := "res://assets/characters/baston/baston_espalda_hd3.json"
 const FRONTAL := "res://assets/characters/baston/frontal.json"
 ## Con baston: la secuencia de un solo video (reposo, arranque, andar, vuelta y
 ## puentes; raw/master_builder/anim/peregrino_secuencia_frontal/secuencia.py).
@@ -133,12 +139,32 @@ const RECORTE_ACCION := {"sacar_baston_frente": Vector2i(0, 0), "guardar_baston_
 ## en 04_limpios: el pie que avanza deja de avanzar (de frente, lo mas bajo en
 ## la casilla; de espaldas, lo mas alto); casan con los golpes del audio de los
 ## videos de la secuencia (Pilgrim_walking_turning_full / _animation_sequence)
-## a un fotograma o dos. Faltan correr y las paradas.
+## a un fotograma o dos. Faltan las paradas del andar.
+## Las carreras (2026-10-19), con el audio de sus videos (Old_pilgrim_running_toward_
+## camera / Old_man_running_on_green), que trae un golpe limpio por pisada, y los
+## pies de _todos: de espaldas el golpe cae en el fotograma en que el pie que avanza
+## llega a lo mas alto; de frente, un fotograma despues de que el pie toque el
+## suelo, y va donde lo toca (como el andar). En fotogramas del video: de frente arranque 35 y 46,
+## bucle 91 y 101, parada 147, 157 y 166 (pies juntos); de espaldas 35 y 45, 85 y
+## 94, 151, 160 y 170 (ver CARRERAS en peregrino_secuencia_frontal/secuencia.py).
 const PISADAS := {
 	"andar_frente_cb": [8, 26], "andar_espalda_cb": [4, 25],
 	"arranque_frente_cb": [6], "arranque_espalda_cb": [15],
 	"andar_frente_sb": [0, 16], "andar_espalda_sb": [17, 35],
-	"arranque_frente_sb": [20], "arranque_espalda_sb": [12, 32]}
+	"arranque_frente_sb": [20], "arranque_espalda_sb": [12, 32],
+	"arranque_correr_frente_sb": [17, 28], "correr_frente_sb": [3, 13],
+	"parada_correr_frente_sb": [7, 17, 26],
+	"arranque_correr_espalda_sb": [17, 27], "correr_espalda_sb": [7, 16],
+	"parada_correr_espalda_sb": [5, 14, 24]}
+## dB sobre pasos_db (y pasos_correr_db) de algunas pisadas: la primera de la
+## carrera es el impulso, aun sin peso; al frenar, cada una mas floja, y la ultima
+## (los pies que se juntan) apenas se apoya.
+const PISADAS_DB := {
+	"arranque_correr_frente_sb": {17: -2.0}, "arranque_correr_espalda_sb": {17: -2.0},
+	"parada_correr_frente_sb": {17: -2.0, 26: -5.0}, "parada_correr_espalda_sb": {14: -2.0, 24: -5.0}}
+## Entre dos pisadas, al menos esto (s): los puentes del andar a la carrera entran
+## en una pisada del arranque poco despues de la ultima del andar (sonaban dos).
+const PISADA_MIN := 0.25
 const DOBLE_TOQUE := 0.30        # dos pulsaciones a menos: correr (como doble_pulsacion de peregrino.gd)
 
 ## Con el baston en la mano (true) o guardado a la espalda (false) al empezar.
@@ -158,12 +184,24 @@ const DOBLE_TOQUE := 0.30        # dos pulsaciones a menos: correr (como doble_p
 ## La escala al empezar.
 @export var escala_inicial := 1.0
 ## La pisada, la del suelo de cada escena (mejor un AudioStreamRandomizer con
-## varias); sin ella, mudo. Suena en cada fotograma de PISADAS, a pasos_db con la
+## varias); sin ella, solo el pie (pie_andar). Suena en cada fotograma de PISADAS, a pasos_db con la
 ## escala pasos_escala_ref y mas flojo cuanto mas lejos (la presion va con
 ## 1/distancia, y la distancia con 1/escala).
 @export var pasos: AudioStream
 @export var pasos_db := -19.0
 @export var pasos_escala_ref := 2.0
+## Corriendo pisa mas fuerte: se suma a pasos_db en el arranque, el bucle y la
+## parada de la carrera (+3, como las zancadas de la hojarasca de perfil). Solo
+## al suelo: los golpes del pie de correr ya vienen mas fuertes.
+@export var pasos_correr_db := 3.0
+## La capa del PIE (2026-10-19): el golpe del propio peregrino, el mismo en
+## todos los suelos, debajo del suelo de la escena (pasos). Un golpe al azar de
+## los sacados del audio de los videos (raw/master_builder/audio/pie/elegir.py),
+## al nivel de las pisadas de perfil. pie_db, sobre pasos_db: -5 es el
+## equilibrio de la hojarasca (el pie de perfil a -24 bajo las hojas a -19).
+@export var pie_andar: AudioStream = preload("res://resources/audio/pie_andar.tres")
+@export var pie_correr: AudioStream = preload("res://resources/audio/pie_correr.tres")
+@export var pie_db := -5.0
 ## El baston a la espalda dibujado aqui (baston.png), de ancho (x, de traves al
 ## palo) y de largo (y), visto de espaldas y visto de frente; en la vuelta pasa
 ## de uno a otro con el giro (giro_vuelta), y en lo demas segun de que lado
@@ -286,6 +324,8 @@ var _bola_antes := Vector2.ZERO   # en los enganches la bola va de donde estaba 
 var _garra_fundiendo := false     # y la garra pegada (andar_frente) se desvanece
 var _pisada: AudioStreamPlayer2D
 var _ultima_pisada := ""
+var _pisada_en := -10.0          # _reloj de la ultima pisada (PISADA_MIN)
+var _pie: AudioStreamPlayer2D
 var _a_perfil := false            # girar_a_perfil pedido: a la vuelta y parar en el perfil
 var _perfil_en := -1              # y en que fotograma de la vuelta (-1: el del perfil exacto)
 var _mat_madera: ShaderMaterial   # copias del material de la raiz para el baston a la espalda
@@ -297,6 +337,10 @@ var _uniformes: Array = []        # los que se copian de la raiz cada fotograma
 var _con_garra := false           # el material de la raiz tiene el uniforme `garra`
 var _engordar := 0.0              # el trazo del baston a la espalda (ver baston_espalda_engordar)
 var _textura_espaldas := false    # ya puesta la textura del baston a la espalda (_textura_del_palo)
+## La textura del palo que se dibuja y su ficha (donde va la bola); su escala sale del
+## ancho (la HD, 98 px, a 0,5). Cambiarla en marcha: poner_textura_palo().
+var _textura_palo := BASTON_ESPALDA_HD
+var _ficha_palo := BASTON_ESPALDA_HD_FICHA
 var _tex_baston: Texture2D        # la de baston.tscn (baston.png) y su offset
 var _offset_baston := Vector2.ZERO
 var _madera_hijos := {}           # hijos de Madera -> [posicion, escala] (ver _escala_madera)
@@ -520,6 +564,11 @@ func _ready() -> void:
 		_pisada.max_distance = 6000.0
 		_pisada.attenuation = 0.5
 		add_child(_pisada)
+	if pie_andar or pie_correr:
+		_pie = AudioStreamPlayer2D.new()
+		_pie.max_distance = 6000.0
+		_pie.attenuation = 0.5
+		add_child(_pie)
 	_colocar()
 
 
@@ -750,12 +799,23 @@ func _pisar() -> void:
 	if clave == _ultima_pisada:
 		return
 	_ultima_pisada = clave
-	if not _sprite.frame in PISADAS.get(anim, []):
+	if not _sprite.frame in PISADAS.get(anim, []) or _reloj - _pisada_en < PISADA_MIN:
 		return
+	_pisada_en = _reloj
+	var corre := anim.contains("correr")
+	var db := pasos_db + float(PISADAS_DB.get(anim, {}).get(_sprite.frame, 0.0)) \
+		+ linear_to_db(clampf(_escala / pasos_escala_ref, 0.03, 1.5))
 	if _pisada:
 		_pisada.position = _sprite.position
-		_pisada.volume_db = pasos_db + linear_to_db(clampf(_escala / pasos_escala_ref, 0.03, 1.5))
+		_pisada.volume_db = db + (pasos_correr_db if corre else 0.0)
 		_pisada.play()
+	var golpe := pie_correr if corre else pie_andar
+	if _pie and golpe:
+		if _pie.stream != golpe:
+			_pie.stream = golpe
+		_pie.position = _sprite.position
+		_pie.volume_db = db + pie_db
+		_pie.play()
 	piso.emit(_pies())
 
 
@@ -995,14 +1055,23 @@ func _textura_del_palo() -> void:
 	var bola_vieja := ORBE_EN_MADERA.y - (_offset_baston.y - _tex_baston.get_size().y / 2.0)
 	_corte_escala = _tex_baston.get_size().y / tam.y
 	_corte_bola = (b.y - bola_vieja) / tam.y
-	var esc := 0.5
+	var tex: Texture2D = load(_textura_palo)
+	var esc := tam.x / tex.get_size().x       # la HD (98 px) a 0,5; la de 294 px, a 1/6
 	_escala_madera(esc)
-	var fh: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BASTON_ESPALDA_HD_FICHA))
+	var fh: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(_ficha_palo))
 	for n in ["Madera", "MaderaDelante"]:
 		var sp := _bola.get_node(n) as Sprite2D
-		sp.texture = load(BASTON_ESPALDA_HD)
+		sp.texture = tex
 		sp.offset = ORBE_EN_MADERA / esc - (Vector2(fh["bola"][0], fh["bola"][1]) - sp.texture.get_size() / 2.0)
 	(_bola.get_node("MaderaDelante") as Node2D).scale = Vector2.ONE * esc
+
+
+## Otra textura para el palo (la de la garra repintada, con la hoja escalada), en marcha.
+func poner_textura_palo(textura: String, ficha: String) -> void:
+	_textura_palo = textura
+	_ficha_palo = ficha
+	_textura_espaldas = false
+	_textura_del_palo()
 
 
 ## La madera a escala s (0,5 con la textura al doble) sin que cambien sus hijos (la
