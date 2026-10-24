@@ -35,6 +35,13 @@ extends Node2D
 ##    cabeza se ladea y baja un pelo; la pared, pegada a la cara, se ve borrosa
 ##    de un vistazo y solo se enfoca si uno se queda mirandola. Al girar, una lente (ataud_giro.gdshader)
 ##    curva la imagen como una proyeccion cilindrica y deja estela.
+## CONTRA EL MAREO (2026-10-24; al usuario le mareaba el principio, pero le
+## gusta la respiracion y que el plano se mueva en reposo): durante el agobio el
+## marco del ataud, que es toda la periferia, va casi quieto (como la cabina en
+## realidad virtual: marco_quieto) y lo que se mueve es la sala de detras; luego
+## vuelve poco a poco a moverse con la cabeza. Agobio corto, sin rebotes ni
+## temblor; poco ladeo al girar. `movimiento` lo escala todo (para una opcion de
+## "reducir movimiento" en ajustes).
 ## La Camera2D es de la escena: aqui solo se le ponen offset, zoom y giro.
 ## El temblor del golpe de punch_effect.gd se sustituye por el de aqui (se
 ## procesa despues: process_priority).
@@ -62,13 +69,22 @@ const FUNDIDO_LADOS := 130.0
 const OJO_RIGIDEZ := 32.0
 ## Lo que se arrima la vista (zoom) durante el agobio: margen para mirar arriba
 ## y abajo, y algo de opresion.
-const ZOOM_AGOBIO := 0.045
+const ZOOM_AGOBIO := 0.02
 
 ## Base de cada llama, en px del fondo (para la calima).
 const LLAMAS := [Vector2(642, 711), Vector2(767, 798), Vector2(878, 658), Vector2(986, 743),
 		Vector2(1533, 815), Vector2(2315, 891), Vector2(2399, 815)]
 
 @export_group("Cabeza")
+## Cuanto se mueve la vista, todo junto (respiracion, vaiven, inquietud, ojos,
+## ladeo; 1 = lo pensado, 0 = quieta salvo los giros y el golpe).
+@export_range(0.0, 1.5) var movimiento := 1.0
+## Lo que el marco del ataud (la periferia) se queda quieto durante el agobio
+## mientras la sala se mueve detras (0 = se mueve con la cabeza, 1 = quieto del
+## todo). Marea mucho menos y la profundidad se ve igual (es el movimiento de
+## uno contra otro). En reposo, marco_quieto_reposo.
+@export_range(0.0, 1.0) var marco_quieto := 0.65
+@export_range(0.0, 1.0) var marco_quieto_reposo := 0.0
 ## Zoom de base: margen para que al mover la cabeza no asome el borde.
 @export var zoom_base := 1.02
 ## Cuanto sube y baja la cabeza al respirar, en px.
@@ -165,6 +181,9 @@ var _ojo_vel := Vector2.ZERO
 var _ojo_obj := Vector2.ZERO
 var _proxima_sacada := 0.0
 var _zoom_agobio := 0.0
+## Lo que el marco se queda quieto ahora (de marco_quieto en el agobio a
+## marco_quieto_reposo despues, poco a poco).
+var _marco := 0.65
 ## La desviacion de la cabeza en reposo (inquietud) y cuando cambia.
 var _inquieto := Vector2.ZERO
 var _proximo_inquieto := 6.0
@@ -336,11 +355,13 @@ func _empezar_agobio(espera: float) -> void:
 	_planear_agobio()
 
 
-## Una secuencia de agobio nueva, al azar: 3 o 4 miradas que casi siempre
-## cambian de lado, cada una con su amplitud, altura, brusquedad y pausa; los
-## ojos se adelantan a cada giro y rebuscan en cada pausa; tras la primera o
-## la segunda mirada intenta incorporarse; al final se rinde y vuelve a la
-## ventana, despacio.
+## Una secuencia de agobio nueva, al azar, siempre alternando de lado (nunca
+## dos veces seguidas al mismo sitio: el usuario, "deberia mirar nervioso tanto
+## a derecha como a izquierda"): primero las dos paredes, amplio; luego una o
+## dos ojeadas cortas y rapidas, como quien no se fia. Cada mirada con su
+## amplitud, altura y pausa; los ojos se adelantan a cada giro y rebuscan en
+## cada pausa; tras ver los dos lados intenta incorporarse; al final se rinde
+## y vuelve a la ventana, despacio.
 func _planear_agobio() -> void:
 	_rng.randomize()
 	_plan_cabeza.clear()
@@ -350,30 +371,32 @@ func _planear_agobio() -> void:
 	var t := 0.0
 	var lado := -1.0 if _rng.randf() < 0.5 else 1.0
 	var miradas := _rng.randi_range(3, 4)
-	var embestida := _rng.randi_range(0, 1)
+	# Despues de ver las dos paredes (la segunda mirada) o de la primera ojeada.
+	var embestida := _rng.randi_range(1, 2)
 	for i in miradas:
-		var y := _rng.randf_range(-40.0, 24.0)
-		_plan_cabeza.append([t, Vector2(lado * _rng.randf_range(0.35, 0.95) * giro_agobio, y),
-				_rng.randf_range(7.0, 11.0), _rng.randf_range(0.45, 0.7)])
-		_plan_ojos.append([t, Vector2(lado * _rng.randf_range(60.0, 110.0), y * 0.4)])
+		var amplia := i < 2
+		var y := _rng.randf_range(-22.0, 12.0)
+		var hasta := _rng.randf_range(0.6, 0.9) if amplia else _rng.randf_range(0.3, 0.5)
+		_plan_cabeza.append([t, Vector2(lado * hasta * giro_agobio, y),
+				_rng.randf_range(6.0, 7.5), _rng.randf_range(0.8, 0.9)])
+		_plan_ojos.append([t, Vector2(lado * _rng.randf_range(25.0, 45.0), y * 0.3)])
 		_plan_ojos.append([t + _rng.randf_range(0.12, 0.2), Vector2.ZERO])
-		var pausa := _rng.randf_range(0.3, 0.65)
-		var k := t + _rng.randf_range(0.25, 0.4)
+		var pausa := _rng.randf_range(0.45, 0.7) if amplia else _rng.randf_range(0.3, 0.45)
+		var k := t + _rng.randf_range(0.3, 0.4)
 		while k < t + pausa:
-			_plan_ojos.append([k, Vector2(_rng.randf_range(-80.0, 80.0), _rng.randf_range(-22.0, 18.0))])
-			k += _rng.randf_range(0.16, 0.34)
-		t += pausa + _rng.randf_range(0.0, 0.15)
+			_plan_ojos.append([k, Vector2(_rng.randf_range(-30.0, 30.0), _rng.randf_range(-8.0, 8.0))])
+			k += _rng.randf_range(0.25, 0.4)
+		t += pausa + _rng.randf_range(0.0, 0.1)
 		if i == embestida:
 			# Hacia la ventana y arriba, a incorporarse: se da con la tapa.
-			_plan_cabeza.append([t, Vector2(lado * 0.1 * giro_agobio, -18.0), 6.0, 0.8])
+			_plan_cabeza.append([t, Vector2(lado * 0.1 * giro_agobio, -10.0), 5.0, 0.9])
 			_plan_ojos.append([t, Vector2.ZERO])
 			_embestida_t = t + 0.12
 			t += 1.0
-		if _rng.randf() < 0.78:
-			lado = -lado
-	_plan_cabeza.append([t, Vector2.ZERO, _rng.randf_range(3.0, 4.0), 0.85])
+		lado = -lado
+	_plan_cabeza.append([t, Vector2.ZERO, _rng.randf_range(2.6, 3.2), 0.95])
 	_plan_ojos.append([t, Vector2.ZERO])
-	_plan_ojos.append([t + 0.5, Vector2(_rng.randf_range(-30.0, 30.0), _rng.randf_range(-10.0, 8.0))])
+	_plan_ojos.append([t + 0.5, Vector2(_rng.randf_range(-12.0, 12.0), _rng.randf_range(-4.0, 4.0))])
 	_plan_ojos.append([t + 1.1, Vector2.ZERO])
 	_agobio_dura = t + 1.6
 
@@ -404,8 +427,8 @@ func _embestida() -> float:
 ## La cabeza contra la tapa: temblor y dolor (sin sonido: al usuario no le
 ## gusto el golpe sordo).
 func _chocar_tapa() -> void:
-	_trauma = minf(_trauma + 0.6, 1.0)
-	_dolor = maxf(_dolor, 0.8)
+	_trauma = minf(_trauma + 0.4, 1.0)
+	_dolor = maxf(_dolor, 0.7)
 
 
 func _agobiado() -> bool:
@@ -700,11 +723,11 @@ func _process(delta: float) -> void:
 	if _ambiente and _ambiente.get("is_slowing"):
 		_fuerza_resp = move_toward(_fuerza_resp, 0.0, delta * 0.25)
 	var h := cos(_fase_respiracion() * TAU)
-	var vista := Vector2(0.0, -h * respiracion_px * _fuerza_resp)
+	var vista := Vector2(0.0, -h * respiracion_px * _fuerza_resp) * movimiento
 
 	# Vaiven lento.
 	vista += Vector2(_ruido.get_noise_2d(_t * 0.11, 0.0) * vaiven_px.x,
-			_ruido.get_noise_2d(0.0, _t * 0.09 + 40.0) * vaiven_px.y) * 1.6
+			_ruido.get_noise_2d(0.0, _t * 0.09 + 40.0) * vaiven_px.y) * 1.6 * movimiento
 
 	# Mirar a los lados: con las teclas, un muelle lleva la cabeza hacia donde
 	# se pide y, al soltar, de vuelta a la ventana. Tocar una tecla corta el
@@ -736,7 +759,7 @@ func _process(delta: float) -> void:
 			if _inquieto != Vector2.ZERO and _rng.randf() < 0.6:
 				_inquieto = Vector2.ZERO
 			else:
-				_inquieto = Vector2(_rng.randf_range(-1.0, 1.0) * inquietud_px.x, _rng.randf_range(-1.0, 1.0) * inquietud_px.y)
+				_inquieto = Vector2(_rng.randf_range(-1.0, 1.0) * inquietud_px.x, _rng.randf_range(-1.0, 1.0) * inquietud_px.y) * movimiento
 		if absf(eje) > 0.1:
 			objetivo = Vector2(eje * giro_teclas, 0.0)
 			w = giro_rapidez
@@ -747,7 +770,7 @@ func _process(delta: float) -> void:
 		# En reposo los ojos tambien saltan de vez en cuando.
 		if _t >= _proxima_sacada:
 			_proxima_sacada = _t + _rng.randf_range(0.9, 3.0)
-			_ojo_obj = Vector2.ZERO if _rng.randf() < 0.35 else Vector2(_rng.randf_range(-26.0, 26.0), _rng.randf_range(-10.0, 10.0))
+			_ojo_obj = Vector2.ZERO if _rng.randf() < 0.35 else Vector2(_rng.randf_range(-26.0, 26.0), _rng.randf_range(-10.0, 10.0)) * movimiento
 	var cabeza := _muelle(Vector2(_giro, _cabeza_y), Vector2(_giro_vel, _cabeza_y_vel), objetivo, w, amortigua, delta)
 	_giro = cabeza[0].x
 	_cabeza_y = cabeza[0].y
@@ -761,14 +784,14 @@ func _process(delta: float) -> void:
 	# mas deprisa gira.
 	var deprisa := clampf(_giro_vel / 1500.0, -1.0, 1.0)
 	vista.x += _giro * 0.045 + _ojo.x * 0.1
-	vista.y += _cabeza_y * 0.3 + absf(deprisa) * 9.0
+	vista.y += _cabeza_y * 0.3 + absf(deprisa) * 6.0 * movimiento
 	# Intento de incorporarse: hacia delante (zoom) y arriba.
 	var emb := _embestida()
-	vista.y -= emb * 18.0
+	vista.y -= emb * 10.0
 	_zoom_agobio = move_toward(_zoom_agobio, ZOOM_AGOBIO if _agobio_vivo() else 0.0, delta * 0.05)
 	# En el agobio, mas vaiven (nervios) y la respiracion mas deprisa.
 	if _agobiado():
-		vista += Vector2(_ruido.get_noise_2d(_t * 0.9, 500.0), _ruido.get_noise_2d(600.0, _t * 0.8)) * 6.0
+		vista += Vector2(_ruido.get_noise_2d(_t * 0.9, 500.0), _ruido.get_noise_2d(600.0, _t * 0.8)) * 2.0 * movimiento
 	if _ambiente and not _ambiente.get("is_slowing"):
 		var resp := _ambiente.get("breathing_node") as AudioStreamPlayer
 		if resp:
@@ -789,7 +812,7 @@ func _process(delta: float) -> void:
 	if viva:
 		var rel := _cucaracha.global_position - Vector2(1456.0 + _giro, 816)
 		if absf(rel.x) < 1300.0 and absf(rel.y) < 700.0:
-			objetivo_mirar = (rel / Vector2(1300, 700)).limit_length(1.0) * mirar_px
+			objetivo_mirar = (rel / Vector2(1300, 700)).limit_length(1.0) * mirar_px * movimiento
 			objetivo_foco = (1.0 - smoothstep(420.0, 800.0, rel.length())) * foco_maximo
 	_mirar = _mirar.lerp(objetivo_mirar, 1.0 - exp(-delta * 0.8))
 	_foco = move_toward(_foco, objetivo_foco, delta * 0.45)
@@ -809,17 +832,21 @@ func _process(delta: float) -> void:
 	_dolor *= exp(-delta * 4.0)
 	_empujon *= exp(-delta * 7.0)
 	var sacudida := _trauma * _trauma
-	var temblor := Vector2(_ruido.get_noise_2d(_t * 28.0, 100.0), _ruido.get_noise_2d(200.0, _t * 28.0))
-	vista += temblor * golpe_px * sacudida
+	var temblor := Vector2(_ruido.get_noise_2d(_t * 28.0, 100.0), _ruido.get_noise_2d(200.0, _t * 28.0)) * golpe_px * sacudida
+	vista += temblor
 
 	var zoom := zoom_base * (1.0 + respiracion_zoom * (1.0 - h) * 0.5 * _fuerza_resp + golpe_zoom * _empujon
-			+ _zoom_agobio + emb * 0.1)
+			+ _zoom_agobio + emb * 0.05)
 	if _camara:
-		_camara.offset = vista + Vector2(_giro, _cabeza_y) + _ojo
+		# El marco (la periferia) solo se lleva una parte de lo que se mueve la
+		# cabeza; la sala, en el shader, todo: el movimiento de uno contra otro, que
+		# es lo que da la profundidad, no cambia. El golpe si lo zarandea entero.
+		_marco = move_toward(_marco, marco_quieto if _agobio_vivo() else marco_quieto_reposo, delta * 0.2)
+		_camara.offset = (vista - temblor) * (1.0 - _marco) + temblor + Vector2(_giro, _cabeza_y) + _ojo
 		_camara.zoom = Vector2.ONE * zoom
 		# Giro del golpe y, al girar la cabeza, se ladea hacia donde gira.
 		_camara.rotation = deg_to_rad(_ruido.get_noise_2d(_t * 22.0, 300.0) * golpe_giro_grados * sacudida
-				+ deprisa * 1.3 + _ruido.get_noise_2d(_t * 0.07, 900.0) * 0.6)
+				+ (deprisa * 0.35 + _ruido.get_noise_2d(_t * 0.07, 900.0) * 0.35) * movimiento)
 
 	for s in _seguidores:
 		var n = s[0]
