@@ -95,6 +95,15 @@ pre.prompt .p{color:var(--mist)}
 .g-nav a{color:var(--mist);text-decoration:none;border-bottom:1px solid transparent}
 .g-nav a:hover{border-bottom-color:var(--mist)}
 .g-nav span{color:var(--muted);font-variant-numeric:tabular-nums}
+.tag.F{color:#d9b48a;border-color:#d9b48a55}
+.tag.C{color:#8fcf9a;border-color:#8fcf9a55}
+.tag.E{color:#e3c46f;border-color:#e3c46f55}
+.g-quote{margin:0;padding:2px 0 2px 14px;border-left:2px solid var(--ember);font-family:var(--f-disp);font-style:italic;font-size:17px;max-width:75ch}
+.g-quote cite{display:block;font-style:normal;font-family:var(--f-body);font-size:13px;color:var(--muted);margin-top:4px}
+.g-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px 28px}
+.g-cols h3{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500;margin:0 0 6px}
+.g-cols ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;display:grid;gap:4px}
+.g-cols b{color:var(--text);font-weight:500}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ember);color:#1b130c;padding:8px 16px;border-radius:4px;font-weight:500;font-size:14px}
 .empty{color:var(--muted);padding:40px 0;text-align:center}
 @media (prefers-reduced-motion:no-preference){.card{transition:opacity .2s}}
@@ -117,7 +126,10 @@ pre.prompt .p{color:var(--mist)}
         <div class="field"><label for="oref_I"><b>Iram</b> · el peregrino (--oref)</label><input type="text" id="oref_I" placeholder="URL de iram_tres_cuartos.png subida a Midjourney"></div>
         <div class="field"><label for="oref_IB"><b>Iram con bastón</b> · prompts que mencionan el bastón (vacío = Iram)</label><input type="text" id="oref_IB" placeholder="URL de iram_baston_pie.png"></div>
         <div class="field"><label for="oref_D"><b>Dóminus</b> · el anfitrión (--oref)</label><input type="text" id="oref_D" placeholder="aún no hay arte: genera uno y pégalo aquí"></div>
+        <div class="field"><label for="oref_P"><b>Argos</b> · el perro (--oref)</label><input type="text" id="oref_P" placeholder="cuando elijas uno, pega aquí su URL"></div>
         <div class="field"><label for="desc_I"><b>Descripción de Iram</b> · se añade a sus prompts</label><textarea id="desc_I"></textarea></div>
+        <div class="field"><label for="desc_D"><b>Descripción de Dóminus</b> · entra donde el prompt dice @dominus</label><textarea id="desc_D"></textarea></div>
+        <div class="field"><label for="desc_P"><b>Descripción de Argos</b> · entra donde el prompt dice @argos</label><textarea id="desc_P"></textarea></div>
       </div>
       <div class="grid2">
         <div class="field"><label for="suf_S">Coletilla Sueño</label><textarea id="suf_S"></textarea></div>
@@ -188,19 +200,38 @@ pre.prompt .p{color:var(--mist)}
 
 <script>
 const DEFAULTS = {
-  sref_S: "https://s.mj.run/6XAb0uAsa8M", sref_R: "", sref_A: "", sref_M: "", oref_I: "", oref_IB: "", oref_D: "",
+  sref_S: "https://s.mj.run/6XAb0uAsa8M", sref_R: "", sref_A: "", sref_M: "", oref_I: "", oref_IB: "", oref_D: "", oref_P: "",
+  desc_D: "a tall broad-shouldered old healer with a gaunt deeply wrinkled face, broad high forehead, long aquiline nose, long wavy grey hair falling over his shoulders, clean-shaven, restless bright eyes with a childish glint, a long dark toga with a rope belt",
+  desc_P: "a large shaggy Galician shepherd dog with a rangy wolf-like build, rough unkempt tawny coat with smoky grey tips, darker muzzle, semi-erect ears, warm honey-amber eyes and a bushy tail",
   desc_I: "the pilgrim wears a tall pointed grey hood, a long white beard hides most of his face, a long faceted patchwork cloak of rust, ochre, burgundy and slate panels reaching his ankles, thin dark legs, bare feet",
   suf_S: "painterly storybook illustration, layered misty silhouettes, muted palette of slate blue, mauve and dusty peach, grainy paper texture, soft diffuse light, melancholic and dreamlike",
   suf_R: "dark medieval horror, flickering candlelight, grimy aged textures, cobwebs, deep shadows, sepia and bruised violet tones, cinematic, worn vignette",
   suf_A: "2D game asset, isolated on a flat plain off-white background, clean readable silhouette, painterly texture, muted slate blue, mauve and peach palette",
   suf_M: "aged medieval manuscript page, iron gall ink and faded watercolor washes, Latin marginalia, foxing stains, crumbling vellum edges, scholarly illustration",
   integ: "the character is fully integrated into the scene, lit by the same light as the environment, the scene's color grade and atmospheric haze over him, soft cast shadow on the ground, same paper grain and brush texture on him as on the background",
-  mixI: "1", dirV: "sueno", keepSrefV: false,
+  mixI: "1", dirV: "sueno", keepSrefV: false, dirE: "facetas",
   sw: 200, ow: 75, stylize: "", chaos: "", extra: "", useSuf: true, v: 2
 };
 
 const CATS = [
  ["biblia","Biblia visual","Key art, pósters y estudios de color para fijar el tono antes de producir. Saca muchas de estas primero y quédate con las que definan el juego."],
+ ["d-busqueda","1 · Buscarlo","Lecturas abiertas del relato. No mires el estilo: busca el Dóminus que te diga algo por la silueta, la edad o la mirada."],
+ ["d-cara","2 · La cara del padre","Dóminus creció en el sueño hasta tener la cara de su padre, y con esa misma cara soñó a Iram. Frente ancha, nariz larga, melena: lo que los une al final."],
+ ["d-estilo","3 · En el idioma de Iram","Las mismas ideas con la imagen de Iram como referencia de estilo, para que los dos parezcan del mismo mundo. Rellena antes el campo Iram de arriba."],
+ ["d-ficha","4 · Fijarlo","Con un Dóminus elegido en el campo de arriba: hojas de giro y referencias sueltas sobre fondo claro, una figura por imagen, como las de Iram."],
+ ["d-escenas","5 · Probarlo en el guion","Sus momentos del guion, en orden de su escalera: protector, egoísta, amigo, carcelero, verdugo, y el final."],
+ ["d-anim","6 · Para animarlo","Fotogramas de inicio sobre croma verde para los vídeos, como se hizo con Iram. Pide el vídeo ya a la velocidad del juego."],
+ ["a-busqueda","1 · Buscarlo","El palleiro gallego en todas sus versiones: pelaje, cuánto desgreñado y cuánto detalle frente al resto del sueño."],
+ ["a-ficha","2 · Fijarlo","Con un Argos elegido en el campo de arriba: giro, perfiles, poses y tamaño junto a Iram."],
+ ["a-escenas","3 · Con Iram","Todo lo que hace en el guion: el primer vínculo, el palo, la luz roja, la guardia del cuerpo… hasta que ya no acude."],
+ ["a-anim","4 · Para animarlo","Fotogramas de inicio sobre croma verde, casi todos de perfil, que es como se mueve por el juego."],
+ ["e-mundo","1 · El mundo","Key art, horas del día, el mapa del nivel y las ideas que lo atan al relato: el oficio de constructor y el origen de la geometría."],
+ ["e-capas","2 · Capas de fondo","Cielo, lejanía, plano medio y primer término por separado, de lado, para montarlas en parallax en Godot."],
+ ["e-suelo","3 · Suelo y plataformas","Lo que se pisa y se trepa: bloques, cornisas, rampas, andamios, cuerdas y el trineo con el bloque para empujar."],
+ ["e-props","4 · Objetos","Obeliscos, colosos, la esfinge enterrada, sarcófagos, el cigoñal… sobre fondo liso para recortarlos."],
+ ["e-interior","5 · Dentro de la pirámide","Corredores, la gran galería, la cámara del sarcófago, la sala de columnas y la casa de los libros."],
+ ["e-seres","6 · Seres del libro","Lo que vive en las láminas: la esfinge, el escarabajo que empuja el sol, el escriba con cabeza de ibis, los cocodrilos."],
+ ["e-iram","7 · Iram en Egipto","El peregrino dentro del nivel, de perfil y con sus acciones: andar, trepar, empujar, clavar el báculo, flotar en la luz."],
  ["v-nada","La nada","Cómo interpreta Midjourney la nada y qué atmósfera le pone. Los de estilo Libre van sin referencias ni coletilla y con caos alto: es su lectura, no la tuya."],
  ["v-caida","La caída","Iram cae del cielo a la nada, sin bastón, aterriza sobre nada y se levanta."],
  ["v-pisadas","Lo que nace al pisar","Cada paso crea suelo: losas de luz que se hacen piedra y se deshacen, y otras ideas para la misma mecánica."],
@@ -225,7 +256,8 @@ const CATS = [
  ["recursos","Recursos de juego","Capas de parallax, texturas repetibles, props sueltos, iconos, marcos de diálogo y partículas."]
 ];
 
-// cat | ar | estilo (S sueño, R real, A recurso, M manuscrito) | oref (I, D o vacío) | título | prompt | nota | extra
+// cat | ar | estilo (S sueño, R real, A recurso, M manuscrito, N libre, F como Iram, C croma) | oref (I, D, P o vacío) | título | prompt | nota | extra
+// @dominus y @argos se cambian por su descripcion. Lo nuevo va al final para no mover los ids (los "hecho" van por id)
 const RAW = `
 v-nada|91:51|N||Nada pura|nothingness before the world was dreamed|Prompt mínimo: que Midjourney decida.|--chaos 60 --stylize 800
 v-nada|91:51|N||Una mente sin memoria|the void inside a mind that has forgotten everything, faint shapes trying to form and failing||--chaos 50 --stylize 700
@@ -596,6 +628,151 @@ recursos|1:1|A||Partículas: brasas|sprite sheet of glowing embers and sparks on
 recursos|91:51|A||Rayos de luz|soft volumetric light rays falling diagonally through darkness, on black, for overlay|
 recursos|91:51|M||Mapa del mundo|game world map on parchment: the valley, the endless forest, the house, the streams, the swamp, the city smear, compass rose|
 recursos|1:1|A||Ventanas iluminadas|sheet of separate lit windows from an impossible house: dormer, arched, round, crooked|
+d-busqueda|2:3|N||Según el relato, tal cual|a tall burly old man in a dark toga leaning on a wooden table and slurping soup, long wavy grey hair falling over his shoulders, thin wrinkled face, lively restless eyes with a childish glint that gives him a perverse air|Las palabras del relato sin referencias: la lectura de Midjourney. Lánzalo dos o tres veces.|--chaos 30
+d-busqueda|2:3|N||Curandero e inventor|portrait of an old forest healer and inventor among strange contraptions, alembics and bundles of herbs, tall and heavy-set, long wavy grey hair, gaunt wrinkled face, dark robe, the eyes of a mischievous child||--chaos 40
+d-busqueda|2:3|S||Complexión|full body portrait of an old healer in a dark toga with long wavy grey hair and a gaunt wrinkled face, his body {broad and burly like a woodcutter, very tall and gaunt like a heron, heavy and slightly stooped, lanky with long dangling arms}|El relato dice alto y fornido, pero de cara flaca: busca ese contraste.|
+d-busqueda|2:3|S||La mirada de niño|close portrait of an old man with a deeply wrinkled face and long wavy grey hair, his eyes {wide and delighted like a child at a fair, sly and eager like a child hiding a secret, sulky like a child denied a toy, fixed and hungry like a child listening to a story}|Lo que más le define: el brillo infantil en una cara vieja.|
+d-busqueda|2:3|S||La ropa|full body old healer with long wavy grey hair wearing {a dark monk-like toga with a rope belt, a dark scholar's gown with wide sleeves stained by herbs, a patched dark robe hung with pouches, vials and tools, a black robe far too big for him like a child wearing his father's clothes}|La última es una pista del final: es un niño con la cara de su padre.|
+d-busqueda|2:3|S||Barba o no|portrait of a gaunt old healer with long wavy grey hair and a broad forehead, {clean-shaven with hollow cheeks, a short cropped grey beard, a long forked grey beard}|Iram lleva barba blanca y los dos tienen la cara del padre: decide cuánto deben parecerse.|
+d-busqueda|2:3|N||Retrato de época|portrait of a tall old man with long wavy grey hair, a gaunt wrinkled face and strangely childish bright eyes, dark toga, in the manner of {Rembrandt chiaroscuro, a Goya black painting, a Flemish primitive panel, a Romanesque fresco}|Cuatro tradiciones para ver qué le sienta.|
+d-busqueda|91:51|S||Desde la puerta|seen from the threshold of a crowded cabin: a tall grey-haired host in a dark toga sits at the central wooden table watching the newcomer, a cauldron bubbling, an old alembic, a church organ, a huge pendulum ending in a censer drawing an arc of white smoke|«acodado en ella le observaba un hombre alto y fornido…» La primera vez que lo ve el jugador.|
+d-busqueda|2:3|S||Silueta en la puerta|backlit silhouette of a tall broad old man with long hair and a long robe standing in a doorway against firelight, only his eyes catching the light||
+d-busqueda|91:51|A||Lluvia de siluetas|character silhouette exploration sheet, twelve solid black silhouettes of a tall old healer and inventor with long hair and a long robe, varied proportions, sleeves, belts and props, game concept art|Para comprobar que se lee distinto del capuchón en pico de Iram.|
+d-busqueda|2:3|N||Un niño dentro|a tall grey-haired old healer in a dark toga sitting cross-legged on the floor, absorbed in playing with a small wooden toy horse, candlelight||--chaos 20
+d-busqueda|2:3|N||Marioneta|carved wooden marionette of a tall old healer with long grey hair and a dark toga, strings rising out of frame, glass eyes too bright and alive|El guion dice «el NPC facetado, como títere»: por si te interesa ese camino.|
+d-cara|2:3|R||El padre|portrait of a medieval forest healer and stargazer, broad high forehead, long aquiline nose, deep-set kind tired eyes, long wavy hair going grey, a humble hut with hanging herbs and star charts|La cara base: Dóminus creció en el sueño hasta tenerla, y con ella soñó a Iram.|
+d-cara|91:51|S||La misma cara, tres veces|three portraits side by side of the same face: a twelve-year-old boy, a gaunt grey-haired healer with long wavy hair, an old hooded pilgrim with a long white beard, the same broad forehead, long aquiline nose and deep-set eyes in all three|Dóminus niño, Dóminus e Iram. Al final Iram ve su propia cara en la de Dóminus.|
+d-cara|91:51|S||Dos perfiles|two profiles facing each other in the dark: an old hooded pilgrim with a long white beard and a gaunt grey-haired healer, the same long aquiline nose, a candle between them||
+d-cara|2:3|F||Cara facetada|close portrait of a gaunt old man, broad forehead, long aquiline nose, long wavy grey hair in angular locks, deep wrinkles as hard-edged planes, two tiny bright points of light in his eyes|La cara en el idioma de Iram.|
+d-cara|2:3|F||El brillo de los ojos|close portrait of a gaunt old healer with long grey hair, his eyes {two pinpoint white highlights, glowing faintly amber, pale blue and childlike, black with a wet shine}|Cuatro maneras de pintar la mirada de niño.|
+d-cara|2:3|S||Royéndose el labio|old healer with long grey hair biting his lower lip anxiously, forehead wrinkled, eyes darting|«arrugó la frente y se mordisqueó el labio inferior con angustia»|
+d-cara|2:3|S||La mueca|old healer with long grey hair making a grotesque grimace to hide a perfidious smile, candlelight from below|«una grotesca mueca a fin de disimular su pérfida sonrisa»|
+d-estilo|2:3|F||Dóminus como Iram|full body of a tall broad-shouldered old man standing, long wavy grey hair in angular locks, gaunt wrinkled face, a long dark toga made of {deep indigo and charcoal, oxblood and black, moss green and slate, ink blue and tarnished brass} faceted panels, plain off-white background|Cuatro togas contra la capa cálida de Iram.|
+d-estilo|2:3|F||Con sus cosas|full body tall old healer with long wavy grey hair and a dark faceted toga, holding {a big wooden ladle, a censer smoking on a chain, a rolled manuscript, a mortar and pestle}, plain off-white background||
+d-estilo|2:3|F||Pistas del niño|full body tall old healer with long wavy grey hair in a dark faceted toga, sleeves slightly too long, a small wooden toy horse hanging from his rope belt, ink stains on his fingers, plain off-white background|Detalles pequeños que solo se entienden al final.|
+d-estilo|91:51|F||Junto a Iram|an old hooded pilgrim in a pointed grey hood and long patchwork cloak standing beside a tall broad old healer with long wavy grey hair and a dark toga, the healer a head taller, both full body, plain off-white background|Escala: Dóminus es alto y fornido; Iram anda encorvado.|
+d-estilo|2:3|F||A la mesa|a tall old healer with long wavy grey hair and a dark faceted toga sitting behind a heavy wooden table facing the viewer, a bowl of soup and a candle, dark cluttered room|Así lo verá el jugador en las cenas en primera persona.|
+d-estilo|91:51|F||En el porche|a tall old healer with long grey hair and a dark faceted toga standing on the porch of an impossible crooked house at dusk, warm window light behind him, misty forest||
+d-ficha|91:51|F|D|Hoja de giro|character turnaround sheet of @dominus, front, three-quarter, side and back views, full body, consistent proportions, plain off-white background|Primer paso al fijarlo. Pega antes su imagen en el campo Dóminus.|
+d-ficha|2:3|F|D|Ref: tres cuartos|full body three-quarter view of @dominus standing still with arms relaxed, single figure, plain off-white background|Como iram_tres_cuartos: la que mejor lee Midjourney para --oref.|
+d-ficha|2:3|F|D|Ref: de frente|full body front view of @dominus standing still facing the viewer, single figure, plain off-white background||
+d-ficha|2:3|F|D|Ref: perfil|full body side profile of @dominus facing right, standing still, single figure, plain off-white background|Para las vistas laterales del juego.|
+d-ficha|2:3|F|D|Ref: de espaldas|full body back view of @dominus, long grey hair over the dark toga, single figure, plain off-white background||
+d-ficha|91:51|F|D|Expresiones|expression sheet of @dominus, head and shoulders: delighted like a child, sulking, tantrum, perfidious smile behind a grimace, anxious lip-biting, absorbed in reading, blank sleepwalker stare, quiet tenderness, plain off-white background||
+d-ficha|91:51|F|D|Manos|hand study sheet of @dominus: precise fingers setting down a spoon, gripping a big ladle, holding out a thin rod, rubbing ointment, a fist striking a table, plain off-white background|«las mismas manos precisas de la cuchara»|
+d-ficha|91:51|A||Su utilería|prop sheet: a wooden soup bowl and spoon, a big wooden ladle, a thin switch rod, a small wooden toy horse, herb pouches, a clay ointment jar, a brass censer on a chain||
+d-ficha|91:51|F|D|Todos en fila|lineup size chart: @dominus, an old hooded pilgrim in a patchwork cloak, a faceless boy of eight in rags with roots in his hair, a big shaggy dog, plain off-white background||
+d-escenas|91:51|S|D|«Se bienvenido, peregrino»|@dominus leaning on a wooden table slurping soup, looking up at the newcomer at the door, a huge pendulum ending in a censer swings with an arc of white smoke, a cluttered room of contraptions|La primera cena, ya con su cara.|
+d-escenas|91:51|S|D|La sopa para dos|first-person view across a wooden table: @dominus sits opposite, two bowls of soup served, a candle, his bright eyes fixed on the viewer|Las cenas se juegan en primera persona.|
+d-escenas|91:51|S|D|Le cura los pies|@dominus kneeling, gently rubbing a bitter ointment onto the tired feet of an old hooded pilgrim seated on a stool, a big shaggy dog lying nearby, firelight|Escalón 1-2: raro pero protector.|
+d-escenas|2:3|S|D|Empuja el péndulo|@dominus pushing a huge still pendulum with both hands in the morning light, like a child winding up a toy|Desde las leyes del movimiento hay que empujarlo cada mañana.|
+d-escenas|91:51|S|D|La caldera|@dominus stirring a large bubbling cauldron on a brazier with a big ladle, barely turning his head, steam, an old alembic whistling||
+d-escenas|91:51|S|D|El palo a tres|@dominus laughing as he throws a stick impossibly far into the forest, a big shaggy dog racing after it, an old hooded pilgrim watching, golden afternoon|La cumbre de la amistad.|
+d-escenas|91:51|S|D|La vara|@dominus holding out a thin rod across the table toward the viewer, face cold and curious, a faceless boy standing behind him among the junk|No disfruta: anota un resultado.|
+d-escenas|2:3|S|D|La cortina|@dominus at an upper window of a crooked house drawing a curtain closed, watching something below, night||
+d-escenas|91:51|S|D|Sentado en la trampilla|@dominus reading on a chair placed exactly over a trapdoor in the floor, a candle, thin light filtering up between the boards||
+d-escenas|91:51|S|D|Sonámbulo|@dominus sleepwalking with wide open unseeing eyes along a dark corridor, holding a candle, bands of moonlight across the floor||
+d-escenas|91:51|S|D|En el río seco|@dominus sitting on a stone in the middle of a dried-up riverbed, eyes closed, humming, cracked mud around him||
+d-escenas|91:51|S|D|El puñetazo|@dominus striking the table with his fist in a childish rage, lightning flashing in the window behind him|«acompasado por un trueno lejano»|
+d-escenas|91:51|S|D|Euclides|@dominus hunched over old geometry manuscripts at night, compass and diagrams, a long crack running up the wall behind him, dust falling|La casa empieza a crujir con las paralelas.|
+d-escenas|91:51|S|D|Bajo los escombros|the face of @dominus half buried in rubble and dust, lips still moving, a torn page of geometry beside his hand, an old hooded pilgrim standing over him|El final: Iram ve su propia cara.|
+d-anim|16:9|C|D|Sentado a la mesa, quieto|@dominus sitting behind a wooden table facing the camera, hands resting on the table, still, the whole table visible|Fotograma de inicio para el vídeo.|
+d-anim|16:9|C|D|Sorbiendo la sopa|@dominus sitting behind a wooden table facing the camera, lifting a wooden spoon of soup to his mouth||
+d-anim|16:9|C|D|De pie, quieto|@dominus standing still in three-quarter view, arms relaxed||
+d-anim|16:9|C|D|Andando de perfil|@dominus walking, side profile facing right, mid stride||
+d-anim|16:9|C|D|Andando hacia cámara|@dominus walking straight toward the camera, front view||
+d-anim|16:9|C|D|Sonámbulo|@dominus sleepwalking slowly, side profile facing right, eyes wide open, holding a candle in front of him||
+d-anim|16:9|C|D|Removiendo la caldera|@dominus standing in side profile facing right, stirring with a big wooden ladle held in both hands||
+d-anim|16:9|C|D|Empujando|@dominus in side profile facing right, leaning forward and pushing with both hands against something heavy out of frame|Para el péndulo.|
+d-anim|16:9|C|D|Lanzando|@dominus in side profile facing right, arm drawn back about to throw a stick, laughing||
+a-busqueda|91:51|N||Según el guion, tal cual|a large shaggy Galician shepherd dog, can de palleiro, unkempt rough coat, honey-colored eyes, standing at the top of a forest bank among ferns, wary, tail wagging|La lectura de Midjourney, sin referencias.|--chaos 30
+a-busqueda|2:3|S||Pelajes|full body portrait of a large shaggy Galician shepherd dog with a rough unkempt coat in {tawny wheat, wolf grey, black and tan, brindle, smoky sable}, honey-amber eyes, semi-erect ears|Los colores del palleiro. Los ojos miel destacan más sobre pelo oscuro.|
+a-busqueda|2:3|S||Cuánto desgreñado|full body large Galician shepherd dog with honey-amber eyes, coat {short and rough, medium shaggy with a thick ruff, long and matted like an old sheepdog}||
+a-busqueda|2:3|S||Ojos color miel|close portrait of the head of a big shaggy shepherd dog with warm honey-amber eyes looking up at someone with patient devotion, soft light||
+a-busqueda|2:3|F||Argos como Iram|full body large shaggy shepherd dog with honey eyes, fur in faceted angular planes, plain off-white background|El perro en el idioma de Iram.|
+a-busqueda|91:51|S||Lo más detallado del sueño|a big shaggy shepherd dog painted with far more detail than everything around him, every tuft of fur and whisker sharp, honey eyes, while the misty forest behind him dissolves into soft blurred shapes|Lo recordado tiene detalle: Argos podría verse más real que el resto.|
+a-busqueda|91:51|N||Un perro recordado|a child's beloved dog seen through memory, warm and vivid inside a grey dreamlike forest||--chaos 40
+a-busqueda|91:51|A||Siluetas de perro|silhouette exploration sheet, twelve solid black silhouettes of a large rustic shaggy shepherd dog, varied coat lengths, ears and tails, game concept art|Que se lea bien de perfil junto a Iram.|
+a-busqueda|91:51|R||El Argos real|a big shaggy dog alone outside a dark forest hut at night, the orange glow of a distant fire on the trees, waiting|El perro de verdad se quedó fuera la noche de la hoguera.|
+a-busqueda|91:51|R||Con el niño|a twelve-year-old boy and his big shaggy dog walking together along a forest path near a humble hut, late afternoon|El recuerdo del que sale Argos.|
+a-ficha|91:51|F|P|Hoja de giro|character turnaround sheet of @argos, front, three-quarter, side and back views, consistent proportions, plain off-white background|Pega antes su imagen en el campo Argos.|
+a-ficha|2:3|F|P|Ref: tres cuartos|full body three-quarter view of @argos standing still, single figure, plain off-white background||
+a-ficha|91:51|F|P|Ref: perfil|full body side profile of @argos facing right, standing still, single figure, plain off-white background|La que más servirá para el juego.|
+a-ficha|91:51|F|P|Poses|pose sheet of @argos: sitting, lying down, sniffing the ground, trotting, bounding, carrying a stick in his mouth, plain off-white background||
+a-ficha|91:51|F|P|Expresiones|expression sheet of the head of @argos: ears pricked, whining, barking, sneezing, panting happily, wary, plain off-white background||
+a-ficha|91:51|F|P|Con Iram, a escala|@argos standing beside an old hooded pilgrim in a pointed grey hood and patchwork cloak, the dog's back reaching above the pilgrim's knee, both full body in side view, plain off-white background|Fija el tamaño: grande, pero no un poni.|
+a-escenas|91:51|S|P|El perro del borde|@argos at the top of a forest bank among ferns, barking down at an old hooded pilgrim below, tail wagging but not coming closer|Cap. 1.10.|
+a-escenas|91:51|S|P|El primer vínculo|an old hooded pilgrim crouching very still with empty hands while @argos sniffs his hands for a long time, leaning in, soft forest light|Hay que agacharse y quedarse quieto.|
+a-escenas|91:51|S|P|Esperando en la puerta|@argos sitting by the door of an impossible crooked house at dusk, as if he had been waiting for hours, warm light in the windows||
+a-escenas|91:51|S|P|A los pies de la cama|@argos curled at the foot of a narrow bed in a small attic room at night, moonlight, an old pilgrim asleep||
+a-escenas|91:51|S|P|El palo|@argos bringing back a stick and dropping it at the feet of an old hooded pilgrim, forest clearing, afternoon|El único juego del juego.|
+a-escenas|91:51|S|P|Flota en la luz|@argos floating in a cone of red light, paddling his legs in the air, ears flying upward, surprised, forest at dusk|«flota pataleando con las orejas hacia arriba»|
+a-escenas|91:51|S|P|Ladra a su reflejo|@argos barking at his own reflection in a small forest stream||
+a-escenas|91:51|S|P|Gime|@argos whining with his tail low beside a stream while across the water a creature with an old woman's head and an ostrich body tilts its head|No ladra: gime.|
+a-escenas|91:51|S|P|Junto a lo importante|@argos sitting very straight beside a hidden cluster of red raspberries under the ferns, looking back over his shoulder|La llamada corta: olfatea y se sienta junto a lo importante.|
+a-escenas|91:51|S|P|Guarda el cuerpo|@argos lying alert beside the still body of an old hooded pilgrim lying on the forest floor, a staff planted upright in the ground beside them|Durante las posesiones.|
+a-escenas|91:51|S|P|El estornudo|@argos sneezing with a comical face beside a tree trunk with a freshly carved mason's mark, stone dust in the air|Lo vivo no se deja marcar.|
+a-escenas|91:51|S|P|En la mesa|@argos lying at the feet of an old hooded pilgrim at a wooden table, a tall grey-haired healer serving soup, firelight|«Se llama Argos».|
+a-escenas|91:51|S||Por los ojos de Argos|first-person view from a dog's eye level running through ferns in a misty forest, a hooded figure ahead|La posesión de Argos.|
+a-escenas|91:51|S|P|El tricéfalo|a melancholic three-headed version of @argos, the heads joined by crude stitches, sitting alone in grey rain at the edge of the forest|Cap. 9: lo que Dóminus le hace. Triste, sin sangre.|
+a-escenas|91:51|S||Ya no acude|an empty forest path at dusk, an old stick lying where a dog used to drop it, a hooded figure far away calling||
+a-anim|16:9|C|P|Andando de perfil|@argos walking, side profile facing right, mid stride|Fotograma de inicio para el vídeo.|
+a-anim|16:9|C|P|Trotando|@argos trotting, side profile facing right, tongue out||
+a-anim|16:9|C|P|Corriendo|@argos running at full gallop, side profile facing right, ears back||
+a-anim|16:9|C|P|Sentado|@argos sitting upright, side profile facing right, looking forward||
+a-anim|16:9|C|P|Tumbado|@argos lying down with his head up, side profile facing right||
+a-anim|16:9|C|P|Olfateando|@argos walking slowly with his nose to the ground, side profile facing right||
+a-anim|16:9|C|P|Ladrando|@argos standing and barking, side profile facing right||
+a-anim|16:9|C|P|Con el palo|@argos trotting with a stick in his mouth, side profile facing right||
+a-anim|16:9|C|P|Saltando|@argos leaping forward with all four legs off the ground, side profile facing right||
+a-anim|16:9|C|P|Hacia cámara|@argos walking straight toward the camera, front view||
+e-mundo|91:51|E|I|Key art|2D side-scrolling platformer key art, side view: an old hooded pilgrim with a staff walking along the bank of the Nile at dawn, pyramids and obelisks on the horizon, palm groves, a half-buried sphinx, monumental scale, the pilgrim small|La imagen que define el mundo. Lánzala con varias direcciones.|
+e-mundo|91:51|N||El Egipto de un libro del XVI|ancient Egypt as imagined in a 16th-century European book: obelisks, pyramids far too steep, a sphinx with a strange human face, hieroglyphs invented by the engraver, a dreamlike desert|Es un libro del padre: un Egipto soñado, no el de los arqueólogos.|--chaos 40
+e-mundo|91:51|N||Libre|the land of ancient Egypt seen in a dream||--chaos 60 --stylize 700
+e-mundo|91:51|E||Las horas del día|side-view panorama of ancient Egypt by the Nile for a 2D platformer, pyramids in the distance, palms and temples, {dawn mist, blazing white noon, golden sunset, moonlit night under a sky full of stars}|Cuatro luces para el mismo sitio.|
+e-mundo|91:51|E||La pirámide en obras|side view of a great pyramid under construction, long mud-brick ramps, workers hauling stone blocks on wooden sledges with ropes, scaffolding, dust in the warm light|El oficio de Iram: un nivel de cantero.|
+e-mundo|91:51|E||La cuerda de doce nudos|ancient Egyptian rope-stretchers measuring a flooded field with a knotted cord pulled into a perfect right triangle, stakes in the wet earth, the Nile behind them|De aquí nace la geometría según Heródoto. Enlaza con Euclides.|
+e-mundo|91:51|E||Mapa del nivel|level map concept for a 2D side-scrolling platformer through ancient Egypt, a long horizontal cross-section from left to right: riverbank, stone quarry, construction ramp, pyramid exterior, hidden tunnels and a burial chamber, side view|Para pensar el recorrido de un vistazo.|
+e-mundo|91:51|E||La pirámide por dentro|cross-section of a great pyramid seen from the side like a platformer level: ascending corridors, the grand gallery, the king's chamber, narrow shafts of sunlight, hidden passages||
+e-capas|91:51|E||Cielo|empty sky gradient over the desert for a parallax background, {dawn, noon, sunset, night with stars}, no ground, no objects|La capa más lejana.|
+e-capas|91:51|E||Lejos: pirámides y horizonte|far parallax layer for a 2D platformer: distant pyramids and low desert horizon in soft haze, side view, a single horizontal band isolated on a flat plain off-white background||
+e-capas|91:51|E||Medio: palmeras y templos|middle parallax layer for a 2D platformer: palm groves, mud-brick houses and a temple pylon with flags, side view, a single horizontal band isolated on a flat plain off-white background||
+e-capas|91:51|E||Medio: el Nilo|middle parallax layer: the Nile as a horizontal band of water with reeds and feluccas with triangular sails, side view, isolated on a flat plain off-white background||
+e-capas|91:51|E||Medio: dunas|middle parallax layer: rolling sand dunes with wind ripples and a few half-buried stones, side view, isolated on a flat plain off-white background||
+e-capas|91:51|E||Cerca: primer término|near foreground parallax layer: dark silhouettes of papyrus reeds, broken columns and fallen statues, side view, isolated on a flat plain off-white background|Va delante de Iram, oscuro y desenfocado.|
+e-capas|91:51|E||Fondo de templo|interior back wall of an Egyptian temple for a side-scrolling platformer, giant carved reliefs and rows of columns receding into darkness, torchlight, side view||
+e-capas|91:51|E||Fondo de tumba|interior back wall of a painted tomb corridor for a side-scrolling platformer, faded murals of gods and stars on the ceiling, oil lamp light, side view||
+e-suelo|91:51|E||Bloques y cornisas|2D platformer tileset sheet: ancient Egyptian sandstone blocks, ledges, steps, worn edges and broken corners, side view, pieces separated on a flat plain off-white background|Las piezas para construir el suelo.|
+e-suelo|1:1|E||Muro de sillares|seamless sandstone block wall with faint carved hieroglyphs, front view, even lighting|Repetible.|--tile
+e-suelo|1:1|E||Arena|seamless desert sand ground with wind ripples and small stones, top-down, even lighting|Repetible.|--tile
+e-suelo|91:51|E||Plataformas sueltas|platform pieces for a 2D platformer: a stone ledge, a cracked stone bridge, a fallen column to stand on, a block jutting from a wall, side view, separated on a flat plain off-white background||
+e-suelo|91:51|E||Rampa y andamio|mud-brick construction ramp and wooden scaffolding of beams and ladders for climbing, side view, isolated on a flat plain off-white background|Para trepar.|
+e-suelo|91:51|E||Cuerdas y palancas|platformer props: hanging ropes, wooden levers, stone counterweights, pulleys and a shaduf, side view, separated on a flat plain off-white background||
+e-suelo|91:51|E||El trineo con el bloque|a huge limestone block lashed onto a wooden sledge with ropes, wooden rollers beneath it, side view, isolated on a flat plain off-white background|Para empujar y tirar.|
+e-props|2:3|E||Obeliscos|{a standing granite obelisk with hieroglyphs, a broken obelisk lying in the sand, an unfinished obelisk still in the quarry}, side view, isolated on a flat plain off-white background||
+e-props|91:51|E||Colosos|a seated colossus of a pharaoh, worn and cracked, sand up to its knees, side view, isolated on a flat plain off-white background||
+e-props|91:51|E||La esfinge enterrada|the head of a giant sphinx emerging from the sand, its nose broken, side view, isolated on a flat plain off-white background||
+e-props|91:51|E||Sarcófagos|a stone sarcophagus with a carved lid and a painted wooden coffin shaped like a man, side view, isolated on a flat plain off-white background|Eco del sarcófago de bronce. Con cuidado.|
+e-props|91:51|E||Cosas del templo|prop sheet: canopic jars, offering table, oil lamps, a scarab amulet, papyrus scrolls, a measuring cubit rod, a plumb line and a mason's square, separated on a flat plain off-white background|Las tres últimas son herramientas de constructor.|
+e-props|91:51|E||Puertas y mecanismos|prop sheet: a stone door that slides down, a rotating stone wheel with symbols, a pressure plate, a hidden niche, side view, separated on a flat plain off-white background|Para los puzles.|
+e-interior|91:51|E||Corredor de la tumba|side view of a narrow descending tomb corridor for a 2D platformer, low ceiling, a pit in the floor, a rope hanging, oil lamp light||
+e-interior|91:51|E||La gran galería|side view of the grand gallery inside a pyramid, a steep corbelled corridor climbing upward into darkness, a single shaft of sunlight falling from above|La subida en la luz.|
+e-interior|91:51|E||Cámara del sarcófago|side view of the king's burial chamber deep inside a pyramid, a granite sarcophagus in the center, a thin beam of light from a shaft touching it, silence||
+e-interior|91:51|E||Sala de columnas|side view of a vast hypostyle hall of giant papyrus columns, beams of light slanting between them, deep shadows, dust in the air||
+e-interior|91:51|E||Cámara inundada|side view of a flooded underground chamber, the Nile water rising, steps disappearing into the water, reflections of torchlight||
+e-interior|91:51|E||La casa de los libros|side view of an ancient Egyptian library, a house of life with shelves of papyrus scrolls in niches, scribes' desks, lamp light|El conocimiento escondido, como el baúl de los legajos.|
+e-seres|91:51|E||La esfinge que pregunta|a living sphinx lying across a desert path, calm and enormous, its human face watching, waiting to ask a riddle, side view|Un guardián que no se vence peleando.|
+e-seres|91:51|E||El escarabajo del sol|a giant scarab beetle rolling a glowing sun across the dunes at dawn, side view||
+e-seres|2:3|E||El escriba ibis|a tall scribe with the head of an ibis writing on a papyrus scroll, measuring with a reed pen and a cubit rod, side view|Thot, el de la escritura y la medida.|
+e-seres|91:51|E||Cocodrilos del Nilo|crocodiles half submerged among the reeds of the Nile, only their eyes and backs showing, side view||
+e-iram|91:51|E|I|Andando por las dunas|side view of an old hooded pilgrim walking across the dunes with his staff, long shadow, pyramids far behind, 2D platformer composition||
+e-iram|91:51|E|I|Trepando la pirámide|side view of an old hooded pilgrim climbing the giant stepped blocks of a pyramid, each block taller than him, 2D platformer composition|Trepar ya es verbo base.|
+e-iram|91:51|E|I|Empujando el bloque|side view of an old hooded pilgrim pushing a huge stone block on a wooden sledge up a ramp, straining, 2D platformer composition||
+e-iram|91:51|E|I|El báculo clavado|side view of an old hooded pilgrim planting his staff into a crack in a stone ledge above a dark pit, a cone of light rising from its tip, 2D platformer composition||
+e-iram|91:51|E|I|Flotando en el pozo de luz|side view of an old hooded pilgrim floating weightless up a narrow shaft of sunlight inside a pyramid, cloak drifting, dust motes, 2D platformer composition|Flotar en la luz.|
+e-iram|91:51|E|I|Diminuto en la sala|side view of an old hooded pilgrim, tiny, walking between giant columns of a hypostyle hall, beams of light, 2D platformer composition||
+e-iram|91:51|E|I|Tormenta de arena|side view of an old hooded pilgrim leaning into a sandstorm, cloak whipping, the pyramid a faint shape behind the sand, 2D platformer composition||
+e-iram|91:51|E|I|Ante la esfinge|side view of an old hooded pilgrim standing small before the enormous face of a living sphinx at night, stars above, 2D platformer composition||
 `;
 const ITEMS = RAW.trim().split("\n").map((l,i)=>{
   let [cat,ar,style,oref,title,prompt,note,extra] = l.split("|");
@@ -615,13 +792,41 @@ let done = new Set(store.get("done", []));
 let activeCat = store.get("cat", "all");
 // v3: la seccion del vacio es nueva; abrir en ella la primera vez
 if (cfg.v3 !== true){ activeCat = "g:vacio"; cfg.v3 = true; store.set("cfg", cfg); store.set("cat", activeCat); }
-if (activeCat!=="all" && activeCat!=="g:vacio" && !CATS.some(c=>c[0]===activeCat)) activeCat = "all";
+// v4: los grupos de Dominus y Argos son nuevos; abrir en Dominus la primera vez
+if (cfg.v4 !== true){ activeCat = "g:dominus"; cfg.v4 = true; store.set("cfg", cfg); store.set("cat", activeCat); }
+// v5: el mundo de Egipto es nuevo; abrir en el la primera vez
+if (cfg.v5 !== true){ activeCat = "g:egipto"; cfg.v5 = true; store.set("cfg", cfg); store.set("cat", activeCat); }
 
-const FIELDS = ["sref_S","sref_R","sref_A","sref_M","oref_I","oref_IB","oref_D","desc_I","suf_S","suf_R","suf_A","suf_M","integ","mixI","sw","ow","stylize","chaos","extra"];
+// grupos: varias categorias con un prefijo comun, un chip propio y una entrada delante
+const GROUPS = [
+  {id:"g:dominus", pre:"d-", name:"Dóminus", intro:dominusIntro},
+  {id:"g:argos", pre:"a-", name:"Argos", intro:argosIntro},
+  {id:"g:egipto", pre:"e-", name:"Egipto · plataformas", intro:egiptoIntro},
+  {id:"g:vacio", pre:"v-", name:"Cap. 1 · El vacío", intro:vacioIntro}
+];
+const groupOf = cat => GROUPS.find(g=>cat.startsWith(g.pre));
+if (activeCat!=="all" && !GROUPS.some(g=>g.id===activeCat) && !CATS.some(c=>c[0]===activeCat)) activeCat = "all";
+
+const FIELDS = ["sref_S","sref_R","sref_A","sref_M","oref_I","oref_IB","oref_D","oref_P","desc_I","desc_D","desc_P","suf_S","suf_R","suf_A","suf_M","integ","mixI","sw","ow","stylize","chaos","extra"];
 function fillCfg(){ FIELDS.forEach(f=>{ $("#"+f).value = cfg[f]; }); $("#useSuf").checked = cfg.useSuf; }
 function readCfg(){ FIELDS.forEach(f=>{ cfg[f] = $("#"+f).value.trim(); }); cfg.useSuf = $("#useSuf").checked; store.set("cfg", cfg); render(); }
 
-const STYLE_NAME = {S:"Sueño", R:"Real", A:"Recurso", M:"Manuscrito", N:"Libre"};
+const STYLE_NAME = {S:"Sueño", R:"Real", A:"Recurso", M:"Manuscrito", N:"Libre", F:"Como Iram", C:"Croma", E:"Egipto"};
+// direcciones del mundo de Egipto (estilo E): la primera usa la imagen de Iram como --sref
+const DIRS_E = [
+  ["facetas","Facetas, como Iram","faceted geometric illustration like the pilgrim, flat angular color planes with hard edges, soft gouache texture, subtle paper grain, sun-bleached palette of ochre, sand, terracotta, lapis blue and turquoise, warm atmospheric haze, side view 2D game art"],
+  ["grabado","Lámina del libro del padre","hand-colored 16th-century copperplate engraving of Egypt as imagined by Renaissance scholars, fine hatching, faded watercolor washes, aged paper, slightly wrong and dreamlike proportions, side view 2D game art"],
+  ["mural","Pintura de tumba","ancient Egyptian tomb wall painting, flat mineral pigments on plaster, ochre, lapis and malachite, crisp dark outlines, cracked plaster texture, side view 2D game art"],
+  ["papiro","Papiro","painted papyrus vignette like the Book of the Dead, fibrous papyrus texture, black outlines, faded mineral colors, side view 2D game art"],
+  ["silueta","Silueta a contraluz","backlit silhouette layers, deep black foreground shapes, glowing hazy golden background, strong atmospheric depth, minimal and cinematic, side view 2D game art"],
+  ["papel","Diorama de papel","layered paper cut-out diorama, soft shadows between paper layers, handmade texture, warm desert colors, side view 2D game art"],
+  ["oro","Oro sobre laca","fine gold leaf lines on black lacquer, sacred glow, minimal ornament, side view 2D game art"],
+  ["sueno","Estilo Sueño (tu --sref)",""]
+];
+const DIR_E_MAP = Object.fromEntries(DIRS_E.map(d=>[d[0], d]));
+// F y C toman la imagen de Iram como estilo; C deja la figura sola sobre verde para los videos
+const SUF_F = "faceted painterly character art in the same style as the pilgrim, flat angular color planes with hard edges, soft gouache texture, subtle paper grain, muted earthy palette";
+const SUF_C = "game character animation start frame, full body entirely in frame, isolated on a flat uniform chroma key green background, no floor, no cast shadow, even soft light, crisp clean silhouette";
 
 // direcciones artisticas para explorar el capitulo del vacio
 const DIRS = [
@@ -646,25 +851,35 @@ const DIRS = [
 ];
 const DIR_MAP = Object.fromEntries(DIRS.map(d=>[d[0], d]));
 const isVacio = it => it.cat.startsWith("v-");
-const OREF_NAME = {I:"Iram", D:"Dóminus"};
+const OREF_NAME = {I:"Iram", D:"Dóminus", P:"Argos"};
 
 function permCount(t){ let n=1; (t.match(/\{[^}]*\}/g)||[]).forEach(m=>{ n *= m.split(",").length; }); return n; }
 
 function build(it){
-  let text = it.prompt;
+  // la descripcion va con coma detras cuando le sigue la accion ("@dominus leaning..." -> "..., leaning...")
+  const sub = (t, tok, d) => t.replace(new RegExp(tok+"(?= )","g"), d+",").replace(new RegExp(tok,"g"), d);
+  let text = sub(sub(it.prompt, "@dominus", cfg.desc_D || DEFAULTS.desc_D), "@argos", cfg.desc_P || DEFAULTS.desc_P);
+  const dirE = it.style==="E" ? (DIR_E_MAP[cfg.dirE] || DIRS_E[0]) : null;
+  const iramStyle = it.cat==="puente" || it.style==="F" || it.style==="C" || (dirE && dirE[0]==="facetas");
+  const studio = it.style==="A" || it.style==="C" || /plain off-white background/.test(it.prompt);
   if (it.oref==="I" && cfg.desc_I) text += ", " + cfg.desc_I;
-  if (it.oref && cfg.integ && it.style!=="A") text += ", " + cfg.integ;
+  if (it.oref && cfg.integ && !studio) text += ", " + cfg.integ;
   const dir = (isVacio(it) && it.style!=="N" && cfg.dirV && cfg.dirV!=="sueno") ? DIR_MAP[cfg.dirV] : null;
   if (dir) text += ", " + dir[2];
   else if (cfg.useSuf && it.cat==="puente") text += ", faceted geometric illustration, flat angular color planes with hard edges, subtle paper grain, atmospheric depth, melancholic and dreamlike";
+  else if (cfg.useSuf && it.style==="F") text += ", " + SUF_F;
+  else if (it.style==="C") text += ", " + SUF_C;
+  else if (dirE) text += ", " + (dirE[2] || (cfg.suf_S + ", side view 2D game art"));
   else if (cfg.useSuf && cfg["suf_"+it.style]) text += ", " + cfg["suf_"+it.style];
   const p = ["--ar " + it.ar];
-  let sref = it.style==="N" ? "" : (cfg["sref_"+it.style] || ((it.style==="A"||it.style==="M") ? cfg.sref_S : ""));
+  let sref = it.style==="N" ? "" : (cfg["sref_"+it.style] || ((it.style==="A"||it.style==="M"||it.style==="F") ? cfg.sref_S : ""));
   if (dir && !cfg.keepSrefV) sref = "";
   const mix = Number(cfg.mixI) || 0;
   if (mix && cfg.oref_I && !(dir && !cfg.keepSrefV) && (it.style==="S"||it.style==="A")) sref = sref ? `${sref}::3 ${cfg.oref_I}::${mix}` : cfg.oref_I;
-  // el puente lleva el estilo de Iram por delante del Sueño
-  if (it.cat==="puente" && cfg.oref_I) sref = (cfg.sref_S ? cfg.sref_S + "::1 " : "") + cfg.oref_I + "::3";
+  // el puente y los personajes "como Iram" llevan su estilo por delante del Sueño; el croma, solo el suyo (sin niebla)
+  if ((it.cat==="puente" || it.style==="F") && cfg.oref_I) sref = (cfg.sref_S ? cfg.sref_S + "::1 " : "") + cfg.oref_I + "::3";
+  if (it.style==="C") sref = cfg.oref_I || "";
+  if (dirE) sref = dirE[0]==="facetas" ? (cfg.oref_I || "") : dirE[0]==="sueno" ? cfg.sref_S : "";
   if (sref){ p.push("--sref " + sref); if (cfg.sw) p.push("--sw " + cfg.sw); }
   let oref = it.oref ? cfg["oref_"+it.oref] : "";
   if (it.oref==="I" && cfg.oref_IB && /staff/i.test(it.prompt)) oref = cfg.oref_IB;
@@ -674,7 +889,7 @@ function build(it){
   if (cfg.chaos) p.push("--chaos " + cfg.chaos);
   if (cfg.extra) p.push(cfg.extra);
   p.push("--v 7");
-  return {text, params: p.join(" "), full: text + " " + p.join(" "), missingOref: (it.oref && !oref) || (it.cat==="puente" && !cfg.oref_I)};
+  return {text, params: p.join(" "), full: text + " " + p.join(" "), iramStyle, missingIram: iramStyle && !cfg.oref_I, missingOref: (it.oref && !oref) || (it.cat==="puente" && !cfg.oref_I)};
 }
 
 function esc(s){ return s.replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
@@ -683,7 +898,7 @@ function visibleItems(){
   const q = $("#q").value.trim().toLowerCase();
   const hide = $("#hideDone").checked;
   return ITEMS.filter(it=>{
-    if (activeCat==="g:vacio"){ if (!isVacio(it)) return false; }
+    if (activeCat.startsWith("g:")){ const g = GROUPS.find(g=>g.id===activeCat); if (!g || !it.cat.startsWith(g.pre)) return false; }
     else if (activeCat!=="all" && it.cat!==activeCat) return false;
     if (hide && done.has(it.id)) return false;
     if (q && !(it.title+" "+it.prompt+" "+it.note).toLowerCase().includes(q)) return false;
@@ -693,9 +908,10 @@ function visibleItems(){
 
 function renderChips(){
   const total = ITEMS.reduce((a,it)=>a+permCount(it.prompt),0);
-  const chips = [["all","Todo",ITEMS.length],["g:vacio","Cap. 1 · El vacío",ITEMS.filter(isVacio).length]]
-    .concat(CATS.filter(c=>!c[0].startsWith("v-")).map(c=>[c[0],c[1],ITEMS.filter(i=>i.cat===c[0]).length]));
-  $("#chips").innerHTML = chips.map(([id,name,n])=>`<button class="chip ${id==="g:vacio"?"chip-g":""}" data-cat="${id}" aria-pressed="${activeCat===id}">${name}<span class="n">${n}</span></button>`).join("");
+  const chips = [["all","Todo",ITEMS.length]]
+    .concat(GROUPS.map(g=>[g.id, g.name, ITEMS.filter(i=>i.cat.startsWith(g.pre)).length]))
+    .concat(CATS.filter(c=>!groupOf(c[0])).map(c=>[c[0],c[1],ITEMS.filter(i=>i.cat===c[0]).length]));
+  $("#chips").innerHTML = chips.map(([id,name,n])=>`<button class="chip ${id.startsWith("g:")?"chip-g":""}" data-cat="${id}" aria-pressed="${activeCat===id}">${name}<span class="n">${n}</span></button>`).join("");
   $("#chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ activeCat=b.dataset.cat; store.set("cat",activeCat); renderChips(); render(); });
   $("#stat").dataset.total = total;
 }
@@ -706,10 +922,11 @@ function render(){
   const doneN = ITEMS.filter(i=>done.has(i.id)).length;
   $("#stat").textContent = `${vis.length} prompts · ${vis.reduce((a,i)=>a+permCount(i.prompt),0)} trabajos · ${doneN}/${ITEMS.length} hechos`;
   if (!vis.length){ $("#list").innerHTML = `<p class="empty">Nada coincide con la búsqueda.</p>`; return; }
-  let introDone = false;
+  const introDone = new Set();
   $("#list").innerHTML = byCat.map(([c,items])=>{
     let intro = "";
-    if (c[0].startsWith("v-") && !introDone){ introDone = true; intro = vacioIntro(byCat); }
+    const g = groupOf(c[0]);
+    if (g && !introDone.has(g.id)){ introDone.add(g.id); intro = g.intro(byCat); }
     return intro + `
     <section class="cat" id="${c[0]}">
       <div class="cat-head"><h2>${c[1]}</h2><span class="label">${items.length} prompts</span></div>
@@ -721,6 +938,8 @@ function render(){
     sel.onchange = ()=>{ cfg.dirV = sel.value; store.set("cfg", cfg); render(); };
     $("#keepSrefV").onchange = e=>{ cfg.keepSrefV = e.target.checked; store.set("cfg", cfg); render(); };
   }
+  const selE = $("#dirE");
+  if (selE) selE.onchange = ()=>{ cfg.dirE = selE.value; store.set("cfg", cfg); render(); };
   $("#list").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{ const it=ITEMS.find(i=>i.id===b.dataset.copy); copy(build(it).full, b); });
   $("#list").querySelectorAll("[data-done]").forEach(cb=>cb.onchange=()=>{ cb.checked? done.add(cb.dataset.done) : done.delete(cb.dataset.done); store.set("done",[...done]); render(); });
 }
@@ -742,10 +961,87 @@ function vacioIntro(byCat){
   </section>`;
 }
 
+function groupHead(pre, byCat, label, title, desc, body){
+  const subs = byCat.filter(([c])=>c[0].startsWith(pre));
+  const n = subs.reduce((a,[,its])=>a+its.length,0);
+  const hid = "g-" + pre.replace("-","");
+  return `<section class="grupo" aria-labelledby="${hid}">
+    <div class="label">${label} · ${n} prompts</div>
+    <h2 id="${hid}" class="g-title">${title}</h2>
+    <p class="cat-desc">${desc}</p>
+    ${body}
+    <nav class="g-nav" aria-label="Partes">${subs.map(([c,its])=>`<a href="#${c[0]}">${c[1]} <span>${its.length}</span></a>`).join("")}</nav>
+  </section>`;
+}
+
+function dominusIntro(byCat){
+  return groupHead("d-", byCat, "Personaje", "Dóminus",
+    "El anfitrión, y en el fondo el niño del sarcófago que sueña todo esto. Es el personaje más difícil: tiene que ser raro, dar pena y no parecer un villano. Aquí va de la búsqueda libre a los fotogramas para animarlo.",
+    `<blockquote class="g-quote">«…un hombre alto y fornido que vestía una toga oscura… Tenía una larga melena canosa que le caía ondulada sobre los hombros, su rostro era flaco y arrugado. Había algo en su mirada que no correspondía con su edad: era vívida e inquieta, y un brillo infantil en sus pupilas contrastaba con el semblante anciano y lo dotaba con un aire perverso.»<cite>El maestro constructor</cite></blockquote>
+    <div class="g-cols">
+      <div><h3>Cómo usarlo</h3><ul>
+        <li><b>1 y 2:</b> lánzalos sin pensar en el estilo y quédate con los Dóminus que te digan algo.</li>
+        <li><b>3:</b> rellena arriba el campo <b>Iram</b>; su imagen hace de estilo para que los dos casen.</li>
+        <li><b>4:</b> sube el elegido a Midjourney, pega su URL en el campo <b>Dóminus</b> y reescribe la <b>Descripción de Dóminus</b> con lo que ves. Entra sola donde pone @dominus.</li>
+        <li><b>5 y 6:</b> pruebas en el guion y fotogramas sobre croma para los vídeos.</li>
+      </ul></div>
+      <div><h3>Lo que hay que decidir al mirar</h3><ul>
+        <li><b>Barba o no.</b> Iram la lleva blanca y los dos tienen la cara del padre: al final Iram ve su propia cara en la de Dóminus.</li>
+        <li><b>Cuánto más alto que Iram</b> y cuánto fornido frente a la cara flaca.</li>
+        <li><b>El color de la toga</b> frente a la capa cálida de Iram.</li>
+        <li><b>La mirada:</b> cómo se pinta el brillo de niño.</li>
+        <li><b>Pistas del niño:</b> caballito de madera, mangas largas, ropa que le queda grande.</li>
+      </ul></div>
+    </div>`);
+}
+
+function argosIntro(byCat){
+  return groupHead("a-", byCat, "Personaje", "Argos",
+    "El perro del niño, lo único del sueño que es recuerdo de verdad. Acompaña a Iram desde el borde del talud hasta el capítulo 9.",
+    `<blockquote class="g-quote">«Un can de palleiro gallego, grande y desgreñado, de ojos color miel: el recuerdo del perro real del niño, y por eso lo más detallado del sueño.»<cite>Guion v4</cite></blockquote>
+    <div class="g-cols">
+      <div><h3>Cómo usarlo</h3><ul>
+        <li><b>1:</b> pelaje, cuánto desgreñado y cuánto detalle. Midjourney no conoce bien el palleiro: si sale un pastor alemán, quédate con el pelaje y la cara.</li>
+        <li><b>2:</b> pega el elegido en el campo <b>Argos</b> y ajusta su <b>Descripción</b>. Entra sola donde pone @argos.</li>
+        <li><b>3 y 4:</b> escenas del guion y fotogramas sobre croma, casi todos de perfil.</li>
+      </ul></div>
+      <div><h3>Lo que hay que decidir al mirar</h3><ul>
+        <li><b>Pelaje:</b> trigueño, lobero, negro y fuego… Los ojos miel destacan más sobre pelo oscuro.</li>
+        <li><b>¿Más real que el resto?</b> Lo recordado tiene detalle; Argos podría ser lo más nítido del bosque.</li>
+        <li><b>Tamaño</b> junto a Iram: grande, que se le pueda apoyar, pero no un poni.</li>
+      </ul></div>
+    </div>`);
+}
+
+function egiptoIntro(byCat){
+  return groupHead("e-", byCat, "Mundo · vista lateral", "Egipto",
+    "Un mundo de los libros del padre, y por eso de plataformas en 2D y de lado. No es el Egipto de los arqueólogos: es el que pintaba un libro del siglo XVI. Iram es un maestro constructor y aquí está en su casa: pirámides en obras, rampas, bloques que arrastrar y la cuerda de doce nudos con la que se medía la tierra tras la crecida del Nilo.",
+    `<blockquote class="g-quote">«…rememoré a mi padre y oí de nuevo sus enseñanzas, vi con claridad las ilustraciones de sus libros y sus tratados…»<cite>El maestro constructor</cite></blockquote>
+    <div class="g-controls">
+      <div class="field"><label for="dirE">Dirección artística</label>
+        <select id="dirE">${DIRS_E.map(d=>`<option value="${d[0]}" ${cfg.dirE===d[0]?"selected":""}>${d[1]}</option>`).join("")}</select>
+      </div>
+    </div>
+    <div class="g-cols">
+      <div><h3>Cómo usarlo</h3><ul>
+        <li><b>Primero el mundo (1):</b> elige una dirección, copia los visibles, lánzalos, cambia de dirección y repite. Quédate con la que case con Iram.</li>
+        <li><b>Facetas, como Iram</b> usa su imagen como <code>--sref</code>: rellena antes el campo Iram de arriba.</li>
+        <li><b>Capas (2):</b> salen por separado, de lado y sobre fondo liso, para montar el parallax: cielo, lejos, medio y cerca.</li>
+        <li><b>Suelo y objetos (3, 4):</b> piezas sueltas para construir el nivel; las texturas llevan <code>--tile</code>.</li>
+      </ul></div>
+      <div><h3>Lo que lo ata al relato</h3><ul>
+        <li><b>El oficio:</b> la pirámide en obras es un nivel de cantero; empujar y tirar del trineo con el bloque ya son acciones de Iram.</li>
+        <li><b>La geometría:</b> según Heródoto nació en Egipto, al volver a medir los campos tras la crecida. Enlaza con el misterio de Euclides.</li>
+        <li><b>El sarcófago:</b> la cámara del faraón es un eco del de bronce del prólogo. Úsalo con cuidado.</li>
+        <li><b>La luz:</b> los pozos de sol de la pirámide son buenos sitios para flotar en la luz.</li>
+      </ul></div>
+    </div>`);
+}
+
 function card(it){
   const b = build(it), n = permCount(it.prompt);
   const tags = [`<span class="tag ${it.style}">${STYLE_NAME[it.style]}</span>`, `<span class="tag">${it.ar}</span>`];
-  if (it.cat==="puente" && !it.oref) tags.push(`<span class="tag ${b.missingOref?"warn":""}">${b.missingOref?"Falta ref de Iram para el estilo":"Estilo de Iram"}</span>`);
+  if (b.iramStyle) tags.push(`<span class="tag ${b.missingIram?"warn":""}">${b.missingIram?"Falta ref de Iram para el estilo":"Estilo de Iram"}</span>`);
   if (it.oref) tags.push(`<span class="tag ${b.missingOref?"warn":""}">${b.missingOref?"Falta ref de ":"Ref "}${OREF_NAME[it.oref]}</span>`);
   if (n>1) tags.push(`<span class="tag perm">×${n}</span>`);
   if (it.extra.includes("--tile")) tags.push(`<span class="tag">repetible</span>`);
