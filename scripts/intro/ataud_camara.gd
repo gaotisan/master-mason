@@ -595,6 +595,14 @@ func _preparar_mano() -> void:
 	_mano_mat = ShaderMaterial.new()
 	_mano_mat.shader = MANO
 	_mano.material = _mano_mat
+	# La mano es lo mas cercano al ojo: por encima de todo lo del mundo. La nube
+	# del reventon de la cucaracha (spore_cloud.tscn, z 2) se pintaba encima del
+	# puno que la aplasta, como si lo atravesara; asi solo asoma por los bordes.
+	# El aviso de la tecla, que es interfaz, aun mas arriba.
+	(_golpe as CanvasItem).z_index = 3
+	var tutor := get_parent().find_child("InputTutor", false, false) as CanvasItem
+	if tutor:
+		tutor.z_index = 4
 	_mano_antes = _mano.global_position
 	var ap := _golpe.get_node_or_null("AnimationPlayer") as AnimationPlayer
 	if ap == null or not ap.has_animation("hit"):
