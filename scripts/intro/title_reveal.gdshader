@@ -44,9 +44,15 @@ uniform float candle_a_flicker : hint_range(0.0, 1.5) = 1.0;
 uniform float candle_b_flicker : hint_range(0.0, 1.5) = 1.0;
 uniform float candle_glow : hint_range(0.0, 1.0) = 0.0;
 // 1 encendida, 0 apagada. La llama esta pintada en la imagen, asi que al apagar
-// una vela hay que tapar el dibujo: una sombra pequena justo donde estaba.
+// una vela hay que quitar el dibujo: se resta el brillo que suma (ver abajo).
 uniform float candle_a_on : hint_range(0.0, 1.0) = 1.0;
 uniform float candle_b_on : hint_range(0.0, 1.0) = 1.0;
+// Brillo que la llama pintada le suma al panel, medido sobre el PNG (mediana por
+// anillos menos la del panel de alrededor; la del cuartil bajo da lo mismo, asi
+// que es luz sumada y se puede restar): amp * exp(-d / k), d en alto de imagen.
+// (a, b) = vela izquierda, vela derecha. Mas un nucleo estrecho comun (CORE_K).
+uniform vec2 candle_glow_amp = vec2(0.47, 0.49);
+uniform vec2 candle_glow_k = vec2(0.0135, 0.0165);
 
 // Foco superior (el "sol")
 uniform vec2 sun_pos = vec2(0.503, 0.0);
@@ -109,6 +115,13 @@ const vec3 LUMW = vec3(0.3, 0.59, 0.11);
 const vec3 CANDLE_COLOR = vec3(1.0, 0.62, 0.25);
 const vec3 SUN_COLOR = vec3(1.0, 0.80, 0.48);
 const vec3 GLINT_COLOR = vec3(1.0, 0.92, 0.7);
+// Vela apagada: nucleo de su brillo (16 px), punto que se cambia por panel (7 px)
+// y el color del panel junto a las velas, a su brillo de al lado una vez restada
+// la llama (0.205; el mediano del panel, 0.18, dejaba el punto mas oscuro).
+const float CORE_AMP = 0.06;
+const float CORE_K = 0.0098;
+const float WICK_K = 0.0043;
+const vec3 SNUFF_PANEL = vec3(0.335, 0.167, 0.058);
 // Calido, como el resto de la sala: con (0.66, 0.60, 0.50) el vaho lejos de las
 // velas se leia gris caqui, lo unico frio de toda la pantalla.
 const vec3 FOG_COLOR = vec3(0.70, 0.56, 0.40);
@@ -224,17 +237,29 @@ void fragment() {
 	float fuera = smoothstep(0.0, enfoque_ancho, bd);
 	dark = max(dark, fuera * enfoque * room_light * darkness);
 
-	// Vela apagada: se tapa la llama pintada con una sombra suave donde estaba.
-	// No llega a negro: asi, cuando el cristal ya esta apagado, la sombra se
-	// funde con el y no queda un punto mas oscuro que el resto.
-	float snuff = exp(-(da * da) / 0.0015) * (1.0 - candle_a_on)
-		+ exp(-(db * db) / 0.0015) * (1.0 - candle_b_on);
-	dark = max(dark, clamp(snuff, 0.0, 1.0) * 0.85 * darkness);
-
 	// El interior del cristal se apaga por su cuenta. El borde queda fuera de la
 	// sombra para que el marco siga dibujando el rectangulo.
 	float inside = 1.0 - smoothstep(-0.03, 0.0, bd);
 	dark = max(dark, inside * window_dark * darkness);
+
+	// Vela apagada: se le quita a la imagen el brillo que le suma la llama
+	// pintada, y queda el panel que hay debajo. Antes era una sombra redonda al
+	// 85 %, que solo colaba con el cristal ya a oscuras; con la sala aun
+	// encendida (la vela izquierda se apaga asi) se veia un circulo negro.
+	float ga_ex = candle_glow_amp.x * exp(-da / candle_glow_k.x)
+		+ CORE_AMP * exp(-(da * da) / (CORE_K * CORE_K));
+	float gb_ex = candle_glow_amp.y * exp(-db / candle_glow_k.y)
+		+ CORE_AMP * exp(-(db * db) / (CORE_K * CORE_K));
+	float g_off = ga_ex * (1.0 - candle_a_on) + gb_ex * (1.0 - candle_b_on);
+	float snuff = clamp(g_off / max(lum, 0.001), 0.0, 1.0);
+	// La sala sin la resta, para el panel del punto (que ya viene sin llama).
+	float dark_wick = dark;
+	dark = clamp(1.0 - (1.0 - dark) * (1.0 - snuff * darkness), 0.0, 1.0);
+	// El punto blanco del centro no se va restando: se cambia por el panel.
+	float wick = exp(-(da * da) / (WICK_K * WICK_K)) * (1.0 - candle_a_on)
+		+ exp(-(db * db) / (WICK_K * WICK_K)) * (1.0 - candle_b_on);
+	wick = clamp(wick, 0.0, 1.0) * darkness;
+	dark = mix(dark, 1.0, wick);
 
 	// Las letras del titulo se aplanan contra el panel. Estan talladas, asi que no
 	// basta con quitarles el brillo: se quedaria el relieve oscuro leyendose en
@@ -264,6 +289,8 @@ void fragment() {
 	float ga = exp(-(da * da) / 0.0022) * candle_a_flicker;
 	float gb = exp(-(db * db) / 0.0022) * candle_b_flicker;
 	add += CANDLE_COLOR * (ga + gb) * candle_glow * 0.22;
+	// El panel que tapa el punto de la llama apagada, con la luz que tenga la sala.
+	add += SNUFF_PANEL * wick * (1.0 - dark_wick);
 
 	// Un poco de calor del foco, solo donde el cuadro tiene sitio para mas luz:
 	// asi la parte alta se siente iluminada sin llegar a reventar a blanco.

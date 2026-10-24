@@ -112,8 +112,9 @@ extends Node2D
 ## Los tiempos de abajo son relativos a exit_start.
 ## Cuanto tardan las velas en ponerse nerviosas del todo.
 @export var unrest_time: float = 3.4
-## Se apagan cuando el cristal ya esta casi a oscuras: la llama esta pintada en
-## la imagen y solo se puede tapar, y eso solo cuela si alrededor no hay luz.
+## La llama esta pintada en la imagen: al apagarla el shader le resta el brillo
+## que suma al panel (title_reveal), asi que puede apagarse con la sala aun
+## encendida, como la izquierda, sin dejar un circulo negro donde estaba.
 @export var candle_a_out: float = 3.6
 @export var candle_b_out: float = 5.0
 @export var candle_out_time: float = 0.55
