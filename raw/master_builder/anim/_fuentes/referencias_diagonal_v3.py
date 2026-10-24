@@ -61,15 +61,23 @@ def pintada(nombre):
 	return Image.open(os.path.join(POSES, nombre + '.png')).convert('RGBA')
 
 
-_capas = {}
+_spec3 = importlib.util.spec_from_file_location('secuencia_v3', os.path.join(ANIM, 'peregrino_falso3d', 'secuencia_v3.py'))
+S3 = importlib.util.module_from_spec(_spec3)
+_spec3.loader.exec_module(S3)
 
 
-def a_la_espalda(im, cara):
-	"""El baculo en su correa, como lo pinta el juego en la diagonal."""
-	if cara not in _capas:
-		_capas[cara] = SEC.capa_del_baculo(cara)
-	capa, ancla = _capas[cara]
-	return SEC.con_baculo(im, capa, ancla)
+def a_la_espalda(im, cara, lado):
+	"""El baculo en su correa como en las animaciones de la diagonal (secuencia_v3.capa:
+	el que pinta el juego en ese angulo); el lado DER, espejado."""
+	c, (ax, ay) = S3.capa('no' if cara == 'lejos' else 'se')
+	if lado == 'der':
+		c = c[:, ::-1].copy()
+		ax = c.shape[1] - 1 - ax
+	return SEC.con_baculo(im, c, (ax, ay))
+
+
+def hay_cb(base, lado):
+	return base in ('espaldas', 'frente') or (base, lado) in (('tq_cerca', 'izq'), ('tq_lejos', 'der'))
 
 
 def pose(nombre, lado):
@@ -78,7 +86,11 @@ def pose(nombre, lado):
 	base, modo = nombre.rsplit('_', 1)
 	izq = lado == 'izq'
 	if modo == 'cb':
-		assert izq or base in ('espaldas', 'frente'), 'con baculo del lado derecho: tanda LUEGO'
+		# 2026-10-24: la vuelta con baculo del frontal gira por la DERECHA: su tres cuartos de
+		# frente (cb 6) mira abajo a la derecha = el camino IZQ acercandose; su tres cuartos
+		# de espaldas (cb 30) mira arriba a la DERECHA = el camino DER alejandose. Las otras
+		# dos (IZQ alejandose, DER acercandose) no existen aun: salen de los SACAR sin final.
+		assert hay_cb(base, lado), 'con baculo sin pose: tanda LUEGO'
 		return pintada({'tq_lejos': 'tq_lejos_mano_v3', 'tq_cerca': 'tq_cerca_mano_v3',
 						'espaldas': 'espalda_mano', 'frente': 'frente_mano'}[base])
 	if base == 'espaldas':
@@ -90,7 +102,7 @@ def pose(nombre, lado):
 	else:
 		im = limpio('vuelta_sb_015', espejo=not izq)  # el 15 mira abajo a la derecha
 	if modo == 'bg':
-		im = a_la_espalda(im, 'lejos' if base in ('tq_lejos', 'espaldas') else 'cerca')
+		im = a_la_espalda(im, 'lejos' if base in ('tq_lejos', 'espaldas') else 'cerca', lado)
 	return im
 
 
@@ -329,19 +341,25 @@ def videos():
 			 ('10', 'de_la_diagonal_a_frente', [('inicio', 'tq_cerca', 'lejos'), ('fin', 'frente', 'cerca')])]
 	for n, acc, refs in pasos:
 		v['1_sin_baculo/%s_%s' % (n, acc)] = ('izq', 'sb', acc, [(a, p + '_sb', s) for a, p, s in refs], None)
-	for n, acc, refs in pasos:
-		if acc.startswith('correr'):
-			continue      # con el baculo en la mano no se corre (como en el frontal)
-		v['2_con_baculo_izq/%s_%s' % (n, acc)] = ('izq', 'cb', acc, [(a, p + '_cb', s) for a, p, s in refs], None)
-		v['4_LUEGO_con_baculo_der/%s_%s' % (n, acc)] = ('der', 'cb', acc, [(a, p + '_cb', s) for a, p, s in refs], 'luego')
+	# con el baculo en la mano: andar por cada lado (las vueltas, en el sitio: no hacen falta)
+	cb = [('izq', '02', 'andar_acercandose', [('inicio', 'tq_cerca', 'lejos'), ('fin', 'tq_cerca', 'cerca')]),
+		  ('der', '01', 'andar_alejandose', [('inicio', 'tq_lejos', 'cerca'), ('fin', 'tq_lejos', 'lejos')]),
+		  ('izq', '01', 'andar_alejandose', [('inicio', 'tq_lejos', 'cerca'), ('fin', 'tq_lejos', 'lejos')]),
+		  ('der', '02', 'andar_acercandose', [('inicio', 'tq_cerca', 'lejos'), ('fin', 'tq_cerca', 'cerca')])]
+	for lado, n, acc, refs in cb:
+		listo = all(hay_cb(p, lado) for _, p, _ in refs)
+		carpeta = ('2_con_baculo/%s_%s_%s' if listo else '4_LUEGO_con_baculo/%s_%s_%s') % (lado, n, acc)
+		v[carpeta] = (lado, 'cb', acc, [(a, p + '_cb', s) for a, p, s in refs], None if listo else 'luego')
+	# sacar y guardar parado: con final donde hay pose con baculo de ese lado y angulo; si no,
+	# sacar SIN final (de su toma buena sale la pose que falta) y guardar, luego
 	for lado in ('izq', 'der'):
 		for cara in ('lejos', 'cerca'):
 			tq = 'tq_' + cara
-			hay_cb = lado == 'izq'
-			v['3_sacar_guardar/%s_sacar_%s' % (lado, cara)] = (lado, 'bg', ('sacar', cara, hay_cb),
-				[('inicio', tq + '_bg', 'centro')] + ([('fin', tq + '_cb', 'centro')] if hay_cb else []), None)
-			v[('3_sacar_guardar/%s_guardar_%s' if hay_cb else '4_LUEGO_con_baculo_der/%s_guardar_%s') % (lado, cara)] = (
-				lado, 'cb', ('guardar', cara), [('inicio', tq + '_cb', 'centro'), ('fin', tq + '_bg', 'centro')], None if hay_cb else 'luego')
+			ok = hay_cb(tq, lado)
+			v['3_sacar_guardar/%s_sacar_%s' % (lado, cara)] = (lado, 'bg', ('sacar', cara, ok),
+				[('inicio', tq + '_bg', 'centro')] + ([('fin', tq + '_cb', 'centro')] if ok else []), None)
+			v[('3_sacar_guardar/%s_guardar_%s' if ok else '4_LUEGO_con_baculo/%s_guardar_%s') % (lado, cara)] = (
+				lado, 'cb', ('guardar', cara), [('inicio', tq + '_cb', 'centro'), ('fin', tq + '_bg', 'centro')], None if ok else 'luego')
 	return v
 
 
@@ -400,14 +418,16 @@ CARPETAS Y ORDEN
      05-06  correr alejandose / acercandose                             si en Dominus se corre
      07-10  esquinas con un plano recto de espaldas o de frente         OPCIONALES: si en
             esa esquina hay corte de camara, no hacen falta
-  2_con_baculo_izq       lo mismo con el baculo en la mano (sin correr)
-  3_sacar_guardar        sacar y guardar parado en diagonal, de tres cuartos de espaldas
-                         (lejos) y de frente (cerca), los dos lados. Los dos de SACAR del
-                         lado DER van SIN fotograma final: no hay aun una pose con baculo
-                         de ese lado. De la toma buena saco la pose final y con ella
-                         preparo la tanda 4.
-  4_LUEGO_con_baculo_der DESPUES de los sacar del lado DER: prompts listos, las imagenes
-                         las pongo yo con esas tomas (ver FALTA.txt).
+  2_con_baculo           con el baculo en la mano (2026-10-24, corregido): solo hay pose con
+                         baculo de dos angulos, uno de cada camino (la vuelta con baculo del
+                         frontal gira por la derecha): IZQ acercandose (02, HECHO) y DER
+                         alejandose (01, HECHO). Las vueltas: en el sitio, no hacen falta.
+  3_sacar_guardar        sacar y guardar parado en diagonal. izq_sacar/guardar_cerca y
+                         der_sacar/guardar_lejos con inicio y fin. izq_sacar_lejos y
+                         der_sacar_cerca SIN fotograma final (no hay pose con baculo de ese
+                         lado y angulo): de su toma buena saco la pose y con ella la tanda 4.
+  4_LUEGO_con_baculo     DESPUES de esos dos sacar: IZQ alejandose, DER acercandose y sus
+                         guardar. Prompts listos; las imagenes las pongo yo (FALTA.txt).
 
 AJUSTES: 16:9, Veo 3.1 - Quality, 8 s, con audio; DESCARGAR EN 1080p (upscale).
 2-4 tomas de cada uno.
